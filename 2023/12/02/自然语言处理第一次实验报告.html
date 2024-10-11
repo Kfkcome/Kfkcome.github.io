@@ -1,0 +1,1683 @@
+<!DOCTYPE html><html lang="zh-Hans">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>自然语言处理第一次实验报告 - Ennis's Blog</title>
+
+<meta name="description" content="自然语言处理第一次实验报告班级：计科2102          姓名：高星杰        学号：2021307220712正向、逆向分词在做正向和逆向分词实验之前我们必须要了解什么是正向分词，什么是逆向分词，以及一些常用的分词算法的原理。正向分词和逆向分词是中文分词中常见的两种基本方法，它们分别从文本的开头和结...">
+<link rel="canonical" href="http://localhost:4000/2023/12/02/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Willing to be a question, willing to be an answer.
+" href="/">Ennis's Blog</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86">自然语言处理</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=nlp">nlp</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">实验报告</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2023年 12月02日</span>
+            </li></ul></div><div class="article__header"><header><h1>自然语言处理第一次实验报告</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2023-12-2-自然语言处理第一次实验报告.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">自然语言处理第一次实验报告班级：计科2102          姓名：高星杰        学号：2021307220712正向、逆向分词在做正向和逆向分词实验之前我们必须要了解什么是正向分词，什么是逆向分词，以及一些常用的分词算法的原理。正向分词和逆向分词是中文分词中常见的两种基本方法，它们分别从文本的开头和结尾开始，按照字典或规则逐个匹配，确定文本中的词语边界。以下是正向和逆向分词常见的...</p></div></div>
+              </div>
+            </div><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="自然语言处理第一次实验报告"><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2023-12-02T00:00:00+08:00">
+    <meta itemprop="keywords" content="自然语言处理,nlp,实验报告"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><h1 id="自然语言处理第一次实验报告">自然语言处理第一次实验报告</h1>
+
+<p>班级：计科2102          姓名：高星杰        学号：2021307220712</p>
+
+<h2 id="正向逆向分词">正向、逆向分词</h2>
+
+<p>在做正向和逆向分词实验之前我们必须要了解什么是正向分词，什么是逆向分词，以及一些常用的分词算法的原理。</p>
+
+<p>正向分词和逆向分词是中文分词中常见的两种基本方法，它们分别从文本的开头和结尾开始，按照字典或规则逐个匹配，确定文本中的词语边界。以下是正向和逆向分词常见的算法：</p>
+
+<h4 id="正向分词算法">正向分词算法：</h4>
+
+<ol>
+  <li><strong>最大正向匹配法（MM）</strong>：
+    <ul>
+      <li>从文本的开头开始，选择字典中最长的词作为分词的候选词，然后将文本指针向后移动，重复这个过程直至分词完成或者文本结束。</li>
+    </ul>
+  </li>
+  <li><strong>正向最大概率分词（Forward Maximum Probability Segmentation）</strong>：
+    <ul>
+      <li>结合概率模型和最大正向匹配，利用统计语言模型或者机器学习模型计算每个词在文本中出现的概率，然后选择概率最高的词作为分词结果。</li>
+    </ul>
+  </li>
+  <li><strong>正向最长路径分词（Forward Longest Path Segmentation）</strong>：
+    <ul>
+      <li>基于图论的思想，将文本中的每个字看作图中的节点，根据字典中词的组合构建一个有向图，通过寻找最长路径来确定最可能的分词结果。</li>
+    </ul>
+  </li>
+  <li><strong>DAG（有向无环图）分词</strong>：
+    <ul>
+      <li>将文本构建成一个有向无环图，图中的节点为文本中的每个字符或者词的起始位置，边代表可能的词组合，通过动态规划或者其他算法求解最佳路径，得到分词结果。</li>
+    </ul>
+  </li>
+</ol>
+
+<h4 id="逆向分词算法">逆向分词算法：</h4>
+
+<ol>
+  <li><strong>最大逆向匹配法（RMM）</strong>：
+    <ul>
+      <li>从文本的结尾开始，选择字典中最长的词作为分词的候选词，然后将文本指针向前移动，重复这个过程直至分词完成或者文本开头。</li>
+    </ul>
+  </li>
+  <li><strong>逆向最大概率分词（Reverse Maximum Probability Segmentation）</strong>：
+    <ul>
+      <li>类似于正向最大概率分词，但是是从文本结尾开始向开头匹配，计算每个词在文本中出现的概率，选择概率最高的词作为分词结果。</li>
+    </ul>
+  </li>
+  <li><strong>逆向最长路径分词（Reverse Longest Path Segmentation）</strong>：
+    <ul>
+      <li>与正向最长路径分词类似，但是是从文本结尾开始构建有向图，寻找最长路径确定最可能的分词结果。</li>
+    </ul>
+  </li>
+</ol>
+
+<p>这些算法在实际中根据具体需求和文本特点选择，最大匹配法和最大概率分词是最常用的基础算法，而其他方法则可能在特定场景下有更好的表现。</p>
+
+<p>大概了解了这两种分词算法后我们可以各选择一种进行实现，本次实验选取的是：<strong>正向最大匹配</strong>和<strong>逆向最大匹配</strong>。</p>
+
+<p>下面将具体的对这两种算法的实现过程进行讲解。</p>
+
+<p>在进行算法实现之前我们要先明确我们有什么： <em>’ 96年人民日报语料 ‘、’词典’</em></p>
+
+<p>我们要使用 ‘词典’ 对 ‘96年人民日报语料’ 进行划分，并且无论是正向还是逆向匹配算法我们都是使用贪心思想来处理的。</p>
+
+<h3 id="正向最大匹配分词">正向最大匹配分词</h3>
+
+<p>所谓正向最大匹配算法就是以正向对词或句子进行匹配，并且匹配要从最大长度的词开始到最小长度的词，匹配到则划分为一个词。</p>
+
+<p>下面是对代码的逐行解释：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">fwd_mm_seg</span><span class="p">(</span><span class="n">wordDict</span><span class="p">,</span> <span class="n">maxLen</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sh">"""</span><span class="s">正向最大匹配分词
+    @param wordDict:    词表
+    @param maxLen:      词最大长度（自定义）
+    @param str:         待分词的字串
+    @return:            分词序列（List）
+    </span><span class="sh">"""</span>
+    <span class="n">wordList</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># 定义的分词后的结果，也就是最终的分词序列
+</span>    <span class="n">segStr</span> <span class="o">=</span> <span class="nb">str</span>  <span class="c1"># 定义需要分词的字串
+</span>    <span class="n">segStrLen</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="n">segStr</span><span class="p">)</span>  <span class="c1"># 获得需要分词的字串的长度
+</span>    <span class="k">while</span> <span class="n">segStrLen</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># 正向遍历需要分词的字串
+</span>        <span class="k">if</span> <span class="n">segStrLen</span> <span class="o">&gt;</span> <span class="n">maxLen</span><span class="p">:</span>  <span class="c1"># 如果需要分词的字串长度大于最大词长，则按最大词长分词
+</span>            <span class="n">wordLen</span> <span class="o">=</span> <span class="n">maxLen</span>  <span class="c1"># 词长为最大词长
+</span>        <span class="k">else</span><span class="p">:</span>  <span class="c1"># 如果需要分词的字串长度小于最大词长，则按字串长度分词
+</span>            <span class="n">wordLen</span> <span class="o">=</span> <span class="n">segStrLen</span>  <span class="c1"># 词长为字串长度
+</span>        <span class="n">subStr</span> <span class="o">=</span> <span class="n">segStr</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">wordLen</span><span class="p">]</span>  <span class="c1"># 取字串的前wordLen个字符作为待匹配的词
+</span>        <span class="k">while</span> <span class="n">wordLen</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># 词长逐渐减小直到为1 也就是‘最大匹配’的代码体现
+</span>            <span class="k">if</span> <span class="n">subStr</span> <span class="ow">in</span> <span class="n">wordDict</span><span class="p">:</span>  <span class="c1"># 如果待匹配的词在词表中
+</span>                <span class="k">break</span>  <span class="c1"># 则跳出循环
+</span>            <span class="k">else</span><span class="p">:</span>  <span class="c1"># 如果待匹配的词不在词表中
+</span>                <span class="n">wordLen</span> <span class="o">=</span> <span class="n">wordLen</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># 则词长减1
+</span>                <span class="n">subStr</span> <span class="o">=</span> <span class="n">subStr</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="n">wordLen</span><span class="p">]</span>  <span class="c1"># 取字串的前wordLen个字符作为待匹配的词
+</span>        <span class="n">wordList</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">subStr</span><span class="p">)</span>  <span class="c1"># 将待匹配的词添加到分词序列中
+</span>        <span class="n">segStr</span> <span class="o">=</span> <span class="n">segStr</span><span class="p">[</span><span class="n">wordLen</span><span class="p">:]</span>  <span class="c1"># 将待匹配的词从字串中去除
+</span>        <span class="n">segStrLen</span> <span class="o">=</span> <span class="n">segStrLen</span> <span class="o">-</span> <span class="n">wordLen</span>  <span class="c1"># 将待匹配的词的长度从字串长度中去除
+</span>    <span class="k">return</span> <span class="n">wordList</span>  <span class="c1"># 返回分词序列
+</span></code></pre></div></div>
+
+<h3 id="逆向最大匹配分词">逆向最大匹配分词</h3>
+
+<p>和上面正向最大匹配分词的区别只有匹配的方向变了是从末尾开始，然后反方向前进。</p>
+
+<p>下面是逐行的代码分析：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">bwd_mm_seg</span><span class="p">(</span><span class="n">wordDict</span><span class="p">,</span> <span class="n">maxLen</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="sh">"""</span><span class="s">逆向最大匹配分词
+    @param wordDict:    词表
+    @param maxLen:      词最大长度（自定义）
+    @param str:         待分词的字串
+    @return:            分词序列（List）
+    </span><span class="sh">"""</span>
+    <span class="n">wordList</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># 定义的分词后的结果，也就是最终的分词序列
+</span>    <span class="n">segStr</span> <span class="o">=</span> <span class="nb">str</span>  <span class="c1"># 定义需要分词的字串
+</span>    <span class="n">segStrLen</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="n">segStr</span><span class="p">)</span>  <span class="c1"># 获得需要分词的字串的长度
+</span>    <span class="k">while</span> <span class="n">segStrLen</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># 逆向遍历需要分词的字串
+</span>        <span class="k">if</span> <span class="n">segStrLen</span> <span class="o">&gt;</span> <span class="n">maxLen</span><span class="p">:</span>  <span class="c1"># 如果需要分词的字串长度大于最大词长，则按最大词长分词
+</span>            <span class="n">wordLen</span> <span class="o">=</span> <span class="n">maxLen</span>  <span class="c1"># 词长为最大词长
+</span>        <span class="k">else</span><span class="p">:</span>  <span class="c1"># 如果需要分词的字串长度小于最大词长，则按字串长度分词
+</span>            <span class="n">wordLen</span> <span class="o">=</span> <span class="n">segStrLen</span>  <span class="c1"># 词长为字串长度
+</span>        <span class="n">subStr</span> <span class="o">=</span> <span class="n">segStr</span><span class="p">[</span><span class="o">-</span><span class="n">wordLen</span><span class="p">:</span><span class="bp">None</span><span class="p">]</span>  <span class="c1"># 取字串的后wordLen个字符作为待匹配的词
+</span>        <span class="k">while</span> <span class="n">wordLen</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>  <span class="c1"># 如果词长大于1
+</span>            <span class="k">if</span> <span class="n">subStr</span> <span class="ow">in</span> <span class="n">wordDict</span><span class="p">:</span>  <span class="c1"># 如果待匹配的词在词表中
+</span>                <span class="k">break</span>  <span class="c1"># 则跳出循环
+</span>            <span class="k">else</span><span class="p">:</span>  <span class="c1"># 如果待匹配的词不在词表中
+</span>                <span class="n">wordLen</span> <span class="o">=</span> <span class="n">wordLen</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># 则词长减1
+</span>                <span class="n">subStr</span> <span class="o">=</span> <span class="n">subStr</span><span class="p">[</span><span class="o">-</span><span class="n">wordLen</span><span class="p">:</span><span class="bp">None</span><span class="p">]</span>  <span class="c1"># 取字串的后wordLen个字符作为待匹配的词
+</span>        <span class="n">wordList</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">subStr</span><span class="p">)</span>  <span class="c1"># 将待匹配的词添加到分词序列中
+</span>        <span class="n">segStr</span> <span class="o">=</span> <span class="n">segStr</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span> <span class="o">-</span><span class="n">wordLen</span><span class="p">]</span>  <span class="c1"># 将待匹配的词从字串中去除
+</span>        <span class="n">segStrLen</span> <span class="o">=</span> <span class="n">segStrLen</span> <span class="o">-</span> <span class="n">wordLen</span>  <span class="c1"># 将待匹配的词的长度从字串长度中去除
+</span>    <span class="n">wordList</span><span class="p">.</span><span class="nf">reverse</span><span class="p">()</span>  <span class="c1"># 将分词序列逆序
+</span>    <span class="k">return</span> <span class="n">wordList</span>  <span class="c1"># 返回分词序列
+</span></code></pre></div></div>
+
+<h3 id="出现的问题以及解决方案">出现的问题以及解决方案</h3>
+
+<p>我们仅仅使用上面的代码是不够，为什么呢？因为还有一个问题没有考虑到，<strong>我们要以什么单位来进行分词？</strong>显然直接以全文为单位进行分词是效率不够的，那样的算法的复杂度比较高，所以我们要寻找一个可行的单位。</p>
+
+<p>这里我们使用的以一个自然段为单位进行分词。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">def</span> <span class="nf">file_seg_process</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="n">method</span><span class="p">):</span>
+    <span class="sh">'''</span><span class="s">
+    @param filename: 文件名
+    @param method:   分词算法 { 0:正向，1:逆向 }
+    </span><span class="sh">'''</span>
+    <span class="c1"># 打开文件
+</span>    <span class="n">fp_dict</span> <span class="o">=</span> <span class="nf">open</span><span class="p">(</span><span class="sh">'</span><span class="s">dict.txt</span><span class="sh">'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">CODEC</span><span class="p">)</span>  <span class="c1"># 打开词典
+</span>    <span class="n">fp_input</span> <span class="o">=</span> <span class="nf">open</span><span class="p">(</span><span class="sh">'</span><span class="s">corpus/</span><span class="sh">'</span> <span class="o">+</span> <span class="n">filename</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">CODEC</span><span class="p">)</span>  <span class="c1"># 打开语料
+</span>    <span class="n">fp_output</span> <span class="o">=</span> <span class="nf">open</span><span class="p">(</span><span class="sh">'</span><span class="s">corpus_seg/</span><span class="sh">'</span> <span class="o">+</span> <span class="n">filename</span><span class="p">,</span> <span class="sh">'</span><span class="s">w</span><span class="sh">'</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">CODEC</span><span class="p">)</span>  <span class="c1"># 打开输出文件
+</span>
+    <span class="n">wordDict</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># 定义词典
+</span>    <span class="c1"># 读取字典到内存中
+</span>    <span class="k">for</span> <span class="n">eachWord</span> <span class="ow">in</span> <span class="n">fp_dict</span><span class="p">:</span>  <span class="c1"># 对词典中的每一行操作
+</span>        <span class="n">wordDict</span><span class="p">[</span><span class="nf">u</span><span class="p">(</span><span class="n">eachWord</span><span class="p">.</span><span class="nf">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">].</span><span class="nf">strip</span><span class="p">(),</span> <span class="n">CODEC</span><span class="p">)]</span> <span class="o">=</span> <span class="mi">1</span>  <span class="c1"># 将词典中的词存入字典中
+</span>
+    <span class="c1"># 对input每一行操作
+</span>    <span class="nb">str</span> <span class="o">=</span> <span class="sh">''</span>  <span class="c1"># 定义一个空字符串用来存储每次分词的一个单位字串
+</span>    <span class="k">for</span> <span class="n">eachLine</span> <span class="ow">in</span> <span class="n">fp_input</span><span class="p">:</span>  <span class="c1"># 对语料中的每一行操作
+</span>        <span class="n">line_out</span> <span class="o">=</span> <span class="sh">''</span>  <span class="c1"># 定义输出行
+</span>        <span class="c1"># 每一段作为一行输入给分词函数
+</span>        <span class="n">sub</span> <span class="o">=</span> <span class="n">eachLine</span><span class="p">.</span><span class="nf">rstrip</span><span class="p">()</span>  <span class="c1"># 去除每一行的右边的空格
+</span>        <span class="k">if</span> <span class="ow">not</span> <span class="n">sub</span><span class="p">.</span><span class="nf">startswith</span><span class="p">(</span><span class="sh">'</span><span class="s">  </span><span class="sh">'</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">sub</span><span class="p">.</span><span class="nf">startswith</span><span class="p">(</span><span class="sh">'</span><span class="s">　　</span><span class="sh">'</span><span class="p">):</span>  <span class="c1"># 如果每一行不是以两个空格或者全角空格开头 则加入的到单位字串 注意这里是修改过后的代码添加的中文空格
+</span>            <span class="nb">str</span> <span class="o">+=</span> <span class="n">sub</span>  <span class="c1"># 将每一行加入到str中
+</span>            <span class="k">continue</span>  <span class="c1"># 跳过本次循环
+</span>
+        <span class="n">strlen</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>  <span class="c1"># 计算str的长度
+</span>        <span class="k">while</span> <span class="n">strlen</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># 当str的长度大于0时
+</span>            <span class="c1"># 英文字符或数字--原文输出
+</span>            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="nf">match</span><span class="p">(</span><span class="sh">'</span><span class="s">\w+</span><span class="sh">'</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>  <span class="c1"># 匹配英文字符或数字
+</span>            <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>  <span class="c1"># 如果匹配成功
+</span>                <span class="n">subStr</span> <span class="o">=</span> <span class="n">m</span><span class="p">.</span><span class="nf">group</span><span class="p">()</span>  <span class="c1"># 将匹配到的字符赋值给subStr
+</span>                <span class="n">line_out</span> <span class="o">+=</span> <span class="n">subStr</span> <span class="o">+</span> <span class="sh">'</span><span class="s">/</span><span class="sh">'</span>  <span class="c1"># 将匹配到的字符加入到输出行中
+</span>                <span class="n">subLen</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="n">subStr</span><span class="p">)</span>  <span class="c1"># 计算匹配到的字符的长度
+</span>                <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">[</span><span class="n">subLen</span><span class="p">:]</span>  <span class="c1"># 将匹配到的字符从str中去除
+</span>                <span class="n">strlen</span> <span class="o">=</span> <span class="n">strlen</span> <span class="o">-</span> <span class="n">subLen</span>  <span class="c1"># 将匹配到的字符的长度从str的长度中去除
+</span>                <span class="k">continue</span>  <span class="c1"># 跳过本次循环
+</span>            <span class="c1"># 短句结尾标志--输出换行
+</span>            <span class="k">if</span> <span class="nb">str</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="sh">'</span><span class="s">,</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">。</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">!</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">?</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">:</span><span class="sh">'</span><span class="p">]:</span>  <span class="c1"># 如果str的第一个字符是逗号、句号、感叹号、问号、冒号中的一个
+</span>                <span class="n">subStr</span> <span class="o">=</span> <span class="nb">str</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># 将第一个字符赋值给subStr
+</span>                <span class="n">line_out</span> <span class="o">+=</span> <span class="sh">'</span><span class="se">\n</span><span class="sh">'</span>  <span class="c1"># 将换行符加入到输出行中
+</span>                <span class="n">subLen</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="n">subStr</span><span class="p">)</span>  <span class="c1"># 计算第一个字符的长度
+</span>                <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">[</span><span class="n">subLen</span><span class="p">:]</span>  <span class="c1"># 将第一个字符从str中去除
+</span>                <span class="n">strlen</span> <span class="o">=</span> <span class="n">strlen</span> <span class="o">-</span> <span class="n">subLen</span>  <span class="c1"># 将第一个字符的长度从str的长度中去除
+</span>            <span class="c1"># 汉字--分词处理，输出 词/词
+</span>            <span class="c1"># str = str.encode("unicode_escape")
+</span>            <span class="c1"># m = re.match('[\u4e00-\u9fa5]+', str)
+</span>            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="p">.</span><span class="nf">match</span><span class="p">(</span><span class="sh">'</span><span class="s">[^</span><span class="se">\x00</span><span class="s">-</span><span class="se">\xff</span><span class="s">]+</span><span class="sh">'</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>  <span class="c1"># 匹配汉字
+</span>            <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>  <span class="c1"># 如果匹配成功
+</span>                <span class="n">subStr</span> <span class="o">=</span> <span class="n">m</span><span class="p">.</span><span class="nf">group</span><span class="p">()</span>  <span class="c1"># 将匹配到的汉字赋值给subStr
+</span>                <span class="k">if</span> <span class="n">method</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># 正向最大匹配
+</span>                    <span class="c1"># 正向最大匹配
+</span>                    <span class="n">wordList</span> <span class="o">=</span> <span class="nf">fwd_mm_seg</span><span class="p">(</span><span class="n">wordDict</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">subStr</span><span class="p">)</span>  <span class="c1"># 调用正向最大匹配函数
+</span>                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># 逆向最大匹配
+</span>                    <span class="n">wordList</span> <span class="o">=</span> <span class="nf">bwd_mm_seg</span><span class="p">(</span><span class="n">wordDict</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="n">subStr</span><span class="p">)</span>  <span class="c1"># 调用逆向最大匹配函数
+</span>                <span class="n">line_out</span> <span class="o">+=</span> <span class="n">wordList</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="sh">'</span><span class="s">/</span><span class="sh">'</span>  <span class="c1"># 将分词后的第一个词加入到输出行中
+</span>                <span class="k">for</span> <span class="n">eachWord</span> <span class="ow">in</span> <span class="n">wordList</span><span class="p">[</span><span class="mi">1</span><span class="p">:]:</span>  <span class="c1"># 对分词后的每一个词操作
+</span>                    <span class="n">line_out</span> <span class="o">+=</span> <span class="n">eachWord</span> <span class="o">+</span> <span class="sh">'</span><span class="s">/</span><span class="sh">'</span>  <span class="c1"># 将每一个词加入到输出行中
+</span>                <span class="n">subLen</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="n">subStr</span><span class="p">)</span>  <span class="c1"># 计算匹配到的汉字的长度
+</span>                <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">[</span><span class="n">subLen</span><span class="p">:]</span>  <span class="c1"># 将匹配到的汉字从str中去除
+</span>                <span class="n">strlen</span> <span class="o">=</span> <span class="n">strlen</span> <span class="o">-</span> <span class="n">subLen</span>  <span class="c1"># 将匹配到的汉字的长度从str的长度中去除
+</span>                <span class="k">continue</span>  <span class="c1"># 跳过本次循环
+</span>            <span class="c1"># 其他特殊字符--跳过
+</span>            <span class="nb">str</span> <span class="o">=</span> <span class="nb">str</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>  <span class="c1"># 将第一个字符从str中去除
+</span>            <span class="n">strlen</span> <span class="o">=</span> <span class="n">strlen</span> <span class="o">-</span> <span class="mi">1</span>  <span class="c1"># 将第一个字符的长度从str的长度中去除
+</span>        <span class="c1"># 跳过处理后为空行的段落
+</span>        <span class="k">if</span> <span class="nf">len</span><span class="p">(</span><span class="n">line_out</span><span class="p">.</span><span class="nf">strip</span><span class="p">())</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># 如果输出行是空行
+</span>            <span class="k">continue</span>  <span class="c1"># 跳过本次循环
+</span>        <span class="c1"># 写入文件
+</span>        <span class="n">fp_output</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="n">line_out</span> <span class="o">+</span> <span class="sh">'</span><span class="se">\n</span><span class="sh">'</span><span class="p">)</span>  <span class="c1"># 将输出行写入到输出文件中
+</span>        <span class="nb">str</span> <span class="o">=</span> <span class="n">sub</span>  <span class="c1"># 将每一行赋值给str
+</span>    <span class="c1"># close file
+</span>    <span class="n">fp_input</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>  <span class="c1"># 关闭输入文件
+</span>    <span class="n">fp_dict</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>  <span class="c1"># 关闭词典
+</span>    <span class="n">fp_output</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>  <span class="c1"># 关闭输出文件
+</span></code></pre></div></div>
+
+<p>在实现代码的过程中出现了有的文本不能正确匹配的问题，也就是分词的单位字串（一个段落）没有识别出来，整篇文章识别成了一个单位字串，而没有进行分词处理。</p>
+
+<p>而导致没有识别出来的问题是，每段开头的空格符号没有识别出来，因为有的文章是用的中文空格，有的用的英文空格，所以我们这里判断的条件多加一个判断中文空格的条件就可以：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        <span class="k">if</span> <span class="ow">not</span> <span class="n">sub</span><span class="p">.</span><span class="nf">startswith</span><span class="p">(</span><span class="sh">'</span><span class="s">  </span><span class="sh">'</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">sub</span><span class="p">.</span><span class="nf">startswith</span><span class="p">(</span><span class="sh">'</span><span class="s">　　</span><span class="sh">'</span><span class="p">):</span>  <span class="c1"># 如果每一行不是以两个空格或者全角空格开头 则加入的到单位字串 注意这里是修改过后的代码添加的中文空格
+</span>            <span class="nb">str</span> <span class="o">+=</span> <span class="n">sub</span>  <span class="c1"># 将每一行加入到str中
+</span>            <span class="k">continue</span>  <span class="c1"># 跳过本次循环
+</span></code></pre></div></div>
+
+<h2 id="一元二元词频统计">一元、二元词频统计</h2>
+
+<p>同样的在实现一元、二元词频统计时，我们要先了解的其算法思想和原理。</p>
+
+<p>一元词频统计和二元词频统计是自然语言处理中常用的文本分析方法。</p>
+
+<h4 id="一元词频统计算法">一元词频统计算法</h4>
+
+<p>一元词频统计指统计文本中每个词的出现次数。通过一元词频统计可以找到文本中最常出现的词、关键词等。一元词频统计比较简单,主要包括文本分词、词频统计两个步骤。</p>
+
+<h4 id="二元词频统计算法">二元词频统计算法</h4>
+
+<p>二元词频统计指统计文本中词与词之间共现的次数,即两个词作为邻近词组同时出现的次数。二元词频可以反映词与词之间的语义关联性。常用的二元词频统计方法有:</p>
+
+<ol>
+  <li>马尔可夫链模型:按照词出现的顺序建模,统计词与词之间的转移概率。</li>
+  <li>互信息法:用来衡量两个随机事件同时发生的概率。利用互信息可以判断两个词的关联程度。</li>
+  <li>数据挖掘方法:如Apriori算法,可以高效发现词频数据集中出现次数高的词组。</li>
+  <li>神经网络模型:如word2vec中的Skip-gram和CBOW模型,可以获得词向量之间的语义关联性。</li>
+</ol>
+
+<p>统计一元词频和二元词频都是自然语言理解的基础工作,后续可以应用于文本分类、情感分析、词向量训练等任务。这两个统计方法有良好的扩展性和通用性。</p>
+
+<p>本次实验我们使用的是普通的一元词频统计算法和基于统计的二元词频统计</p>
+
+<h3 id="普通的一元词频统计unigram-frequency">普通的一元词频统计（Unigram Frequency）</h3>
+
+<p>一元词频统计的步骤主要包括文本分词、词频统计两个步骤，而步骤一我们刚才以及实现了，所以我们可以直接使用分词后的结果进行统计即可，具体来说，对于每一个词，它检查是否是中文字符（使用了正则表达式进行匹配）。如果是中文字符，则将其作为一元词（unigram）进行统计，并增加其出现次数。</p>
+
+<h3 id="基于统计的二元词频统计bigram-frequency">基于统计的二元词频统计（Bigram Frequency）</h3>
+
+<p>这种方法是基于简单的统计逻辑来识别中文字符并计算相邻词语之间的频率，具体来说对于二元词频（bigram），它检查每个词是否是中文字符，并且检查其前一个词是否也是中文字符，然后将这两个词组合在一起作为一个二元词进行统计，并增加其出现次数。</p>
+
+<p>下面是逐行代码分析：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">NGram</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="sh">'''</span><span class="s">n元词频统计</span><span class="sh">'''</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>  <span class="c1"># 初始化
+</span>        <span class="n">self</span><span class="p">.</span><span class="n">unigram</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># 一元词频
+</span>        <span class="n">self</span><span class="p">.</span><span class="n">bigram</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># 二元词频
+</span>        <span class="n">self</span><span class="p">.</span><span class="n">wordDict</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># 词表
+</span>        <span class="c1"># dict = open('dict.txt')
+</span>        <span class="c1"># for line in dict:
+</span>        <span class="c1">#     if len(line.strip()) &gt; 0:
+</span>        <span class="c1">#         self.wordDict.append(line.strip())
+</span>
+    <span class="k">def</span> <span class="nf">scan</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">lines</span><span class="p">):</span>
+        <span class="sh">'''</span><span class="s">
+        逐行扫描，ngram结果记录到文件中
+        @param    sentence    list{str}
+        @return   none
+        </span><span class="sh">'''</span>
+        <span class="n">words</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># 词列表
+</span>        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>  <span class="c1"># 逐行扫描
+</span>            <span class="c1"># 统计n元词频
+</span>            <span class="n">words</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="sh">'</span><span class="s">&lt;li&gt;</span><span class="sh">'</span><span class="p">)</span>  <span class="c1"># 用&lt;li&gt;标记每一行的开始
+</span>            <span class="n">wordlist</span> <span class="o">=</span> <span class="p">[</span>  <span class="c1"># 用正则表达式匹配出每一个词
+</span>                <span class="n">w</span>
+                <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="nf">list</span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="sh">'</span><span class="s">/</span><span class="sh">'</span><span class="p">))</span>  <span class="c1"># 去掉用来分割词的/
+</span>                <span class="k">if</span> <span class="nf">len</span><span class="p">(</span><span class="n">w</span><span class="p">.</span><span class="nf">strip</span><span class="p">())</span> <span class="o">&gt;</span> <span class="mi">0</span>  <span class="c1"># 去除每一行两边的空格
+</span>            <span class="p">]</span>
+            <span class="n">words</span><span class="p">.</span><span class="nf">extend</span><span class="p">(</span><span class="n">wordlist</span><span class="p">)</span>  <span class="c1"># 将每一行的词加入到词列表中
+</span>            <span class="n">words</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="sh">'</span><span class="s">&lt;/li&gt;</span><span class="sh">'</span><span class="p">)</span>  <span class="c1"># 用&lt;/li&gt;标记每一行的结束
+</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">ngram</span><span class="p">(</span><span class="n">words</span><span class="p">)</span>  <span class="c1"># 统计ngram
+</span>
+        <span class="nf">print</span><span class="p">(</span><span class="sh">'</span><span class="s">[ Hashed ]</span><span class="sh">'</span><span class="p">)</span>  <span class="c1"># 输出提示信息
+</span>
+        <span class="c1"># unigram
+</span>        <span class="nb">file</span> <span class="o">=</span> <span class="nf">open</span><span class="p">(</span><span class="sh">"</span><span class="s">freq/word_freq.txt</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">w</span><span class="sh">"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">CODEC</span><span class="p">)</span>  <span class="c1"># 打开文件
+</span>        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">unigram</span><span class="p">.</span><span class="nf">items</span><span class="p">():</span>  <span class="c1"># 逐个词统计
+</span>            <span class="nb">file</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="sh">"</span><span class="s">%s</span><span class="se">\t</span><span class="s">%d</span><span class="se">\n</span><span class="sh">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>  <span class="c1"># 将词和词频写入到文件中
+</span>        <span class="nb">file</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>  <span class="c1"># 关闭文件
+</span>        <span class="nf">print</span><span class="p">(</span><span class="sh">'</span><span class="s">[ Unigram file finish ]</span><span class="sh">'</span><span class="p">)</span>  <span class="c1"># 输出提示信息
+</span>
+        <span class="c1"># bigram
+</span>        <span class="nb">file</span> <span class="o">=</span> <span class="nf">open</span><span class="p">(</span><span class="sh">"</span><span class="s">freq/bigram_freq.txt</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">w</span><span class="sh">"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="n">CODEC</span><span class="p">)</span>  <span class="c1"># 打开文件
+</span>        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">bigram</span><span class="p">.</span><span class="nf">items</span><span class="p">():</span>  <span class="c1"># 逐个词统计
+</span>            <span class="nb">file</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="sh">"</span><span class="s">%s</span><span class="se">\t</span><span class="s">%d</span><span class="se">\n</span><span class="sh">"</span> <span class="o">%</span> <span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">))</span>  <span class="c1"># 将词和词频写入到文件中
+</span>        <span class="nb">file</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>  <span class="c1"># 关闭文件
+</span>        <span class="nf">print</span><span class="p">(</span><span class="sh">'</span><span class="s">[ Bigram file finish ]</span><span class="sh">'</span><span class="p">)</span>  <span class="c1"># 输出提示信息
+</span>
+    <span class="k">def</span> <span class="nf">ngram</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">words</span><span class="p">):</span>
+        <span class="sh">'''</span><span class="s">
+        统计ngram
+        @param    words       list{str}
+        @return   none
+        </span><span class="sh">'''</span>
+        <span class="n">partten</span> <span class="o">=</span> <span class="sh">'</span><span class="s">([</span><span class="se">\u4e00</span><span class="s">-</span><span class="se">\u9fa5</span><span class="s">])+</span><span class="sh">'</span>  <span class="c1"># 匹配中文
+</span>        <span class="c1"># unigram
+</span>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nf">len</span><span class="p">(</span><span class="n">words</span><span class="p">)):</span>  <span class="c1"># 逐个词统计
+</span>            <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="p">.</span><span class="nf">search</span><span class="p">(</span><span class="n">partten</span><span class="p">,</span> <span class="n">words</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>  <span class="c1"># 查看当前词是不是中文
+</span>                <span class="k">continue</span>  <span class="c1"># 不是中文则跳过
+</span>            <span class="n">key</span> <span class="o">=</span> <span class="n">words</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>  <span class="c1"># 当前词
+</span>            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">unigram</span><span class="p">:</span>  <span class="c1"># 如果当前词不在unigram中
+</span>                <span class="n">self</span><span class="p">.</span><span class="n">unigram</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># 则将当前词加入到unigram中
+</span>            <span class="n">self</span><span class="p">.</span><span class="n">unigram</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># 否则当前词的词频加1
+</span>
+        <span class="c1"># bigram
+</span>        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nf">len</span><span class="p">(</span><span class="n">words</span><span class="p">)):</span>  <span class="c1"># 逐个词统计
+</span>            <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="p">.</span><span class="nf">search</span><span class="p">(</span><span class="n">partten</span><span class="p">,</span> <span class="n">words</span><span class="p">[</span><span class="n">i</span><span class="p">]):</span>  <span class="c1"># 查看当前词是不是中文
+</span>                <span class="k">continue</span>  <span class="c1"># 不是中文则跳过
+</span>            <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="p">.</span><span class="nf">search</span><span class="p">(</span><span class="n">partten</span><span class="p">,</span> <span class="n">words</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]):</span>  <span class="c1"># 查看上一个词是不是中文
+</span>                <span class="c1"># 查看上一个词是不是同一行的中文词能实现换行的效果也能排除&lt;li&gt;的影响
+</span>                <span class="k">continue</span>  <span class="c1"># 不是中文则跳过
+</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">words</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="sh">'</span><span class="s">|</span><span class="sh">'</span> <span class="o">+</span> <span class="n">words</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>  <span class="c1"># 当前词和上一个词组成的词
+</span>            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">bigram</span><span class="p">:</span>  <span class="c1"># 如果当前词和上一个词组成的词不在bigram中
+</span>                <span class="n">self</span><span class="p">.</span><span class="n">bigram</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># 则将当前词和上一个词组成的词加入到bigram中
+</span>            <span class="n">self</span><span class="p">.</span><span class="n">bigram</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># 否则当前词和上一个词组成的词的词频加1
+</span></code></pre></div></div>
+
+<h3 id="出现的问题以及解决方案-1">出现的问题以及解决方案</h3>
+
+<p><strong>问题：</strong></p>
+
+<p>在进行词频统计时发现会把的&lt;li&gt;&lt;/li&gt;等用来表示换行的符号也统计出来，这是一个问题，原本的文中并没有这些符号但是却把它们统计出来了。</p>
+
+<p><strong>解决方法：</strong></p>
+
+<p>检查代码后发现原来是代码中的正则表达式有问题</p>
+
+<p>修改前：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        <span class="n">partten</span> <span class="o">=</span> <span class="sh">'</span><span class="s">([</span><span class="se">\u4e00</span><span class="s">-</span><span class="se">\u9fa5</span><span class="s">]|&lt;li&gt;|&lt;/li&gt;)+</span><span class="sh">'</span>
+</code></pre></div></div>
+
+<p>修改后：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>        <span class="n">partten</span> <span class="o">=</span> <span class="sh">'</span><span class="s">([</span><span class="se">\u4e00</span><span class="s">-</span><span class="se">\u9fa5</span><span class="s">])+</span><span class="sh">'</span>  <span class="c1"># 匹配中文
+</span></code></pre></div></div>
+
+<h2 id="拼音流切分">拼音流切分</h2>
+
+<p>拼音流切分指的是根据中文文本中的拼音音节将文本切分成适当的部分。这种方法通常用于文本处理和语言处理任务，特别是对于一些需要按照拼音音节进行处理的应用，比如拼音输入法或者文本转换为拼音的需求。通过将中文文本按照拼音音节进行切分，可以更方便地处理文本，并且为一些自然语言处理任务提供便利，比如文本分词、拼音转汉字等。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">pinyin</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">pinyins</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">pinyins</span> <span class="o">=</span> <span class="n">pinyins</span><span class="c1"># 要进行分割的拼音串
+</span>        <span class="c1"># 读入所有有效拼音
+</span>        <span class="n">self</span><span class="p">.</span><span class="n">tree</span> <span class="o">=</span> <span class="nc">Trie</span><span class="p">()</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="nf">open</span><span class="p">(</span><span class="sh">'</span><span class="s">pinyin/pinyin_list.txt</span><span class="sh">'</span><span class="p">)</span>
+        <span class="c1"># f = open('pinyin_list.txt')
+</span>        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span><span class="c1"># 逐行读入
+</span>            <span class="n">self</span><span class="p">.</span><span class="n">tree</span><span class="p">.</span><span class="nf">insert</span><span class="p">(</span><span class="n">line</span><span class="p">.</span><span class="nf">split</span><span class="p">()[</span><span class="mi">0</span><span class="p">])</span><span class="c1"># 插入到Tree树中
+</span>        <span class="n">f</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span><span class="c1"># 关闭文件
+</span>
+    <span class="k">def</span> <span class="nf">split</span><span class="p">(</span><span class="n">self</span><span class="p">):</span><span class="c1"># 分割函数
+</span>        <span class="sh">'''</span><span class="s">
+        分割函数
+        @param pinyin:  拼音串 str
+        @return:        分割后的拼音列表 list
+        </span><span class="sh">'''</span>
+        <span class="c1"># 可作为拼音开头的字母
+</span>        <span class="n">pinyin_initials</span> <span class="o">=</span> <span class="p">[</span><span class="sh">'</span><span class="s">a</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">b</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">e</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">p</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">m</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">f</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">d</span><span class="sh">'</span><span class="p">,</span>
+                           <span class="sh">'</span><span class="s">t</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">n</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">l</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">g</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">k</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">h</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">j</span><span class="sh">'</span><span class="p">,</span>
+                           <span class="sh">'</span><span class="s">q</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">x</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">r</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">z</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">c</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">s</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">y</span><span class="sh">'</span><span class="p">,</span> <span class="sh">'</span><span class="s">w</span><span class="sh">'</span><span class="p">]</span><span class="c1"># 读入所有有效拼音
+</span>        <span class="c1"># pinyin_initials = self.tree.root.children
+</span>        <span class="n">iuv</span> <span class="o">=</span> <span class="p">[</span><span class="sh">'</span><span class="s">i</span><span class="sh">'</span><span class="p">,</span><span class="sh">'</span><span class="s">u</span><span class="sh">'</span><span class="p">,</span><span class="sh">'</span><span class="s">v</span><span class="sh">'</span><span class="p">]</span><span class="c1"># i|u|v
+</span>        <span class="n">grn</span> <span class="o">=</span> <span class="p">[</span><span class="sh">'</span><span class="s">g</span><span class="sh">'</span><span class="p">,</span><span class="sh">'</span><span class="s">r</span><span class="sh">'</span><span class="p">,</span><span class="sh">'</span><span class="s">n</span><span class="sh">'</span><span class="p">]</span><span class="c1"># g|r|n
+</span>
+        <span class="nb">input</span> <span class="o">=</span> <span class="sh">''</span><span class="c1"># 输入拼音串
+</span>        <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span><span class="c1"># 分割结果
+</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nf">range</span><span class="p">(</span><span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">pinyins</span><span class="p">)):</span><span class="c1"># 逐个读入拼音
+</span>            <span class="n">c</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">pinyins</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="c1"># 读入字符 c
+</span>            <span class="c1"># 读入字符 c
+</span>            <span class="nb">input</span> <span class="o">+=</span> <span class="n">c</span><span class="c1"># 将字符 c 加入到输入拼音串中
+</span>            <span class="c1"># c是 i|u|v，并且是拼音串的首字母
+</span>            <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">iuv</span> <span class="ow">and</span> <span class="nf">len</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="o">==</span><span class="mi">1</span><span class="p">:</span><span class="c1"># 读入字符 c
+</span>                <span class="k">return</span> <span class="bp">False</span><span class="p">,</span><span class="bp">None</span><span class="c1"># 返回错误
+</span>            <span class="c1"># 当前拼音有效或者是有效拼音的一部分
+</span>            <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">tree</span><span class="p">.</span><span class="nf">find_initial_with</span><span class="p">(</span><span class="nb">input</span><span class="p">):</span><span class="c1"># 读入字符 c
+</span>                <span class="k">continue</span><span class="c1"># 继续读入
+</span>            <span class="c1"># c是声母
+</span>            <span class="k">if</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">pinyin_initials</span><span class="p">:</span><span class="c1"># 读入字符 c
+</span>                <span class="c1"># 前面的拼音为有效拼音
+</span>                <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">tree</span><span class="p">.</span><span class="nf">find_initial_with</span><span class="p">(</span><span class="nb">input</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span><span class="c1"># 读入字符 c
+</span>                    <span class="c1"># 在c前断开
+</span>                    <span class="n">result</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nb">input</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="c1"># 将c前的拼音加入到分割结果中
+</span>                    <span class="nb">input</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span><span class="c1"># 将c加入到输入拼音串中
+</span>                    <span class="k">continue</span><span class="c1"># 继续读入
+</span>                <span class="k">else</span><span class="p">:</span><span class="c1"># 读入字符 c
+</span>                    <span class="k">return</span> <span class="bp">False</span><span class="p">,</span><span class="bp">None</span><span class="c1"># 返回错误
+</span>            <span class="c1"># 倒数第二个字母为 g|r|n
+</span>            <span class="k">elif</span> <span class="nb">input</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">grn</span><span class="p">:</span><span class="c1"># 读入字符 c
+</span>                <span class="c1"># 在 g|r|n 前断开有效
+</span>                <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">tree</span><span class="p">.</span><span class="nf">find_initial_with</span><span class="p">(</span><span class="nb">input</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">]):</span><span class="c1"># 读入字符 c
+</span>                    <span class="c1"># 在 g|r|n 前断开
+</span>                    <span class="n">result</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nb">input</span><span class="p">[:</span><span class="o">-</span><span class="mi">2</span><span class="p">])</span><span class="c1"># 将 g|r|n 前的拼音加入到分割结果中
+</span>                    <span class="nb">input</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="o">-</span><span class="mi">2</span><span class="p">:]</span><span class="c1"># 将 g|r|n 加入到输入拼音串中
+</span>                    <span class="k">continue</span><span class="c1"># 继续读入
+</span>                <span class="c1"># 在 g|r|n 后断开有效
+</span>                <span class="k">elif</span> <span class="n">self</span><span class="p">.</span><span class="n">tree</span><span class="p">.</span><span class="nf">find_initial_with</span><span class="p">(</span><span class="nb">input</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]):</span><span class="c1"># 读入字符 c
+</span>                    <span class="c1"># 在 g|r|n 后断开
+</span>                    <span class="n">result</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nb">input</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span><span class="c1"># 将 g|r|n 后的拼音加入到分割结果中
+</span>                    <span class="nb">input</span> <span class="o">=</span> <span class="nb">input</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">:]</span><span class="c1"># 将 g|r|n 加入到输入拼音串中
+</span>                    <span class="k">continue</span><span class="c1"># 继续读入
+</span>            <span class="k">else</span><span class="p">:</span><span class="c1"># 读入字符 c
+</span>                <span class="c1"># 单独断开
+</span>                <span class="n">result</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="c1"># 将当前拼音加入到分割结果中
+</span>                <span class="nb">input</span> <span class="o">=</span> <span class="sh">''</span><span class="c1"># 清空输入拼音串
+</span>
+        <span class="n">result</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="nb">input</span><span class="p">)</span><span class="c1"># 将最后一个拼音加入到分割结果中
+</span>
+        <span class="k">return</span> <span class="bp">True</span><span class="p">,</span><span class="n">result</span><span class="c1"># 返回分割结果
+</span></code></pre></div></div>
+
+<p>这个 <code class="language-plaintext highlighter-rouge">pinyin</code> Python 类用来处理和分割汉语拼音字符串。该类的split方法，可以根据一系列规则和存储在字典树（Trie）数据结构中的有效拼音列表，将给定的拼音字符串分割成单独的拼音组件。下面是对其功能的解释：</p>
+
+<ol>
+  <li><strong>初始化（<code class="language-plaintext highlighter-rouge">__init__</code>）：</strong> 构造函数接受一个拼音字符串（<code class="language-plaintext highlighter-rouge">pinyins</code>），并初始化一个 <code class="language-plaintext highlighter-rouge">Trie</code> 对象。然后，它从文件中读取有效拼音的列表，并将它们插入到字典树中，以便以后进行验证。</li>
+  <li><strong>分割方法（<code class="language-plaintext highlighter-rouge">split</code>）：</strong> 这是该类的核心功能。它会根据拼音语法规则将提供的拼音字符串分割成单独的组件。该方法使用拼音声母列表和某些汉语音韵学规则来确定有效的分割点。</li>
+  <li><strong>特殊情况处理：</strong> 该方法包括对某些条件的特殊检查，例如：
+    <ul>
+      <li>如果字符串以 ‘i’、’u’ 或 ‘v’ 开头，则拒绝该字符串，因为这些不是拼音中有效的起始字母。</li>
+      <li>处理当前字符是拼音声母的情况，并确定是否在此处分割。</li>
+      <li>对以 ‘g’、’r’ 或 ‘n’ 结尾的拼音组件进行特殊处理。</li>
+    </ul>
+  </li>
+  <li><strong>验证和分割逻辑：</strong> 在整个方法中，使用字典树结构来验证输入的子字符串是否是有效的拼音组件。该方法尝试根据拼音规则和输入字符串的不同断点。</li>
+  <li><strong>返回值：</strong> 该方法返回一个元组，其中第一个元素是一个布尔值，表示成功或失败，如果成功，第二个元素是分割的拼音组件列表。</li>
+</ol>
+
+<h2 id="hmm建议中文输入法">HMM建议中文输入法</h2>
+
+<p>这里我们使用了Viterbi算法来解决HMM建议中文输入法的问题</p>
+
+<h3 id="viterbi算法">Viterbi算法</h3>
+
+<p>Viterbi算法是一种动态规划算法，常用于解决与隐马尔可夫模型（Hidden Markov Models, HMMs）相关的问题，特别是解码问题，即在给定观测序列的情况下找到最可能的状态序列。该算法由Andrew Viterbi于1967年提出，并广泛应用于数字通信和信号处理领域，后来也被用于自然语言处理和计算生物学等领域。</p>
+
+<h5 id="基本原理">基本原理</h5>
+
+<p>在HMM中，有两种序列：观测序列（即我们可以直接观察到的事件序列）和状态序列（隐藏在背后，不能直接观察，但影响观测序列的生成）。Viterbi算法的目标是根据观测序列推断出最有可能生成这些观测的状态序列。</p>
+
+<h5 id="工作原理">工作原理</h5>
+
+<ol>
+  <li><strong>初始化：</strong> 对于第一个观测，计算达到每个状态的最大概率，并记录下来。这些概率是初始状态概率与从初始状态到当前观测的发射概率的乘积。</li>
+  <li><strong>递推：</strong> 对于每个后续的观测，计算从任一先前状态转移到当前状态的最大概率，并乘以当前状态到当前观测的发射概率。这一步被称为“向前递推”。</li>
+  <li><strong>路径回溯：</strong> 在处理完所有观测后，算法找到最终观测的最大概率状态。然后，从这个状态开始回溯，找到达到这个状态的最佳路径，直至回到起点。</li>
+  <li><strong>输出：</strong> 输出的是整个观测序列对应的最可能状态序列。</li>
+</ol>
+
+<h5 id="性能和优点">性能和优点</h5>
+
+<p>Viterbi算法相比于穷举搜索所有可能的状态序列，效率更高，因为它利用了动态规划原理，避免了重复计算，并在每步只保留最优的路径。这使得它在处理大规模数据时更为有效和实用。</p>
+
+<h5 id="限制">限制</h5>
+
+<ul>
+  <li><strong>标记假设：</strong> 算法假设未来的状态只依赖于当前状态（马尔可夫性质），这可能限制其在处理复杂依赖关系时的有效性。</li>
+  <li><strong>资源消耗：</strong> 在处理非常大的状态空间时，Viterbi算法可能会消耗大量计算资源。</li>
+</ul>
+
+<h5 id="代码实现">代码实现</h5>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">InputMethod</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+  <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+    <span class="c1"># 加载语言模型
+</span>    <span class="n">self</span><span class="p">.</span><span class="n">lm</span> <span class="o">=</span> <span class="nc">LanguageModel</span><span class="p">()</span>
+    <span class="c1"># 待求解的拼音输入
+</span>    <span class="n">self</span><span class="p">.</span><span class="n">pinyins</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># 有向图
+</span>    <span class="n">self</span><span class="p">.</span><span class="n">graph</span> <span class="o">=</span> <span class="bp">None</span>
+    <span class="c1"># viterbi递归的缓存
+</span>    <span class="n">self</span><span class="p">.</span><span class="n">viterbi_cache</span> <span class="o">=</span> <span class="p">{}</span>
+
+  <span class="k">def</span> <span class="nf">get_key</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="o">*</span><span class="n">words</span><span class="p">):</span>
+    <span class="k">return</span> <span class="sh">'</span><span class="s">_</span><span class="sh">'</span><span class="p">.</span><span class="nf">join</span><span class="p">([</span> <span class="nf">str</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">words</span><span class="p">])</span>
+
+  <span class="k">def</span> <span class="nf">translate</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">pinyins</span><span class="p">):</span>
+    <span class="sh">'''</span><span class="s">
+    @param pinyins: 拼音列表
+    @return:        汉字串
+    </span><span class="sh">'''</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">graph</span> <span class="o">=</span> <span class="nc">Graph</span><span class="p">(</span><span class="n">pinyins</span><span class="p">,</span> <span class="n">self</span><span class="p">)</span><span class="c1"># 有向图
+</span>    <span class="n">self</span><span class="p">.</span><span class="n">viterbi_cache</span> <span class="o">=</span> <span class="p">{}</span><span class="c1"># viterbi递归的缓存
+</span>    <span class="n">self</span><span class="p">.</span><span class="n">pinyins</span> <span class="o">=</span> <span class="n">pinyins</span><span class="c1"># 拼音列表
+</span>
+    <span class="c1"># 从第一个字开始使用viterbi算法求解最大路径
+</span>    <span class="n">words</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">graph</span><span class="p">.</span><span class="n">sequence</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nf">keys</span><span class="p">()</span><span class="c1"># 第一个字的所有可能词
+</span>    <span class="n">max_node</span> <span class="o">=</span> <span class="bp">None</span><span class="c1"># 最大概率的词
+</span>    <span class="n">max_score</span> <span class="o">=</span> <span class="mf">0.0</span><span class="c1"># 最大概率
+</span>    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">words</span><span class="p">:</span><span class="c1"># 遍历第一个字的所有可能词
+</span>      <span class="n">node</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">graph</span><span class="p">.</span><span class="n">sequence</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
+      <span class="n">score</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">viterbi</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+      <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="n">max_score</span><span class="p">:</span>
+        <span class="n">max_score</span> <span class="o">=</span> <span class="n">score</span>
+        <span class="n">max_node</span> <span class="o">=</span> <span class="n">node</span>
+
+    <span class="c1"># 输出中文路径
+</span>    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">while</span> <span class="bp">True</span><span class="p">:</span><span class="c1"># 遍历所有拼音
+</span>      <span class="c1">#TODO:实现如果搜不到词汇，能输出最大概率的词而不是什么也不输出
+</span>      <span class="nf">if</span><span class="p">(</span><span class="n">max_node</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">):</span><span class="c1"># 遍历所有拼音
+</span>        <span class="nf">print</span><span class="p">(</span><span class="sh">"</span><span class="s">没有查找到汉字请输入正确的拼音</span><span class="sh">"</span><span class="p">)</span><span class="c1">#
+</span>        <span class="k">break</span>
+      <span class="n">result</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">max_node</span><span class="p">.</span><span class="n">word</span><span class="p">)</span>
+      <span class="k">if</span> <span class="ow">not</span> <span class="n">max_node</span><span class="p">.</span><span class="n">next_node</span><span class="p">:</span>
+        <span class="k">break</span>
+      <span class="n">max_node</span> <span class="o">=</span> <span class="n">max_node</span><span class="p">.</span><span class="n">next_node</span>
+
+    <span class="nf">print </span><span class="p">(</span><span class="sh">'</span><span class="s"> </span><span class="sh">'</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="n">pinyins</span><span class="p">))</span>
+    <span class="nf">return </span><span class="p">(</span><span class="sh">''</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+
+  <span class="k">def</span> <span class="nf">viterbi</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">t</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
+    <span class="sh">'''</span><span class="s">第 t 个位置出现 k 词的概率
+
+    @param t:   pinyin数组下标
+    @param k:   词
+    @return:    最大分值
+    </span><span class="sh">'''</span>
+    <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="nf">get_key</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">k</span><span class="p">)</span> <span class="ow">in</span> <span class="n">self</span><span class="p">.</span><span class="n">viterbi_cache</span><span class="p">:</span>
+      <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">viterbi_cache</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="nf">get_key</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">k</span><span class="p">)]</span>
+
+    <span class="n">node</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">graph</span><span class="p">.</span><span class="n">sequence</span><span class="p">[</span><span class="n">t</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
+    <span class="c1"># 当前词长度
+</span>    <span class="n">length_self</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    <span class="c1"># 开始时加载句首词词频作为初始概率
+</span>    <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+      <span class="n">init_prop</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">lm</span><span class="p">.</span><span class="nf">get_init_score</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+      <span class="n">init_prop</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># 到达结尾
+</span>    <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">pinyins</span><span class="p">)</span><span class="o">-</span><span class="n">length_self</span><span class="p">:</span>
+      <span class="n">pinyin</span> <span class="o">=</span> <span class="sh">'</span><span class="s">|</span><span class="sh">'</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">pinyins</span><span class="p">[</span><span class="n">t</span><span class="p">:</span><span class="n">t</span><span class="o">+</span><span class="n">length_self</span><span class="p">])</span>
+      <span class="n">emission_prop</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">self</span><span class="p">.</span><span class="n">lm</span><span class="p">.</span><span class="n">emission</span><span class="p">[</span><span class="n">pinyin</span><span class="p">][</span><span class="n">k</span><span class="p">]</span>
+
+      <span class="n">node</span><span class="p">.</span><span class="n">max_score</span> <span class="o">=</span> <span class="n">emission_prop</span>
+      <span class="n">self</span><span class="p">.</span><span class="n">viterbi_cache</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="nf">get_key</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">k</span><span class="p">)]</span> <span class="o">=</span> <span class="n">node</span><span class="p">.</span><span class="n">max_score</span>
+      <span class="k">return</span> <span class="n">node</span><span class="p">.</span><span class="n">max_score</span>
+
+    <span class="c1"># 获得下一个状态所有可能的词
+</span>    <span class="n">next_words</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">graph</span><span class="p">.</span><span class="n">sequence</span><span class="p">[</span><span class="n">t</span><span class="o">+</span><span class="n">length_self</span><span class="p">].</span><span class="nf">keys</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="n">next_words</span><span class="p">:</span>
+      <span class="c1"># 下一个词长度
+</span>      <span class="n">length_next</span> <span class="o">=</span> <span class="nf">len</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+      <span class="n">state_transfer</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">lm</span><span class="p">.</span><span class="nf">get_trans_pro</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="n">k</span><span class="p">)</span>
+      <span class="n">pinyin</span> <span class="o">=</span> <span class="sh">'</span><span class="s">|</span><span class="sh">'</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">pinyins</span><span class="p">[</span><span class="n">t</span><span class="o">+</span><span class="n">length_self</span> <span class="p">:</span> <span class="n">t</span><span class="o">+</span><span class="n">length_self</span><span class="o">+</span><span class="n">length_next</span><span class="p">])</span>
+
+      <span class="n">emission_prop</span> <span class="o">=</span> <span class="mi">1</span><span class="o">/</span><span class="n">self</span><span class="p">.</span><span class="n">lm</span><span class="p">.</span><span class="n">emission</span><span class="p">[</span><span class="n">pinyin</span><span class="p">][</span><span class="n">word</span><span class="p">]</span>
+      <span class="c1"># 递归调用，直到最后一个拼音结束
+</span>      <span class="n">score</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">viterbi</span><span class="p">(</span><span class="n">t</span><span class="o">+</span><span class="n">length_self</span><span class="p">,</span> <span class="n">word</span><span class="p">)</span> <span class="o">*</span> <span class="n">state_transfer</span> <span class="o">*</span> <span class="n">emission_prop</span> <span class="o">*</span> <span class="n">init_prop</span>
+
+      <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="n">node</span><span class="p">.</span><span class="n">max_score</span><span class="p">:</span>
+        <span class="n">node</span><span class="p">.</span><span class="n">max_score</span> <span class="o">=</span> <span class="n">score</span>
+        <span class="n">node</span><span class="p">.</span><span class="n">next_node</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">graph</span><span class="p">.</span><span class="n">sequence</span><span class="p">[</span><span class="n">t</span><span class="o">+</span><span class="n">length_self</span><span class="p">][</span><span class="n">word</span><span class="p">]</span>
+
+    <span class="n">self</span><span class="p">.</span><span class="n">viterbi_cache</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="nf">get_key</span><span class="p">(</span><span class="n">t</span><span class="p">,</span><span class="n">k</span><span class="p">)]</span> <span class="o">=</span> <span class="n">node</span><span class="p">.</span><span class="n">max_score</span>
+    <span class="k">return</span> <span class="n">node</span><span class="p">.</span><span class="n">max_score</span>
+</code></pre></div></div>
+
+<p>这段代码实现了一个中文输入法，它使用隐马尔可夫模型（HMM）和Viterbi算法将拼音串转换为汉字串。以下是对代码的详细分析：</p>
+
+<h5 id="inputmethod-类"><code class="language-plaintext highlighter-rouge">InputMethod</code> 类</h5>
+
+<ol>
+  <li><strong>初始化方法 <code class="language-plaintext highlighter-rouge">__init__</code>：</strong>
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">self.lm = LanguageModel()</code>: 加载一个语言模型实例。这个模型可能包含了状态转移概率、发射概率以及初始状态概率。</li>
+      <li><code class="language-plaintext highlighter-rouge">self.pinyins = []</code>: 初始化一个列表来存储拼音输入。</li>
+      <li><code class="language-plaintext highlighter-rouge">self.graph = None</code>: 初始化一个空的有向图，后续用于存储拼音到汉字的映射关系。</li>
+      <li><code class="language-plaintext highlighter-rouge">self.viterbi_cache = {}</code>: 初始化一个字典，用作Viterbi算法的缓存，以提高效率。</li>
+    </ul>
+  </li>
+  <li><strong>辅助函数 <code class="language-plaintext highlighter-rouge">get_key</code>：</strong>
+    <ul>
+      <li>这个函数用于生成Viterbi缓存的键，将多个词合并为一个字符串。</li>
+    </ul>
+  </li>
+  <li><strong>翻译方法 <code class="language-plaintext highlighter-rouge">translate</code>：</strong>
+    <ul>
+      <li>接收一个拼音列表作为参数。</li>
+      <li><code class="language-plaintext highlighter-rouge">self.graph = Graph(pinyins, self)</code>: 根据拼音列表和当前输入法实例构建一个有向图。</li>
+      <li><code class="language-plaintext highlighter-rouge">self.viterbi_cache = {}</code>: 重置Viterbi缓存。</li>
+      <li>遍历图中第一个拼音对应的所有可能的汉字或词，使用Viterbi算法计算每个词的最大概率路径。</li>
+      <li>选择概率最大的词作为起始点，并构建最终的汉字序列。</li>
+    </ul>
+  </li>
+  <li><strong>Viterbi算法 <code class="language-plaintext highlighter-rouge">viterbi</code>：</strong>
+    <ul>
+      <li>计算在第<code class="language-plaintext highlighter-rouge">t</code>个拼音位置出现词<code class="language-plaintext highlighter-rouge">k</code>的最大概率。</li>
+      <li>首先检查缓存中是否已有计算结果，如果有，直接返回。</li>
+      <li>否则，计算该词的最大分值。</li>
+      <li><code class="language-plaintext highlighter-rouge">init_prop</code>: 如果是序列的起始位置，则使用句首词的初始概率；否则设为1。</li>
+      <li><code class="language-plaintext highlighter-rouge">emission_prop</code>: 计算发射概率，即在当前词状态下生成对应拼音的概率。</li>
+      <li>遍历所有可能的下一个状态（词），递归调用Viterbi算法，并更新当前词的最大分值。</li>
+      <li>将结果存入缓存。</li>
+    </ul>
+  </li>
+</ol>
+
+<h4 id="出现的问题及解决办法">出现的问题及解决办法</h4>
+
+<p><strong>问题：</strong></p>
+
+<p>输入qidong输出却是’启东’而不是’启动’</p>
+
+<p><strong>解决办法：</strong></p>
+
+<p>根据debug发现时发射概率有问题，解决办法时先对self.freq进行排序这样就会使得输出是 启动</p>
+
+<h2 id="对-allennlp-代码的理解">对 AllenNLP 代码的理解</h2>
+
+<p>我们可以先对AllenNLP进行一个宏观的然是AllenNLP是一个基于PyTorch的Apache 2.0开源自然语言处理(NLP)研究库。它旨在帮助研究人员开发最先进的深度学习模型，并处理各种语言任务。该库提供了一系列预训练模型和支持各种NLP任务的模块。AllenNLP特别支持插件，可以动态加载自定义的类或额外的子命令。还提供了一个命令行界面（CLI），通过各种子命令如训练、评估和预测等来简化操作。</p>
+
+<p>使用AllenNLP，可以进行多种高级自然语言处理任务和研究，具体包括但不限于以下方面：</p>
+
+<ol>
+  <li><strong>文本理解与生成</strong>：构建模型来理解文本内容，生成文本或进行翻译。</li>
+  <li><strong>情感分析</strong>：确定文本的情感倾向，比如判断用户评论是正面还是负面。</li>
+  <li><strong>问答系统</strong>：创建能回答自然语言问题的系统。</li>
+  <li><strong>文本摘要</strong>：自动生成文档的简短且有意义的摘要。</li>
+  <li><strong>命名实体识别</strong>：从文本中识别和分类重要的元素，如人名、地点和组织。</li>
+  <li><strong>关系抽取</strong>：从文本中识别实体之间的关系。</li>
+  <li><strong>文本分类</strong>：对文本进行分类，如新闻文章、产品评论等。</li>
+  <li><strong>语言模型</strong>：构建能够理解和生成自然语言的模型。</li>
+</ol>
+
+<p>此外，AllenNLP提供了强大的功能，如：</p>
+
+<ul>
+  <li><strong>预训练模型</strong>：使用在大量数据上预训练的模型，可加快开发过程并提高性能。</li>
+  <li><strong>模块化设计</strong>：灵活的API允许您轻松地定制和扩展模型和组件，并且提供丰富的模块来构建模型，包括编码器、解码器、注意力机制等，同时支持自定义模型。</li>
+  <li><strong>插件支持</strong>：可以通过插件添加新功能或模型，使其易于扩展和适应新任务。</li>
+  <li><strong>实验管理</strong>：通过配置文件和CLI工具，轻松管理和复现实验。</li>
+</ul>
+
+<p>总的来说，AllenNLP是一个功能强大的工具，适合从学术研究到产业应用的各种自然语言处理任务。</p>
+
+<p><strong>这里就稍微了解下他的注意力机制的代码实现</strong></p>
+
+<p>AllenNLP提供了一个灵活的框架来实现和使用注意力机制。在其库中，注意力通常作为一个模块（通常在<code class="language-plaintext highlighter-rouge">modules/attention/</code>目录下）实现，这样可以轻松地在不同的模型中重用和组合。</p>
+
+<h3 id="1-注意力机制的实现">1. 注意力机制的实现：</h3>
+
+<ul>
+  <li><strong>基类</strong>：所有的注意力模块都继承自一个基类（如<code class="language-plaintext highlighter-rouge">Attention</code>），这个基类定义了一些必要的接口和功能。这种设计使得添加新的注意力类型变得容易。</li>
+  <li><strong>多种注意力类型</strong>：AllenNLP实现了多种注意力机制，包括但不限于传统的点积注意力（Dot Product Attention）、缩放点积注意力（Scaled Dot Product Attention）、加性注意力（Additive Attention）和多头注意力（Multi-Head Attention）。这些实现提供了各种选项来探索不同的注意力策略。</li>
+  <li><strong>参数化</strong>：注意力模块通常是高度参数化的，允许用户指定维度大小、激活函数、缩放因子等。这些参数可以通过配置文件灵活地调整。</li>
+</ul>
+
+<h3 id="2-使用注意力机制">2. 使用注意力机制：</h3>
+
+<ul>
+  <li><strong>集成到模型中</strong>：在定义模型时，可以将注意力模块作为组件集成进来。例如，在一个序列到序列的模型中，可以在解码器中使用注意力机制来关注编码器的输出。</li>
+  <li><strong>与其他组件协作</strong>：注意力通常与其他模块（如RNN、Transformer）一起使用。AllenNLP的模块化设计使得这种组合使用变得简单。</li>
+  <li><strong>配置和实验</strong>：通过配置文件，可以轻松地尝试不同的注意力机制和参数，快速进行实验和比较。</li>
+</ul>
+
+<h3 id="3-使用注意力机制的方法代码示例">3. 使用注意力机制的方法代码示例：</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pythonCopy code# 导入所需的模块
+from allennlp.modules.attention import DotProductAttention, AdditiveAttention
+
+# 初始化注意力模块
+attention = DotProductAttention()
+
+# 在模型中使用注意力
+# 假设我们有query和key
+attention_weights = attention(query, key)
+</code></pre></div></div>
+
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2023-12-02T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2023/12/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0.html">操作系统课程笔记</a></div><div class="next"><span>下篇</span><a href="/2023/12/03/%E5%A4%9A%E5%AA%92%E4%BD%93%E6%8A%80%E6%9C%AF%E5%9F%BA%E7%A1%80%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0.html">多媒体技术基础课程笔记</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Gao Xingjie"><meta itemprop="url" content="/"><meta itemprop="description" content="To be a question, to be an answer."><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"><li title="给我发邮件。">
+      <a class="button button--circle mail-button" itemprop="email" href="mailto:xingjie-gao@outlook.com" target="_blank">
+        <i class="fas fa-envelope"></i>
+      </a><li title="在 Github 上关注我。">
+        <a class="button button--circle github-button" itemprop="sameAs" href="https://github.com/Kfkcome" target="_blank">
+          <div class="icon"><svg fill="#000000" width="24px" height="24px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path class="svgpath" data-index="path_0" fill="#272636" d="M0 525.2c0 223.6 143.3 413.7 343 483.5 26.9 6.8 22.8-12.4 22.8-25.4l0-88.7c-155.3 18.2-161.5-84.6-172-101.7-21.1-36-70.8-45.2-56-62.3 35.4-18.2 71.4 4.6 113.1 66.3 30.2 44.7 89.1 37.2 119 29.7 6.5-26.9 20.5-50.9 39.7-69.6C248.8 728.2 181.7 630 181.7 513.2c0-56.6 18.7-108.7 55.3-150.7-23.3-69.3 2.2-128.5 5.6-137.3 66.5-6 135.5 47.6 140.9 51.8 37.8-10.2 80.9-15.6 129.1-15.6 48.5 0 91.8 5.6 129.8 15.9 12.9-9.8 77-55.8 138.8-50.2 3.3 8.8 28.2 66.7 6.3 135 37.1 42.1 56 94.6 56 151.4 0 117-67.5 215.3-228.8 243.7 26.9 26.6 43.6 63.4 43.6 104.2l0 128.8c0.9 10.3 0 20.5 17.2 20.5C878.1 942.4 1024 750.9 1024 525.3c0-282.9-229.3-512-512-512C229.1 13.2 0 242.3 0 525.2L0 525.2z" />
+</svg>
+</div>
+        </a>
+      </li></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© Ennis's Blog 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script>
+  window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
+    var $canvas = null, $this = null, _ctx = null, _text = '';
+    $('.language-chart').each(function(){
+      $this = $(this);
+      $canvas = $('<canvas></canvas>');
+      _text = $this.text();
+      $this.text('').append($canvas);
+      _ctx = $canvas.get(0).getContext('2d');
+      (_ctx && _text) && (new Chart(_ctx, JSON.parse(_text)) && $this.attr('data-processed', true));
+    });
+  });
+</script>
+<script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};_config.TeX = { equationNumbers: { autoNumber: "all" } };MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+

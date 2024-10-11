@@ -1,10 +1,10 @@
 <!DOCTYPE html><html lang="zh-Hans">
   <head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>高星杰的博客 - Ennis's Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>机器学习导引笔记 - Ennis's Blog</title>
 
-<meta name="description" content="Ennis's Blog | 高星杰的博客">
-<link rel="canonical" href="http://localhost:4000/"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+<meta name="description" content="机器学习导引名词解释第一章序和绪论      机器学习    从数学角度机器学习就是从数据中学习到一个函数f    利用数据自我进化的工具    从经验数据中提升性能    数据挖掘：从数据中发现模式的过程        模式识别：模式识别是机器学习中的一个分支主要关注数据中的模式和规律的识别        模式...">
+<link rel="canonical" href="http://localhost:4000/2023/12/04/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%AF%BC%E5%BC%95%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
 
 <meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
 
@@ -254,7 +254,7 @@
 </head>
   <body>
     <div class="root" data-is-touch="false">
-      <div class="layout--page js-page-root"><div class="page__main js-page-main page__viewport cell cell--auto">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport has-aside cell cell--auto">
 
       <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
       <div class="header__title">
@@ -268,139 +268,344 @@
 </svg>
 <a title="Willing to be a question, willing to be an answer.
 " href="/">Ennis's Blog</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
-        <ul><li class="navigation__item navigation__item--active"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+        <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
       </nav></div>
   </header>
-</div><div class="page__content"><div class ="main"><div class="grid grid--reverse">
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0">机器学习</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0">课程笔记</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2023年 12月04日</span>
+            </li></ul></div><div class="article__header"><header><h1>机器学习导引笔记</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2023-12-4-机器学习导引课程笔记.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">机器学习导引名词解释第一章序和绪论      机器学习    从数学角度机器学习就是从数据中学习到一个函数f    利用数据自我进化的工具    从经验数据中提升性能    数据挖掘：从数据中发现模式的过程        模式识别：模式识别是机器学习中的一个分支主要关注数据中的模式和规律的识别        模式：是指具体识别问题中的具有像同类别属性的事物或行为的统称        数据预处...</p></div></div>
+              </div>
+            </div><div class ="main"><div class="grid grid--reverse">
 
-              <div class="col-aside d-print-none js-col-aside"></div>
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
 
               <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
 
 <!-- end custom main top snippet -->
-<article itemscope itemtype="http://schema.org/WebPage"><header style="display:none;"><h1>高星杰的博客</h1></header><meta itemprop="headline" content="高星杰的博客"><meta itemprop="author" content="Gao Xingjie"/><div class="js-article-content"><div class="layout--articles"><div class="article-list items items--divided"><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
-          <header><a href="/2024/10/10/%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%BC%80%E5%A4%B4.html"><h2 itemprop="headline" class="item__header">博客的开头</h2></a></header>
-          <div class="item__description"><div class="article__content" itemprop="description articleBody">博客的开头
-一直想要搞一个博客，但是奈何没有时间，现在终于闲下来了，找到网上的教程，做了这么个简陋的博客。
-记忆会消失，文字不会，所以想要用博客来记录自己的成长，记录自己的学习，同时希望可以能帮助到你。</div><p><a href="/2024/10/10/%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%BC%80%E5%A4%B4.html">阅读更多</a></p></div><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 10月10日</span>
-            </li></ul></div><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2024-10-10T00:00:00+08:00"></div>
-      </article><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
-          <header><a href="/2024/01/12/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E8%AF%BE%E7%A8%8B%E6%8A%A5%E5%91%8A.html"><h2 itemprop="headline" class="item__header">自然语言处理课程报告</h2></a></header>
-          <div class="item__description"><div class="article__content" itemprop="description articleBody">自然语言处理课程报告
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="机器学习导引笔记"><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2023-12-04T00:00:00+08:00">
+    <meta itemprop="keywords" content="机器学习,课程笔记"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
 
-基于Transfer Text-to-Text Transformer（T5）论文标题生成模型</div><p><a href="/2024/01/12/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E8%AF%BE%E7%A8%8B%E6%8A%A5%E5%91%8A.html">阅读更多</a></p></div><div class="article__info clearfix"><ul class="left-col menu"><li>
-              <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86">自然语言处理</a>
-            </li><li>
-              <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=nlp">nlp</a>
-            </li><li>
-              <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">实验报告</a>
-            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 01月12日</span>
-            </li></ul></div><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2024-01-12T00:00:00+08:00">
-    <meta itemprop="keywords" content="自然语言处理,nlp,实验报告"></div>
-      </article><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
-          <header><a href="/2024/01/04/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E4%B8%83%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html"><h2 itemprop="headline" class="item__header">计算机网络第七次实验报告</h2></a></header>
-          <div class="item__description"><div class="article__content" itemprop="description articleBody">计算机网络第七次报告
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><h1 id="机器学习导引">机器学习导引</h1>
 
-访问控制列表的配置与应用</div><p><a href="/2024/01/04/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E4%B8%83%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html">阅读更多</a></p></div><div class="article__info clearfix"><ul class="left-col menu"><li>
-              <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C">计算机网络</a>
-            </li><li>
-              <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">实验报告</a>
-            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 01月04日</span>
-            </li></ul></div><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2024-01-04T00:00:00+08:00">
-    <meta itemprop="keywords" content="计算机网络,实验报告"></div>
-      </article><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
-          <header><a href="/2024/01/04/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E5%A4%A7%E4%BD%9C%E4%B8%9ASDN.html"><h2 itemprop="headline" class="item__header">计算机网络实验大作业SDN</h2></a></header>
-          <div class="item__description"><div class="article__content" itemprop="description articleBody">计算机网络实验大作业SDN
+<h2 id="名词解释">名词解释</h2>
 
-SDN 实际应用实践</div><p><a href="/2024/01/04/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E5%A4%A7%E4%BD%9C%E4%B8%9ASDN.html">阅读更多</a></p></div><div class="article__info clearfix"><ul class="left-col menu"><li>
-              <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C">计算机网络</a>
-            </li><li>
-              <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">实验报告</a>
-            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 01月04日</span>
-            </li></ul></div><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2024-01-04T00:00:00+08:00">
-    <meta itemprop="keywords" content="计算机网络,实验报告"></div>
-      </article><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
-          <header><a href="/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%BA%8C.html"><h2 itemprop="headline" class="item__header">操作系统实验二</h2></a></header>
-          <div class="item__description"><div class="article__content" itemprop="description articleBody">操作系统实验二—————存储管理
+<h3 id="第一章序和绪论">第一章序和绪论</h3>
 
-存储管理</div><p><a href="/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%BA%8C.html">阅读更多</a></p></div><div class="article__info clearfix"><ul class="left-col menu"><li>
-              <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F">操作系统</a>
-            </li><li>
-              <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">实验报告</a>
-            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 01月01日</span>
-            </li></ul></div><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2024-01-01T00:00:00+08:00">
-    <meta itemprop="keywords" content="操作系统,实验报告"></div>
-      </article><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
-          <header><a href="/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%B8%89.html"><h2 itemprop="headline" class="item__header">操作系统实验三</h2></a></header>
-          <div class="item__description"><div class="article__content" itemprop="description articleBody">操作系统实验三—————死锁
+<ol>
+  <li>
+    <p>机器学习</p>
 
-死锁</div><p><a href="/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%B8%89.html">阅读更多</a></p></div><div class="article__info clearfix"><ul class="left-col menu"><li>
-              <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F">操作系统</a>
-            </li><li>
-              <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">实验报告</a>
-            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 01月01日</span>
-            </li></ul></div><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2024-01-01T00:00:00+08:00">
-    <meta itemprop="keywords" content="操作系统,实验报告"></div>
-      </article><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
-          <header><a href="/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%B8%80.html"><h2 itemprop="headline" class="item__header">操作系统实验一</h2></a></header>
-          <div class="item__description"><div class="article__content" itemprop="description articleBody">操作系统实验一—————进程调度
+    <p>从数学角度机器学习就是从数据中学习到一个函数f</p>
 
-进程调度</div><p><a href="/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%B8%80.html">阅读更多</a></p></div><div class="article__info clearfix"><ul class="left-col menu"><li>
-              <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F">操作系统</a>
-            </li><li>
-              <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">实验报告</a>
-            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 01月01日</span>
-            </li></ul></div><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2024-01-01T00:00:00+08:00">
-    <meta itemprop="keywords" content="操作系统,实验报告"></div>
-      </article><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
-          <header><a href="/2023/12/21/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E5%85%AD%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html"><h2 itemprop="headline" class="item__header">计算机网络第六次实验报告</h2></a></header>
-          <div class="item__description"><div class="article__content" itemprop="description articleBody">计算机网络第六次报告
+    <p>利用数据自我进化的工具</p>
 
-动态路由</div><p><a href="/2023/12/21/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E5%85%AD%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html">阅读更多</a></p></div><div class="article__info clearfix"><ul class="left-col menu"><li>
-              <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C">计算机网络</a>
-            </li><li>
-              <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">实验报告</a>
-            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2023年 12月21日</span>
-            </li></ul></div><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2023-12-21T00:00:00+08:00">
-    <meta itemprop="keywords" content="计算机网络,实验报告"></div>
-      </article></div>
-</div><div class="layout--home"><div class="pagination"><p>共计 24 篇文章，3 页。</p>
-    <div class="pagination__menu">
-      <ul class="menu menu--nowrap"><li><div class="button button--secondary button--circle disabled">
-            <i class="fas fa-angle-left"></i>
-          </div></li><li>
-              <div class="button button--primary button--circle focus"><span>1</span></div>
-            </li><li>
-                <a class="button button--secondary button--circle" href="/page2"><span>2</span></a>
-              </li><li>
-                <a class="button button--secondary button--circle" href="/page3"><span>3</span></a>
-              </li><li><a class="button button--secondary button--circle" href="/page2">
-            <i class="fas fa-angle-right"></i>
-          </a></li></ul>
-    </div>
-  </div></div>
-<script>/*(function () {
+    <p>从经验数据中提升性能</p>
 
-})();*/
+    <p>数据挖掘：从数据中发现模式的过程</p>
+  </li>
+  <li>
+    <p>模式识别：模式识别是机器学习中的一个分支主要关注数据中的模式和规律的识别</p>
+  </li>
+  <li>
+    <p>模式：是指具体识别问题中的具有像同类别属性的事物或行为的统称</p>
+  </li>
+  <li>
+    <p>数据预处理：保留和恢复与识别相关的，去除不相关的部分</p>
+  </li>
+  <li>
+    <p>特征提取：就是将数据换种方式表达，特征提取将原始观测数据变换到新的原始空间，是的学习和识别更容易，效果更好</p>
+  </li>
+  <li>
+    <p>有监督学习：</p>
+
+    <p>监督学习是指数据集的正确输出已知情况下的一类学习算法。因为输入和输出已知，意味着输入和输出之间有一个关系，监督学习算法就是要发现和总结这种“关系”。</p>
+
+    <p><em>简单的归纳就是，是否有监督（supervised），就看输入数据是否有标签（label）。输入数据有标签，则为有监督学习；没标签则为无监督学习</em></p>
+  </li>
+  <li>
+    <p>无监督学习：无监督学习是指对无标签数据的一类学习算法。因为没有标签信息，意味着需要从数据集中发现和总结模式或者结构。</p>
+  </li>
+</ol>
+
+<h3 id="第二章模型的评估与选择">第二章模型的评估与选择</h3>
+
+<ol>
+  <li>经验误差（Empirical Error）：学习器f在训练集上的误差</li>
+  <li>泛化误差（Generalization Error）：学习器在未来样本上的误差</li>
+  <li>欠拟合：相较于数据而言，模型参数过少或者模型结构过于简单以至于无法捕捉中的规律的现象</li>
+  <li>过拟合：模型过于紧密或精确地匹配特定数据集，以至于无法良好的拟合其他数据或预测未来的观察结果的现象</li>
+  <li>合适的拟合：模型能够恰当地拟合和捕捉数据中的规律和现象</li>
+  <li>留出法：直接将数据集D划分为两个互斥的集合，一个作为训练集S，另一个作为测试集 T，即 D=S∪T，S∩T=∅。</li>
+  <li>交叉验证法：随机将样本拆分成K个互不相交大小相同的子集，然后用K-1个子集作为训练集训练模型，用剩余的子集测试模型，对K中选择重复进行，最终选出K次测评中的平均测试误差最小的模型。</li>
+  <li>自助法（bootstrapping，有放回采样）：留出法每次从数据集 D 中抽取一个样本加入数据集 D′ 中，然后再将该样本放回到原数据集 D 中，即 D 中的样本可以被重复抽取。</li>
+  <li>调参</li>
+  <li><strong>偏差（Bias）</strong>: 指的是模型在多次训练过程中预测结果的平均值与真实值之间的差异。偏差较高通常意味着模型过于简单，不能捕捉数据的真实规律，即所谓的“欠拟合”（underfitting）。</li>
+  <li><strong>方差（Variance）</strong>: 描述的是模型对于给定的数据点，预测结果随着不同训练数据的变化而波动的程度。高方差通常意味着模型过于复杂，对训练数据中的随机噪声非常敏感，即所谓的“过拟合”（overfitting）。</li>
+  <li><strong>误差（Error）</strong>: 总误差可以分解为偏差的平方、方差，以及不可避免的误差ε²。这个不可避免的误差是由于数据本身的随机性或者噪声导致的，是模型无法减少的误差部分。</li>
+</ol>
+
+<h3 id="第三章线性模型">第三章线性模型</h3>
+
+<ol>
+  <li>MSE均方误差</li>
+  <li>最小二乘法（Last square method）：基于均方误差最小化求解模型参数的方法</li>
+  <li>概率（Probility）：参数已知求实验结果的可能性</li>
+  <li>似然(likelihood)：实验结果已知求参数的可能性</li>
+  <li>极大似然法（Maximum likelihood）:寻求参数使得已发生的实验结果的可能性最大</li>
+  <li>梯度下降法(Grandient Descent)：是一种一阶优化办法，用来求无约束优化问题。步骤先设定一个初始点然后，然后求该点的梯度，然后根据梯度和学习率求出x的变化量，确保$f(x_t)&gt;f(x_{t+1})$，直到求得极小值。</li>
+  <li>线性判别分析（Linear Discriminate Analysis,LDA）的思想：寻找一个直线（或者低维子空间），使得同类的样本尽可能的接近，异类的样本尽可能的远离</li>
+</ol>
+
+<h3 id="第四章决策树decision-tree">第四章决策树(Decision Tree)</h3>
+
+<ol>
+  <li>
+    <p>决策树的策略：分而治之，自根至叶递归的过程</p>
+  </li>
+  <li>信息量：$I(x)=-log_{2}p(x)$</li>
+  <li>信息熵：平均信息量$H(x)=\sum_{i=1}^{n}I(x_i)p(x_i)$</li>
+  <li>预剪枝：训练时间开销少，测试时间开销降低，过拟合风险减低，欠拟合风险<strong>增加</strong></li>
+  <li>后剪枝：训练时间开销<strong>增加</strong>，测试时间开销降低，过拟合风险减低，欠拟合风险<strong>基本不变</strong></li>
+</ol>
+
+<h3 id="第五章神经网络">第五章神经网络</h3>
+
+<ol>
+  <li>模式分类问题的目标为:设计智能算法自动将新的测试样本准确划分到真实的类别。</li>
+  <li>感知器的过程：
+    <ol>
+      <li>计算感知器的估计结果</li>
+      <li>更新权重向量</li>
+      <li>重复以上步骤直到对于所有训练样本没有分类错误或者达到一定的迭代次数</li>
+    </ol>
+  </li>
+  <li>批次梯度下降（batch Gradient Descent，BGD)$w_{t+1}=w_t-\eta \frac{1}{n}\sum^n_{i=1}\bigtriangledown e_i(w_t)$</li>
+  <li>随机梯度下降$w_{t+1}=w_t-\eta \bigtriangledown e_i(w_t)$</li>
+  <li>小批量梯度下降$w_{t+1}=w_t-\eta \frac{1}{k}\sum_{i\in B_k} \bigtriangledown e_i(w_t)$</li>
+  <li>为什么要卷积：稀疏连接</li>
+  <li>卷积神经网络CNN（Convolutional Neural Network）：卷积Convolution 激活函数Relu 池化Pooling</li>
+</ol>
+
+<h3 id="第八章集成学习">第八章集成学习</h3>
+
+<ol>
+  <li>
+    <p>Boosting：是一组可以将弱学习器提升为强学习器的算法。</p>
+  </li>
+  <li>
+    <p>Booting步骤</p>
+
+    <ol>
+      <li>先从初始训练集训练出一个基学习器</li>
+      <li>再根据基学习器的表现对训练样本分布进行调整，使得先前基学习器的做错的训练样本在后续收到更多关注</li>
+      <li>然后基于调整后的样本分布来训练下一个基学习器</li>
+      <li>如此重复，直至学习器数目达到指定的值T</li>
+      <li>最终将这T个基学习器进行加权结合</li>
+    </ol>
+  </li>
+  <li>
+    <p>Bagging算法（bootstrap aggregating 自助聚集算法）自助采样集成多个弱分类器</p>
+  </li>
+  <li>
+    <p>boosting和bagging 的区别</p>
+
+    <ol>
+      <li>
+        <p><strong>算法思想：</strong></p>
+
+        <p>Bagging：对于Bagging算法，并行训练多个不同分类器的目的主要是降低方差，采用了相互独立的基本分类器后，模型之间不存在依赖关系，性能较为平均，因此对每个基本分类器来说，目标是如何降低偏差，因此通常会采用深度很深而且不剪枝的决策树。</p>
+
+        <p>Boosting：对于Boosting算法，每一次迭代都是在上一轮的基础上拟合原数据，可以保证偏差持续降低，因此对于每一个基本分类器来说，目标是如何选择方差较小的分类器，也就是选择更简单的分类器，因而通常选择深度很浅的决策树。反之，如果基本模型较复杂，则方差相对较大，这将导致整体模型的方差很大，从而很容易产生过拟合。因此，boosting框架中的基本模型必须为弱模型。</p>
+      </li>
+      <li>
+        <p><strong>样本选择：</strong></p>
+
+        <p>Bagging：训练集是在原始集中有放回选取的，从原始集中选出的各轮训练集之间是独立的。</p>
+
+        <p>Boosting：每一轮的训练集不变，只是训练集中每个样例在分类器中的权重发生变化。而权值是根据上一轮的分类结果进行调整。</p>
+      </li>
+      <li>
+        <p><strong>样例权重：</strong></p>
+
+        <p>Bagging：使用均匀取样，每个样例的权重相等</p>
+
+        <p>Boosting：根据错误率不断调整样例的权值，错误率越大则权重越大。</p>
+      </li>
+      <li>
+        <p><strong>预测函数：</strong></p>
+
+        <p>Bagging：所有预测函数的权重相等。</p>
+
+        <p>Boosting：每个弱分类器都有相应的权重，对于分类误差小的分类器会有更大的权重。</p>
+      </li>
+      <li>
+        <p><strong>并行计算：</strong></p>
+
+        <p>Bagging：各个预测函数可以并行生成。</p>
+
+        <p>Boosting：各个预测函数只能顺序生成，因为后一个模型参数需要前一轮模型的结果。</p>
+      </li>
+    </ol>
+  </li>
+</ol>
+
+<h3 id="第十章主成分分析">第十章主成分分析</h3>
+
+<p>主成分分析（PCA）和线性判别分析（LDA）都是降维技术，它们在许多机器学习和统计数据分析的应用中都非常有用。尽管它们有类似之处，但它们的目的、方法和使用场景有着根本的不同。</p>
+
+<p><strong>相同点</strong>:</p>
+
+<ul>
+  <li>都是线性变换技术，能够将原始数据转换到新的坐标系统。</li>
+  <li>都可以用于降低数据的维度。</li>
+  <li>都通过解决特征值问题来找到转换矩阵。</li>
+</ul>
+
+<p><strong>不同点</strong>:</p>
+
+<ul>
+  <li><strong>目的</strong>:
+    <ul>
+      <li><strong>PCA</strong> 旨在捕捉数据中的最大方差，它是一种无监督的方法，不考虑数据的类别标签。</li>
+      <li><strong>LDA</strong> 则试图最大化类间方差并最小化类内方差，它是一种监督学习方法，使用类别的标签信息。</li>
+    </ul>
+  </li>
+  <li><strong>方法</strong>:
+    <ul>
+      <li><strong>PCA</strong> 通过对数据协方差矩阵进行特征分解来找到主成分。</li>
+      <li><strong>LDA</strong> 通过最大化类别之间的分散程度（类间散度矩阵）与类别内的分散程度（类内散度矩阵）之比来找到最佳的线性投影。</li>
+    </ul>
+  </li>
+  <li><strong>应用场景</strong>:
+    <ul>
+      <li><strong>PCA</strong> 通常用于数据预处理、噪声过滤、数据可视化等，它不考虑数据的分类。</li>
+      <li><strong>LDA</strong> 通常用于特征提取和维度降低，特别是在设计分类器时，因为它寻找能够最佳区分类别的方向。</li>
+    </ul>
+  </li>
+  <li><strong>结果</strong>:
+    <ul>
+      <li><strong>PCA</strong> 的结果不受类别影响，可能不会保留对分类有用的信息。</li>
+      <li><strong>LDA</strong> 的结果旨在保留最有助于区分不同类别的信息，通常在分类任务中表现更好。</li>
+    </ul>
+  </li>
+  <li><strong>类别数量</strong>:
+    <ul>
+      <li><strong>PCA</strong> 不受类别数量的影响。</li>
+      <li><strong>LDA</strong> 的可用维度最多是类别数减去1（因为至少需要两个类别来找到一个区分方向）。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>简而言之，PCA是寻找数据最大方差的方向，而LDA是寻找最佳分类的方向。因此，在选择使用PCA还是LDA时，需要考虑任务的目标是仅仅降维还是为了提高后续的分类效果。</p>
+
+<h3 id="英文题">英文题</h3>
+
+<h4 id="用英文描述模型和数据的关系">用英文描述模型和数据的关系</h4>
+
+<blockquote>
+  <p>In the context of machine learning, the relationship between models and data can be described as follows:</p>
+
+  <p>A model in machine learning is a mathematical representation of reality, constructed based on historical data. It aims to capture the underlying patterns or relationships within the data that enable it to make predictions or decisions without being explicitly programmed for the task.</p>
+
+  <p>Data is the cornerstone of any machine learning model. It consists of a set of examples, usually in a structured form like a dataset, where each example is characterized by a number of features. These features are variables that the model uses to learn from the data. The quality, quantity, and relevance of the data directly influence the model’s ability to learn effectively.</p>
+
+  <p>Training a model involves feeding it with data and allowing it to adjust its parameters. The model learns from the training data through a process of optimization, where it tries to minimize the difference between its predictions and the actual outcomes, known as the error or loss.</p>
+
+  <p>Once trained, the model’s performance is evaluated on new, unseen data, known as testing data, to estimate how well it generalizes to new examples. The goal is for the model to make accurate predictions on new data that it has not encountered during the training phase.</p>
+
+  <p>In summary, <strong>the relationship between models and data in machine learning is a dynamic interplay where models learn from data to uncover patterns, and the data in turn guides the model’s learning process towards generalization and predictive accuracy.</strong></p>
+</blockquote>
+
+<blockquote>
+  <p>在机器学习的背景下，模型与数据之间的关系可以描述如下：</p>
+
+  <p>在机器学习中，模型是对现实的数学表示，它是基于历史数据构建的。它的目标是捕捉数据内部的潜在模式或关系，使其能够在没有明确编程的情况下进行预测或决策任务。</p>
+
+  <p>数据是任何机器学习模型的基石。它由一组示例组成，通常以数据集的结构形式存在，其中每个示例由多个特征描述。这些特征是模型用于从数据中学习的变量。数据的质量、数量和相关性直接影响模型学习的有效性。</p>
+
+  <p>训练模型涉及提供数据并允许其调整参数。模型从训练数据中学习，通过优化过程，试图最小化其预测与实际结果之间的差异，这被称为误差或损失。</p>
+
+  <p>一旦训练完成，模型的性能将在新的、未见过的数据上进行评估，这被称为测试数据，以估计其在新示例上的泛化能力。目标是让模型能够在未在训练阶段遇到过的新数据上做出准确的预测。</p>
+
+  <p>总之，在机器学习中，模型与数据之间的关系是一个动态的相互作用，模型从数据中学习以揭示模式，而数据反过来指导模型的学习过程，使其实现泛化和预测准确性。</p>
+</blockquote>
+
+<h4 id="用英文谈一谈对机器学习和人工智能的理解">用英文谈一谈对机器学习和人工智能的理解</h4>
+
+<blockquote>
+  <p>Machine Learning (ML) and Artificial Intelligence (AI) are two intertwined fields that have become pivotal in driving technological advancement. Machine Learning is a subset of AI focused on developing algorithms and statistical models that enable computers to perform specific tasks without explicit instructions. It relies on patterns and inference instead.</p>
+
+  <p><strong>The essence of machine learning lies in its ability to learn from and make predictions or decisions based on data.</strong> It encompasses a variety of techniques, such as <strong>supervised learning,</strong> where models are trained on labeled data; <strong>unsupervised learning</strong>, which deals with unlabeled data; and <strong>reinforcement learning</strong>, where an agent learns to make decisions by receiving rewards or penalties.</p>
+
+  <p>Artificial Intelligence, on the other hand, is a broader concept that refers to machines or systems’ ability to perform tasks that typically require human intelligence. This includes problem-solving, speech recognition, decision-making, and language translation. AI systems can range from rule-based systems, which follow predefined logic, to complex neural networks that mimic the human brain’s functioning.</p>
+
+  <p>Together, ML and AI are transforming industries by automating processes, enhancing decision-making, and providing new insights. In healthcare, they’re used for predictive diagnostics and personalized medicine. In finance, they’re revolutionizing fraud detection and algorithmic trading. In everyday life, they power virtual assistants, recommendation systems, and autonomous vehicles.</p>
+
+  <p>The future of ML and AI holds great promise for addressing some of the most challenging problems faced by humanity. However, it also poses ethical and societal questions regarding privacy, employment, and decision-making, which we must address responsibly as these technologies continue to evolve.</p>
+</blockquote>
+
+<blockquote>
+  <p>机器学习（ML）和人工智能（AI）是两个密切相关的领域，在推动技术进步方面发挥了关键作用。机器学习是人工智能的一个子领域，专注于开发算法和统计模型，使计算机能够在没有明确指令的情况下执行特定任务。它依赖于识别模式和进行推断。</p>
+
+  <p>机器学习的核心概念在于其能够从数据中学习并根据该数据进行预测或决策。它涵盖了各种技术，包括监督学习（模型在带标签的数据上训练）、无监督学习（处理无标签数据）和强化学习（代理根据奖励或惩罚学习做出决策）。</p>
+
+  <p>人工智能则是一个更广泛的概念，指的是机器或系统执行通常需要人类智能的任务的能力。这包括问题解决、语音识别、决策制定和语言翻译。人工智能系统可以从遵循预定义逻辑的基于规则的系统到模仿人脑功能的复杂神经网络。</p>
+
+  <p>机器学习和人工智能共同改变着各行各业，自动化流程、改进决策制定并提供有价值的见解。在医疗保健领域，它们用于预测诊断和个性化医学。在金融领域，它们正在彻底改变欺诈检测和算法交易。在日常生活中，它们驱动着虚拟助手、推荐系统和自动驾驶汽车等应用。</p>
+
+  <p>机器学习和人工智能的未来对于解决人类面临的一些最复杂的问题具有巨大潜力。然而，随着这些技术不断发展，它们也引发了有关隐私、就业和决策制定等方面的伦理和社会问题，我们必须以负责任的方式加以解决。</p>
+</blockquote>
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2023-12-04T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2023/12/03/%E5%A4%9A%E5%AA%92%E4%BD%93%E6%8A%80%E6%9C%AF%E5%9F%BA%E7%A1%80%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0.html">多媒体技术基础课程笔记</a></div><div class="next"><span>下篇</span><a href="/2023/12/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%94%E8%AE%B0.html">计算机网络笔记</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
 </script>
-
-
-
 </div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
 
 <!-- end custom main bottom snippet -->
@@ -948,6 +1153,68 @@ window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
 /*(function () {
 
 })();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
 </script><script>
   window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
     var $canvas = null, $this = null, _ctx = null, _text = '';
