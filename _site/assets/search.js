@@ -1,1 +1,1 @@
-window.TEXT_SEARCH_DATA={'posts':[{'title':"博客的开头",'url':"/2024/10/10/%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%BC%80%E5%A4%B4.html"}]};
+window.TEXT_SEARCH_DATA={'posts':[{'title':"计算机网络第一次实验报告",'url':"/2023/09/28/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html"},{'title':"博客的开头",'url':"/2024/10/10/%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%BC%80%E5%A4%B4.html"}]};
