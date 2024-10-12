@@ -1,0 +1,2087 @@
+<!DOCTYPE html><html lang="zh-Hans">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>编译原理 第二次实验 自上而下语法分析 - Ennis's Blog</title>
+
+<meta name="description" content="">
+<link rel="canonical" href="http://localhost:4000/2024/04/11/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86-%E7%AC%AC%E4%BA%8C%E6%AC%A1%E5%AE%9E%E9%AA%8C-%E8%87%AA%E4%B8%8A%E8%80%8C%E4%B8%8B%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Willing to be a question, willing to be an answer.
+" href="/">Ennis's Blog</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86">编译原理</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">实验报告</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 04月11日</span>
+            </li></ul></div><div class="article__header"><header><h1>编译原理 第二次实验 自上而下语法分析</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2024-4-11-编译原理 第二次实验 自上而下语法分析.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt"></p></div></div>
+              </div>
+            </div><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="编译原理 第二次实验 自上而下语法分析"><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2024-04-11T00:00:00+08:00">
+    <meta itemprop="keywords" content="编译原理,实验报告"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><p><!---more--></p>
+<div class="cover" style="page-break-after:always;font-family:仿宋;width:100%;height:100%;border:none;margin: 0 auto;text-align:center;">
+    <div style="width:80%;;margin: 0 auto;height:0;padding-bottom:25%;">
+        <img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%20%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%20%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90.assets/1-538-png_6_0_0_188_115_242_92_893.024_1263-1400-0-255-1400.jpg" alt="校名" style="width:100%;" /></div>
+    <br /><br />
+    <div style="width:40%;margin: 0 auto;height:0;padding-bottom:40%;">
+        <img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%20%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%20%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90.assets/image-20240616111344139.png" alt="校徽" style="width:100%;" /></div>
+    <br /><br /> <!---more-->
+    <p style="text-align:center;font-size:24pt;margin: 0 auto">《编译原理实验》</p>
+    <p style="text-align:center;font-size:24pt;margin: 0 auto">实验报告 </p>
+    <br /><br />
+    <table style="border:none;text-align:center;width:80%;font-family:仿宋;margin: 0 auto;">
+    <tbody style="font-family:仿宋;font-size:16pt;">
+    	<tr style="font-weight:bold;"> 
+    		<td style="width:25%;text-align:right;">题&emsp;&emsp;目</td><td style="width:5%">：</td> 
+    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">第二次实验 自上而下语法分析</td></tr>
+        <tr style="font-weight:bold;"> 
+    		<td style="width:25%;text-align:right;">姓&emsp;&emsp;名</td><td style="width:5%">：</td> 
+    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">高星杰</td></tr>
+    	<tr style="font-weight:bold;"> 
+    		<td style="width:25%;text-align:right;">学&emsp;&emsp;号</td><td style="width:5%">：</td> 
+    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">2021307220712</td></tr>
+        <tr style="font-weight:bold;"> 
+    		<td style="width:25%;text-align:right;">专&emsp;&emsp;业</td><td style="width:5%">：</td> 
+    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">计算机科学与技术</td></tr>
+    	<tr style="font-weight:bold;"> 
+    		<td style="width:25%;text-align:right;">上课时间</td><td style="width:5%">：</td> 
+    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">2024-春</td></tr>
+    	<tr style="font-weight:bold;"> 
+    		<td style="width:25%;text-align:right;">授课教师</td><td style="width:5%">：</td> 
+    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">刘善梅</td></tr>
+    </tbody></table>
+ 		<br /><br /><p style="text-align:center;">2024 年 4月 11 日</p>
+</div>
+
+<p>[TOC]</p>
+
+<h1 id="编译原理-第二次实验-自上而下语法分析">编译原理 第二次实验 自上而下语法分析</h1>
+
+<h2 id="实验目的">实验目的</h2>
+
+<ul>
+  <li>能采用LL(1)分析法对一个算术表达式<strong>(a+15)*b</strong>做自上而下的语法分析；</li>
+  <li>可自行设计一个文法，能识别类似(a+15)*b句子的语言；</li>
+  <li>也可基于PL/0语言的文法(完整文法参见本文档最后的附录)来做，若基于PL/0语言文法，需重点关注以下几条文法的EBNF，若不习惯看文法的巴科斯范式EBNF,可先将文法改写成常规的产生式形式P75。</li>
+  <li>通过设计、编制、调试一个具体的文法分析程序，深入理解LL(1)预测分析法的基本分析原理.</li>
+  <li>理解FIRST集、FOLLOW集的构造方法并对其加以实现，构造LL(1)预测分析表并利用分析表对语句、文法进行分析。</li>
+  <li>加深对的语法分析的理解</li>
+</ul>
+
+<blockquote>
+  <p><strong>PL/0</strong> <strong>语言文法的EBNF</strong></p>
+
+  <程序>::=<分程序>.
+
+<分程序> ::=\[<常量说明>]\[<变量说明>][<过程说明>]<语句>
+
+<常量说明> ::=CONST<常量定义>{，<常量定义>};
+
+<常量定义> ::=<标识符>=<无符号整数>
+
+<无符号整数> ::= <数字>{<数字>}
+
+<变量说明> ::=VAR <标识符>{, <标识符>};
+
+<标识符> ::=<字母>{<字母>|<数字>}
+
+<过程说明> ::=<过程首部><分程序>{; <过程说明> };
+
+<过程首部> ::=PROCEDURE <标识符>;
+
+<语句> ::=<赋值语句>|<条件语句>|<当循环语句>|<过程调用语句>
+
+​        |<复合语句>|<读语句><写语句>|<空>
+
+<赋值语句> ::=<标识符>:=<表达式>
+
+<复合语句> ::=BEGIN <语句> {;<语句> }END
+
+<条件语句> ::= <表达式> <关系运算符> <表达式> |ODD<表达式>
+
+<表达式> ::= [+|-]<项>{<加法运算符> <项>}
+
+<项> ::= <因子>{<乘法运算符> <因子>}
+
+<因子> ::= <标识符>|<无符号整数>| ‘(’<表达式>‘)’
+
+<加法运算符> ::= +|-
+
+<乘法运算符> ::= *|/
+
+<关系运算符> ::= =|#|&lt;|&lt;=|&gt;|&gt;=
+
+<条件语句> ::= IF <条件> THEN <语句>
+
+<过程调用语句> ::= CALL 标识符
+
+<当循环语句> ::= WHILE <条件> DO <语句>
+
+<读语句> ::= READ‘(’<标识符>{,<标识符>}‘)’
+
+<写语句> ::= WRITE‘(’<表达式>{,<表达式>}‘)’
+
+<字母> ::= a|b|…|X|Y|Z
+
+<数字> ::= 0|1|…|8|9
+
+**PL/0 语言文法的产生式**
+
+```gfm
+E-&gt;AXF|XF
+F-&gt;AXF|@
+X-&gt;YZ
+Z-&gt;CYZ|@
+Y-&gt;b|z|(E)
+A-&gt;+|-
+C-&gt;*|/
+```
+
+@ 代表 空
+</数字></字母></表达式></表达式></写语句></标识符></标识符></读语句></语句></条件></当循环语句></过程调用语句></语句></条件></条件语句></关系运算符></乘法运算符></加法运算符></表达式></无符号整数></标识符></因子></因子></乘法运算符></因子></项></项></加法运算符></项></表达式></表达式></表达式></关系运算符></表达式></条件语句></语句></语句></复合语句></表达式></标识符></赋值语句></空></写语句></读语句></复合语句></过程调用语句></当循环语句></条件语句></赋值语句></语句></标识符></过程首部></过程说明></分程序></过程首部></过程说明></数字></字母></字母></标识符></标识符></标识符></变量说明></数字></数字></无符号整数></无符号整数></标识符></常量定义></常量定义></常量定义></常量说明></语句></过程说明></变量说明></常量说明></分程序></分程序></程序>
+</blockquote>
+
+<h2 id="实验任务">实验任务</h2>
+
+<blockquote>
+  <p>采用预测分析法实现自上而下的语法分析；采用递归下降分析法得到的结果不得分。若自行设计的文法含左递归，要写程序消除左递归。</p>
+
+  <p>​    编程基础扎实的同学，强烈建议<strong>用程序分别求解</strong>first集和follow集，并用程序实现预测分析表；</p>
+
+  <p>​    编程基础非常薄弱的同学，可以人工求解first集和follow集，人工设计好预测分析表，然后直接在程序中给出手工设计好的预测分析表。</p>
+
+  <p>​    编程基础尚可的同学，可根据自身情况<strong>编程求解</strong> <strong>first集</strong>、<strong>follow集</strong>和<strong>预测分析表</strong>这三个部分的某些部分。（书上都有算法，建议同学们尽量用程序实现）</p>
+</blockquote>
+
+<p>我实现了<strong>用程序分别求解</strong>first集和follow集，并用程序实现预测分析表；</p>
+
+<h3 id="实验完成程度">实验完成程度</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>实现的内容</th>
+      <th>实现的方式</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>求解First集</td>
+      <td>程序实现</td>
+    </tr>
+    <tr>
+      <td>求解Follow集</td>
+      <td>程序实现</td>
+    </tr>
+    <tr>
+      <td>求解预测分析表</td>
+      <td>程序实现</td>
+    </tr>
+    <tr>
+      <td>判断是否是LL（1）文法</td>
+      <td>程序实现</td>
+    </tr>
+    <tr>
+      <td>使用预测分析表进行分析</td>
+      <td>程序实现</td>
+    </tr>
+    <tr>
+      <td>是否仅支持PL/0文法</td>
+      <td>否、可以输出其他文法和句子进行判断</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="设计思想">设计思想</h2>
+
+<p>LL(1)语法分析器的实现相比递归下降而言复杂了很多，但概括起来程序的实现总共需要如下几步：</p>
+
+<ol>
+  <li>构造非终结符的First集</li>
+  <li>构造非终结符的Follow集</li>
+  <li>根据First集和Follow集构造LL(1)分析表</li>
+  <li>判断是否是LL（1）文法</li>
+  <li>根据分析表构造分析栈逐个匹配</li>
+</ol>
+
+<p><img src="https://hnjia00.github.io/images/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86/LL1%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90/data.png" alt="img" /></p>
+
+<h3 id="1-数据结构设计">1. 数据结构设计</h3>
+
+<ul>
+  <li><strong>字符与编号映射</strong>：使用<code class="language-plaintext highlighter-rouge">map</code>数据结构将字符映射到编号(<code class="language-plaintext highlighter-rouge">gtnum</code>)以及编号映射到字符(<code class="language-plaintext highlighter-rouge">gtchar</code>)，方便快速查找。</li>
+  <li><strong>文法集合</strong>：使用<code class="language-plaintext highlighter-rouge">vector&lt;string&gt;</code>存储文法产生式集合。</li>
+  <li><strong>预测分析表</strong>：使用二维数组<code class="language-plaintext highlighter-rouge">table</code>存储预测分析表。</li>
+  <li><strong>First、Follow、Select 集合</strong>：使用字符串数组分别存储每个非终结符的First、Follow、Select集合。</li>
+</ul>
+
+<h3 id="2-初始化与输入读取">2. 初始化与输入读取</h3>
+
+<ul>
+  <li><strong>读取文法规则</strong>：通过字符串流(<code class="language-plaintext highlighter-rouge">stringstream</code>)读取预定义的文法规则、终结符和非终结符。将这些符号映射到唯一编号，并存储在相应的数据结构中。</li>
+</ul>
+
+<h3 id="3-first集合计算">3. First集合计算</h3>
+
+<ul>
+  <li><strong>递归计算</strong>：对每个终结符，其First集合是其本身。对每个非终结符，递归计算其First集合，通过合并产生式右部各符号的First集合来获取。</li>
+  <li><strong>合并与判断空字</strong>：使用<code class="language-plaintext highlighter-rouge">Union</code>函数合并多个集合，并判断产生式能否推出空字。</li>
+</ul>
+
+<h3 id="4-follow集合计算">4. Follow集合计算</h3>
+
+<ul>
+  <li><strong>初始化Follow集合</strong>：对开始符号，其Follow集合初始化为包含终结符<code class="language-plaintext highlighter-rouge">#</code>。</li>
+  <li><strong>递归获取</strong>：遍历所有产生式，考虑右部符号的后续符号的First集合，根据能否推出空字来更新Follow集合。</li>
+</ul>
+
+<h3 id="5-select集合计算">5. Select集合计算</h3>
+
+<ul>
+  <li><strong>直接推出空字</strong>：对于右部能直接推出空字的产生式，Select集合为左部符号的Follow集合。</li>
+  <li><strong>合并First集合</strong>：对其他产生式，Select集合为右部第一个符号的First集合，如果多个符号均可推出空字，则继续考虑后续符号的First集合，直到无法推出空字为止。</li>
+</ul>
+
+<h3 id="6-预测分析表生成">6. 预测分析表生成</h3>
+
+<ul>
+  <li><strong>构建表项</strong>：根据Select集合构建预测分析表。对于能直接推出空字的产生式，使用Follow集合填表。对于其他产生式，使用First集合填表。</li>
+</ul>
+
+<h3 id="7-ll1文法检查">7. LL(1)文法检查</h3>
+
+<ul>
+  <li><strong>交集判断</strong>：定义<code class="language-plaintext highlighter-rouge">intersection</code>函数检查两个集合是否有交集。遍历所有产生式，检查同一个非终结符的不同产生式的Select集合是否有交集。</li>
+  <li><strong>结果输出</strong>：如果有交集，则输出产生冲突的Select集合，并判定该文法不是LL(1)文法；如果所有Select集合均无交集，则判定该文法是LL(1)文法。</li>
+</ul>
+
+<h3 id="8-句子合法性分析">8. 句子合法性分析</h3>
+
+<ul>
+  <li><strong>分析过程</strong>：定义一个<code class="language-plaintext highlighter-rouge">analyze</code>函数，通过栈模拟分析过程。初始化栈并推入起始符号和终结符。逐步从输入串中读取符号，并根据预测分析表中的指引，逐步匹配和推导输入串。</li>
+  <li><strong>结果判定</strong>：如果输入串能够完全匹配并使栈空，则输入串符合文法；否则，不符合文法。</li>
+</ul>
+
+<h2 id="算法流程">算法流程</h2>
+
+<h3 id="算法流程图">算法流程图</h3>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%20%E7%AC%AC%E4%BA%8C%E6%AC%A1%E5%AE%9E%E9%AA%8C%20%E8%87%AA%E4%B8%8A%E8%80%8C%E4%B8%8B%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90.assets/image-20240617092002921.png" alt="image-20240617092002921" /></p>
+
+<p><strong>本次实验是先实现了对各种文法的一般算法，然后为了让itc通过，对itc 的输入格式进行了适配的，所以本质上还是可以通过输入文法来进行LL1分析的。</strong></p>
+
+<h3 id="1-获取first集">1 获取First集</h3>
+
+<ol>
+  <li><strong>初始化</strong>：
+    <ul>
+      <li>对于每个终结符，First集是其本身。</li>
+      <li>初始化所有非终结符的First集为空集。</li>
+    </ul>
+  </li>
+  <li><strong>处理每个产生式</strong>：
+    <ul>
+      <li>对于每个产生式$A \rightarrow \alpha$，我们从左到右处理’产生式中的每个符号。</li>
+      <li>如果是终结符，直接加入 A 的First集。</li>
+      <li>如果是非终结符，将该非终结符的First集（去掉空字）加入 A 的First集。</li>
+      <li>如果该非终结符可以推出空字（$\epsilon$），继续处理下一个符号。</li>
+      <li>如果所有符号都可以推出空字，则将空字加入 A 的First集。</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="2-获取follow集">2 获取Follow集</h3>
+
+<ol>
+  <li><strong>初始化</strong>：
+    <ul>
+      <li>对于开始符号，将结束符号（#）加入其Follow集。</li>
+    </ul>
+  </li>
+  <li><strong>处理每个产生式</strong>：
+    <ul>
+      <li>对于每个产生式$ A \rightarrow \alpha B \beta$，将 β\betaβ 的First集（去掉空字）加入 B 的Follow集。</li>
+      <li>如果 $\beta$ 可以推出空字，将 A 的Follow集加入 B 的Follow集。</li>
+    </ul>
+  </li>
+  <li><strong>迭代处理</strong>：
+    <ul>
+      <li>多次扫描所有产生式，直到所有Follow集都不再变化。</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="3-获取select集">3 获取Select集</h3>
+
+<ol>
+  <li>处理每个产生式：
+    <ul>
+      <li>对于每个产生式$ A \rightarrow \alpha$：
+        <ul>
+          <li>如果$ \alpha$可以直接推出空字，将 A 的Follow集加入该产生式的Select集。</li>
+          <li>否则，将$ \alpha$​的First集加入该产生式的Select集。、</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="4-检查ll1文法">4 检查LL(1)文法：</h3>
+
+<ul>
+  <li>遍历所有产生式，检查同一个非终结符对应的不同产生式的Select集是否有交集。</li>
+  <li>如果有交集，说明该文法不是LL(1)文法，并输出产生冲突的Select集。</li>
+  <li>如果没有交集，说明该文法是LL(1)文法。</li>
+</ul>
+
+<h3 id="5-获取预测分析表">5 获取预测分析表</h3>
+
+<ol>
+  <li><strong>初始化</strong>：
+    <ul>
+      <li>初始化预测分析表为-1，表示为空。</li>
+    </ul>
+  </li>
+  <li><strong>处理每个产生式</strong>：
+    <ul>
+      <li>对于每个产生式 $A \rightarrow \alpha$
+        <ul>
+          <li>对于该产生式的Select集中的每个终结符，将对应表项设置为该产生式的编号。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="6-根据预测分析表构造分析栈并逐个匹配输入字符串">6 根据预测分析表构造分析栈并逐个匹配输入字符串</h3>
+
+<ol>
+  <li><strong>初始化分析栈</strong>：
+    <ul>
+      <li>分析栈初始状态为 <code class="language-plaintext highlighter-rouge">#</code> 和开始符号。</li>
+      <li>输入串在末尾加上结束符号 <code class="language-plaintext highlighter-rouge">#</code>。</li>
+    </ul>
+  </li>
+  <li><strong>逐步匹配</strong>：
+    <ul>
+      <li>栈顶符号与当前输入符号进行比较。</li>
+      <li>如果栈顶符号与当前输入符号相同，匹配成功，弹出栈顶符号并推进输入符号。</li>
+      <li>如果栈顶符号是非终结符，查预测分析表，根据表中的产生式进行展开，即用产生式右部替换栈顶符号。</li>
+      <li>如果栈顶符号是终结符且与当前输入符号不同，或者预测分析表中无对应产生式，解析失败。</li>
+      <li>当栈为空且输入符号也匹配完毕时，解析成功。</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="具体流程实现">具体流程实现</h3>
+
+<h4 id="1-初始化与读取输入">1. 初始化与读取输入</h4>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">readin</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">stringstream</span> <span class="n">datascin</span><span class="p">(</span><span class="n">datas</span><span class="p">);</span>
+    <span class="n">stringstream</span> <span class="n">endcin</span><span class="p">(</span><span class="n">endchar</span><span class="p">);</span>
+    <span class="n">stringstream</span> <span class="n">noendcin</span><span class="p">(</span><span class="n">noendchar</span><span class="p">);</span>
+    <span class="n">memset</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">table</span><span class="p">));</span>
+    <span class="n">gtnum</span><span class="p">[</span><span class="sc">'#'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">gtchar</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="sc">'#'</span><span class="p">;</span>
+    <span class="kt">char</span> <span class="n">x</span><span class="p">;</span>
+    <span class="k">do</span>
+    <span class="p">{</span>
+        <span class="n">endcin</span> <span class="o">&gt;&gt;</span> <span class="n">x</span><span class="p">;</span>
+        <span class="n">gtnum</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="o">++</span><span class="n">num</span><span class="p">;</span>
+        <span class="n">gtchar</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">endcin</span><span class="p">.</span><span class="n">peek</span><span class="p">()</span> <span class="o">!=</span> <span class="sc">'\n'</span><span class="p">);</span>
+    <span class="n">numvt</span> <span class="o">=</span> <span class="o">++</span><span class="n">num</span><span class="p">;</span>
+    <span class="n">gtnum</span><span class="p">[</span><span class="sc">'@'</span><span class="p">]</span> <span class="o">=</span> <span class="n">numvt</span><span class="p">;</span> <span class="c1">// 空，用@表示</span>
+    <span class="n">gtchar</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="sc">'@'</span><span class="p">);</span>
+    <span class="k">do</span>
+    <span class="p">{</span>
+        <span class="n">noendcin</span> <span class="o">&gt;&gt;</span> <span class="n">x</span><span class="p">;</span>
+        <span class="n">gtnum</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="o">++</span><span class="n">num</span><span class="p">;</span>
+        <span class="n">gtchar</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">noendcin</span><span class="p">.</span><span class="n">peek</span><span class="p">()</span> <span class="o">!=</span> <span class="sc">'\n'</span><span class="p">);</span>
+    <span class="n">string</span> <span class="n">pro</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">datascin</span> <span class="o">&gt;&gt;</span> <span class="n">pro</span> <span class="o">&amp;&amp;</span> <span class="n">pro</span> <span class="o">!=</span> <span class="s">"end"</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">string</span> <span class="n">ss</span><span class="p">;</span>
+        <span class="n">ss</span> <span class="o">+=</span> <span class="n">pro</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">pro</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">pro</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'|'</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">proce</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">ss</span><span class="p">);</span>
+                <span class="n">ss</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+                <span class="n">ss</span> <span class="o">+=</span> <span class="n">pro</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+            <span class="p">}</span>
+            <span class="k">else</span>
+            <span class="p">{</span>
+                <span class="n">ss</span> <span class="o">+=</span> <span class="n">pro</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="n">proce</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">ss</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="2-生成first集">2. 生成First集</h4>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">getfirst</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">numvt</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">first</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="sc">'0'</span> <span class="o">+</span> <span class="n">i</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">has_0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">do</span>
+        <span class="p">{</span>
+            <span class="n">has_0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+            <span class="n">k</span><span class="o">++</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">==</span> <span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">size</span><span class="p">())</span>
+            <span class="p">{</span>
+                <span class="n">first</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]]]</span> <span class="o">+=</span> <span class="p">(</span><span class="sc">'0'</span> <span class="o">+</span> <span class="n">numvt</span><span class="p">);</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="n">Union</span><span class="p">(</span><span class="n">first</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]]],</span> <span class="n">get_first</span><span class="p">(</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">]],</span> <span class="n">has_0</span><span class="p">));</span>
+        <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">has_0</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="3-生成follow集">3. 生成Follow集</h4>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cpp</span><span class="err">复制代码</span><span class="kt">void</span> <span class="nf">getfollow</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">Union</span><span class="p">(</span><span class="n">follow</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]]],</span> <span class="s">"0"</span><span class="p">);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">jj</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">jj</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">jj</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">jj</span><span class="p">]]</span> <span class="o">&lt;=</span> <span class="n">numvt</span><span class="p">)</span>
+                <span class="k">continue</span><span class="p">;</span>
+            <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="n">jj</span><span class="p">;</span>
+            <span class="kt">int</span> <span class="n">has_0</span><span class="p">;</span>
+            <span class="k">do</span>
+            <span class="p">{</span>
+                <span class="n">has_0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                <span class="n">k</span><span class="o">++</span><span class="p">;</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">==</span> <span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">size</span><span class="p">())</span>
+                <span class="p">{</span>
+                    <span class="n">Union</span><span class="p">(</span><span class="n">follow</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">jj</span><span class="p">]]],</span> <span class="n">follow</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]]]);</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="n">Union</span><span class="p">(</span><span class="n">follow</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">jj</span><span class="p">]]],</span> <span class="n">get_first</span><span class="p">(</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">]],</span> <span class="n">has_0</span><span class="p">));</span>
+            <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">has_0</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="4-生成select集">4. 生成Select集</h4>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">void</span> <span class="nf">getselect</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'@'</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">follow</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]];</span>
+            <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="n">numvt</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]]];</span>
+            <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="kt">int</span> <span class="n">flag1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">string</span> <span class="n">tepf</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]]];</span>
+            <span class="kt">int</span> <span class="n">flag2</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">tepf</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">tepf</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="sc">'0'</span> <span class="o">+</span> <span class="n">numvt</span><span class="p">))</span>
+                <span class="p">{</span>
+                    <span class="n">flag2</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">flag2</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">Union</span><span class="p">(</span><span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">tepf</span><span class="p">);</span>
+                <span class="n">flag1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="kt">int</span> <span class="n">has_0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+            <span class="n">Union</span><span class="p">(</span><span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">get_first</span><span class="p">(</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]],</span> <span class="n">has_0</span><span class="p">));</span>
+            <span class="n">flag1</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">flag1</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">Union</span><span class="p">(</span><span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">follow</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]]);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="5-检查ll1文法条件">5. 检查LL(1)文法条件</h4>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kt">bool</span> <span class="nf">intersection</span><span class="p">(</span><span class="n">string</span> <span class="n">a</span><span class="p">,</span> <span class="n">string</span> <span class="n">b</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">a</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">b</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">bool</span> <span class="nf">check_LL1</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">intersection</span><span class="p">(</span><span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">selects</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+                <span class="p">{</span>
+                    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"此文法不是LL(1)文法, 原因如下："</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+                    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"select ( "</span> <span class="o">&lt;&lt;</span> <span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">"-&gt;"</span> <span class="o">&lt;&lt;</span> <span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">substr</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">" ) = "</span><span class="p">;</span>
+                    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"{ "</span><span class="p">;</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+                        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">gtchar</span><span class="p">[</span><span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="sc">'0'</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+                    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"}"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+                    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"select ( "</span> <span class="o">&lt;&lt;</span> <span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">"-&gt;"</span> <span class="o">&lt;&lt;</span> <span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">substr</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">" ) = "</span><span class="p">;</span>
+                    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"{ "</span><span class="p">;</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">selects</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+                        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">gtchar</span><span class="p">[</span><span class="n">selects</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="sc">'0'</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+                    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"}"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+                    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"两个产生式的交集不为空集！"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+                    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h4 id="6-句子合法性分析">6. 句子合法性分析</h4>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">cpp</span><span class="err">复制代码</span><span class="kt">bool</span> <span class="nf">analyze</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">stack</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span> <span class="n">sta</span><span class="p">;</span>
+    <span class="n">sta</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="sc">'#'</span><span class="p">);</span>
+    <span class="n">sta</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">proce</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">sta</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">cur</span> <span class="o">=</span> <span class="n">sta</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+        <span class="n">sta</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">cur</span> <span class="o">==</span> <span class="n">word</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="p">{</span>
+            <span class="n">i</span><span class="o">++</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">cur</span> <span class="o">==</span> <span class="sc">'#'</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">cur</span><span class="p">]][</span><span class="n">gtnum</span><span class="p">[</span><span class="n">word</span><span class="p">[</span><span class="n">i</span><span class="p">]]]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">cur</span><span class="p">]][</span><span class="n">gtnum</span><span class="p">[</span><span class="n">word</span><span class="p">[</span><span class="n">i</span><span class="p">]]];</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">proce</span><span class="p">[</span><span class="n">k</span><span class="p">].</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span><span class="o">--</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">proce</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">!=</span> <span class="sc">'@'</span><span class="p">)</span>
+                    <span class="n">sta</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">proce</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">]);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">else</span>
+        <span class="p">{</span>
+            <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h2 id="源程序逐行注释">源程序（逐行注释）</h2>
+
+<div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp">#include</span> <span class="cpf">&lt;bits/stdc++.h&gt;</span><span class="cp">
+#define MaxSize 200
+</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+
+<span class="c1">/// 定义有关数据结构体</span>
+<span class="c1">// const int MaxSize = 200;     // 定义常量，表示数组最大长度</span>
+<span class="n">map</span><span class="o">&lt;</span><span class="kt">char</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">gtnum</span><span class="p">;</span>        <span class="c1">// 获得对应编号</span>
+<span class="n">map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">char</span><span class="o">&gt;</span> <span class="n">gtchar</span><span class="p">;</span>       <span class="c1">// 获得对应字符</span>
+<span class="n">vector</span><span class="o">&lt;</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">proce</span><span class="p">;</span>        <span class="c1">// 定义文法集合</span>
+<span class="kt">int</span> <span class="n">table</span><span class="p">[</span><span class="n">MaxSize</span><span class="p">][</span><span class="n">MaxSize</span><span class="p">];</span> <span class="c1">// 预测分析表</span>
+<span class="kt">int</span> <span class="n">num</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>                 <span class="c1">// 字符计数器</span>
+<span class="kt">int</span> <span class="n">numvt</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>               <span class="c1">// numvt是终结符的个数，</span>
+<span class="n">string</span> <span class="n">word</span><span class="p">;</span>                 <span class="c1">// 存放输入的字符串</span>
+<span class="n">string</span> <span class="n">first</span><span class="p">[</span><span class="n">MaxSize</span><span class="p">];</span>       <span class="c1">// 定义first集合</span>
+<span class="n">string</span> <span class="n">follow</span><span class="p">[</span><span class="n">MaxSize</span><span class="p">];</span>      <span class="c1">// 定义follow集合</span>
+<span class="n">string</span> <span class="n">selects</span><span class="p">[</span><span class="n">MaxSize</span><span class="p">];</span>     <span class="c1">// 定义select集合</span>
+
+<span class="c1">/// 定义文法</span>
+<span class="n">string</span> <span class="n">datas</span> <span class="o">=</span> <span class="s">R"(E-&gt;AXF|XF
+F-&gt;AXF|@
+X-&gt;YZ
+Z-&gt;CYZ|@
+Y-&gt;b|z|(E)
+A-&gt;+|-
+C-&gt;*|/
+end)"</span><span class="p">;</span>
+<span class="c1">///</span>
+<span class="n">string</span> <span class="n">endchar</span> <span class="o">=</span> <span class="s">R"(+ - * / ( ) b z
+)"</span><span class="p">;</span>
+<span class="n">string</span> <span class="n">noendchar</span> <span class="o">=</span> <span class="s">R"(E F X Z Y A C
+)"</span><span class="p">;</span>
+
+<span class="c1">/// 读入函数</span>
+<span class="kt">void</span> <span class="nf">readin</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">stringstream</span> <span class="n">datascin</span><span class="p">(</span><span class="n">datas</span><span class="p">);</span>
+    <span class="n">stringstream</span> <span class="n">endcin</span><span class="p">(</span><span class="n">endchar</span><span class="p">);</span>
+    <span class="n">stringstream</span> <span class="n">noendcin</span><span class="p">(</span><span class="n">noendchar</span><span class="p">);</span>
+    <span class="n">memset</span><span class="p">(</span><span class="n">table</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">table</span><span class="p">));</span>
+    <span class="n">gtnum</span><span class="p">[</span><span class="sc">'#'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">gtchar</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="sc">'#'</span><span class="p">;</span>
+    <span class="c1">// cout &lt;&lt; "请输入该文法包含的所有终结符：" &lt;&lt; endl;</span>
+    <span class="kt">char</span> <span class="n">x</span><span class="p">;</span>
+    <span class="k">do</span>
+    <span class="p">{</span>
+        <span class="n">endcin</span> <span class="o">&gt;&gt;</span> <span class="n">x</span><span class="p">;</span>
+        <span class="n">gtnum</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="o">++</span><span class="n">num</span><span class="p">;</span>
+        <span class="n">gtchar</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">endcin</span><span class="p">.</span><span class="n">peek</span><span class="p">()</span> <span class="o">!=</span> <span class="sc">'\n'</span><span class="p">);</span>
+    <span class="n">numvt</span> <span class="o">=</span> <span class="o">++</span><span class="n">num</span><span class="p">;</span>
+    <span class="n">gtnum</span><span class="p">[</span><span class="sc">'@'</span><span class="p">]</span> <span class="o">=</span> <span class="n">numvt</span><span class="p">;</span> <span class="c1">// 空，用@表示</span>
+    <span class="n">gtchar</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="sc">'@'</span><span class="p">);</span>
+    <span class="c1">// cout &lt;&lt; "请输入该文法包含的所有非终结符：" &lt;&lt; endl;</span>
+    <span class="k">do</span>
+    <span class="p">{</span>
+        <span class="n">noendcin</span> <span class="o">&gt;&gt;</span> <span class="n">x</span><span class="p">;</span>
+        <span class="n">gtnum</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">=</span> <span class="o">++</span><span class="n">num</span><span class="p">;</span>
+        <span class="n">gtchar</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span>
+    <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">noendcin</span><span class="p">.</span><span class="n">peek</span><span class="p">()</span> <span class="o">!=</span> <span class="sc">'\n'</span><span class="p">);</span>
+    <span class="c1">// cout &lt;&lt; "输入要判断的文法（空字用'@'表示）,以'end'结束:" &lt;&lt; endl;</span>
+    <span class="n">string</span> <span class="n">pro</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">datascin</span> <span class="o">&gt;&gt;</span> <span class="n">pro</span> <span class="o">&amp;&amp;</span> <span class="n">pro</span> <span class="o">!=</span> <span class="s">"end"</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">string</span> <span class="n">ss</span><span class="p">;</span>
+        <span class="n">ss</span> <span class="o">+=</span> <span class="n">pro</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">pro</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">pro</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'|'</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">proce</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">ss</span><span class="p">);</span>
+                <span class="n">ss</span><span class="p">.</span><span class="n">clear</span><span class="p">();</span>
+                <span class="n">ss</span> <span class="o">+=</span> <span class="n">pro</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+            <span class="p">}</span>
+            <span class="k">else</span>
+            <span class="p">{</span>
+                <span class="n">ss</span> <span class="o">+=</span> <span class="n">pro</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="n">proce</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">ss</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">/// 定义交集函数</span>
+<span class="kt">void</span> <span class="nf">Union</span><span class="p">(</span><span class="n">string</span> <span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="n">string</span> <span class="n">b</span><span class="p">)</span> <span class="c1">// a=a or b 取a,b交集赋值给a</span>
+<span class="p">{</span>
+    <span class="n">set</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span> <span class="n">se</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">a</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">se</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">se</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">b</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+    <span class="n">string</span> <span class="n">ans</span><span class="p">;</span>
+    <span class="n">set</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;::</span><span class="n">iterator</span> <span class="n">it</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="n">it</span> <span class="o">=</span> <span class="n">se</span><span class="p">.</span><span class="n">begin</span><span class="p">();</span> <span class="n">it</span> <span class="o">!=</span> <span class="n">se</span><span class="p">.</span><span class="n">end</span><span class="p">();</span> <span class="n">it</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">ans</span> <span class="o">+=</span> <span class="o">*</span><span class="n">it</span><span class="p">;</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">ans</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">/// 利用dfs返回first(Vn)-@集合，并且判断vn能否推出空字</span>
+<span class="n">string</span> <span class="nf">get_first</span><span class="p">(</span><span class="kt">int</span> <span class="n">vn</span><span class="p">,</span> <span class="kt">int</span> <span class="o">&amp;</span><span class="n">has_0</span><span class="p">)</span> <span class="c1">// dfs:vn能推出的不含空字的vt集合，并且判断vn能否推出空字</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">vn</span> <span class="o">==</span> <span class="n">numvt</span><span class="p">)</span>
+        <span class="n">has_0</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">vn</span> <span class="o">&lt;</span> <span class="n">numvt</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">first</span><span class="p">[</span><span class="n">vn</span><span class="p">];</span>
+    <span class="n">string</span> <span class="n">ans</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]</span> <span class="o">==</span> <span class="n">vn</span><span class="p">)</span>
+            <span class="n">ans</span> <span class="o">+=</span> <span class="n">get_first</span><span class="p">(</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]],</span> <span class="n">has_0</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">ans</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">/// 获得产生式</span>
+<span class="n">string</span> <span class="nf">get_proce</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="p">)</span> <span class="c1">// 由对应下标获得对应产生式。</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">i</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s">" "</span><span class="p">;</span> <span class="c1">// 无该产生式</span>
+    <span class="n">string</span> <span class="n">ans</span><span class="p">;</span>
+    <span class="n">ans</span> <span class="o">+=</span> <span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">];</span>
+    <span class="n">ans</span> <span class="o">+=</span> <span class="s">"-&gt;"</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">ans</span> <span class="o">+=</span> <span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">];</span>
+    <span class="k">return</span> <span class="n">ans</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">/// 定义first函数</span>
+<span class="kt">void</span> <span class="nf">getfirst</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">numvt</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span> <span class="c1">// 终结符，first集是其本身。</span>
+        <span class="n">first</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+=</span> <span class="p">(</span><span class="sc">'0'</span> <span class="o">+</span> <span class="n">i</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span> <span class="c1">// 扫描所有产生式</span>
+        <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="kt">int</span> <span class="n">has_0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="c1">// k扫瞄该产生式</span>
+        <span class="k">do</span>
+        <span class="p">{</span>
+            <span class="n">has_0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+            <span class="n">k</span><span class="o">++</span><span class="p">;</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">==</span> <span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">size</span><span class="p">())</span>
+            <span class="p">{</span> <span class="c1">// 推到最后一个了，则附加空字</span>
+                <span class="n">first</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]]]</span> <span class="o">+=</span> <span class="p">(</span><span class="sc">'0'</span> <span class="o">+</span> <span class="n">numvt</span><span class="p">);</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span> <span class="c1">// 合并之</span>
+            <span class="n">Union</span><span class="p">(</span><span class="n">first</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]]],</span> <span class="n">get_first</span><span class="p">(</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">]],</span> <span class="n">has_0</span><span class="p">));</span>
+        <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">has_0</span><span class="p">);</span> <span class="c1">// 到无法推出空字为止</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">/// 定义follow函数</span>
+<span class="kt">void</span> <span class="nf">getfollow</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">Union</span><span class="p">(</span><span class="n">follow</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]]],</span> <span class="s">"0"</span><span class="p">);</span> <span class="c1">// 先添加'#'；</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span> <span class="c1">// 扫所有产生式</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">jj</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">jj</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">jj</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span> <span class="c1">// 每个非终结符的follow集</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">jj</span><span class="p">]]</span> <span class="o">&lt;=</span> <span class="n">numvt</span><span class="p">)</span>
+                <span class="k">continue</span><span class="p">;</span> <span class="c1">// vt无follow集</span>
+            <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="n">jj</span><span class="p">;</span>
+            <span class="kt">int</span> <span class="n">has_0</span><span class="p">;</span>
+            <span class="k">do</span>
+            <span class="p">{</span>
+                <span class="n">has_0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                <span class="n">k</span><span class="o">++</span><span class="p">;</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="o">==</span> <span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">size</span><span class="p">())</span>
+                <span class="p">{</span> <span class="c1">// 都能推出空字，follow集=产生式左边的vn，</span>
+                    <span class="n">Union</span><span class="p">(</span><span class="n">follow</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">jj</span><span class="p">]]],</span> <span class="n">follow</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]]]);</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="n">Union</span><span class="p">(</span><span class="n">follow</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">jj</span><span class="p">]]],</span> <span class="n">get_first</span><span class="p">(</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">]],</span> <span class="n">has_0</span><span class="p">));</span>
+            <span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="n">has_0</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">/// 定义select函数</span>
+<span class="kt">void</span> <span class="nf">getselect</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// 扫描所有的产生式</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// 直接推导出空的产生式</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'@'</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">follow</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]];</span>
+            <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]]</span> <span class="o">&lt;</span> <span class="n">numvt</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]]];</span>
+            <span class="k">continue</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="kt">int</span> <span class="n">flag1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">string</span> <span class="n">tepf</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]]];</span>
+            <span class="kt">int</span> <span class="n">flag2</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">tepf</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">tepf</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="p">(</span><span class="sc">'0'</span> <span class="o">+</span> <span class="n">numvt</span><span class="p">))</span>
+                <span class="p">{</span>
+                    <span class="n">flag2</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                    <span class="k">break</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">flag2</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">Union</span><span class="p">(</span><span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">tepf</span><span class="p">);</span>
+                <span class="n">flag1</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                <span class="k">break</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="kt">int</span> <span class="n">has_0</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+            <span class="n">Union</span><span class="p">(</span><span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">get_first</span><span class="p">(</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]],</span> <span class="n">has_0</span><span class="p">));</span>
+            <span class="n">flag1</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">flag1</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">Union</span><span class="p">(</span><span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">follow</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]]);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">/// 打印first函数</span>
+<span class="kt">void</span> <span class="nf">print_first</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span>
+         <span class="o">&lt;&lt;</span> <span class="s">"该文法的first集如下:"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">num</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"first ("</span> <span class="o">&lt;&lt;</span> <span class="n">gtchar</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">") = "</span><span class="p">;</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"{ "</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">first</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+            <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">gtchar</span><span class="p">[</span><span class="n">first</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="sc">'0'</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"}"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">/// 打印follow集合</span>
+<span class="kt">void</span> <span class="nf">print_follow</span><span class="p">()</span>
+
+<span class="p">{</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"该文法的follow集如下："</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">numvt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">num</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"follow ("</span> <span class="o">&lt;&lt;</span> <span class="n">gtchar</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">") = "</span><span class="p">;</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"{ "</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">follow</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+            <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">gtchar</span><span class="p">[</span><span class="n">follow</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="sc">'0'</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"}"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">/// 打印select集合</span>
+<span class="kt">void</span> <span class="nf">printselect</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"该文法的select集如下："</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"select ( "</span> <span class="o">&lt;&lt;</span> <span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">"-&gt;"</span> <span class="o">&lt;&lt;</span> <span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">substr</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">" ) = "</span><span class="p">;</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"{ "</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+            <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">gtchar</span><span class="p">[</span><span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="sc">'0'</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"}"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">/// 定义预测分析表</span>
+<span class="kt">void</span> <span class="nf">gettable</span><span class="p">()</span> <span class="c1">// 得预测分析表</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span> <span class="c1">// 扫所有产生式</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="sc">'@'</span><span class="p">)</span>
+        <span class="p">{</span> <span class="c1">// 直接推出空字的，特判下（follow集=产生式左边的vn中元素填）</span>
+            <span class="n">string</span> <span class="n">flw</span> <span class="o">=</span> <span class="n">follow</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]];</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">flw</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">table</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]][</span><span class="n">flw</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="sc">'0'</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="n">string</span> <span class="n">temps</span> <span class="o">=</span> <span class="n">first</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]]];</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">temps</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span> <span class="c1">// 考察first集</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">temps</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">!=</span> <span class="p">(</span><span class="sc">'0'</span> <span class="o">+</span> <span class="n">numvt</span><span class="p">))</span>
+            <span class="p">{</span>
+                <span class="n">table</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]][</span><span class="n">temps</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="sc">'0'</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="k">else</span>
+            <span class="p">{</span> <span class="c1">// 有空字的，考察follw集</span>
+                <span class="n">string</span> <span class="n">flw</span> <span class="o">=</span> <span class="n">follow</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">1</span><span class="p">]]];</span>
+                <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">flw</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+                <span class="p">{</span>
+                    <span class="n">table</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]]][</span><span class="n">flw</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="sc">'0'</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="c1">/// 打印预测分析表</span>
+<span class="kt">void</span> <span class="nf">print_table</span><span class="p">()</span>
+
+<span class="p">{</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span>
+         <span class="o">&lt;&lt;</span> <span class="s">"该文法的预测分析表如下："</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">numvt</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="sc">'\t'</span> <span class="o">&lt;&lt;</span> <span class="n">gtchar</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">numvt</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">num</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">gtchar</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">numvt</span><span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="sc">'\t'</span> <span class="o">&lt;&lt;</span> <span class="n">get_proce</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]);</span>
+        <span class="p">}</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">/// 判断是否有交集</span>
+<span class="kt">bool</span> <span class="nf">intersection</span><span class="p">(</span><span class="n">string</span> <span class="n">a</span><span class="p">,</span> <span class="n">string</span> <span class="n">b</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">a</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">b</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">b</span><span class="p">[</span><span class="n">j</span><span class="p">])</span>
+                <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">/// 判断是否为LL(1)文法</span>
+<span class="c1">// First集中含有ε的非终结符的Follow集与其First集交集是否为空</span>
+<span class="kt">bool</span> <span class="nf">check_LL1</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="n">proce</span><span class="p">.</span><span class="n">size</span><span class="p">();</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">])</span>
+            <span class="p">{</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">intersection</span><span class="p">(</span><span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">selects</span><span class="p">[</span><span class="n">j</span><span class="p">]))</span>
+                <span class="p">{</span>
+                    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"此文法不是LL(1)文法, 原因如下："</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+                    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"select ( "</span> <span class="o">&lt;&lt;</span> <span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">"-&gt;"</span> <span class="o">&lt;&lt;</span> <span class="n">proce</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">substr</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">" ) = "</span><span class="p">;</span>
+                    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"{ "</span><span class="p">;</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+                        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">gtchar</span><span class="p">[</span><span class="n">selects</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="sc">'0'</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+                    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"}"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+                    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"select ( "</span> <span class="o">&lt;&lt;</span> <span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">"-&gt;"</span> <span class="o">&lt;&lt;</span> <span class="n">proce</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">substr</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="s">" ) = "</span><span class="p">;</span>
+                    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"{ "</span><span class="p">;</span>
+                    <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span> <span class="n">k</span> <span class="o">&lt;</span> <span class="n">selects</span><span class="p">[</span><span class="n">j</span><span class="p">].</span><span class="n">size</span><span class="p">();</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+                        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">gtchar</span><span class="p">[</span><span class="n">selects</span><span class="p">[</span><span class="n">j</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">-</span> <span class="sc">'0'</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">" "</span><span class="p">;</span>
+                    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"}"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+                    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"两个产生式的交集不为空集！"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+                    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+                <span class="p">}</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="c1">// cout &lt;&lt; "此文法是LL(1)文法" &lt;&lt; endl;</span>
+    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">/// 定义判断句子合法性函数</span>
+<span class="kt">bool</span> <span class="nf">analyze</span><span class="p">()</span> <span class="c1">// 总控，分析字word的合法性，若合法，输出所有产生式。</span>
+<span class="p">{</span>
+    <span class="c1">// cout &lt;&lt; endl</span>
+    <span class="c1">//      &lt;&lt; "分析所得的产生式如下：" &lt;&lt; endl;</span>
+    <span class="n">stack</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span> <span class="n">sta</span><span class="p">;</span>
+    <span class="n">sta</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="sc">'#'</span><span class="p">);</span>
+    <span class="n">sta</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">proce</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]);</span>
+    <span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="o">!</span><span class="n">sta</span><span class="p">.</span><span class="n">empty</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="kt">int</span> <span class="n">cur</span> <span class="o">=</span> <span class="n">sta</span><span class="p">.</span><span class="n">top</span><span class="p">();</span>
+        <span class="n">sta</span><span class="p">.</span><span class="n">pop</span><span class="p">();</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">cur</span> <span class="o">==</span> <span class="n">word</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+        <span class="p">{</span> <span class="c1">// 是终结符，推进</span>
+            <span class="n">i</span><span class="o">++</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">cur</span> <span class="o">==</span> <span class="sc">'#'</span><span class="p">)</span>
+        <span class="p">{</span> <span class="c1">// 成功，结束</span>
+            <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">cur</span><span class="p">]][</span><span class="n">gtnum</span><span class="p">[</span><span class="n">word</span><span class="p">[</span><span class="n">i</span><span class="p">]]]</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">{</span> <span class="c1">// 查表</span>
+            <span class="kt">int</span> <span class="n">k</span> <span class="o">=</span> <span class="n">table</span><span class="p">[</span><span class="n">gtnum</span><span class="p">[</span><span class="n">cur</span><span class="p">]][</span><span class="n">gtnum</span><span class="p">[</span><span class="n">word</span><span class="p">[</span><span class="n">i</span><span class="p">]]];</span>
+            <span class="c1">// cout &lt;&lt; proce[k][0] &lt;&lt; "-&gt;";</span>
+            <span class="c1">// for (int j = 1; j &lt; proce[k].size(); j++)</span>
+            <span class="c1">//     cout &lt;&lt; proce[k][j];</span>
+            <span class="c1">// cout &lt;&lt; endl;</span>
+            <span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">j</span> <span class="o">=</span> <span class="n">proce</span><span class="p">[</span><span class="n">k</span><span class="p">].</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">1</span><span class="p">;</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">;</span> <span class="n">j</span><span class="o">--</span><span class="p">)</span>
+            <span class="p">{</span> <span class="c1">// 逆序入栈</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">proce</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">!=</span> <span class="sc">'@'</span><span class="p">)</span>
+                    <span class="n">sta</span><span class="p">.</span><span class="n">push</span><span class="p">(</span><span class="n">proce</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">]);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">else</span>
+        <span class="p">{</span> <span class="c1">// 失败！</span>
+            <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="n">string</span> <span class="nf">getInFomula</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">string</span> <span class="n">res</span><span class="p">;</span>
+    <span class="n">string</span> <span class="n">temp</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">while</span> <span class="p">(</span><span class="n">cin</span> <span class="o">&gt;&gt;</span> <span class="n">temp</span><span class="p">)</span>
+    <span class="p">{</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">temp</span><span class="p">[</span><span class="n">temp</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="sc">'0'</span> <span class="o">&amp;&amp;</span> <span class="n">temp</span><span class="p">[</span><span class="n">temp</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="sc">'9'</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">res</span> <span class="o">+=</span> <span class="sc">'z'</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span> <span class="nf">if</span> <span class="p">(</span><span class="n">temp</span><span class="p">[</span><span class="n">temp</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="sc">'a'</span> <span class="o">&amp;&amp;</span> <span class="n">temp</span><span class="p">[</span><span class="n">temp</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="sc">'z'</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">res</span> <span class="o">+=</span> <span class="sc">'b'</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="k">else</span>
+            <span class="n">res</span> <span class="o">+=</span> <span class="n">temp</span><span class="p">[</span><span class="n">temp</span><span class="p">.</span><span class="n">size</span><span class="p">()</span> <span class="o">-</span> <span class="mi">2</span><span class="p">];</span>
+        <span class="n">n</span><span class="o">++</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="n">res</span><span class="p">;</span>
+<span class="p">}</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+
+    <span class="n">readin</span><span class="p">();</span>    <span class="c1">// 读入文法</span>
+    <span class="n">getfirst</span><span class="p">();</span>  <span class="c1">// 获取此文法的first集</span>
+    <span class="n">getfollow</span><span class="p">();</span> <span class="c1">// 获取此文法的follow集</span>
+    <span class="n">getfollow</span><span class="p">();</span>
+    <span class="n">getselect</span><span class="p">();</span> <span class="c1">// 获取此文法的Select集</span>
+    <span class="n">gettable</span><span class="p">();</span>  <span class="c1">// 获取预测分析表</span>
+    <span class="c1">// print_first();  // 打印first集</span>
+    <span class="c1">// print_follow(); // 打印follow集</span>
+    <span class="c1">// printselect();  // 打印select集</span>
+    <span class="c1">// 判断是否是LL(1)文法</span>
+    <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">check_LL1</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="p">};</span>
+    <span class="c1">// print_table(); // 打印此文法的预测表</span>
+    <span class="c1">// cout &lt;&lt; "请输入一个字符串：" &lt;&lt; endl;</span>
+    <span class="c1">// cin &gt;&gt; word;</span>
+    <span class="n">word</span> <span class="o">=</span> <span class="n">getInFomula</span><span class="p">();</span> <span class="c1">// 输入要分析的字符串</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">analyze</span><span class="p">())</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"Yes,it is correct."</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="k">else</span>
+        <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"No,it is wrong."</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+
+
+</code></pre></div></div>
+
+<h2 id="调试数据">调试数据</h2>
+
+<blockquote>
+
+  <p><strong>样例输入</strong></p>
+
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(a+15)*b
+</code></pre></div>  </div>
+
+  <p><strong>样例输出</strong></p>
+
+  <div class="language-pl highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="p">(</span><span class="nv">lparen</span><span class="p">,()</span>
+<span class="p">(</span><span class="nv">ident</span><span class="p">,</span><span class="nv">a</span><span class="p">)</span>
+<span class="p">(</span><span class="nv">plus</span><span class="p">,</span><span class="o">+</span><span class="p">)</span>
+<span class="p">(</span><span class="nv">number</span><span class="p">,</span><span class="mi">15</span><span class="p">)</span>
+<span class="p">(</span><span class="nv">rparen</span><span class="p">,))</span>
+<span class="p">(</span><span class="nb">times</span><span class="p">,</span><span class="o">*</span><span class="p">)</span>
+<span class="p">(</span><span class="nv">ident</span><span class="p">,</span><span class="nv">b</span><span class="p">)</span>
+<span class="nv">Yes</span><span class="p">,</span><span class="nv">it</span> <span class="nv">is</span> <span class="nv">correct</span><span class="o">.</span>
+</code></pre></div>  </div>
+
+  <p><strong>运行结果</strong></p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%20%E7%AC%AC%E4%BA%8C%E6%AC%A1%E5%AE%9E%E9%AA%8C%20%E8%87%AA%E4%B8%8A%E8%80%8C%E4%B8%8B%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90.assets/image-20240617121500458.png" alt="image-20240617121500458" style="zoom:67%;" /></p>
+</blockquote>
+
+<h2 id="实验调试情况及体会">实验调试情况及体会</h2>
+
+<p>通过这次实验，我成功实现了LL(1)分析法进行语法分析，深刻体会到了其利用预测分析表和栈来进行符号匹配和选择产生式，从而推导出输入串语法结构的奥妙。</p>
+
+<p>首先，我清晰地认识到LL(1)分析法的核心在于构建预测分析表。预测分析表由非终结符和终结符构成，通过它，我们可以根据当前栈顶符号和输入串首符号，快速确定应选择的产生式，从而进行语法推导。在实验中，我通过定义非终结符和终结符的数组，以及对预测分析表的初始化，成功构建了一个完整的预测分析表。这一步骤让我感受到逻辑推理的魅力，每一个细节都在逻辑中紧密相连，犹如编织一张精密的网。</p>
+
+<p>其次，我深刻意识到LL(1)分析法对文法的严格要求。文法必须满足LL(1)的条件，即每个非终结符的每个产生式的选择集与其他产生式的选择集不能有交集，以确保在分析过程中不会出现二义性和回溯。实验中，我针对给定的文法，仔细检查每个非终结符的产生式，并根据LL(1)文法的条件进行了调整和修改。这一过程不仅让我对文法结构有了更深刻的理解，更让我感受到精益求精的追求和不断完善的动力。</p>
+
+<p>在编写代码的过程中，我深入理解了LL(1)分析法的工作原理。通过构建<code class="language-plaintext highlighter-rouge">analyze()</code>函数，我实现了循环的语法分析过程。每次循环中，根据栈顶字符和输入串首字符进行匹配，并根据预测分析表选择相应的产生式。通过不断地匹配和选择产生式，逐步推导出输入串的语法结构。每一次成功匹配和推导，都让我体验到如同解谜般的成就感。</p>
+
+<p>这次实验不仅让我对LL(1)分析法的应用有了更深刻的理解，还让我意识到它在编译原理中的重要性。LL(1)分析法不仅是构建抽象语法树的基石，更是生成中间代码的重要工具。通过这次实践，我不仅掌握了理论知识，更培养了严谨的思维方式和解决问题的能力。</p>
+
+<p>这次实验让我真切感受到编译原理的魅力，也更加坚定了我对计算机科学的热爱。每一个细节的推敲，每一个逻辑的验证，都让我沉浸其中，乐在其中。感谢这次实验，让我在知识的海洋中遨游，收获颇丰。</p>
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-04-11T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2024/03/31/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.html">编译原理笔记</a></div><div class="next"><span>下篇</span><a href="/2024/04/25/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86-%E7%AC%AC%E4%B8%89%E6%AC%A1%E5%AE%9E%E9%AA%8C-%E7%AE%97%E7%AC%A6%E4%BC%98%E5%85%88%E5%88%86%E6%9E%90.html">编译原理 第三次实验 算符优先分析</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Gao Xingjie"><meta itemprop="url" content="/"><meta itemprop="description" content="To be a question, to be an answer."><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"><li title="给我发邮件。">
+      <a class="button button--circle mail-button" itemprop="email" href="mailto:xingjie-gao@outlook.com" target="_blank">
+        <i class="fas fa-envelope"></i>
+      </a><li title="在 Github 上关注我。">
+        <a class="button button--circle github-button" itemprop="sameAs" href="https://github.com/Kfkcome" target="_blank">
+          <div class="icon"><svg fill="#000000" width="24px" height="24px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path class="svgpath" data-index="path_0" fill="#272636" d="M0 525.2c0 223.6 143.3 413.7 343 483.5 26.9 6.8 22.8-12.4 22.8-25.4l0-88.7c-155.3 18.2-161.5-84.6-172-101.7-21.1-36-70.8-45.2-56-62.3 35.4-18.2 71.4 4.6 113.1 66.3 30.2 44.7 89.1 37.2 119 29.7 6.5-26.9 20.5-50.9 39.7-69.6C248.8 728.2 181.7 630 181.7 513.2c0-56.6 18.7-108.7 55.3-150.7-23.3-69.3 2.2-128.5 5.6-137.3 66.5-6 135.5 47.6 140.9 51.8 37.8-10.2 80.9-15.6 129.1-15.6 48.5 0 91.8 5.6 129.8 15.9 12.9-9.8 77-55.8 138.8-50.2 3.3 8.8 28.2 66.7 6.3 135 37.1 42.1 56 94.6 56 151.4 0 117-67.5 215.3-228.8 243.7 26.9 26.6 43.6 63.4 43.6 104.2l0 128.8c0.9 10.3 0 20.5 17.2 20.5C878.1 942.4 1024 750.9 1024 525.3c0-282.9-229.3-512-512-512C229.1 13.2 0 242.3 0 525.2L0 525.2z" />
+</svg>
+</div>
+        </a>
+      </li></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© Ennis's Blog 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script>
+  window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
+    var $canvas = null, $this = null, _ctx = null, _text = '';
+    $('.language-chart').each(function(){
+      $this = $(this);
+      $canvas = $('<canvas></canvas>');
+      _text = $this.text();
+      $this.text('').append($canvas);
+      _ctx = $canvas.get(0).getContext('2d');
+      (_ctx && _text) && (new Chart(_ctx, JSON.parse(_text)) && $this.attr('data-processed', true));
+    });
+  });
+</script>
+<script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};_config.TeX = { equationNumbers: { autoNumber: "all" } };MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+

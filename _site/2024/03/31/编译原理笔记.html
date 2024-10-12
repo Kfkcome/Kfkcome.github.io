@@ -1,0 +1,2163 @@
+<!DOCTYPE html><html lang="zh-Hans">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>编译原理笔记 - Ennis's Blog</title>
+
+<meta name="description" content="编译原理笔记[TOC]第一章绪论什么是编译程序把某一种高级语言程序等价的转换成另一种低级语言程序的程序">
+<link rel="canonical" href="http://localhost:4000/2024/03/31/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Willing to be a question, willing to be an answer.
+" href="/">Ennis's Blog</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86">编译原理</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">实验报告</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 03月31日</span>
+            </li></ul></div><div class="article__header"><header><h1>编译原理笔记</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2024-3-31-编译原理笔记.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">编译原理笔记[TOC]第一章绪论什么是编译程序把某一种高级语言程序等价的转换成另一种低级语言程序的程序</p></div></div>
+              </div>
+            </div><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="编译原理笔记"><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2024-03-31T00:00:00+08:00">
+    <meta itemprop="keywords" content="编译原理,实验报告"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><h1 id="编译原理笔记">编译原理笔记</h1>
+
+<p>[TOC]</p>
+
+<h2 id="第一章绪论">第一章绪论</h2>
+
+<p>什么是编译程序</p>
+
+<p>把某一种高级语言程序等价的转换成另一种低级语言程序的程序
+<!---more--></p>
+
+<p>编译器的各个阶段</p>
+
+<p>源程序 词法分析 语法分析 语义分析与中间代码产生 代码优化 代码生成</p>
+
+<h2 id="第二章高级语言及其语法描述">第二章高级语言及其语法描述</h2>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/QQ_1720412281411.png" alt="QQ_1720412281411" /></p>
+
+<h3 id="语法">语法</h3>
+
+<p>一组规则，用它可以形成和产生一个合适的程序</p>
+
+<p>词法规则：单词符号的形成规则</p>
+
+<ol>
+  <li>语法规则和词法规则定义了程序的形式结构</li>
+  <li>定义语法单位的意义属于语义问题</li>
+</ol>
+
+<h3 id="语义">语义</h3>
+
+<p>一组规则，用它可以定义一个程序的意义</p>
+
+<p>描述方法：属性文法</p>
+
+<h3 id="程序语言的语法描述">程序语言的语法描述</h3>
+
+<h4 id="一些概念">一些概念</h4>
+
+<ul>
+  <li>有穷字母表$\sum$ : 又叫字符集，其中每一个元素称为一个字符</li>
+  <li>例子：$\sum$ = {a-z, A-Z,0-9}</li>
+  <li>$\sum$上的字（字符串）是指由$\sum$ 中的字符所构成的有穷序列</li>
+  <li>不含任何字符的称为空字 记为 $\epsilon$</li>
+  <li>
+    <p>$\sum ^ *$ 表示 $\sum$ 上的左右字的全，包含空字</p>
+  </li>
+  <li>
+    <p>连接（积）</p>
+
+    <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/image-20240630233343441.png" alt="image-20240630233343441" /></p>
+  </li>
+  <li>
+    <p>n次积 $V^n=VV\dots V$</p>
+  </li>
+  <li>
+    <p>闭包：<img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/image-20240630233432724.png" alt="image-20240630233432724" /></p>
+  </li>
+  <li>正则闭包：$V^+ = V V^*$</li>
+</ul>
+
+<h4 id="上下文无关文法">上下文无关文法</h4>
+
+<p>文法：描述语言的语法结构的形式规则（或语法规则）</p>
+
+<p>上下文无关文法 ：是一个四元式 G=($V_T,V_N,S,P$)</p>
+
+<ul>
+  <li>
+    <p>VT：终结符集合（非空）V，就是句子中的单词</p>
+  </li>
+  <li>
+    <p>VN：非终结符集合（非空），且V， V=0</p>
+  </li>
+  <li>
+    <p>S：文法的开始符号，SEYN 必须属于某个产生式的左部</p>
+  </li>
+  <li>
+    <p>P：产生式集合（有限），每个产生式形式为</p>
+
+    <p>P→a, PeVN a E (VyUVN)*  P就是规则</p>
+  </li>
+</ul>
+
+<p>然后由此我们可以完善一下相关概念</p>
+
+<ul>
+  <li>直接推出：<img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/894e08c7c4eca3d92549b32cd886b233.png" alt="894e08c7c4eca3d92549b32cd886b233" /></li>
+  <li>推导：如果$\alpha \rightarrow \alpha_2 \dots \rightarrow \alpha_n$，则我们称这个序列是从c，到a，的一个推导。若存在一个从a到an的推导，则称a可以推导出an。</li>
+  <li>一步或若干步推导：通常，用$\alpha_1 \rightarrow^+ a_n$，表示：从a出发，经过一步或若千步，苛以推出an。</li>
+  <li>0步或若干步推导：通常，用$\alpha_1 \rightarrow^* a_n$，表示：从a出发，经过一步或若千步，苛以推出an</li>
+  <li>句型：定义：假定G是一个文法，S 是它的开始符号。如果$S\rightarrow^* \alpha$则a称是一个句型。</li>
+  <li>句子：仅含终结符号的句型是一个句子。</li>
+  <li>语言：文法G所产生的句子的全体是一个语言，将它记为 L（G）。</li>
+</ul>
+
+<h4 id="应用做题">应用（做题）</h4>
+
+<p>文法-》语言</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/b30534dfe75216394035d5c3b271074e.png" alt="b30534dfe75216394035d5c3b271074e" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/b8a7f96576ba1833c40608220ccb76d8.png" alt="b8a7f96576ba1833c40608220ccb76d8" /></p>
+
+<p>语言-》文法</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/image-20240701002129602.png" alt="image-20240701002129602" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/91e47ba94bdc0e6622cef29110a38dca.png" alt="91e47ba94bdc0e6622cef29110a38dca" /></p>
+
+<h4 id="语法树与二义性">语法树与二义性</h4>
+
+<p>文法二义性：果一个文法存在某个句子对应两棵不同的语法树，则说这个文法是二义的。</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/a6599f62c71a27f77c265fc1aa30b1d5.png" alt="a6599f62c71a27f77c265fc1aa30b1d5" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/c80b5d98f10f3a9df271c8a34ee1c0bf.png" alt="c80b5d98f10f3a9df271c8a34ee1c0bf" /></p>
+
+<p>语言二义性：一个语言是二义的，如果对它不存在无二义的文法。语言不是二义性就是，存在一个文法不是二义性的。</p>
+
+<h2 id="第三章词法分析">第三章词法分析</h2>
+
+<h3 id="词法分析器">词法分析器</h3>
+
+<h4 id="功能和输出形式">功能和输出形式</h4>
+
+<p>功能：输入源程序、输出单词符号</p>
+
+<blockquote>
+  <p>单词符号的种类</p>
+
+  <ul>
+    <li>基本字：如begin，repeat，……</li>
+    <li>标识符：表示各种名字，如变量名，数组名和过程名</li>
+    <li>常数：各种类型的常熟</li>
+    <li>运算符：+，-，* ，/ ,……</li>
+    <li>界符：逗号，分号、括号和空白</li>
+  </ul>
+</blockquote>
+
+<p>输出的单词符号的表示形式：（单词种别，单词自身的值）</p>
+
+<blockquote>
+  <p><strong>单词种别通常用整数编码表示</strong></p>
+
+  <ul>
+    <li>若一个种别只有一个单词符号，则种别编码就代表该单词符号。假定基本字、运算符和界符都是一符一种。</li>
+    <li>若一个种别有多个单词符号，则对于每个单词符号，给出种别编码和自身的值。
+•标识符单列一种；标识符自身的值表示成按机器字节划分的内部码。
+•常数按类型分种；常数的值则表示成标准的二进制形式。</li>
+  </ul>
+
+  <p>例子:<img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/8900d5238bdb7728bdc5b594c2bafd40.png" alt="8900d5238bdb7728bdc5b594c2bafd40" /></p>
+
+  <p><strong>助忆符：直接用编码表示不便于记忆，因此用助忆符表示编码</strong></p>
+
+  <p>例子<img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/8aba0427f01d14085bcb391ebd223e3d.png" alt="8aba0427f01d14085bcb391ebd223e3d" /></p>
+</blockquote>
+
+<h4 id="作为一个独立子程序">作为一个独立子程序</h4>
+
+<p>词法分析是作为一个独立的阶段，是否应当将其处理为独立的一遍呢？</p>
+
+<ul>
+  <li>作为独立阶段的优点：
+使整个编译程序结构简洁、清晰和条理化，
+有利于集中考虑词法分析一些枝节问题。</li>
+  <li>不作为独立的一遍：
+将其处理为一个子程序。</li>
+</ul>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/53b6e0211456ba729bcf5c62b55dc286.png" alt="53b6e0211456ba729bcf5c62b55dc286" /></p>
+
+<h4 id="词法分析器的设计">词法分析器的设计</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/597115ef9574e2d8dba91f55b993099d.png" alt="597115ef9574e2d8dba91f55b993099d" /></p>
+
+<p>扫描缓冲区的设计</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/72c50b34e3e8df66323156dc2e2f1794.png" alt="72c50b34e3e8df66323156dc2e2f1794" /></p>
+
+<h4 id="超前搜索">超前搜索</h4>
+
+<p>• Fortran语言基本字的识别：
+• Fortran语言书写时可不写空格，看起来方便，却给编译程序带来很大的困难！Fortran语言的基本字不叫保留字，因为它的关键字可以作为普通的标识符用。例如：
+（1） DO99K是什么意思？</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>DO99K=1,10 DO 99 K= 1,10 //99是标号
+DO99K=1.10
+// DO99K是标识符
+</code></pre></div></div>
+
+<p>（2） IF是基本字，还是普通标识符？</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>IF (5. EQ.M) GOT055 IF (5. EQ.M) GOTO 55
+IE （5）=55
+// IF是数组名
+</code></pre></div></div>
+
+<p>• 需要超前搜索才能确定哪些是基本字</p>
+
+<p>需要超前搜索的情况</p>
+
+<ul>
+  <li>标识符识别
+字母开头的字母数字串，后跟界符或算符</li>
+  <li>常数识别
+    <ul>
+      <li>识别出算术常数并将其转变为二进制内码表
+示。有些也要超前搜索。
+5.EQ.M</li>
+    </ul>
+  </li>
+  <li>算符和界符的识别
+    <ul>
+      <li>把多个字符符合而成的算符和界符拼合成一个单一单词符号。
+；，**，，EQ.十，：&gt;=</li>
+    </ul>
+  </li>
+</ul>
+
+<p>不必使用超前搜索的条件</p>
+
+<ul>
+  <li>所有基本字都是保留字；用户不能用它们作自己的标识符；
+<strong>基本字作为特殊的标识符来处理；不用特殊的状态图来识别，只要查保留字表。</strong></li>
+  <li>如果基本字、标识符和常数（或标号）之间没有确定的运算符或界符作间隔，则必须<strong>使用一个空白符作间隔</strong></li>
+</ul>
+
+<h4 id="词法分析器的设计流程">词法分析器的设计流程</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/efc110b2b9c6a30dc16c42e8254e9521.png" alt="efc110b2b9c6a30dc16c42e8254e9521" /></p>
+
+<h3 id="正规表达式与有限自动机">正规表达式与有限自动机</h3>
+
+<ul>
+  <li>
+    <p>字符集：考虑一个有<strong>穷字母表∑</strong> 字符集</p>
+  </li>
+  <li>
+    <p>字符：其中每一个元素称为一个<strong>字符</strong></p>
+  </li>
+  <li>
+    <p>字符：∑上的<strong>字</strong>(也叫字符串) 是指由∑中的字符所构成的一个有穷序列</p>
+  </li>
+  <li>
+    <p>空字：不包含任何字符的序列称为<strong>空字</strong>，记为 ε</p>
+  </li>
+  <li>
+    <p>全体：用∑*表示∑上的所有字的全体,包含空字ε</p>
+
+    <blockquote>
+      <p>例如:设={a，b}，则 ∑*={ε,a b,aa,ab,ba,bb,aaa,…}</p>
+    </blockquote>
+  </li>
+  <li>
+    <p>连接（积）：∑*的子集U和V的<strong>连接(积)</strong>定义为</p>
+
+    <p>UV={aβ| αeU &amp; BeV}
+V自身的 n次积记为
+Vn=VV…V</p>
+  </li>
+  <li>
+    <p>正规闭包：规定Vo={ε}，令
+V<em>=VoUV1UV2UV3U…
+称V“是V的闭包:
+记 V+≡V∨</em>，称V*是V的正规闭包</p>
+  </li>
+</ul>
+
+<h4 id="正规式和正规集的关系">正规式和正规集的关系</h4>
+
+<p>正规集可以用正规表达式(简称正规式)表示。
+正规表达式是表示正规集一种方法。
+一个字集合是正规集当且仅当它能用正规式表示。</p>
+
+<h4 id="正规式">正规式</h4>
+
+<p>对给定的字母表$\sum$</p>
+
+<ol>
+  <li>ε和∅都是上的正规式，它们所表示的正规集为 {ε} 和Ø;</li>
+  <li>
+    <p>任何$a \in \sum$​，a是Z上的正规式，它所表示的正规集为{a};</p>
+  </li>
+  <li>假定e和e,都是Σ上的正规式，它们所表示的正规集为L(e,)和L(ez)，则
+    <ol>
+      <li>(e l ez)为正规式，它所表示的正规集为L(ej)uL(ez);</li>
+      <li>(e.ez)为正规式，它所表示的正规集为L(e,)L(ez)(连接积)</li>
+      <li>(e)*为正规式，它所表示的正规集为
+(L(e,))(闭包，即任意有限次的自重复连接)</li>
+    </ol>
+  </li>
+</ol>
+
+<p>仅由有限次使用上述三步骤而定义的表达式才是Z上的正规式，仅由这些正规式表示的字集才是∑上的正规集。</p>
+
+<ul>
+  <li>所有词法结构一般都可以用正规式描述</li>
+  <li>若两个正规式所表示的正规集相同，则称
+这两个正规式等价。如
+b(ab)*=(ba)*b       (a*b*)*=(alb)</li>
+</ul>
+
+<h4 id="确定有限自动机dfa">确定有限自动机（DFA）</h4>
+
+<p>确定有限自动机M是一个五元式M=（S, 2, f, So,F），其中</p>
+
+<ol>
+  <li>S：有穷状态集，</li>
+  <li>2：输入字母表（有穷），</li>
+  <li>f：状态转换函数，为SxZ-S的单值映射函数 f（S,a）=s’表示：当现行状态为S，输入字符为
+a时，将状态转换到下一状态s’。我们把s’ 称为s的一个后继状态。</li>
+  <li>$S_0$是唯一的一个初态；</li>
+  <li>FS：终态集（可空）。</li>
+</ol>
+
+<h4 id="非确定有限自动机nfa">非确定有限自动机（NFA）</h4>
+
+<p>非确定有限自动机（NFA）M是一个五元式M=（S, 2, f, So,F），其中</p>
+
+<ol>
+  <li>S：有穷状态集，</li>
+  <li>$\sum$：输入字母表（有穷），</li>
+  <li>f：状态转换函数，为$S_x\sum^* \rightarrow 2^S$的部分映射<strong>(非单值）</strong></li>
+  <li>$S_0 \in S$是非空的初态集</li>
+  <li>F：终态集（可空）。</li>
+</ol>
+
+<p>NFA M 所示别的字符串的全体记为L（M）</p>
+
+<h4 id="nfa和dfa的区别">NFA和DFA的区别</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/152b562b81d2bc5ae24ba21fc624ac25.png" alt="152b562b81d2bc5ae24ba21fc624ac25" /></p>
+
+<p>从状态图可看出NFA 和DFA的区别：</p>
+
+<ol>
+  <li>NFA可有多个初态</li>
+  <li>NFA弧上的标记可以是$\sum^*$中的一个字（甚至可以是一个正规式），而不一定是单个字符；</li>
+  <li>NFA同一个字可能出现在同状态射出的多条弧上。</li>
+</ol>
+
+<p><strong>所以 DFA是NFA的特例。</strong></p>
+
+<h4 id="nfa与dfa的转换">NFA与DFA的转换</h4>
+
+<h5 id="理论基础">理论基础</h5>
+
+<p>自动机等价定义：对于任何两个有限自动机M和M’，如果L（M）=L（M’），则称M与M’等价。</p>
+
+<p>自动机理论中一个重要的结论：判定两个自动机等价性的算法是存在的。</p>
+
+<p><strong>对于每个NFA M存在一个DFA M’，使得L（M）=L（M’）。亦即DFA与NFA描述能力相同。</strong></p>
+
+<h5 id="nfa转换为等价的dfa">NFA转换为等价的DFA</h5>
+
+<p>假定NFA M=&lt;S,2, 6,So, F&gt;，我们对NFA M的状态转换图进行以下改造：</p>
+
+<ol>
+  <li>
+    <p><strong>引进新的初态结点X和终态结点Y</strong>，X,Y¢S，
+从X到S。中任意状态结点连一条$\epsilon$箭弧，从F中任意状态结点连一条e箭弧到Y。</p>
+  </li>
+  <li>
+    <p>按以下3条规则对NFA M的状态转换图进一步施行替换，直到把这个图转变为每条弧只标记
+$\sum$上的一个字符或$\epsilon$；其中k是新引入的状态。</p>
+
+    <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/image-20240701115426004.png" alt="image-20240701115426004" /></p>
+
+    <blockquote>
+      <p><strong>例子</strong></p>
+
+      <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/ab7fdc62e5672379937b124b48bab3d8.png" alt="ab7fdc62e5672379937b124b48bab3d8" /></p>
+    </blockquote>
+  </li>
+  <li>
+    <p>将上述NFA确定化——采用子集法</p>
+
+    <blockquote>
+      <h1 id="理论">理论：</h1>
+
+      <p>闭包定理</p>
+
+      <p>设I是NFA的状态集的一个子集，定义I的$\epsilon$-闭包：$\epsilon$-closure（I）为：</p>
+
+      <ol>
+        <li>若$s \in I$，则$s \in \epsilon$-closure（I）；</li>
+        <li>若$s \in I$，则从s出发经过任意条$\epsilon$弧而能到达的任何状态s’都属于$\epsilon$-closure（I）
+即<strong>e-closure（I）={s’ | 从某个$s \in I$出发经过任意条：弧能到达s’｝</strong></li>
+      </ol>
+
+      <p>$I_a$定义</p>
+
+      <p>设a是2中的一个字符，定义
+\(I_a=\epsilon-closure(J)\)
+其中，J为I中的某个状态出发经过一条a弧而到达的状态集合。</p>
+
+      <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/bf32ba843acb2f729db278f285c4c00b.png" alt="bf32ba843acb2f729db278f285c4c00b" /></p>
+
+      <p>例子</p>
+
+      <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/c59b405c483037f2b5cf068455ac8941.png" alt="c59b405c483037f2b5cf068455ac8941" /></p>
+    </blockquote>
+
+    <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/6bd774202fa7016a466ae0c252eef39b.png" alt="6bd774202fa7016a466ae0c252eef39b" /></p>
+
+    <p>例子</p>
+
+    <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/42eb9487fdb40fe37910aad8ffc020af.png" alt="42eb9487fdb40fe37910aad8ffc020af" /></p>
+
+    <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/884a02fa9b473173154725eeb0d46665.png" alt="884a02fa9b473173154725eeb0d46665" /></p>
+
+    <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/3bd7179431ee4494d15b80bd70090930.png" alt="3bd7179431ee4494d15b80bd70090930" /></p>
+  </li>
+</ol>
+
+<h4 id="有限自动机转换为正规式">有限自动机转换为正规式</h4>
+
+<blockquote>
+  <p>理论：</p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/92412a5c1ebfe5bbc6cd27b1d1816358.png" alt="92412a5c1ebfe5bbc6cd27b1d1816358" /></p>
+</blockquote>
+
+<h5 id="nfa-r正规式">NFA-&gt;R(正规式)</h5>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/b655f0065044f8a135bf13dcff632554.png" alt="b655f0065044f8a135bf13dcff632554" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/872bc6fa5bb25a258b9b00c445977e31.png" alt="872bc6fa5bb25a258b9b00c445977e31" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/ac7d1af4612156c33abf1421d90c19fc.png" alt="ac7d1af4612156c33abf1421d90c19fc" /></p>
+
+<p>例子：</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/6214a9863f57670eef1681edd811e44a.png" alt="6214a9863f57670eef1681edd811e44a" /></p>
+
+<h4 id="r-nfa">r-&gt;NFA</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/5f8d9203dc0675f180931f2d27ce2529.png" alt="5f8d9203dc0675f180931f2d27ce2529" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/578bba46808b49cf88f1827e1ad003bf.png" alt="578bba46808b49cf88f1827e1ad003bf" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/69563e4ebc27e2c6d5b7c288289333b3.png" alt="69563e4ebc27e2c6d5b7c288289333b3" /></p>
+
+<p>例子：</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/b693ba5d2ed90015971c039eea06b42f.png" alt="b693ba5d2ed90015971c039eea06b42f" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/0a392157a34acfc3f41195a4610c34dd.png" alt="0a392157a34acfc3f41195a4610c34dd" /></p>
+
+<h4 id="dfa确定有限自动机化简dfa最小化">DFA（确定有限自动机）化简(DFA最小化)</h4>
+
+<p>目的（我们要干什么）</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/989f418393e62439f3f306bf073db990.png" alt="989f418393e62439f3f306bf073db990" /></p>
+
+<p>基本思想：</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/5007188a9e332fa45d37313e1880fac2.png" alt="5007188a9e332fa45d37313e1880fac2" /></p>
+
+<p>怎么做</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/bf1316cf967172c1211050c6e91de293.png" alt="bf1316cf967172c1211050c6e91de293" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/5998de650c2797dc58674b40d1352b2b.png" alt="5998de650c2797dc58674b40d1352b2b" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/d45a8a0cc38d7d9a385b0126c68c8847.png" alt="d45a8a0cc38d7d9a385b0126c68c8847" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/1ccc3d13208404ff60e763cbe721a232.png" alt="1ccc3d13208404ff60e763cbe721a232" /></p>
+
+<p>注意要分成N个分组</p>
+
+<p>例子：</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/20138ccb129c6d9b46fe97a5be137b9d.png" alt="20138ccb129c6d9b46fe97a5be137b9d" /></p>
+
+<h2 id="第四章语法分析-自上而下分析">第四章语法分析 自上而下分析</h2>
+
+<h3 id="语法分析">语法分析</h3>
+
+<p><strong>使用上下文无关文法对语言的语法结构进行描述</strong></p>
+
+<p>语法分析的任务是分析一个文法的句子结构</p>
+
+<p>语法分析器的功能：按照文法的产生式（语言的语法规则），识别输入符号串是否为一个句子</p>
+
+<p>这里就要判断，看能否从文法的开始符号出发推导出这个输入串，或建立一棵与输入串匹配的语法树</p>
+
+<p>语法分析的方法：</p>
+
+<ol>
+  <li>
+    <p>自下而上</p>
+
+    <ol>
+      <li>从输入串开始，逐步进行归约，直到文法的开始符号</li>
+      <li>归约根据文法的产生式规则，把串中出现的产生式的右部替换成左部符号</li>
+      <li>从树叶节点开始，构造语法树</li>
+      <li>算符优先分析法，LR分析法</li>
+    </ol>
+  </li>
+  <li>
+    <p>自上而下</p>
+
+    <ol>
+      <li>从文法的开始符号出发反复使用各种产生式，寻找『匹配』的推导</li>
+      <li>推导：根据文法的产生式规则，把串中出现的产生式的左部符号替换成右部</li>
+      <li>从树的根开始，构造语法树</li>
+      <li>递归下降分析法、预测分析程序</li>
+    </ol>
+  </li>
+</ol>
+
+<h3 id="ll1分析法">LL(1)分析法</h3>
+
+<h4 id="消除左递归">消除左递归</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/700f22a85bb940e8f3568a3fa15e8e06.png" alt="700f22a85bb940e8f3568a3fa15e8e06" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/bd71ea6daf95db8f5dc8913683f10b94.png" alt="bd71ea6daf95db8f5dc8913683f10b94" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/3e2afc4e25c08998a4545f27658b0a74.png" alt="3e2afc4e25c08998a4545f27658b0a74" /></p>
+
+<blockquote>
+  <h1 id="例子">例子</h1>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/00c9b5d12e76ca5a998c834f5e43b0fb.png" alt="00c9b5d12e76ca5a998c834f5e43b0fb" /></p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/df3d84d9881636dde6f36e43698eb647.png" alt="df3d84d9881636dde6f36e43698eb647" /></p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/ec302c845dcdce52fb43eaa08a4e30a3.png" alt="ec302c845dcdce52fb43eaa08a4e30a3" /></p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/90a168d9317f08637cf92eeb041263a7.png" alt="90a168d9317f08637cf92eeb041263a7" /></p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/e7ea751d49ad3b10438d9dd176356a1e.png" alt="e7ea751d49ad3b10438d9dd176356a1e" /></p>
+
+</blockquote>
+
+<h4 id="消除回溯">消除回溯</h4>
+
+<h5 id="提取公共左因子">提取公共左因子</h5>
+
+<p>如果一个非终结符的候选FIRST相交则使用提取公共左因子，来使得两两不相交</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/bf97bd3ca49559412f392e2bd6f11696.png" alt="bf97bd3ca49559412f392e2bd6f11696" /></p>
+
+<h5 id="判断是否是ll1文法">判断是否是LL(1)文法</h5>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/3832b2a27ca8c0403d274ef34b87f7a3.png" alt="3832b2a27ca8c0403d274ef34b87f7a3" /></p>
+
+<blockquote>
+  <h1 id="3的原因">(3)的原因</h1>
+
+  <p><strong>FIRST 集合与 FOLLOW 集合</strong>：</p>
+
+  <ul>
+    <li><strong>FIRST(A)</strong>：表示从非终结符 A 推导出的字符串的首字符的集合。</li>
+    <li><strong>FOLLOW(A)</strong>：表示所有在文法中能够出现在 A 之后的符号集合。</li>
+  </ul>
+
+  <p><strong>条件(3) 的要求</strong>：</p>
+
+  <ul>
+    <li>如果存在某个候选首符集合包含 ε（空串），则要求 FIRST(A) 与 FOLLOW(A) 的交集为空集合，即 <code class="language-plaintext highlighter-rouge">FIRST(A) ∩ FOLLOW(A) = ∅</code>。</li>
+  </ul>
+
+  <p><strong>原因</strong>：</p>
+
+  <ul>
+    <li>如果非终结符 A 的某个候选首符集合包含 ε，意味着 A 可以推导出空串。</li>
+    <li>这种情况下，如果 FOLLOW(A) 中的某个符号也在 FIRST(A) 中存在，则当解析器遇到这个符号时，就无法确定是因为 A 推导出了空串还是需要使用 A 的其他产生式进行推导，导致解析器产生歧义。</li>
+    <li>通过要求 <code class="language-plaintext highlighter-rouge">FIRST(A) ∩ FOLLOW(A) = ∅</code>，可以避免这种歧义，从而使文法成为 LL(1) 文法，保证解析器可以顺利进行自上而下的分析而不会回溯。</li>
+  </ul>
+</blockquote>
+
+<h5 id="求解first集">求解FIRST集</h5>
+
+<p>定义：</p>
+
+<p>$FIRST(\alpha)$指从$\alpha$所能推导出的所有串的首终结符结合
+<img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/777f97cae6a9dc2d4eec3a40f05c9cec.png" alt="777f97cae6a9dc2d4eec3a40f05c9cec" /></p>
+
+<p>求法：</p>
+
+<p><img src="./编译原理笔记.assets/9c63929ceb960b7e053cea864ad93a4d.jpeg" alt="9c63929ceb960b7e053cea864ad93a4d" /></p>
+
+<p><img src="./编译原理笔记.assets/a0505363077d0a6b6085adfa0715a993.jpeg" alt="a0505363077d0a6b6085adfa0715a993" /></p>
+
+<h5 id="求解follow集">求解FOLLOW集</h5>
+
+<p><img src="./编译原理笔记.assets/662168eae05c8874a67ea783065db0db.jpeg" alt="662168eae05c8874a67ea783065db0db" /></p>
+
+<h5 id="预测分析程序">预测分析程序</h5>
+
+<p>根据当前输入符号，为当前要处理的非终结符选择产生式</p>
+
+<h6 id="利用预测分析表进行分析总控程序">利用预测分析表进行分析(总控程序)</h6>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/e6eb3e0bf24f79368b541b532c993526.png" alt="e6eb3e0bf24f79368b541b532c993526" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/dccc34fe6328d36137ee2390204c22a2.png" alt="dccc34fe6328d36137ee2390204c22a2" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/101be9d0500db3648ed9e51a5ff47b20.png" alt="101be9d0500db3648ed9e51a5ff47b20" /></p>
+
+<blockquote>
+  <h1 id="例子-1">例子：</h1>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/27386ac6780f1931f6535682e4badbe8.png" alt="27386ac6780f1931f6535682e4badbe8" /></p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/4101c32d9ea5ec8f5df45b0351b8f5a4.png" alt="4101c32d9ea5ec8f5df45b0351b8f5a4" /></p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/401e0f37132645f1d7e1162be6275dc9.png" alt="401e0f37132645f1d7e1162be6275dc9" /></p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/07d46d62d1f9543c012370f4eee85de8.png" alt="07d46d62d1f9543c012370f4eee85de8" /></p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/0e06e0c66b78edcdc08920db611deb83.png" alt="0e06e0c66b78edcdc08920db611deb83" /></p>
+</blockquote>
+
+<h6 id="预测分析表的构造">预测分析表的构造</h6>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/1a9bed2a3f5028947c18f959ba6ef078.png" alt="1a9bed2a3f5028947c18f959ba6ef078" /></p>
+
+<h2 id="第五章-语法分析自下而上分析">第五章 语法分析——自下而上分析</h2>
+
+<p>基本思想：用一个寄存符号的先进后出栈，把输入符号一个一个地移进到栈里，当栈顶形成某个产生式的候选式时，即把栈顶的这一部分替换（归约为）该产生式的左部符号</p>
+
+<p><strong>核心问题：识别可归约串</strong></p>
+
+<h3 id="一些概念-1">一些概念</h3>
+
+<h4 id="短语">短语：</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/cf1a065a2627d1e7708a4958e7793848.png" alt="cf1a065a2627d1e7708a4958e7793848" /></p>
+
+<blockquote>
+  <h1 id="例子-2">例子</h1>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/fd308fe8a6d238192583139c621128e9.png" alt="fd308fe8a6d238192583139c621128e9" /></p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/ed5645edce4fe7144e6f4ceaa244cb74.png" alt="ed5645edce4fe7144e6f4ceaa244cb74" /></p>
+</blockquote>
+
+<h4 id="规范规约">规范规约</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/18facb101e44833e4238cd95d90be6ca.png" alt="18facb101e44833e4238cd95d90be6ca" /></p>
+
+<h4 id="符号栈">符号栈</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/d61d370653181205343976c6171760e7.png" alt="d61d370653181205343976c6171760e7" /></p>
+
+<h3 id="算符优先分析">算符优先分析</h3>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/14c8bc4a97176a84e548c5a8eb98dac3.png" alt="14c8bc4a97176a84e548c5a8eb98dac3" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/14df460dd60cfedbb746dc02985ca5fc.png" alt="14df460dd60cfedbb746dc02985ca5fc" /></p>
+
+<h4 id="优先关系定义">优先关系定义</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/7b40fd3be09389fc9ed909fcac54b3ad.png" alt="7b40fd3be09389fc9ed909fcac54b3ad" /></p>
+
+<h4 id="算符文法定义">算符文法定义</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/ecd0d0208c7cb33f7f7c536e24a8f407.png" alt="ecd0d0208c7cb33f7f7c536e24a8f407" /></p>
+
+<h4 id="判断优先关系判断算符优先文法">判断优先关系+判断算符优先文法</h4>
+
+<p>文法中任何两个终结符之间的关系必须满足下列三种关系之一，才是算符优先文法</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/674aceaa3e5c8d93b1016a5fa9f43f65.png" alt="674aceaa3e5c8d93b1016a5fa9f43f65" /></p>
+
+<blockquote>
+  <h1 id="例子-3">例子</h1>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/8c11fbef478b15557d53296f2a001fb6.png" alt="8c11fbef478b15557d53296f2a001fb6" /></p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/2b6cf78cfc933a904cd439e8b93a3a50.png" alt="2b6cf78cfc933a904cd439e8b93a3a50" /></p>
+</blockquote>
+
+<h4 id="构造优先关系表算法">构造优先关系表算法</h4>
+
+<h5 id="求firstvt">求FIRSTVT</h5>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/bae8b0d50d4968b794a42c40ea6a3f83.png" alt="bae8b0d50d4968b794a42c40ea6a3f83" /></p>
+
+<h5 id="求lastvtp">求LASTVT(P)</h5>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/91145b066d5113b61fb2e73feccc0eea.png" alt="91145b066d5113b61fb2e73feccc0eea" /></p>
+
+<h5 id="构造优先关系表">构造优先关系表</h5>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/02b11277728ac84e12ced85fe3630ea4.png" alt="02b11277728ac84e12ced85fe3630ea4" /></p>
+
+<blockquote>
+  <h1 id="例子-4">例子</h1>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/1ea2ca8897b9c11af08c0bd6bf957eb2.png" alt="1ea2ca8897b9c11af08c0bd6bf957eb2" /></p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/1a99e4d152750a8981e0a1ec69e95a83.png" alt="1a99e4d152750a8981e0a1ec69e95a83" /></p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/638e8801de5bbe588bbe7443c6cf1739.png" alt="638e8801de5bbe588bbe7443c6cf1739" /></p>
+</blockquote>
+
+<h4 id="最左素短语">最左素短语</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/75445867455eb5d678d1f9dc9645c1cc.png" alt="75445867455eb5d678d1f9dc9645c1cc" /></p>
+
+<blockquote>
+  <h1 id="例子-5">例子</h1>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/e1247686b51d3490d9eead8e52c795f5.png" alt="e1247686b51d3490d9eead8e52c795f5" /></p>
+</blockquote>
+
+<h4 id="算符优先分析过程">算符优先分析过程</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/d00078a95b34312303a49ba080e3277e.png" alt="d00078a95b34312303a49ba080e3277e" /></p>
+
+<blockquote>
+  <h1 id="例子-6">例子</h1>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/a10105f1e2398c3c02baf847a0ddf517.png" alt="a10105f1e2398c3c02baf847a0ddf517" /></p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/d3ccf4be6e80ab8f18c1e0088d3dd19a.png" alt="d3ccf4be6e80ab8f18c1e0088d3dd19a" /></p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/ef7657f3f167f69b93f5be255c484da6.png" alt="ef7657f3f167f69b93f5be255c484da6" /></p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/4aab4a2a533dad8b72ff85729b070973.png" alt="4aab4a2a533dad8b72ff85729b070973" /></p>
+</blockquote>
+
+<h3 id="lr0-分析">LR（0） 分析</h3>
+
+<h4 id="一些概念-2">一些概念</h4>
+
+<h5 id="活前缀">活前缀</h5>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/eed9a036033b38d237eadf2114d2d856.png" alt="eed9a036033b38d237eadf2114d2d856" /></p>
+
+<h4 id="项目">项目</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/e92389be04e0ff9a917b2944fee3f2b5.png" alt="e92389be04e0ff9a917b2944fee3f2b5" /></p>
+
+<blockquote>
+  <h2 id="例子-7">例子</h2>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/2f9f78df9005be572f124177e56ca209.png" alt="2f9f78df9005be572f124177e56ca209" /></p>
+</blockquote>
+
+<h4 id="拓广文法">拓广文法</h4>
+
+<p>加入S’</p>
+
+<p>然后拆成单个文法</p>
+
+<h4 id="步骤一-构造项目集规范族">步骤一 构造项目集规范族</h4>
+
+<h5 id="两种情况"><strong>两种情况：</strong></h5>
+
+<p><strong>情况1后面是终结符：</strong></p>
+
+<p><img src="./编译原理笔记.assets/image-20240425194516541.png" alt="image-20240425194516541" /></p>
+
+<p><strong>情况2：后面是非终结符（要把左边是该非终结符的产生式全部搬过来</strong></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/fdc8926cd89794e0fa15801bf28fe9b9.png" alt="fdc8926cd89794e0fa15801bf28fe9b9" /></p>
+
+<p><img src="C:\Users\15858\AppData\Roaming\Typora\typora-user-images\image-20240425193437613.png" alt="image-20240425193437613" /></p>
+
+<h5 id="例子-8">例子</h5>
+
+<p><img src="./编译原理笔记.assets/image-20240425194525018.png" alt="image-20240425194525018" /></p>
+
+<p><img src="./编译原理笔记.assets/image-20240425194530893.png" alt="image-20240425194530893" /></p>
+
+<h4 id="步骤二构造lr0分析表">步骤二构造LR（0）分析表</h4>
+
+<h5 id="算法">算法</h5>
+
+<p><img src="./编译原理笔记.assets/image-20240425194535476.png" alt="image-20240425194535476" /></p>
+
+<h5 id="例子-9">例子</h5>
+
+<p><img src="./编译原理笔记.assets/image-20240425194539604.png" alt="image-20240425194539604" /></p>
+
+<p><img src="./编译原理笔记.assets/image-20240425194544666.png" alt="image-20240425194544666" /></p>
+
+<h4 id="步骤三-使用lr0分析表">步骤三 使用LR（0）分析表</h4>
+
+<p><img src="./编译原理笔记.assets/image-20240425195436567.png" alt="image-20240425195436567" /></p>
+
+<p><img src="./编译原理笔记.assets/image-20240425195452931.png" alt="image-20240425195452931" /></p>
+
+<p><strong>归约详细解释：</strong></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/5062ec67b21ced44b96cd135aed9450a.png" alt="5062ec67b21ced44b96cd135aed9450a" /><img src="./编译原理笔记.assets/image-20240425195501579.png" alt="image-20240425195501579" />（此图可能归约讲不清楚，建议看详细解释）</p>
+
+<p><img src="./编译原理笔记.assets/image-20240425195513016.png" alt="image-20240425195513016" /></p>
+
+<p><img src="./编译原理笔记.assets/image-20240425195521255.png" alt="image-20240425195521255" /></p>
+
+<h5 id="例子-10">例子</h5>
+
+<p><img src="./编译原理笔记.assets/image-20240425200138719.png" alt="image-20240425200138719" /></p>
+
+<p><img src="./编译原理笔记.assets/image-20240425200147264.png" alt="image-20240425200147264" /></p>
+
+<p><img src="./编译原理笔记.assets/image-20240425200157716.png" alt="image-20240425200157716" /></p>
+
+<p><img src="./编译原理笔记.assets/image-20240425200206059.png" alt="image-20240425200206059" /></p>
+
+<p><img src="./编译原理笔记.assets/image-20240425200215569.png" alt="image-20240425200215569" /></p>
+
+<p><img src="./编译原理笔记.assets/image-20240425200226032.png" alt="image-20240425200226032" /></p>
+
+<h3 id="slr1分析">SLR（1）分析</h3>
+
+<h4 id="判断lr0是否是slr1文法">判断LR(0)是否是SLR（1）文法</h4>
+
+<p><img src="./编译原理笔记.assets/QQ截图20240425202521.png" alt="QQ截图20240425202521" /></p>
+
+<h5 id="判断移进归约冲突是否可解决">判断移进—归约冲突是否可解决</h5>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/FkTxEossjcOFHKlfSTDkEbGB06Dt.png" alt="img" /></p>
+
+<p><img src="./编译原理笔记.assets/image-20240425202847894.png" alt="image-20240425202847894" /></p>
+
+<p><strong>判断FOLLOW(S’)和{+}是不是有交集</strong></p>
+
+<p><strong>判断FOLLOW(E)和{*}是不是有交集</strong></p>
+
+<p>归约的左边和移进的终结符</p>
+
+<h5 id="判断归约归约冲突是否可解决">判断归约归约冲突是否可解决</h5>
+
+<p>如果是规约规约冲突 就把两个左边的FOLLWO集相交</p>
+
+<h4 id="解决冲突slr1与lr0的区别">解决冲突（SLR（1）与LR（0）的区别）</h4>
+
+<h5 id="构造slr1分析表算法">构造SLR（1）分析表算法</h5>
+
+<p><img src="./编译原理笔记.assets/image-20240425204607977.png" alt="image-20240425204607977" /></p>
+
+<h3 id="lr1分析">LR（1）分析</h3>
+
+<h4 id="判断是否是lr1文法">判断是否是LR（1）文法</h4>
+
+<p>先构造向前搜索符的的文法</p>
+
+<p>然后再判断是否有移进归约冲突、归约归约冲突并且是否可消解，只不过是把follow集换成向前搜索符号</p>
+
+<p>例子：</p>
+
+<p><img src="./编译原理笔记.assets/image-20240426140815793.png" alt="image-20240426140815793" /></p>
+
+<h4 id="构造lr1项目集规范族">构造LR（1）项目集规范族</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/6df6bad6f1dfa395c683904f3e30ce00.png" alt="6df6bad6f1dfa395c683904f3e30ce00" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/FlEk00S66tObR5hg1H-dWFJSHLr7.png" alt="img" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/Fvl37gPGPFIq3CLpxPFA5aKmxgcQ.png" alt="img" /></p>
+
+<h4 id="构造lr1分析表">构造LR（1）分析表</h4>
+
+<p><img src="./编译原理笔记.assets/image-20240426141006274.png" alt="image-20240426141006274" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/FkYUpMosNymaG1PYCO71zGnvS_QF.png" alt="img" /></p>
+
+<h4 id="lalr1">LALR(1)</h4>
+
+<p>就是在LR（1）的基础上，增加合并同心集，相同产生式不同向前搜索符。</p>
+
+<p>判断是否是LALR（1）与LR（1）相同</p>
+
+<h2 id="第六章属性文法和语法制导翻译">第六章属性文法和语法制导翻译</h2>
+
+<h3 id="属性文法">属性文法</h3>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/1c802557e751df112f4e433a97e34cc6.png" alt="1c802557e751df112f4e433a97e34cc6" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/7b3379d75505d293886c8190903acff3.png" alt="7b3379d75505d293886c8190903acff3" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/ea925aecca2c57a07b31f1e2d40cb438.png" alt="ea925aecca2c57a07b31f1e2d40cb438" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/057e42dbd24256b56d2985f4375fb84f.png" alt="057e42dbd24256b56d2985f4375fb84f" /></p>
+
+<h4 id="s属性文法">S—属性文法</h4>
+
+<p>仅仅使用综合属性的文法成为S—属性文法。</p>
+
+<p>例子：</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/aa9ace2381cb85405c58588eeb678ce5.png" alt="aa9ace2381cb85405c58588eeb678ce5" /></p>
+
+<h4 id="l-属性文法">L-属性文法</h4>
+
+<p>仅仅使用继承属性的文法称为L—属性文法</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/b1db9d9d065f0dd881865b9eb56e04bd.png" alt="b1db9d9d065f0dd881865b9eb56e04bd" /></p>
+
+<h3 id="基于属性文法的处理方法">基于属性文法的处理方法</h3>
+
+<p>基于属性文法的处理过程通常为：</p>
+
+<p>输入串——》语法树——》按照语义规则计算属性</p>
+
+<ul>
+  <li>这种由源程序的语法结构所驱动的处理方法就是<strong>语法制导翻译法</strong></li>
+  <li>语义规则的计算
+    <ul>
+      <li>产生代码</li>
+      <li>符号表中存放信息</li>
+      <li>给出错误信息</li>
+      <li>执行任何其他动作</li>
+    </ul>
+  </li>
+  <li>对输入符号串的翻译也就是根据语义规则进行计算的结果</li>
+</ul>
+
+<h4 id="一遍扫描的处理方法">一遍扫描的处理方法</h4>
+
+<p>一遍扫描的处理方法是在语法分析的同时计算属性值</p>
+
+<ul>
+  <li>L—属性文法适合于一遍扫描的自上而下的分析</li>
+  <li>S—属性文法适合于一遍扫描的自下而上分析</li>
+</ul>
+
+<h3 id="翻译模式">翻译模式</h3>
+
+<p>语法规则：给出了属性计算的定义，没有属性计算的次序等实现细节</p>
+
+<p>翻译模式：给出了使用语义规则进行计算的次序，这样就可以把某些实现细节表示出来。</p>
+
+<p>在翻译模式中，和文法符号相关的属性和一样规则（这里我们称语义动作），用花括号括起来插入到产生式右部的合适位置上</p>
+
+<p>例子：</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/00eb0ccfc4b461799fdcb5f9ca3c2eb9.png" alt="00eb0ccfc4b461799fdcb5f9ca3c2eb9" /></p>
+
+<h2 id="第七章语义分析和中间代码产生">第七章语义分析和中间代码产生</h2>
+
+<h3 id="中间语言">中间语言</h3>
+
+<ul>
+  <li>
+    <p>常用的中间语言：</p>
+
+    <ul>
+      <li>
+        <p>后缀式，又叫逆波兰表示</p>
+      </li>
+      <li>
+        <p>图表示：DAG图、抽象语法树</p>
+      </li>
+      <li>
+        <p>三地址代码</p>
+        <ul>
+          <li>三元式</li>
+          <li>四元式</li>
+          <li>间接三元式</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="后缀式">后缀式</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/56fcff110316daddf26d1ed447361d57.png" alt="56fcff110316daddf26d1ed447361d57" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/9557183ef839131c0f6902b17ab64d41.png" alt="9557183ef839131c0f6902b17ab64d41" /></p>
+
+<h4 id="图表示法">图表示法</h4>
+
+<ul>
+  <li>DAG</li>
+  <li>抽象语法树</li>
+</ul>
+
+<p>无循环有向图（Directed acyclic Graph，DAG）</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/319ad90a4d57d118a8335b33cb81bd77.png" alt="319ad90a4d57d118a8335b33cb81bd77" /></p>
+
+<p>例子：</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/903d0cde7675ea161a67c0e2ee926e52.png" alt="903d0cde7675ea161a67c0e2ee926e52" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/1822cb2f559b64f9a8fb667b5a609fac.png" alt="1822cb2f559b64f9a8fb667b5a609fac" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/354f95528a032b0e6b00c6c280aa7738.png" alt="354f95528a032b0e6b00c6c280aa7738" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/3f4b740df3024eb3c06b3e90d4298ee2.png" alt="3f4b740df3024eb3c06b3e90d4298ee2" /></p>
+
+<h4 id="三地址代码">三地址代码</h4>
+
+<ul>
+  <li>三地址代码
+x：=y op z /<em>每个语句的右边只能有一个运算符</em></li>
+  <li>三地址代码可以看成是抽象语法树或DAG的一种线性表示</li>
+</ul>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/31b17eab270dc5311757ada3c43c496d.png" alt="31b17eab270dc5311757ada3c43c496d" /></p>
+
+<p>例子：</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/051ea41557c8914f725a9f016a5c4d36.png" alt="051ea41557c8914f725a9f016a5c4d36" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/d14d2875281ece3ec2b53a242f0dbfff.png" alt="d14d2875281ece3ec2b53a242f0dbfff" /></p>
+
+<h4 id="例子-11">例子</h4>
+
+<pre><code class="language-assembly">j&lt;,A,C,3
+j, , ,13
+j&lt;,B,D,5
+j, , ,13
+j&gt;,A,1,7
+j, , ,10
++,y,z,T1
+:=,T1, ,x
+j, , ,12
+-,y,z,T1
+:=,T1, ,x
+j, , ,1
+
+</code></pre>
+
+<h3 id="一遍扫描实现的翻译模式">一遍扫描实现的翻译模式</h3>
+
+<h4 id="布尔表达式">布尔表达式</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/c663d0a48f61d756dbcb2691e7b98590.png" alt="c663d0a48f61d756dbcb2691e7b98590" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/f5024e6fc276facec7c507733bb3fdd7.png" alt="f5024e6fc276facec7c507733bb3fdd7" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/89880a93d7d9cd90a22c4309159810ce.png" alt="89880a93d7d9cd90a22c4309159810ce" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/b22acf2d4ba7000f37a5712e949fea1f.png" alt="b22acf2d4ba7000f37a5712e949fea1f" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/7dbac3b149b0701692736faa2d976c8f.png" alt="7dbac3b149b0701692736faa2d976c8f" /></p>
+
+<h4 id="控制语句">控制语句</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/101b726625f3827058e2d760aa54c2ca.png" alt="101b726625f3827058e2d760aa54c2ca" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/8d96c90aadd5b11b168cb7ff4da2777e.png" alt="8d96c90aadd5b11b168cb7ff4da2777e" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/4dc5cd41d0e451bd93725147ff5b43af.png" alt="4dc5cd41d0e451bd93725147ff5b43af" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/e07b572d9098891b50009b772876a1fb.png" alt="e07b572d9098891b50009b772876a1fb" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/d187ebfb0e946d18d624ed6c8a958de1.png" alt="d187ebfb0e946d18d624ed6c8a958de1" /></p>
+
+<h2 id="第八章符号表">第八章符号表</h2>
+
+<h3 id="符号表的组织与作用">符号表的组织与作用</h3>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/cbb4f57a1e9d36418d328c75414eab78.png" alt="cbb4f57a1e9d36418d328c75414eab78" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/635fdbf369964e7f776e2bb9084c2091.png" alt="635fdbf369964e7f776e2bb9084c2091" /></p>
+
+<ul>
+  <li>
+    <p>对符号表进行操作的时机</p>
+
+    <ul>
+      <li>定义出现：int x；</li>
+      <li>使用性出现： if x&lt;100</li>
+    </ul>
+  </li>
+  <li>
+    <p>按照名字的不同种属建立多张符号表，如常数表，变量名表、过程名表</p>
+  </li>
+  <li>
+    <p>符号表的组织方式</p>
+
+    <ul>
+      <li>
+        <p>安排各项各栏的存储单元为固定长度</p>
+      </li>
+      <li>
+        <p>用间接方式安排各栏存储单元</p>
+
+        <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/8185e5f24884d79acfa5cef0ebfd7e34.png" alt="8185e5f24884d79acfa5cef0ebfd7e34" /></p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="整理和查找">整理和查找</h3>
+
+<ol>
+  <li>线性查找</li>
+  <li>二分查找</li>
+  <li>杂凑查找（HASH技术）</li>
+</ol>
+
+<h3 id="名字的作用范围">名字的作用范围</h3>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/c5d8aec6cdf899d8e543fe1de51a91a1.png" alt="c5d8aec6cdf899d8e543fe1de51a91a1" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/49a6e6a4f99e77f5c77c12d7465bc968.png" alt="49a6e6a4f99e77f5c77c12d7465bc968" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/9a7980941d654d577e8b7a63cb56ea3e.png" alt="9a7980941d654d577e8b7a63cb56ea3e" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/e3a5be580e570840f401be95c441f328.png" alt="e3a5be580e570840f401be95c441f328" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/08765bed5f687c34207358190e00e7d8.png" alt="08765bed5f687c34207358190e00e7d8" /></p>
+
+<h3 id="符号表的内容">符号表的内容</h3>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/e9d2a5c13e496027b70f9ac89d9aaceb.png" alt="e9d2a5c13e496027b70f9ac89d9aaceb" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/ddff082397da637d75844ddda49696d6.png" alt="ddff082397da637d75844ddda49696d6" /></p>
+
+<h2 id="第九章运行时存储空间组织">第九章运行时存储空间组织</h2>
+
+<h3 id="目标程序运行时的活动">目标程序运行时的活动</h3>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/a77f0ac2b322c92913cc4fa754da9a4a.png" alt="a77f0ac2b322c92913cc4fa754da9a4a" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/2ae705926bad41e715f2309ebfec1005.png" alt="   " /></p>
+
+<h3 id="运行时存储器的划分">运行时存储器的划分</h3>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/2a830d60cb34e0c07e55df338634cfb6.png" alt="2a830d60cb34e0c07e55df338634cfb6" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/3f85af89fe1f07ac9c0bc73f4ccf0752.png" alt="3f85af89fe1f07ac9c0bc73f4ccf0752" /></p>
+
+<h4 id="活动记录">活动记录</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/c68f7043a46941bcea261a724126d55f.png" alt="c68f7043a46941bcea261a724126d55f" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/40b383cb96af424da1ad91c1ab214975.png" alt="40b383cb96af424da1ad91c1ab214975" /></p>
+
+<h4 id="存储分配策略">存储分配策略</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/5a00d527dcf094637474b88982ee8e29.png" alt="5a00d527dcf094637474b88982ee8e29" /></p>
+
+<h3 id="简单的栈式存储分配">简单的栈式存储分配</h3>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/818ad59a399120399c1304c052368799.png" alt="818ad59a399120399c1304c052368799" /></p>
+
+<h3 id="嵌套过程语言的栈实现">嵌套过程语言的栈实现</h3>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/d47e20560da4c014669e202cbffc6298.png" alt="d47e20560da4c014669e202cbffc6298" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/19687b6b52f6bf0c9efdcf961156ca8b.png" alt="19687b6b52f6bf0c9efdcf961156ca8b" /></p>
+
+<h2 id="第十章优化">第十章优化</h2>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/eab82006bd8bf3b41b7a45cf3374dc8f.png" alt="eab82006bd8bf3b41b7a45cf3374dc8f" /></p>
+
+<h3 id="概述">概述</h3>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/9111089faecf585fafc24b726701eadf.png" alt="9111089faecf585fafc24b726701eadf" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/30c81d793397b85866053e79112da600.png" alt="30c81d793397b85866053e79112da600" /></p>
+
+<h3 id="局部优化">局部优化</h3>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/cad58a9d161d75991d6cd5ac78456fd4.png" alt="cad58a9d161d75991d6cd5ac78456fd4" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/9b39aa5fdf06e2bfc73a1e4856fdef2b.png" alt="9b39aa5fdf06e2bfc73a1e4856fdef2b" /></p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/7406fa5c6a1900a981ec2b288923dd92.png" alt="7406fa5c6a1900a981ec2b288923dd92" /></p>
+
+<p>例子：</p>
+
+<blockquote>
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/1572cdc1ba99b32068e3edf175607921.png" alt="1572cdc1ba99b32068e3edf175607921" /></p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/72c3c316bd2ce1c780da05ba038e1d9a.png" alt="72c3c316bd2ce1c780da05ba038e1d9a" /></p>
+</blockquote>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.assets/f69bb25197732689b097358af0bedff3.png" alt="f69bb25197732689b097358af0bedff3" /></p>
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-03-31T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2024/03/28/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86-%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C-%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90.html">编译原理 第一次实验 词法分析</a></div><div class="next"><span>下篇</span><a href="/2024/04/11/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86-%E7%AC%AC%E4%BA%8C%E6%AC%A1%E5%AE%9E%E9%AA%8C-%E8%87%AA%E4%B8%8A%E8%80%8C%E4%B8%8B%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90.html">编译原理 第二次实验 自上而下语法分析</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Gao Xingjie"><meta itemprop="url" content="/"><meta itemprop="description" content="To be a question, to be an answer."><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"><li title="给我发邮件。">
+      <a class="button button--circle mail-button" itemprop="email" href="mailto:xingjie-gao@outlook.com" target="_blank">
+        <i class="fas fa-envelope"></i>
+      </a><li title="在 Github 上关注我。">
+        <a class="button button--circle github-button" itemprop="sameAs" href="https://github.com/Kfkcome" target="_blank">
+          <div class="icon"><svg fill="#000000" width="24px" height="24px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path class="svgpath" data-index="path_0" fill="#272636" d="M0 525.2c0 223.6 143.3 413.7 343 483.5 26.9 6.8 22.8-12.4 22.8-25.4l0-88.7c-155.3 18.2-161.5-84.6-172-101.7-21.1-36-70.8-45.2-56-62.3 35.4-18.2 71.4 4.6 113.1 66.3 30.2 44.7 89.1 37.2 119 29.7 6.5-26.9 20.5-50.9 39.7-69.6C248.8 728.2 181.7 630 181.7 513.2c0-56.6 18.7-108.7 55.3-150.7-23.3-69.3 2.2-128.5 5.6-137.3 66.5-6 135.5 47.6 140.9 51.8 37.8-10.2 80.9-15.6 129.1-15.6 48.5 0 91.8 5.6 129.8 15.9 12.9-9.8 77-55.8 138.8-50.2 3.3 8.8 28.2 66.7 6.3 135 37.1 42.1 56 94.6 56 151.4 0 117-67.5 215.3-228.8 243.7 26.9 26.6 43.6 63.4 43.6 104.2l0 128.8c0.9 10.3 0 20.5 17.2 20.5C878.1 942.4 1024 750.9 1024 525.3c0-282.9-229.3-512-512-512C229.1 13.2 0 242.3 0 525.2L0 525.2z" />
+</svg>
+</div>
+        </a>
+      </li></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© Ennis's Blog 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script>
+  window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
+    var $canvas = null, $this = null, _ctx = null, _text = '';
+    $('.language-chart').each(function(){
+      $this = $(this);
+      $canvas = $('<canvas></canvas>');
+      _text = $this.text();
+      $this.text('').append($canvas);
+      _ctx = $canvas.get(0).getContext('2d');
+      (_ctx && _text) && (new Chart(_ctx, JSON.parse(_text)) && $this.attr('data-processed', true));
+    });
+  });
+</script>
+<script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};_config.TeX = { equationNumbers: { autoNumber: "all" } };MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+
