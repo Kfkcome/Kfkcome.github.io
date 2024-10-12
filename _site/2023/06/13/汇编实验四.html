@@ -1,10 +1,10 @@
 <!DOCTYPE html><html lang="zh-Hans">
   <head><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>计算机组成原理大作业 - Ennis's Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>汇编程序设计实验四 - Ennis's Blog</title>
 
-<meta name="description" content="基于Verilog实现了CPU我们用Verilog自己手写了一个CPU，没有用老师的代码，按照自己的逻辑写了，并且最后老师给出了不错的评价。网上是找不到相同的代码的。">
-<link rel="canonical" href="http://localhost:4000/2023/06/02/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86%E5%A4%A7%E4%BD%9C%E4%B8%9A.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+<meta name="description" content="汇编程序设计实验四1、完成书上 实验 11，实验 12，实验 162、完成笑脸中断程序 INT60H">
+<link rel="canonical" href="http://localhost:4000/2023/06/13/%E6%B1%87%E7%BC%96%E5%AE%9E%E9%AA%8C%E5%9B%9B.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
 
 <meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
 
@@ -273,16 +273,16 @@
   </header>
 </div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
               <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86">计算机组成原理</a>
+                href="/archive.html?tag=%E6%B1%87%E7%BC%96%E7%A8%8B%E5%BA%8F%E8%AE%BE%E8%AE%A1">汇编程序设计</a>
             </li><li>
               <a class="button button--secondary button--pill button--sm"
                 href="/archive.html?tag=%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">实验报告</a>
-            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2023年 06月02日</span>
-            </li></ul></div><div class="article__header"><header><h1>计算机组成原理大作业</h1></header><span class="split-space">&nbsp;</span>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2023年 06月13日</span>
+            </li></ul></div><div class="article__header"><header><h1>汇编程序设计实验四</h1></header><span class="split-space">&nbsp;</span>
           <a class="edit-on-github"
             title="在 Github 上修改"
-            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2023-6-2-计算机组成原理大作业.md">
-            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">基于Verilog实现了CPU我们用Verilog自己手写了一个CPU，没有用老师的代码，按照自己的逻辑写了，并且最后老师给出了不错的评价。网上是找不到相同的代码的。</p></div></div>
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2023-6-13-汇编实验四.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">汇编程序设计实验四1、完成书上 实验 11，实验 12，实验 162、完成笑脸中断程序 INT60H</p></div></div>
               </div>
             </div><div class ="main"><div class="grid grid--reverse">
 
@@ -292,18 +292,332 @@
               <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
 
 <!-- end custom main top snippet -->
-<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="计算机组成原理大作业"><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2023-06-02T00:00:00+08:00">
-    <meta itemprop="keywords" content="计算机组成原理,实验报告"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="汇编程序设计实验四"><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2023-06-13T00:00:00+08:00">
+    <meta itemprop="keywords" content="汇编程序设计,实验报告"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
 
 <!-- end custom article top snippet -->
-<div class="article__content" itemprop="articleBody"><h2 id="基于verilog实现了cpu">基于Verilog实现了CPU</h2>
+<div class="article__content" itemprop="articleBody"><h1 id="汇编程序设计实验四">汇编程序设计实验四</h1>
 
-<p>我们用Verilog自己手写了一个CPU，没有用老师的代码，按照自己的逻辑写了，并且最后老师给出了不错的评价。
-网上是找不到相同的代码的。
-<!---more--></p>
-<style> .pdf-embed-wrap-dcd2f3b9-13e9-4816-bc27-5d27f069d308 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-dcd2f3b9-13e9-4816-bc27-5d27f069d308 { height: 100%; } .pdf-embed-container-dcd2f3b9-13e9-4816-bc27-5d27f069d308 iframe { width: 100%; height: 100%; } </style>
-<div class="pdf-embed-wrap-dcd2f3b9-13e9-4816-bc27-5d27f069d308"> <div class="pdf-embed-container-dcd2f3b9-13e9-4816-bc27-5d27f069d308"> <iframe src="/assets/pdf/计算机组成原理/计算机组成原理大作业.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>
-</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2023-06-02T00:00:00+08:00"><!-- start custom article footer snippet -->
+<p>1、完成书上 实验 11，实验 12，实验 16</p>
+
+<p>2、完成笑脸中断程序 INT60H</p>
+
+<!---more-->
+
+<h2 id="实验11">实验11</h2>
+<pre><code class="language-asm">assume cs:codesg
+datasg segment
+	db "Beginner's All-purpose Symbolic Instruction Code.",0
+datasg ends
+codesg segment
+begin:	mov ax,datasg
+		mov ds,ax;指向数据段
+		mov si,0;指向数据段
+		call letterc;调用子程序
+		mov ax,4c00h;程序结束
+		int 21h
+letterc:mov ch,0
+		mov cl,[si];一个字符占一个字节
+		jcxz s;如果是0则字符串结束，程序结束
+		cmp cl,61H+26;判断是否是小写
+		ja s2;不是则跳转
+		cmp cl,61H;判断是否是小写
+		jb s2;不是则跳转
+		and byte ptr [si],11011111b;将小写变成大写
+	s2: inc si;指向下一个字母
+		jmp short letterc;循环遍历
+	s:	ret;程序结束
+codesg ends
+end begin
+
+
+## 实验12
+```asm
+assume cs:codesg
+codesg segment
+begin:
+	mov ax,cs
+	mov ds,ax
+	mov si,offset do0
+	mov ax,0
+	mov es,ax
+	mov di,200h
+	mov cx,offset do0end-offset do0
+	cld;每次循环向前增加一个字节
+	rep movsb;安装处理异常的程序
+	mov ax,0
+	mov es,ax
+	mov word ptr es:[0*4],200h
+	mov word ptr es:[0*4+2],0;安装中断向量表
+	int 0;触发异常
+	mov ax,4c00h
+	int 21h;结束程序
+do0:jmp short do0start
+	db 'divide error!'
+do0start:mov ax,cs
+		 mov ds,ax
+		 mov si,202h;定位异常字符串
+		 mov ax,0b800h;定位显存空间
+		 mov es,ax
+		 mov di,12*160+36*2
+		 mov cx,13
+		 s:mov al,[si]
+		 mov es:[di],al
+		 inc si;一个字节
+		 add di,2;一个字
+		 loop s
+		 iret;程序返回
+do0end:nop 
+codesg ends
+end begin 
+</code></pre>
+
+<h2 id="实验16">实验16</h2>
+<pre><code class="language-asm">assume cs:codesg
+codesg segment
+start:
+	mov ax,cs                      ;安装程序               
+	mov ds,ax
+	mov si,offset screenshow
+	mov ax,0
+	mov es,ax
+	mov di,200h
+	cld 
+	mov cx,offset screenshowends - offset screenshow
+	rep movsb
+	
+	cli
+	mov word ptr es:[7ch*4],200h
+	mov word ptr es:[7ch*4+2],0
+	sti
+
+main:               ;测试程序
+
+    mov ah,0         ;清屏功能
+    int 7ch
+    call delay
+    
+
+    mov ah,1         ;设置前景色
+    mov al,2
+    int 7ch
+    call delay
+
+    mov ah,2         ;设置背景色
+    mov al,1
+    int 7ch
+    call delay
+
+  
+    mov ah,3	      ;向上滚动一行
+    int 7ch
+    call delay 
+    
+    mov ax,4C00H
+    int 21H
+
+	
+
+delay:  	
+    push cx
+    mov cx,30h
+s0:
+    push cx
+    mov cx,0ffffh
+s1:
+    loop s1
+    pop cx
+    loop s0
+    pop cx
+    ret
+
+
+	mov ax,4c00h
+	int 21h
+
+screenshow:	jmp short set                    ;设置从程序
+       table	dw offset function1 - offset screenshow + 200h
+				dw offset function2 - offset screenshow + 200h
+				dw offset function3 - offset screenshow + 200h
+				dw offset function4 - offset screenshow + 200h
+		
+set:	
+	push bx
+	
+	cmp ah,3
+	ja sret
+	mov bl,ah
+	mov bh,0
+	add bx,bx
+	call word ptr cs:[bx+202h]
+
+sret:
+	pop bx
+	iret
+
+function1:					;1号子程序
+	push bx
+	push cx
+	push es
+	mov bx,0b800h
+	mov es,bx
+	mov bx,0
+	mov cx,2000
+  function1s:
+	mov byte ptr es:[bx],' '
+	add bx,2
+	loop function1s
+	pop es
+	pop cx
+	pop bx
+	ret
+
+function2:					;2号子程序
+	push bx
+	push cx
+	push es
+	mov bx,0b800h
+	mov es,bx
+	mov bx,1
+	mov cx,2000
+        function2s:
+	and byte ptr es:[bx],11111000b
+	or es:[bx],al
+	add bx,2
+	loop function2s
+	pop es
+	pop cx
+	pop bx
+	ret
+
+function3:					;3号子程序
+	push bx
+	push cx
+	push es
+	mov cl,4
+	shl al,cl
+	mov bx,0b800h
+	mov es,bx
+	mov bx,1
+	mov cx,2000
+        function3s:
+	and byte ptr es:[bx],10001111b
+	or es:[bx],al
+	add bx,2
+	loop function3s
+	pop es
+	pop cx
+	pop bx
+	ret
+
+function4:					;4号子程序
+	push cx
+	push si
+	push di
+	push es
+	push ds
+
+	mov si,0b800h
+	mov es,si
+	mov ds,si
+	mov si,160
+	mov di,0
+	cld
+	mov cx,24
+        function4s:
+	push cx
+	mov cx,160
+	rep movsb
+	pop cx
+	loop function4s
+
+	mov cx,80
+	mov si,0
+        function4s1:
+	mov byte ptr [160*24+si],' '
+	add si,2
+	loop function4s1
+	
+	pop ds
+	pop es
+	pop di
+	pop si
+	pop cx
+	ret
+screenshowends:
+	nop
+
+codesg ends
+end start
+</code></pre>
+<h2 id="笑脸程序">笑脸程序</h2>
+<pre><code class="language-asm">DATAS SEGMENT
+    ;此处输入数据段代码  
+    mess1 db 0ah,0dh,'enter interrupt!',0ah,0dh,'$' ;0ah, 0dh 回车换行
+	mess2 db 'exit interrupt!$'
+	mess3 db 0ah,0dh,'Continue or Quit(c/q)?$'
+DATAS ENDS
+
+
+CODES SEGMENT
+start:	mov ax,cs
+	mov ds,ax
+        mov si,offset smigin ;DS:SI指向smigin程序首地址
+                
+        mov ax,0
+        Mov es,ax
+        mov di,200h	;ES:DI指向安装地址首地址(0:200)
+ 		mov cx,offset smiend-offset smigin	;CX存放需要安装程序的长度
+        cld
+        rep movsb 	
+        	
+		mov ax,0	
+		mov es,ax
+		mov word ptr es:[7ch*4],200h
+		mov  word ptr  es:[7ch*4+2],0	;修改中断向量表使得中断调用7CH指向已安装终端程序首地址(0:200)
+										;0:[n*4]指向偏移地址, 0:[n*4+2]指向段地址
+       
+		mov ax,datas
+		mov ds,ax
+conti:	mov dx,offset mess1		;显示提示1
+		mov ah,9	;调用DOS中断9号功能, 输出一个DS:DX指向以$结尾的字符串
+		int 21h		
+		int 7ch				;触发7cH号中断，进入中断子程序执行
+		
+		mov dx,offset mess2		;显示提示2
+		mov ah,9
+		int 21h
+		mov dx,offset mess3		;显示提示3
+		mov ah,9
+		int 21h
+		mov ah,1			;调用DOX中断1号功能, 从键盘接受一个输入字符, 送入al中, 键入选择
+		int 21h
+		cmp al,'c'	;如果输入的是'c'则继续执行
+		je conti
+            
+  	    mov ax,4c00h
+	    int 21h
+smigin:	sti				;开中断
+		mov cx,10
+		
+leng:	mov dl,01h			;笑脸符号
+		mov ah,2	;调用DOX中断2号功能, 向平屏幕输出一个存储在dl中的字符
+		int 21h
+		loop leng
+		mov dl,0dh			;回车换行
+		int 21h
+		mov dl,0ah
+		int 21h
+		cli				;关中断
+		iret 				;中断返回
+smiend:	nop
+
+CODES ENDS
+    END START
+</code></pre>
+<style> .pdf-embed-wrap-308f4b52-5027-46fa-9008-011e104c6bdc { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-308f4b52-5027-46fa-9008-011e104c6bdc { height: 100%; } .pdf-embed-container-308f4b52-5027-46fa-9008-011e104c6bdc iframe { width: 100%; height: 100%; } </style>
+<div class="pdf-embed-wrap-308f4b52-5027-46fa-9008-011e104c6bdc"> <div class="pdf-embed-container-308f4b52-5027-46fa-9008-011e104c6bdc"> <iframe src="/assets/pdf/汇编程序设计实验/实验四.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2023-06-13T00:00:00+08:00"><!-- start custom article footer snippet -->
 
 <!-- end custom article footer snippet -->
 <div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
@@ -314,7 +628,7 @@
       </a>
     </p>
   </div></div></footer>
-<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2023/05/23/EDA%E5%AE%9E%E9%AA%8C%E5%85%AB.html">EDA数字逻辑与电路实验八</a></div><div class="next"><span>下篇</span><a href="/2023/06/13/%E6%B1%87%E7%BC%96%E5%AE%9E%E9%AA%8C%E5%9B%9B.html">汇编程序设计实验四</a></div></div></div>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2023/06/02/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BB%84%E6%88%90%E5%8E%9F%E7%90%86%E5%A4%A7%E4%BD%9C%E4%B8%9A.html">计算机组成原理大作业</a></div><div class="next"><span>下篇</span><a href="/2023/09/28/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html">计算机网络第一次实验报告</a></div></div></div>
 
 </div>
 
