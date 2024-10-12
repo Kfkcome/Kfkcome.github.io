@@ -1,0 +1,1978 @@
+<!DOCTYPE html><html lang="zh-Hans">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>人工智能导论课程笔记 - Ennis's Blog</title>
+
+<meta name="description" content="人工智能导论考核方式：平时 30%+考试 70%第一章绪论人工智能的概念人类的智能：指人类在认识客观世界中，由思维过脑力活动所表现出的综合能力智能的特征具有感知能力，感知是人类最基本的生理、心理现象，是获取外界信息的基本途径。具有记忆和思维能力，思维可分为逻辑思维、形象思维和顿悟思维。具有学习能力和自适应能力。具...">
+<link rel="canonical" href="http://localhost:4000/2023/12/08/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E5%AF%BC%E8%AE%BA%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Willing to be a question, willing to be an answer.
+" href="/">Ennis's Blog</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E5%AF%BC%E8%AE%BA">人工智能导论</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0">课程笔记</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2023年 12月08日</span>
+            </li></ul></div><div class="article__header"><header><h1>人工智能导论课程笔记</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2023-12-8-人工智能导论课程笔记.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">人工智能导论考核方式：平时 30%+考试 70%第一章绪论人工智能的概念人类的智能：指人类在认识客观世界中，由思维过脑力活动所表现出的综合能力智能的特征具有感知能力，感知是人类最基本的生理、心理现象，是获取外界信息的基本途径。具有记忆和思维能力，思维可分为逻辑思维、形象思维和顿悟思维。具有学习能力和自适应能力。具有行为能力。  感知能力  记忆能力  思维能力          抽象思维（逻...</p></div></div>
+              </div>
+            </div><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="人工智能导论课程笔记"><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2023-12-08T00:00:00+08:00">
+    <meta itemprop="keywords" content="人工智能导论,课程笔记"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><h1 id="人工智能导论">人工智能导论</h1>
+
+<p>考核方式：平时 30%+考试 70%</p>
+
+<h2 id="第一章绪论">第一章绪论</h2>
+
+<h3 id="人工智能的概念">人工智能的概念</h3>
+<h4 id="人类的智能">人类的智能：</h4>
+<p>指人类在认识客观世界中，由思维过脑力活动所表现出的综合能力
+智能的特征具有<strong>感知能力</strong>，感知是人类最基本的生理、心理现象，是获取外界信息的基本途径。<strong>具有记忆和思维能力</strong>，思维可分为逻辑思维、形象思维和顿悟思维。具有<strong>学习能力</strong>和<strong>自适应能力</strong>。具有<strong>行为能力</strong>。</p>
+<ol>
+  <li>感知能力</li>
+  <li>记忆能力</li>
+  <li>思维能力
+    <ol>
+      <li>抽象思维（逻辑思维）</li>
+      <li>形象思维（直感思维）</li>
+      <li>灵感思维（顿悟思维）</li>
+    </ol>
+  </li>
+  <li>学习能力</li>
+  <li>自适应能力</li>
+  <li>行为能力：是人们对感知直接获得的外界信息做出动作反应的能力
+    <h4 id="人工智能">人工智能</h4>
+    <p>最终目标：探讨智能形成的基本机理，研究利用自动机模拟人的思维
+近期目标：研究如何使用计算机去做那些靠人的智力才能做的事情</p>
+  </li>
+</ol>
+
+<h3 id="人工智能的发展历史以及学派">人工智能的发展历史以及学派</h3>
+<h4 id="发展历史">发展历史</h4>
+
+<p><img src="attachements/Pasted%20image%2020230930151119.png" alt="" />
+<img src="attachements/Pasted%20image%2020230930151153.png" alt="" /></p>
+<h4 id="ai-的几大门派">AI 的几大门派</h4>
+<p><img src="attachements/Pasted%20image%2020230930151357.png" alt="" /></p>
+<h2 id="第二章知识表示方法">第二章知识表示方法</h2>
+
+<h3 id="知识">知识</h3>
+
+<p>把有关信息关联在一起所形成的信息成为知识</p>
+
+<ol>
+  <li>特性
+    <ol>
+      <li>相对正确性</li>
+      <li>不确定性</li>
+      <li>可表示性</li>
+      <li>可利用性</li>
+    </ol>
+  </li>
+  <li>分类
+    <ol>
+      <li>适用范围：常识性知识和领域性知识</li>
+    </ol>
+  </li>
+  <li>根据功能分类
+    <ol>
+      <li>事实性知识</li>
+      <li>规则性知识</li>
+      <li>控制性知识</li>
+      <li>元知识</li>
+    </ol>
+  </li>
+  <li>根据确定性分类：确定性知识、不确定性知识</li>
+  <li>根据作用效果分类：陈述性知识（知识用某种数据结构来表示，知识本身和使用知识过程分离）、过程性知识（知识和使用过程结合在一起）</li>
+</ol>
+
+<h3 id="知识表示基本方法">知识表示基本方法</h3>
+
+<p>知识表示是对知识的描述，即用一组符号的把知识编码成计算机可接受的的某种结构。</p>
+
+<p>知识表示方法的要求：1. 表示能力 2. 可利用性 3. 可组织性和可维护性 4. 可理解性和可现实性</p>
+
+<h4 id="具体方法">具体方法</h4>
+
+<ol>
+  <li>非结构化方法：
+    <ol>
+      <li>一阶谓词逻辑</li>
+      <li>产生式规则</li>
+    </ol>
+  </li>
+  <li>结构化方法：
+    <ol>
+      <li>语义网</li>
+      <li>框架表示法</li>
+    </ol>
+  </li>
+  <li>其他方法：
+    <ol>
+      <li>状态空间法</li>
+      <li>问题归纳法</li>
+    </ol>
+  </li>
+</ol>
+
+<h3 id="一阶谓词逻辑表示法">一阶谓词逻辑表示法</h3>
+
+<p><strong>考试可能会考 QUESTION: 一阶谓词表示，和谓词逻辑的自然演绎推理</strong></p>
+<h4 id="一些概念">一些概念：</h4>
+
+<p><strong>断言：</strong> 一个陈述句称为一个断言</p>
+
+<p><strong>命题：</strong> 具有真假意义的断言称为命题如 $3&lt;5$ ,今天是晴天</p>
+
+<p><strong>真值</strong>：<strong>T</strong>: 表示命题的意义为真，<strong>F</strong>: 表示命题的意义为假</p>
+
+<p>一个命题在同一条件下不能即为真又为假</p>
+
+<p>一个命题可以在一定条件下为真，而在另一条件下为假</p>
+
+<p><strong>谓词:</strong> 命题由谓词表示，谓词由谓词名和个体组成</p>
+
+<blockquote>
+  <ul>
+    <li>老张是教师 Teacher (Zhang)
+      <ul>
+        <li>5&lt;3 Greater (5,3)</li>
+      </ul>
+    </li>
+  </ul>
+</blockquote>
+
+<p>谓词的一般形式是：$P(x_1,x_2,x_3,….x_n)$</p>
+
+<blockquote>
+  <ul>
+    <li>P 是谓词，他由人行为定义。</li>
+    <li>$x_1,x_2,….x_n$ 称为<strong>个体</strong>，通常用小写字母表示</li>
+    <li>个体的数目称为它的元数，P 称为 n 元谓词</li>
+    <li>个体可以是常量、变元、函数以及谓词</li>
+  </ul>
+</blockquote>
+
+<p>若 $x_i$ 是个体变量，变元，或函数则称 P 为一阶谓词，若 $x_i$ 又是一阶谓词，则称 P 为二阶谓词，以此类推</p>
+
+<p>个体变元的取值范围是称为个体域，它可以是无限集</p>
+
+<p>个体变量、变元或函数称为项</p>
+
+<p><strong>函数：</strong></p>
+
+<p>定义：设 $D_n$ 是个体域，f: $D^n\rightarrow D$ 是一个映射，其中
+\(D^n=\{ (x_1,x_2,...x_n)|x_1,x_2,....x_n\in D\}\)
+谓词和函数的区别：</p>
+
+<blockquote>
+  <p>谓词是 $D^n$ 到{T, F}的映射，函数是 $D^n$ 到 D 的一种映射</p>
+
+  <p>谓词的真值是{T, F}, 函数的值是 D 中的元素</p>
+
+  <p>谓词可以单独存在，函数只能作为谓词的个体</p>
+</blockquote>
+
+<p><strong>连接词（connetive）：</strong></p>
+
+<p>$\huge \lor$: 析取，表示两个命题有或的关系</p>
+
+<p>$\huge \\cap$：合取，表示两个命题有与关系</p>
+
+<p>$\huge \lnot$ : 非、否定</p>
+
+<p>$\huge \rightarrow$ 条件和或者蕴含，$P\rightarrow Q$ 表示 P 蕴含 Q, 即如 P 则 Q</p>
+
+<p>$\huge \leftrightarrow$：表示当且仅当</p>
+
+<p><strong>优先级：</strong>
+\(\lnot \cap \lor \rightarrow  \leftrightarrow\)
+<strong>全称量词：</strong>
+\(\exists \ \ \forall\)
+用例：
+\(定义P(x) 为 x是人 \newline 
+\forall x \ \ \ P(x) 所有个体都是人\)
+写在句首。
+<strong>谓词公式（wwf ,well formed formulas):</strong></p>
+<ul>
+  <li>
+    <ol>
+      <li>单个谓词是谓词公式，称为原子谓词公式。</li>
+    </ol>
+  </li>
+  <li>
+    <ol>
+      <li>若 A, B 是谓词公式，则 $\lnot A ,A\land B,A \lor B,A\rightarrow B,A\leftarrow B$ 也是谓词公式。</li>
+    </ol>
+  </li>
+  <li>
+    <ol>
+      <li>若 A, B 是谓词公式，x 是任一个体变元，则有 $\exists (x)A，\forall (x)A$ 也是谓词公式。</li>
+    </ol>
+  </li>
+  <li>有限步应用 (1)(3)生成的公式是谓词公式。
+    <h4 id="谓语公式表示知识的过程">谓语公式表示知识的过程</h4>
+  </li>
+  <li>定义谓词及个体，确定它们的确切含义</li>
+  <li>根据所要表达的事物或概念，为每个谓词中的变元赋以特点的值，将个体带入谓词中</li>
+  <li>根据所要表达的知识的语义，用适当的连接符号将各个谓词连接起来，形成谓词公式
+    <h4 id="优点">优点</h4>
+    <p><strong>自然:</strong>   一种接近于自然语言的形式语言系统
+<strong>明确:</strong>  有一种标准的知识解释方法，
+<strong>精确:</strong> 谓词逻辑的真值只有“真”与“假’
+<strong>灵活:</strong> 知识和处理知识的程序是分开的
+<strong>模块化:</strong> 知识之间相对独立</p>
+  </li>
+</ul>
+
+<h4 id="缺点">缺点</h4>
+<ul>
+  <li>知识表达能力差</li>
+  <li>知识库管理困难</li>
+  <li>存在组合爆炸</li>
+  <li>系统效率低</li>
+  <li>知识没有良好的结构，没有办法一眼看出知识的结构</li>
+</ul>
+
+<h4 id="谓词逻辑">谓词逻辑</h4>
+<h5 id="谓词公式的解释">谓词公式的解释</h5>
+<p>定义：设 D 为谓词公式的个体域，若对于 P 中的个体常量，函数和谓词分别按如下规则赋值：</p>
+<ol>
+  <li>个体：为每一个个体常量指定 D 中的一个元素</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>函数：为每个 n 元函数制定一个 $D^n$ 到 D 到一个映射其中 $D^n={(x_1, x_2,\dots x_n)</td>
+          <td>x_1, x_2,\dots x_{n}\in D}$</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>谓词：为每个 n 元谓词指定一个从 $D^n$ 到{F, T}（T 是真，F 是假）的映射
+则称这些指定为公式 P 在 D 上的一个<strong>解释</strong>。
+若公式 P 在解释 I 下真值为 T，则称 I 为公式 P 的一个<strong>模型</strong></li>
+</ol>
+
+<h5 id="谓词公式的永真性和永假性">谓词公式的永真性和永假性</h5>
+<p>若谓词公式 P 对于个体域 D 上的所有解释都取真值 T（F），则称 P 是 D 上的永真（假）
+如果 P 在任何一个非空个体域上永假（真），则称 P 永假（真）</p>
+<h5 id="可满足性">可满足性</h5>
+<p>对于谓词公式 P，如果至少存在一个解释使得公式 P 在此解释下的真值为 T，则称公式 P 是可满足的
+<strong>永假性和不可满足性是等价的</strong></p>
+
+<h5 id="自然演绎推理">自然演绎推理</h5>
+
+<p>它是从一组已知为真的事实出发，直接运用经典逻辑推理规则推出结论的过程
+常用的推理规则是：<strong>P 规则、T 规则、假言推理规则，拒取式规则，全称固化，存在固化</strong>
+P 规则和 T 规则是数理逻辑中的推理规则。P 规则又称为<strong>命题推理规则</strong>，是一种用于推导命题之间关系的规则。它包括了如与、或、非、蕴含等常见逻辑运算。例如，若知道命题 A 为真，以及 A 蕴含 B，就可以通过 P 规则得到命题 B 为真。</p>
+
+<p>T 规则又称为<strong>谓词推理规则</strong>，是一种用于推导谓词逻辑公式之间关系的规则。它将谓词逻辑公式分解为量词、谓词和项，并通过逻辑运算得到结论。例如，若知道∀x P (x)为真，就可以通过 T 规则得到 P (a)为真，其中 a 是一个特定的个体。</p>
+
+<p><strong>假言推理规则</strong>是一种常见的推理形式，基于条件语句的逻辑推理。它可以用于从前提的条件语句中推导出结论。例如，若知道”If A, then B”为真，同时知道 A 为真，则可以使用假言推理规则得到 B 为真。</p>
+
+<p><strong>拒取式规则</strong>是一种常用的推理规则，它用于拒否命题的逻辑推理。通过拒取式规则，我们可以从一个命题的否定推导出其他相关命题的否定。例如，若知道命题 A 为假，则可以使用拒取式规则得到非 A 的命题为真。</p>
+
+<p>全称固化和存在固化是数理逻辑中的概念。<strong>全称固化是指将一个公式中的变量替换为一个特定的个体</strong>，使得该公式对于所有个体都成立。例如，若我们有一个全称量词的公式∀x P (x)，通过全称固化可以将 x 替换为一个具体的个体 a，得到 P (a)为真。</p>
+
+<p><strong>存在固化是指将一个公式中的变量替换为一个特定的个体，使得该公式对于至少一个个体成立</strong>。例如，若我们有一个存在量词的公式∃x P (x)，通过存在固化可以将 x 替换为一个具体的个体 a，得到 P (a)为真</p>
+
+<h5 id="自然演绎推理的题目步骤">自然演绎推理的题目步骤</h5>
+<ol>
+  <li>定义谓词</li>
+  <li>根据题目转换为谓词公式的形式</li>
+  <li>应用推理规则进行推理
+    <h3 id="产生式表示法">产生式表示法</h3>
+  </li>
+</ol>
+
+<p><strong>期末可能考的 QUESTION: 根据产生式系统表，写出判断过程</strong></p>
+
+<h4 id="概念">概念</h4>
+<p>产生式表示法可以表示的知识种类：<strong>事实，规则，上述两者的不确定性度量</strong>
+基本形式： $P \rightarrow Q$ 或者 IF P THEN Q
+<strong>P 是产生式前提，Q 是一组结论和操作</strong></p>
+
+<h4 id="规则表示方法">规则表示方法</h4>
+<ol>
+  <li>确定性规则
+    <ul>
+      <li>$P\rightarrow Q$</li>
+      <li>IF P THEN Q</li>
+    </ul>
+  </li>
+  <li>不确定性规则
+    <ul>
+      <li>$P\rightarrow Q$ (可信度)</li>
+      <li>IF P THEN Q (可信度)
+        <h4 id="事实的表示方法">事实的表示方法</h4>
+      </li>
+    </ul>
+  </li>
+  <li>确定性事实
+    <ul>
+      <li>断言一个语<strong>句变量的值</strong>或是多个<strong>语句变量间关系</strong>的陈述句</li>
+      <li>三元组
+        <ul>
+          <li>（对象，属性，值）</li>
+          <li>（关系，对象 1，对象 2）</li>
+        </ul>
+      </li>
+      <li>例子：老李的年龄是 40 岁（Li，Age，40）</li>
+      <li>老李和老张是朋友（Friend，Li，Zhang ）</li>
+    </ul>
+  </li>
+  <li>不确定性事实
+    <ul>
+      <li>四元组
+        <ul>
+          <li>（对象，属性，值，可行度）</li>
+          <li>（关系，对象 1，对象 2，可信度）
+            <h4 id="产生式系统">产生式系统</h4>
+            <p><strong>概念：</strong> 把一组产生式放在一起，一个产生式的结论可以供另一个产生式作为事实使用，以求得问题的解，这种系统称为<strong>产生式系统</strong>
+<strong>产生式系统的组成</strong>：
+<img src="attachements/Pasted%20image%2020230930194854.png" alt="" /></p>
+            <h5 id="综合数据库">综合数据库</h5>
+            <p>又称为事实库，用于存放输入的事实，从外部数据库输入的事实、中间结果、最后结果</p>
+            <h5 id="产生式规则">产生式规则</h5>
+            <p>描述某领域内知识的产生式集合</p>
+            <h5 id="控制系统">控制系统</h5>
+            <p>一个控制系统，包含推理方式和控制策略又称为<strong>推理机</strong>或<strong>推理引擎</strong>。</p>
+          </li>
+          <li>规则匹配</li>
+          <li>冲突消解</li>
+          <li>向综合数据中插入中间结果或执行中间操作</li>
+          <li>计算不确定性</li>
+          <li>是否包含最终结果、终止推理</li>
+          <li>路径解释
+            <h5 id="产生式系统的基本过程">产生式系统的基本过程</h5>
+          </li>
+          <li>$Data\leftarrow 初始数据库$</li>
+          <li>Until Data 满足结束条件 Do：</li>
+          <li>{在规则集中选择一条应用于 Data 的规则 R</li>
+          <li>$Data\leftarrow R$ 应用得到 Data 得到结果写入数据库}
+推理方式：</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>正向推理</strong>：以数据驱动推理或前进链推理<img src="attachements/Pasted%20image%2020230930195838.png" alt="" /></li>
+  <li><strong>反向推理</strong>：亦称为目标驱动推理或逆向链推理<img src="attachements/Pasted%20image%2020230930200028.png" alt="" /></li>
+  <li><strong>双向推理</strong>
+    <h4 id="产生式的优点与缺点">产生式的优点与缺点</h4>
+    <p>优点：</p>
+    <ul>
+      <li>清晰性</li>
+      <li>模块性</li>
+      <li>自然性
+缺点</li>
+      <li>效率不高</li>
+      <li>不能表示结构化知识（事实和规则都是离散的，相互之间没有关系）
+        <h3 id="语义网络表示法">语义网络表示法</h3>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<p><strong>概念</strong>：语义网络表示法是通过概念及其语义关系表来表达的知识的一种网络图，它是一个代标注的有向图</p>
+<ul>
+  <li>节点用来表示各种概念，事物、属性、动作、状态等</li>
+  <li>弧是有方向的，用来表示节点间的主次关系</li>
+  <li>弧上用来标注表示节点间的语义联系或语义关系
+例子：<img src="attachements/Pasted%20image%2020231025194259.png" alt="" />
+一些概念：
+<strong><em>基本网元：</em></strong>
+语义网络中最基本的语义单元称为语义基元, 可由一个三元组表示：
+（节点 1，弧，节点 2）
+基本网元是一个语义基元对应的有向图，是语义网络中最基本的结构单元
+<strong><em>基本语义关系：</em></strong>
+<strong>实例关系： ISA</strong>
+体现的是“具体与抽象”的概念，含义为“是一个”，表示一件事物是另一件事物的一个实例。
+<strong>分类关系： AKO</strong>
+也称泛化关系，体现的是“子类与超类”的概念，含义为“是一种”，表示一个事物是另一个事物的一种类型。
+<strong>成员关系：</strong> 
+体现的是“个体与集体”的关系，含义为“是一员”，表示一个事物是另一个事物的一个成员。
+上述关系的主要特征
+属性的继承性，即处在具体层的结点可以继承抽象层结点的所有属性
+    <h4 id="语义网的推理">语义网的推理</h4>
+    <p>语义网络表示的问题求解系统由两部分构成</p>
+    <ol>
+      <li>语义网知识库</li>
+      <li>求解问题的解释程序——推理机
+推理方法:</li>
+      <li>匹配
+  匹配是指在知识库的语义网络中寻找与待求解问题相符的语义网络模式
+(1) 根据待求解问题的要求构造一个网络片断，该网络片断中有些结点或弧的标识是空的，称为询问处，它反映的是待求解的问题。
+  (2) 根据该语义片断到知识库中去寻找所需要的信息。
+  (3) 当待求解问题的网络片断与知识库中的某语义网络片断相匹配时，则与询问处相匹配的事实就是问题的解。</li>
+    </ol>
+  </li>
+</ul>
+
+<ol>
+  <li>继承
+ 继承是指把对事物的描述从抽象节点传递到具体节点，通过继承得到所需要的一些属性。
+ 它通常沿着 ISA、AKO 等继承弧进行。</li>
+</ol>
+
+<h4 id="语义网络表示的优缺点">语义网络表示的优缺点</h4>
+<ul>
+  <li>优点
+    <ul>
+      <li>结构性</li>
+      <li>自然性</li>
+      <li>联想性</li>
+    </ul>
+  </li>
+  <li>缺点
+    <ul>
+      <li>非严格性</li>
+      <li>复杂性</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="框架表示法">框架表示法</h3>
+<h4 id="一些概念-1">一些概念</h4>
+<p><strong><em>框架：</em></strong> 是人们认识事物的一种通用的数据结构形式
+<strong><em>实例框架：</em></strong> 对于一个框架，当人们把观察或认识到的具体细节填入后，就得到了该框架的一个具体实例
+<strong><em>框架系统：</em></strong> 在框架理论中，框架是知识的基本单位，把一组有关的框架连结起来便可形成一个框架系统
+<strong><em>框架组成：</em></strong> 框架由若干个槽组成，槽可以由若干个侧面组成。一个侧面用来描述相应属性的一个方面。槽和侧面所具有的属性值称为槽值和侧面值。
+<strong><em>框架之间的横向联系：</em></strong> 框架 A 的某个槽值是另一个框架 B 时，则称框架 A 与框架 B 之间具有横向联系。
+<strong><em>框架之间的纵向联系：</em></strong> 是指那种具有继承关系的上下层框架之间的联系
+纵向联系通过预定以槽名 AKO 和 ISA 等来实现</p>
+
+<h4 id="框架表示形式-">框架表示形式 ：</h4>
+<blockquote>
+  <框架名称>
+槽值 1：
+	侧面名：值 1, 值 2，……
+	侧面名 2：值 1, 值 2，……
+	…… ……
+	侧面名 m：值 1, 值 2，………
+……
+槽值 n:
+&gt; 侧面名：值 1, 值 2，……
+	侧面名 2：值 1, 值 2，……
+	…… ……
+	侧面名 m：值 1, 值 2，………
+</框架名称>
+</blockquote>
+
+<p>重点：<mark style="background: #FF5582A6;">槽值可以是数值，字符串，布尔值，或者是动作、过程甚至是框架名。</mark></p>
+
+<h4 id="框架表示的优缺点">框架表示的优缺点</h4>
+<ul>
+  <li>优点
+    <ul>
+      <li>结构性</li>
+      <li>自然性</li>
+      <li>深层性</li>
+      <li>继承性</li>
+    </ul>
+  </li>
+  <li>缺点
+    <ul>
+      <li>缺乏框架的形式理论</li>
+      <li>缺乏过程性知识表示</li>
+      <li>清晰性难以保证</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="归结演绎推理">归结演绎推理</h3>
+<h4 id="核心思想">核心思想</h4>
+<p>核心思想：反证法
+想要证明 \(P\rightarrow Q\) 则只要证明 \(P\land \lnot Q \leftrightarrow F\)</p>
+<h4 id="一些概念-2">一些概念：</h4>
+<p><strong>范式</strong>
+	1. 合取范式
+	2. 析取范式
+	3. <strong>前束型范式</strong>
+		- 一个谓词公式的所有量词均非否定地出现在公式的最前面, 且它的辖域一直延伸到公式之末, 同时公式中不出现连接词→及↔。
+		- 例: \((\forall x)(\exists y)(\forall z)(P (x)\land F (y, z)\land Q (y, z))\)
+	4. <strong>斯科林（Skolem）范式</strong>
+	在前束型范式的首标中不出现存在量词，即从前束型范式中消去全部存在量词所得到的公式。
+	一般形式为：
+	\((\forall x_1)(\forall x_2)\dots (\forall x_n) M (x_1, x_2,\dots x_n)\)
+	其中 $M (x_1, x_2,\dots, x_n)$ 是一个<strong>合取范式</strong>，称为 skolem 标准型的母式
+	<strong>变换方法：</strong>
+	F (x)代替上面前束范式中的 y 即得到 Skolem 范式：
+	\((\forall x)(\forall z)(P (x)\land F (f (x), z)\land Q (f (x), z))\)
+	其中<strong>f (x)称为 Skolem 函数</strong>
+	其一般式为: \(f (x_1, x_2,.. X_n)\)
+<strong>文字</strong>：原子公式及其否定称为文字
+<strong>子句</strong>：任何文字的析取式称为子句，由子句构成的集合成为子句集
+<strong>空子句</strong>：不包含任何文字的子句称为空子句，由于它不能被任何解释满足，<strong>所以空子式是永假。NIL</strong>
+例如
+\(P (x)\lor Q (x)\)
+\(P (x,f (x))\lor Q (x,g (x))\)
+都是子句</p>
+<h4 id="将谓词公式转化为子句集">将谓词公式转化为子句集</h4>
+<p>一共 9 步
+<strong>在谓词逻辑中，任何以谓词逻辑都可以通过等价关系和推理规则转化为子句集</strong></p>
+
+<p>例子：求公式的子句集
+\(A=(\forall x)((\forall y) P (x, y)\rightarrow \lnot (\forall y)(Q (x, y)\rightarrow R (x, y)))\)</p>
+<ol>
+  <li><em>利用连接词化归律消去谓词公式中的条件（$\rightarrow$）和双条件连接词 ($\leftrightarrow$)</em>
+ <strong><em>注意易错地方：要注意使用连接词化归律的时候 $\lnot$ 要放的位置</em></strong>
+ 连接词化规律：$P\rightarrow Q \Leftrightarrow \ \lnot P\lor Q$
+ 例子：由 \(A=(\forall x)((\forall y) P (x, y)\rightarrow \lnot (\forall y)(Q (x, y)\rightarrow R (x, y)))\)
+ 化为：\(A=(\forall x)(\lnot (\forall y) P (x, y)\lor\lnot (\forall y)(\lnot Q (x, y)\lor R (x, y)))\)</li>
+  <li>利用等价关系将 $\lnot$ 移到紧靠谓词的位置上
+ 量词转换定律
+ \(\begin{cases}
+ \lnot (\forall x) P \Leftrightarrow (\exists x)\lnot P \\
+ \lnot (\exists x) P \Leftrightarrow (\forall x)\lnot P
+\end{cases}\)
+ 例子：由
+ \(A=(\forall x)(\lnot (\forall y) P (x, y)\lor\lnot (\forall y)(\lnot Q (x, y)\lor R (x, y)))\)
+ 化为：
+ \(A=(\forall x)((\exists y)\lnot P (x, y)\lor (\exists y)(Q (x, y)\land \lnot R (x, y)))\)</li>
+  <li>重新命名使用不同量词的约束变元的约束变元名字不同
+ 例子：由
+ \(A=(\forall x)((\exists y)\lnot P (x, y)\lor (\exists y)(Q (x, y)\land \lnot R (x, y)))\)
+ 化为
+ \(A=(\forall x)((\exists y)\lnot P (x, y)\lor (\exists z)(Q (x, z)\land \lnot R (x, z)))\)</li>
+  <li>消去<mark style="background: #ADCCFFA6;">存在量词</mark>
+ 例子：由
+     \(A=(\forall x)((\exists y)\lnot P (x, y)\lor (\exists z)(Q (x, z)\land \lnot R (x, z)))\)
+ 化为：
+ \(A=(\forall x)(\lnot P (x,f (x))\lor (Q (x,g (x))\land \lnot R (x,g (x))))\)</li>
+  <li>把全称量词移到公式最左边（<mark style="background: #FF5582A6;">如果全称量词移不出来怎么帮???）</mark></li>
+  <li>利用等价关系, 将公式转换为 Skolen 标准型（<mark style="background: #ADCCFFA6;">合取型</mark>）
+ \(A=(\forall x)((\lnot P (x,f (x))\lor Q (x,g (x)))\land (\lnot P (x,f (x))\lor \lnot R (x,g (x))))\)</li>
+  <li>去掉全称量词</li>
+  <li>对变元更名</li>
+  <li>消去合取词，即获得子句集
+ \(\begin{cases}
+\lnot P (x,f (x))\lor　Q (x,g (x)) \\
+\lnot P (y,f (y)) \lor \lnot R (y,g (y))
+\end{cases}\)
+    <h4 id="鲁宾逊归结原理"><strong><em>鲁宾逊归结原理</em></strong></h4>
+    <h5 id="互补文字"><strong>互补文字</strong></h5>
+    <p>-若 P 是原子谓词公式，则称 P 和~P 为互补文字。</p>
+    <h5 id="归结式"><strong>归结式</strong></h5>
+    <p>一设 C 1 与 C 2 是子句集中的任意两个子句，<strong>且 C 1 中
+的文字 L 1 与 C 2 中的文字 L 2 互补</strong>，令: $C_{12}={C_1-L_1} \lor  {C_2-L_2}$
+<strong>注意 L 1 和 L 2 只能包含一个变量。</strong>
+一则称 C 12 为 C 1 与 C 2 的<strong>归结式</strong>，C 1、C 2 为 C 12 的<strong>亲本子句</strong>。
+通过归结判断是否可以满足</p>
+    <h3 id="置换与合一">置换与合一</h3>
+    <h4 id="置换">置换</h4>
+    <p>置换是形如{t/x, b/y}的有限集合<mark style="background: #FF5582A6;">分母要互不相同</mark>
+注意：t 是项，x 是变元，表示用 t/x 表示 t 替换 x
+      t 只能是变元或者是函数</p>
+  </li>
+</ol>
+
+<p>X 用 t 置换
+例子：
+	设 E 是一个表达式，$\theta$ ={c/x，f (d)/y, t/z}
+	P=Q (x, y, z)
+	U=g (x, y)
+	P $\theta$ =Q (c, f (d), t)
+	U $\theta$ =g (c, f (d))
+置换的乘法：
+<img src="attachements/Pasted%20image%2020231010090004.png" alt="" />
+当</p>
+<ul>
+  <li>$y_i=x_i$ 时从 $\mu$ 中删除 $t_{i}*\lambda/x_i$</li>
+  <li>当 $t_i<em>\lambda=x_i$ 时从 $\mu$ 中删除 $t_i</em>\lambda/x_i$</li>
+  <li>剩余元素所构成的集合任然是一个替换，称为替换的乘积
+例子
+<img src="attachements/Pasted%20image%2020231010090034.png" alt="" />
+    <h4 id="合一">合一</h4>
+    <p>-设有公式集:F={ F 1, F 2,…, Fn }，若存在一个置换 0，使得
+\(-F 1\theta=F 2\theta=…=Fn \theta\)
+一则称 $\theta$ 为 F 的一个合一置换，且称 F 1, F 2,…, Fn 是可合一的。</p>
+  </li>
+</ul>
+
+<p>差异集：两个公式中相同位置处不同符号的集合。
+例如：F 1: P (x, y, z), F 2: P (x, f (a), h (b)) 则 D 1={y, f (a)}, D 2={z, h (b)}</p>
+
+<p>求取最一般合一的算法：</p>
+<ol>
+  <li>令 k=0, Fk=F, σk=ε。 ε是空代换。</li>
+  <li>若 Fk 只含一个表达式，则算法停止，σk 就是最一般合一。</li>
+  <li>找出 Fk 的差异集 Dk。</li>
+  <li>若 Dk 中存在元素 xk 和 tk，其中 xk 是变元，tk 是项，且 xk 不在 tk 中出现，则置：
+  σK+1=σk°{tk/xk}
+  Fk+1=Fk{tk/xk}
+  K=k+1
+然后转 (2)。若不存在这样的 xk 和 tk 则算法停止。</li>
+  <li>算法终止，F 的最一般合一不存在。
+<mark style="background: #FF5582A6;">注意分母必须是变元</mark></li>
+</ol>
+
+<h3 id="定理证明与问题求解">定理证明与问题求解</h3>
+<p>使用归结原理对问题进行证明</p>
+<ol>
+  <li>定义谓词</li>
+  <li>用谓词表示知识</li>
+  <li>将事实和结论（注意结论要求反）化为子句集</li>
+  <li>对子句归结</li>
+  <li>得出结论
+    <h4 id="证明题">证明题</h4>
+    <h4 id="求解题">求解题</h4>
+  </li>
+</ol>
+
+<h2 id="第四章智能搜索算法">第四章智能搜索算法</h2>
+<p><strong>搜索:</strong> 依靠经验、已有知识，根据问题的实际情况，不断寻找有利知识，寻找一个代价最小的推理路线，使问题得以解决的过程称为搜素
+<strong>智能搜索</strong>：是指在搜索过程中利用有利信息来引导搜索向最优化发现发展的算法
+<img src="attachements/Pasted%20image%2020231108143447.png" alt="" /></p>
+<h3 id="状态空间">状态空间</h3>
+<p>状态空间方法：基于解答空间的问题表示和求解方法，它是以状态和算符为基础来表示和求解问题的。
+<strong><em>一些概念：</em></strong>
+<strong>状态（state）</strong> 表示问题解法中每一步问题状况的数据结构；描述某类不同事物间的差别而引入的一组最少变量 q 0，q 1，…，qn 的有序集合。
+<strong>算符（operator）</strong> 把问题从一种状态变换为另一种状态的手段；操作符可为走步、过程、规则、数学算子、运算符号或逻辑符号等。 
+<strong>问题的状态空间：</strong> 是一个表示该问题全部可能状态可用算符的集合，它包含三种说明的集合，即三元状态（S，F，G）。
+<strong>问题的解：</strong> 从问题的初始状态集，经过一系统列的算符运算，到达目标状态，所经过算符的序列构成一个问题的解</p>
+
+<p>因为状态之间是等价的所以状态图由类似于<strong>或图</strong>
+<strong><em>解题过程：</em></strong></p>
+<ol>
+  <li>定义状态</li>
+  <li>定义规则</li>
+  <li>状态转移
+例子：</li>
+</ol>
+
+<h3 id="问题规约法">问题规约法</h3>
+<p><strong>问题规约</strong>：把一个复杂的问题分解和变换为一组<strong>本原问题</strong>的过程称为问题规约
+本原问题：是指那种不能再分解和转换的且可以直接解答的子问题
+<strong>问题规约的组成（解题需要定义的）</strong>：</p>
+<ol>
+  <li>对问题的描述</li>
+  <li>一套把问题转换为子问题的操作符</li>
+  <li>一套本原问题的描述
+<strong>问题归约的实质：</strong>
+从目标 (要解决的问题)出发逆向推理，建立子问题以及子问题的子问题，直至最后把初始问题归约为一个平凡的本原问题集合。
+<strong>问题的分解与等价变换</strong>
+将一个复杂的问题分解为几个子问题的过程称为分解。可用<strong>与树表示</strong>
+将一个复杂的问题变换成若干个等价的问题的过程称为等价变换。可用<strong>或树表示</strong></li>
+</ol>
+
+<h4 id="与或图">与或图</h4>
+<p><img src="attachements/Pasted%20image%2020231119100325.png" alt="" />
+<strong><em>一些概念：</em></strong>
+<strong>端节点与终叶节点</strong>
+在与或树中没有子节点的节点称为端节点，本原问题所对应的节点称为终叶节点。显然，终叶节点一定是端节<a href=""></a>点，但端节点不一定是终止节点。
+<strong>“与节点”与“或节点”</strong>
+如果一个节点的所有子节点是与关系，则称该节点为与节点，如果其所有子节点是或关系，则称该节点为或节点
+<strong>在与/或树中，满足以下三个条件之一的节点为可解节点：</strong>
+     1. <strong><em>任何终叶节点都是可解节点</em></strong>。
+     2. 对“或”节点，当其子节点中至少有一个为可解节点时，则该或节点就是可解节点。
+     3. 对“与”节点，只有当其子节点全部为可解节点时，该与节点才是可解节点。</p>
+
+<p><img src="attachements/Pasted%20image%2020231024082951.png" alt="" />
+(考试考过)</p>
+<h3 id="启发式搜索">启发式搜索</h3>
+<p>启发信息：<strong>用于指导搜素过程</strong>且<strong>与具体问题求解有关</strong>的控制信息称为启发信息
+启发信息的作用：</p>
+<ul>
+  <li>用于决定先扩展哪个节点</li>
+  <li>再扩展节点式，用于决定要生成哪一个或哪几个后继节点</li>
+  <li>用于确定某些应该从搜素书中抛弃或修建的节点
+估计函数：
+在扩展节点时，用来描述节点重要程度的函数称为估价函数. 其一般形式为：
+\(F (X)=g (X)+h (X)\)
+  其中，$g (X)$ 为初始节点所以到节点 x 已实际付出的代价，$h (X)$ 是从节点 x 到目标节点 Sg 的最优路径的估计代价，启发信息主要由 $h (X)$ 来体现，故把它称为启发函数.
+    <h4 id="状态空间的启发式搜索">状态空间的启发式搜索</h4>
+    <h5 id="a-算法">A 算法</h5>
+    <p><strong><em>一些概念：</em></strong>
+在状态空间搜索中，如果每一步都利用估价函数 f (n)=g (n)+h (n)对 Open 表中的节点进行排序，则称 A 算法。它是一种为启发式搜索算法。
+Open List：用来存放未扩展节点
+Close List：用来存放已扩展节点
+ G (x)是从初始节点到节点 n 的实际代价
+ H (x) 是从节点到目标路径的 Sg 的最优路径的估计代价
+<strong><em>类型：</em></strong></p>
+    <ol>
+      <li>全局择优 
+  类似于宽度优先搜索
+  从 open 表中的所有节点中选择一个估价函数值最小的进行扩展
+  每次添加就要<strong>对 openlist 全排序</strong></li>
+      <li>局部择优
+  类似于深度优先搜素
+  仅从刚生成的子节点中选择一个估价函数值最小的进行扩展。
+  就是搜索的集合排序后的放在 openlist 的<strong>最前面</strong>
+如果生成重复节点就去掉这个节点
+        <h5 id="a-算法-1">$A^*$ 算法</h5>
+        <p>$A^<em>$ 算法
+$A^</em>$算法对扩展节点选择方法做了一些限制，选用了一个比较特殊的估价函数。
+估价函数的定义:</p>
+        <blockquote>
+          <p>对节点 n 定义 f<em>(x)=g</em>(x)+h<em>(x), 表示从 $S_0$ 开始通过节点 x 到 S 的一条最佳路径的代价。
+ 估价函数 f 定义为: f (x)=g (x)+h (x)       –g 是 $g^</em>$ 的估计，h 是 $h^<em>$ 的估计
+A</em> 算法的最优性
+A* 算法的搜索效率很大程度上取决于启发函数 h (x)。一般来说，在满足 h (x)≤h<em>(x)
+的前提下，h (x)的值越大越好。H (x)的值越大，说明它携带的启发性信息越多，A</em> 算法搜索时扩展的节点就越少，搜索效率就越高。A*  算法的这一特性被称为最优性。</p>
+          <h4 id="与或树搜索">与或树搜索</h4>
+        </blockquote>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<h5 id="与或树一般搜索过程">与或树一般搜索过程</h5>
+<p><mark style="background: #ADCCFFA6;">一些概念：</mark></p>
+<ol>
+  <li><strong>Open 表（Open List）</strong>：
+Open表是一个存储待扩展节点的数据结构，通常是一个队列（FIFO）或优先级队列（按照启发式函数值进行排序的优先级队列）。在与或树搜索算法中，Open表存储了待扩展的节点，这些节点可能是当前搜索路径的一部分，也可能是之前搜索路径的一部分。算法会从Open表中选择一个节点进行扩展，生成其子节点，并将这些子节点加入Open表中。</li>
+  <li><strong>Close表（Closed List）</strong>：
+Close表是一个存储已经扩展过的节点的数据结构。在与或树搜索算法中，Close表用来避免对同一个节点进行多次扩展，从而避免陷入循环。当一个节点被扩展时，将其加入Close表中，以便在后续的搜索过程中检查当前节点是否已经被扩展过。如果一个节点已经在Close表中，算法就不再对其进行扩展，从而避免重复工作。
+<mark style="background: #ADCCFFA6;">搜索思想：</mark></li>
+  <li>可解标示过程
+    <ul>
+      <li>由可解节点来确定父节点、祖父节点等为可解节点的过程</li>
+    </ul>
+  </li>
+  <li>不可解标示过程
+    <ul>
+      <li>由不可解节点来确定父节点、祖父节点等为不可解节点的过程
+<mark style="background: #ADCCFFA6;">一般过程：</mark></li>
+    </ul>
+  </li>
+  <li>把原始问题作为初始节点 SO，并把它作为当前节点</li>
+  <li>应用分解或等价变换算符对当前节点进行扩展</li>
+  <li>为每个子节点设置指向父节点的指针</li>
+  <li>选择合适的节点作为当前节点，反复执行前两步，并多次调用可解标示过程和不可解标示过程，直到初始节点被标示为可解或不可解节点。
+<mark style="background: #ADCCFFA6;">注意：</mark>
+    <ul>
+      <li>标示可解与不可解的过程是<strong>自下而上进行</strong>的。</li>
+      <li>如果已确定某个节点为可解节点，则其不可解的后继节点可以从搜索树中删除。</li>
+      <li>如果确定某个节点是不可解节点，则其全部后继节点都可以从搜索树中删除。
+        <h5 id="与或树广度优先搜索盲目搜索">与或树广度优先搜索（盲目搜索）</h5>
+      </li>
+    </ul>
+  </li>
+  <li>将初始节点 S。放入 OPEN 表中。</li>
+  <li>将 OPEN 表中第 1 个节点 N 放入 CLOSED 表中，并按顺序编号为 n。</li>
+  <li>若 N 有子节点存在，则执行下述操作:
+    <ul>
+      <li>生成 N 的所有子节点，将其放入 OPEN 的尾部，并填入其父节点编号 n。</li>
+      <li>考察这些子节点中是否有终叶节点，若有，则标记这些终叶节点为可解节点，并将其放入CLOSED 表中，然后由它们的可解性返回去推断其先辈的可解性，并对可解节点进行标记，若 SO 为可解节点，则搜索成功，退出。</li>
+      <li>从 OPEN 表中删除其先辈为可解的所有节点，转 (2)。
+        <h5 id="与或树深度优先搜索盲目搜索">与或树深度优先搜索（盲目搜索）</h5>
+        <p>就是和上面类似，和学过的深度优先搜索一样，只不过用到的是 open 表和 close 表</p>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<h5 id="计算解树的代价">计算解树的代价</h5>
+<p>设 g (x)表示节点 x 的代价，c (x, y)表示节点 x 到其子节点 y 的代价。
+(1)若 x 是终叶节点，则 g (x)=0
+(2)若 x 是<mark style="background: #FF5582A6;">或节点</mark>，其子节点依次为 $y_1,y_2,\dots,y_n$
+则有:
+\(g(x)=min(c(x,y_i)+g(y_{i}))\)
+$1\leq i \leq n$
+(3)若 x 是与节点，则其子节点依次为 $y_1,y_2,\dots,y_n$
+则有：
+和代价法
+\(g(x)=\sum^{n}_{i=1}(c(x,y_i)+g(y_i))\)
+最大代价法：
+\(g(x)=max(c(x,y)+g(y_i)),1\leq i\leq n\)</p>
+
+<h5 id="与或树的有序搜索启发式搜索">与或树的有序搜索（启发式搜索）</h5>
+<p>一些概念：</p>
+<ol>
+  <li>希望树:在有序搜索中，应选择那些最有希望成为最优解树一部分的节点进行扩展。我们称这节点构成的树为希望树。</li>
+</ol>
+
+<p>有序搜索过程：</p>
+<ol>
+  <li>将初始节点 S 0 放入 OPEN 表中。</li>
+  <li>求出希望树 T，即根据当前搜索树中节点的代价求出以 S 0 为根的希望树 T。</li>
+  <li>依次将 OPEN 表中 T 的端节点 N 放入 CLOSED 表中</li>
+  <li>若 N 为终叶节点，则：
+    <ul>
+      <li>将它标记为可解节点
+　- 由 N 的可解性返回去推断其先辈的可解性，并对可解节点进行标记，若 S 0 为可解节点，则搜索成功，退出。
+　- 从 OPEN 表中删除其先辈为可解的所有节点，转 2。</li>
+    </ul>
+  </li>
+  <li>若 N 不是终叶节点，且不可扩展，则：
+    <ul>
+      <li>标记 N 为不可解节点。
+　- 由 N 的不可解性返回去推断其先辈的不可解性，并对不可解节点进行标记，若 S 0 为不可解节点，则搜索失败，退出。
+　- 从 OPEN 表中删除其先辈为不可解的所有节点，转（２）。</li>
+    </ul>
+  </li>
+  <li>若 N 不是终叶节点，且可扩展，则：
+    <ul>
+      <li>生成 N 的所有子节点。
+　- 将其放入 OPEN 中，并填入其<strong>父节点编号 n</strong>。
+　- 计算所有子节点及其先辈节点的代价值，转（２）。</li>
+    </ul>
+  </li>
+</ol>
+
+<h4 id="博弈树搜索">博弈树搜索</h4>
+<p>最大最小原理
+$\alpha-\beta$ 剪枝</p>
+<h4 id="蒙特卡洛搜索">蒙特卡洛搜索</h4>
+<ol>
+  <li>选择节点</li>
+  <li>拓展</li>
+  <li>模拟</li>
+  <li>反向传播
+    <h4 id="遗传算法">遗传算法</h4>
+    <p>选择
+交叉
+变异</p>
+  </li>
+</ol>
+
+<h2 id="第三章不确定性推理">第三章不确定性推理</h2>
+<h3 id="什么是不确定性推理">什么是不确定性推理</h3>
+
+<p>不确定性推理泛指除精确推理以外的其它各种推理问题。包括不完备、不精确知识的推理，模糊知识的推理，非单调性推理等。</p>
+<h3 id="知识和证据的不确定表示">知识和证据的不确定表示</h3>
+<p><strong><em>知识点确定表示</em></strong></p>
+<ul>
+  <li>考虑因素：问题的描述能力，推理中不确定性的计算</li>
+  <li>含义：知识的确定性程度，或动态强度</li>
+  <li>表示：
+  用概率，在[0,1]区间取值，越接近于 0 越假，越接近于 1 越真
+  用可信度，在[-1,1]区间取值，大于 0 接近于真，小于 0 接近于假
+  用隶属度，在[0,1]区间取值，越接近于 0 隶属度越低，反之越高
+<strong><em>证据的不确定表示：</em></strong>
+证据的类型：基本证据，组合证据
+表示方法：概率，可信度，隶属度等
+基本证据：常与知识表示方法一致，如概率，可信度，隶属度等
+组合证据：</li>
+  <li>组合方式：析取的关系，合取的关系。</li>
+  <li>计算方法：基于基本证据最大最小方法，概率方法，有界方法等
+<strong><em>不确定性的匹配</em></strong>
+含义：不确定的前提条件与不确定的事实匹配
+问题：前提是不确定的，事实也是不确定的
+方法：设计一个计算相似程度的算法，给出相似的限度
+标志：相似度落在规定限度内为匹配，否则为不匹配
+<strong><em>不确定性的更新</em></strong></li>
+  <li>主要问题
+    <ol>
+      <li>如何用证据的不确定性去更新结论的不确定性</li>
+      <li>如何在推理中把初始证据的不确定性传递给最终结论</li>
+    </ol>
+  </li>
+  <li>解决方法
+  对 1，不同推理方法的解决方法不同
+  对 2，不同推理方法的解决方法基本相同，即把当前结论及其不确定性作为新的证据放入综合数据库，依次传递，直到得出最终结论
+<strong><em>不确定性结论的合成</em></strong>
+  含义：多个不同证据推出同一结论，且不确定性程度不同
+  方法：视不同推理方法而定
+<img src="attachements/Pasted%20image%2020231118155023.png" alt="" /></li>
+</ul>
+
+<h3 id="可信度方法">可信度方法</h3>
+<p>可信度是指人们根据以往经验对某个事物或现象为真的程度的一个判断，或者说是人们对某个事物或现象为真的相信程度。
+可信度具有一定的主观性，较难把握。但对某一特定领域，让该领域专家给出可信度还是可行的。</p>
+<h4 id="可信度的不确定知识表示方法">可信度的不确定知识表示方法</h4>
+<p><strong><em>表示形式：</em></strong>
+在C-F模型中，知识是用产生式规则表示的，其一般形式为：
+		IF   E   THEN   H  (CF(H, E))　
+其中，E 是知识的前提条件；H 是知识的结论；CF (H, E)是知识的可信度。 
+<strong><em>例子：</em></strong>
+   IF   发烧    AND  流鼻涕   THEN   感冒   (0.8)
+<strong><em>说明：</em></strong>
+CF (H, E)的取值范围: [-1,1]。 
+若由于相应证据的出现增加结论 H 为真的可信度，则 CF (H, E)&gt; 0，证据的出现越是支持 H 为真，就使就使 CF (H, E)的值越大。<br />
+反之，CF (H, E)&lt; 0，证据的出现越是支持 H 为假，CF (H, E)的值就越小。
+<strong>若证据的出现与否与 H 无关，则 CF (H, E)= 0</strong>
+<strong><em>注意：</em></strong>
+对同一前提 E，若支持若干个不同的结论 Hi (i=1,2,…, n)，则
+<img src="attachements/Pasted%20image%2020231118165558.png" alt="" />
+因此，如果发现专家给出的知识有如下情况
+        CF (H 1, E)=0.7,  CF (H 2, E)=0.4
+则因 0.7+0.4=1.1&gt;1 为非法，应进行调整或规范化。</p>
+<h4 id="可信度的证据不确定性表示">可信度的证据不确定性表示</h4>
+<p><strong>CF (E)＝0.6： E 的可信度为 0.6</strong></p>
+
+<p>证据 E 的可信度取值范围：[-1，1] 。<br />
+对于初始证据，若所有观察 S 能肯定它为真，则 CF (E)= 1。<br />
+若肯定它为假，则 CF (E) = –1。<br />
+若以某种程度为真，则 0 &lt; CF (E) &lt; 1。<br />
+若以某种程度为假，则 －1 &lt; CF (E)&lt; 0 。<br />
+若未获得任何相关的观察，则 CF (E) = 0。</p>
+
+<p><strong><em>组合证据</em></strong>
+组合证据：多个单一证据的合取：
+E=E 1 AND E 2 AND … En 时，若已知 CF (E 1)，CF (E 2)，…，则
+           <strong>CF (E)=min{CF (E 1), CF (E 2), … ,CF (En)}</strong>
+组合证据：多个单一证据的析取：
+E=E 1 OR  E 2  OR … En 时，若已知 CF (E 1)，CF (E 2)，…，则
+          <strong>CF (E)=max{CF (E 1), CF (E 2), … ,CF (En)}</strong></p>
+
+<h4 id="可信度推理">可信度推理</h4>
+<p>CF 模型中的不确定性推理实际上是从不确定的初始证据出发，不断运用相关的不确性知识，逐步推出最终结论和该结论可信度的过程。
+<strong><em>不确定性的更新公式</em></strong>
+ CF (H)=CF (H, E)×max{0, CF (E)} 
+    若 CF (E)&lt;0，则
+           CF (H)=0
+即该模型没考虑 E 为假对 H 的影响。
+    若 CF (E)=1，则
+           CF (H)=CF (H, E)
+即规则强度 CF (H, E)实际上是在 E 为真时，H 的可信度</p>
+<h4 id="结论的不确定性合成">结论的不确定性合成</h4>
+<p><strong>当有多条知识支持同一个结论，且这些知识的前提相互独立，结论的可信度又不相同时，可利用不确定性的合成算法求出结论的综合可信度。</strong>
+<strong><em>例子解释</em></strong>
+设有知识：IF  E 1   THEN   H  (CF (H, E 1))
+　　　　　IF  E 2   THEN   H  (CF (H, E 2))
+则结论 H 的综合可信度可分以下两步计算：
+(1) 分别对每条知识求出其 CF (H)。
+	 CF 1 (H)=CF (H, E 1) ×max{0, CF (E 1)}
+	 CF 2 (H)=CF (H, E 2) ×max{0, CF (E 2)}
+(2) 用如下公式求 E 1 与 E 2 对 H 的综合可信度</p>
+
+<p><img src="attachements/Pasted%20image%2020231118170021.png" alt="" /></p>
+
+<h3 id="贝叶斯网络">贝叶斯网络</h3>
+
+<p>贝叶斯网络是由美国加州大学的珀尔（J.Pearl）于 1985 年首先提出的一种模拟人类推理过程中因果关系的不确定性处理模型。
+<strong>它是概率论与图论的结合，其拓扑结构是一个有向无环图。</strong></p>
+
+<p><mark style="background: #FF5582A6;">定义</mark>：
+定义 3.17 设 X={X, X₂,…, Xn}是任何随机变量集，其上的贝叶斯网络可定义为 BN=(Bs，Bp)。其中:
+（1）Bs 是贝叶斯网络的结构，即一个定义在 X 上的有向无环图。并且，其中的每一个节点 X 都惟一地对应着 X 中的一个随机变量，并需要标注定量的概率信息; 每条有向边都表示它所连接的两个节点之间的条件依赖关系。若存在一条从节点 X 到节点 Xi 的有向边，则称 X 是 Xi 的父节点，X 是 X 的子节点。
+  （2） $B_{\beta}$ 为贝叶斯网络的条件概率集合，$B_\beta={P (Xi|Par (X¡))}$。其中，par (X)表示 X 的所有父节点的相应取值，$P (X_i| par (X))$ 是节点 $X_i$ 的一个条件概率分布函数，它描述 $X_i$ 的每个父节点对 X 的影响，即节点 X 的条件概率表。
+<mark style="background: #FF5582A6;">例子：</mark>
+<img src="attachements/Pasted%20image%2020231107083912.png" alt="" />
+<mark style="background: #FF5582A6;">贝叶斯网络的推理</mark>
+<strong><em>贝叶斯网络的全联合概率分布表示</em></strong>
+根据贝叶斯网络的定义，对子节点变量 $X_i$ 其取值 $x_i$ 的条件概率仅依赖于 $X_i$ 的所有父节点的影响。按照前面的假设，我们用 $par (X_i)$ 表示 $X_i$ 的所有父节点的相应取值 $x_i$
+P (X¡ | par (X¡))是节点 Xi 的一个条件概率分布函数，则对X 的所有节点，应有如下联合概率分布:
+\(P (x_1, x_2,.., x_n)= \prod_{i=1}^{n}{P(x_i|par(X_i))}\)
+这个公式就是贝叶斯网络的联合概率分布表示。</p>
+
+<h2 id="第六章人工神经网络">第六章人工神经网络</h2>
+
+<h3 id="人工神经网络基础">人工神经网络基础</h3>
+<p>MP 模型是于 1943 年提出的一种将神经元看做二进制阈值原件的简单模型
+人工神经元是一个具有多输入，单输出的非线性器件
+根据功能函数不同
+可得到的不同的神经元模型</p>
+<h4 id="阈值型">阈值型</h4>
+<p><img src="attachements/Pasted%20image%2020231118145731.png" alt="" /></p>
+<h4 id="分段线性强饱和型linear-saturation">分段线性强饱和型（Linear Saturation）</h4>
+<p><img src="attachements/Pasted%20image%2020231118145743.png" alt="" /></p>
+<h4 id="s-型">S 型</h4>
+<p><img src="attachements/Pasted%20image%2020231118145754.png" alt="" /></p>
+<h4 id="子阈累积型subthreshold-summation">子阈累积型（Subthreshold Summation）</h4>
+<p><img src="attachements/Pasted%20image%2020231118145759.png" alt="" /></p>
+
+<h3 id="人工神经网络的互联结构">人工神经网络的互联结构</h3>
+<h4 id="前馈网络">前馈网络</h4>
+<p>单层前馈网络是指那种只拥有单层计算节点的前向网络。它仅含有输入层和输出层，且只有输出层的神经元是可计算节点，如下图所示</p>
+
+<h4 id="反馈网络">反馈网络</h4>
+<h3 id="人工神经网络的典型模型">人工神经网络的典型模型</h3>
+<h4 id="感知器模型">感知器模型</h4>
+<p>感知器的拓扑结构是一种分层前向网络。它包括：单层感知器和多层感知器。
+单层感知器是一种只具有单层可调节连接权值神经元的前向网络，这些神经元构成了单层感知器的输出层，是感知器的可计算节点。
+在单层感知器中，每个可计算节点都是一个线性阈值神经元。当输入信息的加权和大于或等于阈值时，输出为 1，否则输出为 0 或-1。
+单层感知器的输出层的每个神经元都只有一个输出，且该输出仅与本神经元的输入及联接权值有关，而与其他神经元无关。</p>
+
+<h4 id="bp-网络模型">BP 网络模型</h4>
+<p>误差反向传播 (Error Back Propagation)网络通常简称为 BP (Back Propagation)网络。
+     BP 网络的网络拓扑结构是多层前向网络。在 BP 网络中，同层节点之间不存在相互连接，层与层之间多采用全互连方式，且各层的连接权值可调。
+  BP 网络的学习过程是由工作信号的正向传播和误差信号的反向传播组成的。
+所谓正向传播，是指输入模式经隐层到输出层，最后形成输出模式；
+所谓误差反向传播，是指从输出层开始逐层将误差传到输入层，并修改各层联接权值，使误差信号为最小的过程。</p>
+
+<h4 id="hopfield-网络模型">Hopfield 网络模型</h4>
+<p>离散 Hopfield 网络的结构
+    离散 Hopfield 网络是在非线性动力学的基础上由若干基本神经元构成的一种单层全互连网络，其任意神经元之间均有连接，并且是一种对称连接结构。
+在 Hopfidld 网络中，虽然神经元自身无连接，但由于每个神经元都与其他神经元相连;
+即每个神经元的输出都将通过突触连接权值传递给别的神经元，同时每个神经元又都接受其他神经元传来的信息;
+这样对每个神经元来说，其输出经过其他神经元后又有可能反馈给自己，因此 Hopfidld 网络是一种反馈神经网络。</p>
+
+<h3 id="深度卷积神经网络">深度卷积神经网络</h3>
+<h4 id="卷积层">卷积层</h4>
+<p>卷积（convolution）在卷积神经网络中的主要作用是实现卷积操作，形成网络的卷积层。
+卷积操作的基本过程是：针对图像的某一类特征，先构造其特征过滤器（FF），然后利用该滤器对图像进行特征提取，得到相应特征的特征图（ FM）。依此针对图像的每一类特征，重复如上操作，最后得到由所有特征图构成的卷积层。
+特征过滤器也称为卷集核（Coiling Kernel，CK），它实际上是由相关神经元连接权值所形成的一个权值矩阵，该矩阵的大小由卷集核的大小确定。卷集核与特征图之间具有一一对应关系，一个卷集核唯一地确定了一个特征图，而一个特征图也唯一地对应着一个卷积核。
+  从左上角开始移动到右下角，每次移动一步，每移动一步都要将滤波器与其在原图像中所对应位置的子图像做卷积运算，最终得到卷积后的图像，即特征图。
+    特征图的大小：(a-b+2*padding)/stride +1</p>
+
+<h4 id="池化层">池化层</h4>
+<p>池化层（Pooling Layer）也叫子采样层（Subsample Layer）或降采样（downsampling），其主要作用是利用子采样（或降采样）对输入图像的像素进行合并，得到池化层的特征图谱。
+①池化操作及基本过程
+    池化操作的一个重要概念是池化窗口或子采样窗口。所谓池化窗口是指池化操作所使用的一个矩形区域，池化操作利用该矩形区域实现对卷积层特征图像素的合并。
+    例如，一个 8 x 8 的输入图像，若采用大小为 2 x 2 的池化窗口对其进行池化操作，就意味着原图像上的 4 个像素将被合并为 1 个像素，原卷积层中的特征图经池化操作后将缩小为原图的 1/4。
+    池化操作的基本过程是：从特征图的左上角开始，按照池化窗口，先从左到右，然后再从上向下，不重叠地依次扫过整个图像，并同时利用子采样方法进行池化计算。
+    常用的池化方法有最大池化（max pooling）法、平均池化（mean pooling）法和概率矩阵池化（stochastic pooling）法等。这里主要讨论最大池化法和平均池化法。
+<img src="attachements/Pasted%20image%2020231118154121.png" alt="" />
+<img src="attachements/Pasted%20image%2020231118154136.png" alt="" /></p>
+
+<h1 id="end">END</h1>
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2023-12-08T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2023/12/07/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E4%BA%94%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html">计算机网络第五次实验报告</a></div><div class="next"><span>下篇</span><a href="/2023/12/08/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E7%9F%A5%E8%AF%86%E7%82%B9-%E8%83%8C.html">人工智能知识点——背</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Gao Xingjie"><meta itemprop="url" content="/"><meta itemprop="description" content="To be a question, to be an answer."><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"><li title="给我发邮件。">
+      <a class="button button--circle mail-button" itemprop="email" href="mailto:xingjie-gao@outlook.com" target="_blank">
+        <i class="fas fa-envelope"></i>
+      </a><li title="在 Github 上关注我。">
+        <a class="button button--circle github-button" itemprop="sameAs" href="https://github.com/Kfkcome" target="_blank">
+          <div class="icon"><svg fill="#000000" width="24px" height="24px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path class="svgpath" data-index="path_0" fill="#272636" d="M0 525.2c0 223.6 143.3 413.7 343 483.5 26.9 6.8 22.8-12.4 22.8-25.4l0-88.7c-155.3 18.2-161.5-84.6-172-101.7-21.1-36-70.8-45.2-56-62.3 35.4-18.2 71.4 4.6 113.1 66.3 30.2 44.7 89.1 37.2 119 29.7 6.5-26.9 20.5-50.9 39.7-69.6C248.8 728.2 181.7 630 181.7 513.2c0-56.6 18.7-108.7 55.3-150.7-23.3-69.3 2.2-128.5 5.6-137.3 66.5-6 135.5 47.6 140.9 51.8 37.8-10.2 80.9-15.6 129.1-15.6 48.5 0 91.8 5.6 129.8 15.9 12.9-9.8 77-55.8 138.8-50.2 3.3 8.8 28.2 66.7 6.3 135 37.1 42.1 56 94.6 56 151.4 0 117-67.5 215.3-228.8 243.7 26.9 26.6 43.6 63.4 43.6 104.2l0 128.8c0.9 10.3 0 20.5 17.2 20.5C878.1 942.4 1024 750.9 1024 525.3c0-282.9-229.3-512-512-512C229.1 13.2 0 242.3 0 525.2L0 525.2z" />
+</svg>
+</div>
+        </a>
+      </li></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© Ennis's Blog 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script>
+  window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
+    var $canvas = null, $this = null, _ctx = null, _text = '';
+    $('.language-chart').each(function(){
+      $this = $(this);
+      $canvas = $('<canvas></canvas>');
+      _text = $this.text();
+      $this.text('').append($canvas);
+      _ctx = $canvas.get(0).getContext('2d');
+      (_ctx && _text) && (new Chart(_ctx, JSON.parse(_text)) && $this.attr('data-processed', true));
+    });
+  });
+</script>
+<script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};_config.TeX = { equationNumbers: { autoNumber: "all" } };MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+

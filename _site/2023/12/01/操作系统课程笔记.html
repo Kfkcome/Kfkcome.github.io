@@ -1,0 +1,3086 @@
+<!DOCTYPE html><html lang="zh-Hans">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>操作系统课程笔记 - Ennis's Blog</title>
+
+<meta name="description" content="操作系统第一章操作系统概述1.1 操作系统的概念、功能和目标作为用户和计算机硬件之间的接口      提供的功能                                                      命令接口（联机命令接口              脱机命令接口）               ...">
+<link rel="canonical" href="http://localhost:4000/2023/12/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Willing to be a question, willing to be an answer.
+" href="/">Ennis's Blog</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F">操作系统</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0">课程笔记</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2023年 12月01日</span>
+            </li></ul></div><div class="article__header"><header><h1>操作系统课程笔记</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2023-12-1-操作系统课程笔记.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">操作系统第一章操作系统概述1.1 操作系统的概念、功能和目标作为用户和计算机硬件之间的接口      提供的功能                                                      命令接口（联机命令接口              脱机命令接口）                                                  程序接口 ...</p></div></div>
+              </div>
+            </div><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="操作系统课程笔记"><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2023-12-01T00:00:00+08:00">
+    <meta itemprop="keywords" content="操作系统,课程笔记"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><h1 id="操作系统">操作系统</h1>
+<h2 id="第一章操作系统概述">第一章操作系统概述</h2>
+
+<h3 id="11-操作系统的概念功能和目标">1.1 操作系统的概念、功能和目标</h3>
+
+<p>作为用户和计算机硬件之间的接口</p>
+
+<ul>
+  <li>
+    <p>提供的功能</p>
+
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>命令接口（联机命令接口</td>
+              <td>脱机命令接口）</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <p>程序接口</p>
+      </li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>GUI（图形用户界面 win</td>
+              <td>ios</td>
+              <td>andrio）</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>目标</p>
+    <ul>
+      <li>方便用户使用</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="https://user-images.githubusercontent.com/107924376/213081351-e539c220-5ca4-4f21-8e77-06ec56f33d01.PNG" alt="" /></p>
+
+<h3 id="12-操作系统的特征">1.2 操作系统的特征</h3>
+
+<table>
+  <tbody>
+    <tr>
+      <td>***并发</td>
+      <td>并行***</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>并发</strong>：多个事件交替发生（宏观同时发生、微观交替进行）
+<strong>并行</strong>：多个事件同时发生</p>
+
+<p><strong><em>共享</em></strong></p>
+
+<p>两种资源共享方式</p>
+
+<ul>
+  <li>互斥共享方式：一个时间段内只允许一个进程访问该资源</li>
+  <li>同时共享方式：允许一个时间段内由多个进程“同时”对它们进行访问</li>
+</ul>
+
+<p><strong><em>虚拟</em></strong></p>
+
+<p>概念：把一个物理上的实体变为若干个逻辑上的对应物</p>
+
+<ul>
+  <li>空分复用技术</li>
+  <li>时分复用技术</li>
+</ul>
+
+<p><strong><em>异步</em></strong></p>
+
+<p>概念：在多道程序环境下，允许多个程序并发执行，但由于资源有限，进程的执行不是一贯到底的，而是走走停停的，以不可预知的速度向前推进。只有系统拥有并发性，才有可能导致异步性。</p>
+
+<h3 id="13-操作系统的发展与分类">1.3 操作系统的发展与分类</h3>
+
+<p>OS 的发展与分类</p>
+
+<ul>
+  <li><strong><em>手工操作阶段</em></strong>
+    <ul>
+      <li><strong>用户独占全机，CPU 等待人工操作</strong></li>
+      <li>纸带机</li>
+    </ul>
+  </li>
+  <li><strong><em>批处理阶段</em></strong>
+    <ul>
+      <li><strong><em>单道批处理系统</em></strong>（外围机——磁带）作业能够一个接一个被连续处理</li>
+      <li><strong><em>多道批处理系统</em></strong>（操作系统开始出现）在一个程序因 I/O 操作而暂停执行时，会调度其他程序运行 <strong>（资源利用率高，系统吞吐量大，平均周转时间长，无交互能力）</strong></li>
+    </ul>
+  </li>
+  <li><strong><em>分时操作系统</em></strong>
+    <ul>
+      <li>及时处理
+  作业直接进入内存的方式，采用轮转运行的方式（不让一个程序一直单独的占用 cpu）
+  让每个用户都能及时的与自己的作业进行交互</li>
+    </ul>
+  </li>
+  <li>及时接收
+   为每个终端配置一个缓冲区，用于暂缓用户键入的命令或者数据（可以是实现多用户）</li>
+  <li>特征：<strong>多路性、独立性、及时性、交互性</strong></li>
+  <li>缺点不能优先处理紧急的任务</li>
+  <li><strong><em>实时操作系统</em></strong>
+ 与通常的操作系统不同，实时操作系统需要满足在特定时间范围内对事件做出及时响应的需求，实时操作系统可以分为硬实时操作系统（Hard Real-Time Operating System）和软实时操作系统（Soft Real-Time Operating System）两种类型。
+    <ul>
+      <li><strong>硬实时操作系统</strong>要求系统必须在严格的时间限制内完成任务处理，并能够保证对关键任务的实时响应。这种操作系统常用于对时间要求非常苛刻的应用领域，如航空航天、医疗设备、工业自动化等。</li>
+      <li><strong>软实时操作系统</strong>相对于硬实时操作系统要求稍低，它能够在一定程度上容忍任务处理的时间延迟。软实时操作系统广泛应用于多媒体、通信、嵌入式系统等领域。</li>
+      <li>优先处理紧急任务</li>
+      <li><strong>与分时系统的特征比较</strong>
+        <ol>
+          <li><strong>多路性</strong> 两个系统的多路性不同：分时是系统按分时原则为多个终端用户服务，而实时操作系统中的多路性主要是指系统能够同时处理多个实时任务或事件。实时操作系统需要满足对关键任务的及时响应，不同任务可能具有不同的优先级，需要根据优先级来进行任务调度。实时操作系统需要提供适当的调度算法，以确保高优先级任务能够在规定时间内得到执行，实现多个实时任务的同时处理。</li>
+          <li><strong>独立性</strong></li>
+          <li><strong>及时性</strong></li>
+          <li><strong>交互性</strong></li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+  <li>网络操作系统</li>
+  <li>分布式操作系统</li>
+  <li>个人计算机操作系统</li>
+</ul>
+
+<h3 id="14-操作系统的运行机制与体系结构">1.4 操作系统的运行机制与体系结构</h3>
+
+<h4 id="操作系统的运行机制">操作系统的运行机制</h4>
+
+<ul>
+  <li>运行机制
+    <ul>
+      <li>两种处理器状态</li>
+      <li>内核态（0）(user mode)</li>
+      <li>用户态（1）(kernel mode)</li>
+      <li>两种指令
+        <ul>
+          <li>特权指令（privileged instruction)
+  是指内核状态下运行的指令，它对内存空间访问范围基本不受限制</li>
+          <li>非特权指令 (non-privileged instruction )
+  是指在用户态下运行的指令，它只能完成一般性操作和任务，不能对系统硬件和软件进行直接访问，对内存范围访问也局限与用户空间
+这种限制是由硬件实习的，如果在应用中使用了特权指令，硬件不会执行该指令</li>
+        </ul>
+      </li>
+      <li>两种程序
+        <ul>
+          <li>内核程序 (运行在核心态 )</li>
+          <li>应用程序
+            <h4 id="操作系统内核">操作系统内核</h4>
+            <p>通常将一些与硬件紧密相关的模块（如中断处理程序等）、各种常用设备的驱动、运行频率较高的模块（如时钟管理模块、进程调度模块等）以及许多模块公用的一些基本操作，都安排在紧靠硬件的软件层次中，并将他们常驻内存，他们通常被称为 <mark style="background: #FFB86CA6;">OS 内核 </mark>
+这样安排的<strong>目的</strong>：</p>
+            <ol>
+              <li><mark style="background: #FFB86CA6;">便于对这些软件进行保护，防止他们遭受其他应用程序的破坏</mark>
+2.<mark style="background: #FFB86CA6;"> 提高 OS 的运行效率</mark>
+操作系统内核的功能有两类：</li>
+            </ol>
+            <ol>
+              <li><mark style="background: #FF5582A6;">支撑功能</mark></li>
+            </ol>
+          </li>
+        </ul>
+      </li>
+      <li>时钟管理（实现计时功能）
+  每当时间片运行完后，便会由时钟管理产生一个中断信号促使调度程序重新调度
+  用例：实时系统的截至时间控制，批处理系统最长运行时间的控制</li>
+      <li>中断处理
+  用例：各种类型的系统调用，键盘命令输入，进程调度，设备驱动</li>
+      <li>原语（程序运行具有原子性，不可中断）
+  原语就是有若干条指令组成的，用于完成一定功能的一个过程。
+  通过<strong>开中断</strong>，<strong>关中断</strong>特权指令来实现原子性
+    2. <mark style="background: #FF5582A6;">资源管理功能</mark></li>
+      <li>进程管理
+  进程管理的许多功能模块，运行频率较高或有多种原语操作，通常会放到内核中提高性能</li>
+      <li>储存器管理
+  存储器管理功能运行频率也挺高，也会放到内核中</li>
+      <li>设备管理
+        <h4 id="操作系统的主要功能">操作系统的主要功能</h4>
+      </li>
+      <li>对系统资源进行管理的功能
+        <ul>
+          <li>处理机管理功能
+            <ol>
+              <li>进程控制</li>
+              <li>进程同步</li>
+              <li>进程通信</li>
+              <li>调度</li>
+            </ol>
+          </li>
+          <li>存储器管理功能
+            <ol>
+              <li>内存分配和回收</li>
+              <li>内存保护</li>
+              <li>地址映射</li>
+              <li>内存扩充</li>
+            </ol>
+          </li>
+          <li>设备管理功能
+            <ol>
+              <li>缓冲管理</li>
+              <li>设备分配</li>
+              <li>设备处理</li>
+            </ol>
+          </li>
+          <li>文件管理功能
+            <ol>
+              <li>文件存储空间管理</li>
+              <li>目录管理</li>
+              <li>文件的读/写管理和保护</li>
+            </ol>
+          </li>
+          <li>接口管理功能
+            <ol>
+              <li>用户接口</li>
+              <li>程序借口
+                <h4 id="操作系统的结构">操作系统的结构</h4>
+              </li>
+            </ol>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>操作系统的体系结构
+    <ul>
+      <li>大内核（将操作系统的主要功能模块都作为系统内核， ）</li>
+      <li>微内核（只把最基本的功能保留在内核）</li>
+      <li>外核
+  因为传统的 OS 中，只有内核可以管理硬件资源，应用程序通过内核提供接口来访问，但是提供的接口满足不了需求所以产生的外核
+  基本思想：内核不提供传统 OS 中的进程，虚拟存储器等抽象事物，而是<strong>专注物理资源的隔离和复用</strong>。
+  在外核结构的 OS 中，一个非常小的内核负责保护物理资源的，而硬件资源的管理职责则委托给应用程序。
+        <h3 id="15-中断和异常">1.5 中断和异常</h3>
+      </li>
+    </ul>
+  </li>
+  <li>中断机制的诞生
+    <ul>
+      <li>操作系统介入，开展管理工作</li>
+      <li>“用户态—&gt;核心态”是通过中断实现的。并且中断是唯一途径</li>
+    </ul>
+  </li>
+  <li>中断的概念和作用</li>
+  <li>中断的分类
+    <ul>
+      <li>内中断（异常）
+        <ul>
+          <li>陷阱（trap）</li>
+          <li>故障（fault）</li>
+          <li>中止（abort）</li>
+        </ul>
+      </li>
+      <li>外中断  （CPU 外部）</li>
+    </ul>
+  </li>
+  <li>外中断的处理过程</li>
+</ul>
+
+<h3 id="16-系统调用">1.6 系统调用</h3>
+
+<p><em>概念</em>：应用程序通过系统调用请求操作系统的服务。保证系统的稳定性和安全性。</p>
+
+<p><em>系统调用和库函数的区别</em>：</p>
+<ul>
+  <li>系统调用是操作系统向上层提供的接口</li>
+  <li>有的库函数是对系统调用的进一步封装</li>
+  <li>当今编写的应用程序大多是通过高级语言提供的库函数间接地进行系统调用
+<em>系统调用的特点</em>：
+    <ol>
+      <li><strong>运行在不同的系统状态</strong>
+    系统调用的调用程序运行在用户态，而被调用程序运行在内核态。</li>
+      <li><strong>状态转换</strong>
+    一般的调用过程不涉到系统状态的转换，而系统调用不是，需要先通过软中端机制先由用户态转换为内核态，经内核分析后才能转向相应的系统调用处理子程序。</li>
+      <li><strong>返回问题</strong>
+    在被调用过程执行完成后，要对所有要求运行了的进程做优先级分析，当调用程序仍具有最高优先级时才返回到进程继续执行，否则将重新调度，以便让最高优先级的进程优先执行。</li>
+      <li><strong>嵌套调用</strong>
+    嵌套调用有深度限制，但是一般过程调用对嵌套调用的深度没有限制</li>
+    </ol>
+  </li>
+</ul>
+
+<p><em>系统调用的类型</em>：</p>
+<ol>
+  <li>进程控制类</li>
+  <li>文件操纵类</li>
+  <li>进程通信类
+    <h2 id="第二章进程与线程">第二章进程与线程</h2>
+    <h3 id="21-进程的定义组成组织方式特征">2.1 进程的定义、组成、组织方式、特征</h3>
+  </li>
+</ol>
+
+<p>定义：</p>
+<ol>
+  <li>进程是程序的一次执行</li>
+  <li>进程是一个程序及其数据在处理机上顺序执行时所发生的活动</li>
+  <li>进程是具有独立功能程序上的一个数据集上执行的过程，<strong>它是系统进行资源分配和调度的一个独立的单位</strong></li>
+</ol>
+
+<p>进程的组成：<strong>PCB</strong>（Process control block ）（进程存在唯一的标志），<strong>程序段</strong>，<strong>数据段</strong></p>
+
+<p>组织方式：链接方式，指针指向不同的队列；索引方式，索引表</p>
+
+<p>特征：动态性、并发性、独立性、异步性、结构性</p>
+
+<h3 id="22-进程的状态与转换">2.2 进程的状态与转换</h3>
+
+<p>状态：</p>
+
+<p>运行状态：占有 CPU，并在 CPU 上运行，单核只能一个进程（双核两个）（CPU√，其它资源√）</p>
+
+<p>就绪状态：已经具备运行条件，但是没有空闲的 CPU，暂时不能运行（CPUX，其它资源√）</p>
+
+<p>阻塞状态：等在某个事件的发生，暂时不能运行（CPUX，其它资源 X）</p>
+
+<p>创建状态：创建 PCB，程序段，数据段</p>
+
+<p>终止状态：回收内存，程序段，数据段，撤销 PCB</p>
+
+<p>进程状态间的转换 (图，且只能这样转化)</p>
+
+<p>创建态-&gt;就绪态</p>
+
+<p>就绪态-&gt;运行态</p>
+
+<p>运行态-&gt;就绪态</p>
+
+<p>运行态-&gt;中止态（比如数组越界）</p>
+
+<p>运行态-&gt;阻塞态（主动）</p>
+
+<p>阻塞态-&gt;就绪态（被动）</p>
+
+<h3 id="21_3-进程控制">2.1_3 进程控制</h3>
+
+<p>基本概念：</p>
+
+<p>什么是进程控制？</p>
+
+<p>答：实现各种进程状态转换。</p>
+
+<p>如何实现进程控制？</p>
+
+<p>答：用“原语”实现。</p>
+
+<p>原语做的事情：</p>
+
+<p>1、更新 PCD 中的信息</p>
+
+<p>2、将 PCD 插入合适的队列</p>
+
+<p>3、分配/回收资源</p>
+
+<p><strong>进程控制相关的原语：</strong></p>
+
+<p>1、进程的创建：</p>
+
+<p>创建原语：申请空白 PCB、为新进程分配所需资源、初始化 PCB、将 PCB 插入就绪队列</p>
+
+<p>引起进程创建的事件：用户登录、作业调度、提供服务、应用请求</p>
+
+<p>2、进程的终止：</p>
+
+<p>撤销原语</p>
+
+<p>引起进程中止的事件：正常结束、异常结束、外界干预</p>
+
+<p>3、进程的阻塞：</p>
+
+<p>阻塞原语：运行态-&gt;阻塞态</p>
+
+<p>引起进程阻塞的事件：需要等待系统分配某种资源、需要等待相互合作的其他进程完成工作</p>
+
+<p>4、进程的唤醒：</p>
+
+<p>唤醒原语：阻塞态-&gt;就绪态</p>
+
+<p>引起进程唤醒的事件：等待的事件发生</p>
+
+<p>5、进程的切换</p>
+
+<p>切换原语</p>
+
+<p>引起进程切换的事件：当前进程事件片到、有更高优先级的进程到达、当前进程主动阻塞、当前进程终止</p>
+
+<h3 id="21_4-进程通信">2.1_4 进程通信</h3>
+
+<p>1、共享存储   （分配共享空间，且互斥（P、V 操作）</p>
+
+<p>基于数据结构的共享：固定分配（低级）</p>
+
+<p>基于存储区的共享：划分存储区（高级）</p>
+
+<p>2、消息传递</p>
+
+<p>消息：消息头、消息体</p>
+
+<p>直接通信方式（直接挂载消息）</p>
+
+<p>间接通信方式（间接利用信箱发送消息）</p>
+
+<p>3、管道通信（pipe）</p>
+
+<p>只能半双工通信</p>
+
+<p>互斥（没写满，不能读，反之同理）</p>
+
+<h3 id="21_5-线程概念和多线程模型">2.1_5 线程概念和多线程模型</h3>
+
+<p>什么是线程，为什么要引入线程？</p>
+
+<p>答：线程是一个基本的 CPU 执行单元，也是程序执行流的最小单位，进一步提高了系统的并发度</p>
+
+<p>引入线程机制后，有什么变化？</p>
+
+<p>资源分配、调度：进程是资源分配的基本单位，线程是调度的基本单位</p>
+
+<p>并发性：各线程间也能并发，提升了并发度</p>
+
+<p>系统开销：可以只在进程中切换，减小了 CPU 切换环境的系统开销</p>
+
+<p>1、线程有哪些重要的属性</p>
+
+<ul>
+  <li>线程是处理机调度的基本单位</li>
+  <li>多 CPU 计算机中，各个线程可占用不同的 CPU</li>
+  <li>每个线程都有一个线程 ID、线程控制块（TCB）</li>
+  <li>线程也有就绪、阻塞、运行三种基本状态</li>
+  <li>线程几乎不拥有系统资源</li>
+  <li>同一进程的不同线程间共享进程的资源</li>
+  <li>由于共享内存地址空间，统一进程中的线程间通信甚至无需系统干预</li>
+  <li>同一进程中的线程切换，不会引起进程切换</li>
+  <li>不同进程中的线程切换，会引起进程切换</li>
+  <li>切换同进程内的线程，系统开销很小</li>
+  <li>切换进程，系统开销较大</li>
+</ul>
+
+<p>2、线程的实现方式</p>
+
+<p>用户级线程（ULT）：</p>
+
+<p>由应用管理，从用户的视角看能看到的线程</p>
+
+<p>内核级线程（KLT）：</p>
+
+<p>由操作系统管理，从操作系统内核视角看能看到的线程</p>
+
+<p>N 个 ULT 可以映射到 m 个 KLT 上（n&gt;=m）</p>
+
+<p>内核级线程才是处理机分配的单位</p>
+
+<p>3、多线程模型</p>
+
+<p>多对一模型</p>
+
+<p>N 个 ULT 映射到 1 个 KLT</p>
+
+<p>优点：开销小，效率高</p>
+
+<p>缺点：容易阻塞，并发度不高</p>
+
+<p>一对一模型</p>
+
+<p>N 个 ULT 映射到 n 个 KLT</p>
+
+<p>优点：并发能力很强</p>
+
+<p>缺点：占用成本高，开销大</p>
+
+<p>多对多模型</p>
+
+<p>N 个 ULT 映射到 m 个 KLT 上（n&gt;=m）</p>
+
+<p>中和以上两种优缺点</p>
+<h2 id="第三章处理机的调度">第三章处理机的调度</h2>
+
+<h3 id="22-处理机调度的概念层次">2.2 处理机调度的概念、层次</h3>
+
+<p>基本概念</p>
+
+<p>通常进程数量大于处理机数量，所以要按照一定的算法选择一个进程，并将处理机分配给它运行，以实现进程的并发执行</p>
+
+<p>三个层次</p>
+
+<p><strong>高级调度</strong>（作业调度）</p>
+
+<p>辅助外存与内存之间的调度，作业调入时会建立相应的 PCB，作业调出时才撤销 PCB，调入可由操作系统决定，调出由作业运行结束才调出</p>
+
+<p><strong>中级调度</strong>（内存调度）</p>
+
+<p>中级调度负责从就绪队列中选择哪些进程可以进入运行状态，即选择下一个要执行的进程。
+将暂时不用的进程放到外存（PCB 不外放），提高内存利用率和系统吞吐量，进程状态为挂起状态，形成挂起队列</p>
+
+<p><strong>低级调度</strong>（进程调度）</p>
+
+<p>低级调度是指决定进程或线程在 CPU 执行的时间片段，即在已经就绪的进程中进行选择，以合理的分配 CPU 时间片。
+常见的调度算法由：先来先服务（FCFS），最短作业优先等。
+最基本，用算法为进程分配处理机资源，几十 ms 一次</p>
+
+<p>三层调度的联系、对比</p>
+
+<p>进程的“挂起态”</p>
+
+<p>七状态模型</p>
+
+<p>五状态前面学了，挂起分为就绪挂起、阻塞挂起</p>
+
+<p><img src="https://user-images.githubusercontent.com/107924376/215522977-0a475c78-8425-41a5-a6a8-3931587af1f1.PNG" alt="" /></p>
+
+<h3 id="22_2-进程调度的时机切换与过程调度方式">2.2_2 进程调度的时机、切换与过程调度方式</h3>
+
+<p>1、时机</p>
+
+<p>什么时候需要进程调度？</p>
+
+<ul>
+  <li>主动放弃（进程正常终止、运行过程中发生异常而终止、进程主动请求阻塞）</li>
+  <li>被动放弃（分给进程的时间片用完、有更紧急的事需要处理、有更高优先级的进程进入就绪队列）</li>
+</ul>
+
+<p>什么时候不能进行进程调度？</p>
+
+<ul>
+  <li>在处理中断的过程中</li>
+  <li>在操作系统内核程序临界区中
+    <ul>
+      <li>临界资源：一个时段段内各进程互斥地访问临界资源</li>
+      <li>临界区：访问临界资源的那段代码</li>
+      <li>内核程序临界区会访问就绪队列，导致其上锁</li>
+    </ul>
+  </li>
+  <li>在原子操作过程中（原语）</li>
+</ul>
+
+<p>2、切换与过程</p>
+
+<p>“狭义的调度”与“进程切换”的区别</p>
+
+<ul>
+  <li>狭义：选择一个进程</li>
+  <li>广义：狭义+进程切换</li>
+</ul>
+
+<p>进程切换的过程需要做什么？</p>
+
+<ul>
+  <li>对原来运行进程各种数据的保存</li>
+  <li>对新的进程各种数据的恢复</li>
+</ul>
+
+<p>3、方式</p>
+
+<p>非剥夺调度方式（非抢占式）</p>
+
+<ul>
+  <li>只允许进程主动放弃处理机</li>
+</ul>
+
+<p>剥夺调度方式（抢占式）</p>
+
+<ul>
+  <li>进程被动放弃，可以优先处理紧急任务，适合分时操作系统、实时操作系统</li>
+</ul>
+
+<h3 id="22_3-调度算法的评价指标">2.2_3 调度算法的评价指标</h3>
+
+<p>1、CPU 利用率
+cpu 处于忙碌的时间占总时间的比例
+CPU 利用率=CPU 忙碌的时间/总时间</p>
+
+<p>2、系统吞吐量
+单位时间内完成作业的数量
+=总共完成了多少道作业/总共画了多少时间</p>
+
+<p>3、周转时间
+周转时间是指从<strong>作业提交</strong>给系统开始，到<strong>作业完成为止的</strong>时间间隔。
+它包括四部分：作业在外存后备队列上等待作业调度的时间（<strong>高级调度</strong>）、进程在就绪队列等待进程调度的时间（<strong>低级调度</strong>），进程在 CPU 上执行的时间、进程等待 I/O 操作完成的时间。</p>
+<ul>
+  <li>周转时间（提交作业到完成作业花费的时间）、平均周转时间（各作业周转时间之和/作业数）</li>
+  <li>带权周转时间（<strong>作业周转时间/作业实际运行的时间</strong>）、平均带权周转时间（各作业带权周转时间/作业数）</li>
+</ul>
+
+<p>4、等待时间</p>
+
+<p>进程或作业等待处理机状态时间的和
+<strong>等待时间=周转时间-运行时间-I/O 操作时间</strong></p>
+
+<p>进程：等待被服务的时间之和，<strong>在等待 I/O 完成的期间其实进程也是在被服务的，所以不计入等待时间。</strong>
+作业：建立后的等待时间+作业在外存后备队列中等待的时间</p>
+
+<p>5、响应时间</p>
+
+<p>从用户提交请求到首次产生响应所用的时间</p>
+
+<h3 id="22_4-fcfssjfhrrn-调度算法">2.2_4 FCFS、SJF、HRRN 调度算法</h3>
+
+<h4 id="1-先来先服务fcfsfirst-come-first-service">1 、先来先服务（FCFS，First Come First Service）</h4>
+
+<p>算法思想：主要从公平的角度考虑
+算法规则：按照作业/进程到达的先后顺序进行服务
+用于作业调度：考虑的是哪个作业先到达后备队列
+用于进程调度：考虑的是哪个进程先到达就绪队列
+是否可抢占：非抢占式</p>
+
+<p>优点：公平、算法简单
+缺点：对长作业有利、对短作业不利（带权周转时间长，用户体验不好），
+不会饥饿</p>
+
+<h4 id="2-短作业优先sjfshortest-job-first">2 、短作业优先（SJF，shortest job first）</h4>
+
+<p>算法思想：最短（服务时间最短）的作业优先得到服务，时间相同，先到达的先被服务</p>
+
+<p>非抢占式（SJF）：选最短需要时间的作业先进入运行态</p>
+
+<p>抢占式（SRTN）：有新作业进入就绪队列或有作业完成了，考察队列中的最小需要时间的作业</p>
+
+<font color="red">在所有进程都几乎同时到达时</font>
+<p>，采用 SJP 调度算法的平均等待时间、平均周转时间最少</p>
+
+<p>若无红色前提，抢占式的短作业/进程的平均时间最少</p>
+
+<p>优点：“最短的”平均等待时间，平均周转时间</p>
+
+<p>缺点：对短作业有利，对长作业不利，</p>
+
+<p>可能产生饥饿现象</p>
+
+<h4 id="3-高响应比优先hrrn">3 、高响应比优先（HRRN）</h4>
+
+<p>要综合考虑作业/进程的等待时间和要求服务的时间</p>
+
+<p>在每次调度时先计算各个作业/进程的响应比，选择响应比最高的作业/进程为其服务</p>
+
+<p>响应比=（等待时间+要求服务时间）/要求服务时间</p>
+
+<p>非抢占式</p>
+
+<p>进程主动放弃 CPU 时，需要该算法选取就绪队列的作业</p>
+
+<p>不会饥饿</p>
+
+<h3 id="22_5-时间片轮转优先级调度多级反馈队列适合交互式系统">2.2_5 时间片轮转、优先级调度、多级反馈队列（适合交互式系统）</h3>
+
+<p>1、时间片轮转算法（RR）</p>
+
+<p>算法思想：公平轮流地位各个进程服务，让每个进程在一定时间间隔内都可以得到响应</p>
+
+<p>算法规则：按照各进程到达就绪队列的顺序，轮流让各个进程执行一个时间片（如 100 ms）。若进程未在一个时间片内执行完，则剥夺处理机，将进程重新放到就绪队列对位重新排队。</p>
+
+<p>只能用于进程调度</p>
+
+<p>抢占式</p>
+
+<p>优点：响应块，适用于分时操作系统</p>
+
+<p>缺点：由于高频率的进程切换，因此有一定的开销；不区分任务的紧急程度</p>
+
+<p>不会饥饿</p>
+
+<p>2、优先级调度算法</p>
+
+<p>算法思想：根据任务的紧急程度来决定处理顺序</p>
+
+<p>算法规则：每个进程/作业有各自的优先级，调度时选择优先级最高的作业/进程</p>
+
+<p>适用：作业/进程/IO</p>
+
+<p>抢占式/不可抢占均有</p>
+
+<p>静态优先级：不变</p>
+
+<p>动态优先级：可以变</p>
+
+<p>通常：系统进程优先级高于用户进程，前台进程优先级高于后台进程，操作系统更偏好 I/O 进程</p>
+
+<p>可以从追求公平、提升资源利用率等角度考虑改变优先级</p>
+
+<p>可能会饥饿</p>
+
+<p>3、多级反馈队列调度算法</p>
+
+<p>算法思想：对其它算法调度的这种权衡</p>
+
+<p>算法实现：设置多级就绪队列，各级队列优先级从高到低，时间片从小到大。新进程到达时先进入第一级队列，按照 FCFS 原则排队等待被分配时间片。若用完时间片进程还未结束，则进程进入下一级队列对位。如果此时已经在最下级的队列，则重新放回最下级队列末尾。啊只有第 K 级队头的进程为空时，才会为 K+1 级对头的进程分配时间片，被抢占处理机的进程重新放回原队列队尾。</p>
+
+<p><img src="https://user-images.githubusercontent.com/107924376/217503736-9af47f43-351d-435c-9368-d926731a6302.PNG" alt="" /></p>
+
+<p>优点：对各个进程相对公平（FCFS 的优点），每个新到达的进程都可以很快就得到响应（RR 的优点）；短进程只用较少的时间就可以完成（SPF 的优点）；不必实现估计进程的运行时间（避免用户作假）；可灵活地调整对各类进程的偏好程度，比如 CPU 密集型进程、IO 密集型进程</p>
+
+<p>默认抢占式</p>
+
+<p>会饥饿</p>
+<h2 id="第四章进程的同步与互斥">第四章进程的同步与互斥</h2>
+<h3 id="23_1-进程同步进程互斥">2.3_1 进程同步、进程互斥</h3>
+
+<p>1、进程同步</p>
+
+<p>指为了完成某种任务而建立的两个或多个进程，这些进程因为需要在某些位置上协调他们的工作次序而产生的制约关系。进程间的直接制约关系就是源于它们之间的相互合作。
+具有同步关系的一组并发进程称为协作进程。</p>
+
+<p>2、进程互斥
+进程互斥是一种特殊的进程同步。
+定义：进程需要同时访问一个资源时，对资源需要互斥访问
+把一个时间段内只允许一个进程使用的资源称为临界资源。</p>
+
+<p>临界资源的问题。
+对临界资源的互斥访问，可以在逻辑上分为四个部分：</p>
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Do</span><span class="p">{</span>
+    <span class="n">Entry</span> <span class="n">section</span><span class="p">;</span>     <span class="c1">//进入区对访问的资源检查或进行上锁</span>
+    <span class="n">Critical</span> <span class="n">section</span><span class="p">;</span>  <span class="c1">//临界区 (段) 访问临界资源的那部分代码</span>
+    <span class="n">Exit</span> <span class="n">section</span><span class="p">;</span>      <span class="c1">//退出区负责解锁</span>
+    <span class="n">Remainder</span> <span class="n">section</span><span class="p">;</span> <span class="c1">//剩余区其它处理</span>
+<span class="p">}</span> <span class="k">while</span> <span class="p">(</span><span class="nb">true</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>1、空闲让进。空的可以直接进去</p>
+
+<p>2、忙则等待。繁忙不能进去</p>
+
+<p>3、有限等待。不能让进程等待无限长时间</p>
+
+<p>4、让权等待。不能进去，不要堵着</p>
+
+<h3 id="23_2-进程互斥的软件实现方法">2.3_2 进程互斥的软件实现方法</h3>
+
+<p>1、单标志法</p>
+
+<p>两个进程在访问完临界区后会把使用临界区的权限教给另一个进程。也就是说每个进程进入临界区的权限只能被另一个进程赋予</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Int</span> <span class="n">turn</span> <span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="c1">//p 0 进程</span>
+<span class="n">While</span> <span class="p">(</span><span class="n">turn</span><span class="o">!=</span><span class="mi">0</span><span class="p">);</span>
+<span class="n">Critical</span> <span class="n">section</span><span class="p">;</span>
+<span class="n">Turn</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="n">Remainder</span> <span class="n">section</span><span class="p">;</span>
+<span class="c1">//p 1 进程</span>
+<span class="n">While</span> <span class="p">(</span><span class="n">turn</span><span class="o">!=</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">Critical</span> <span class="n">section</span><span class="p">;</span>
+<span class="n">Turn</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+<span class="n">Remainder</span> <span class="n">section</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>可以实现互斥</p>
+
+<p>存在的问题：p 1 要访问的话，必须 p 0 先访问，违背：空闲让进原则</p>
+
+<p>2、双标志先检查</p>
+
+<p>算法思想: 设置一个 bool 数组 flag[]来标记自己是否想要进入临界区的意愿</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Bool</span> <span class="n">flag</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="p">{</span><span class="nb">false</span><span class="p">,</span> <span class="nb">false</span><span class="p">};</span>
+<span class="c1">//p 1 进程</span>
+<span class="n">While</span> <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<span class="n">Flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="nb">true</span><span class="p">;</span>
+<span class="n">Critical</span> <span class="n">section</span><span class="p">;</span>
+<span class="n">Flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="nb">false</span><span class="p">;</span>
+<span class="n">Remainder</span> <span class="n">section</span><span class="p">;</span>
+<span class="c1">//p 2 进程</span>
+<span class="n">While</span> <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">Flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="nb">true</span><span class="p">;</span>
+<span class="n">Critical</span> <span class="n">section</span><span class="p">;</span>
+<span class="n">Flag</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="nb">false</span><span class="p">;</span>
+<span class="n">Remainder</span> <span class="n">section</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>主要问题：由于进程是并发进行的，可能会违背忙则等待的原则</p>
+
+<p>3、双标志后检查</p>
+
+<p>算法思想: 设置一个 bool 数组 flag[]来标记自己是否想要进入临界区的意愿, 不过是先上锁后检查</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Bool</span> <span class="n">flag</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="p">{</span><span class="nb">false</span><span class="p">,</span> <span class="nb">false</span><span class="p">};</span>
+<span class="c1">//p 1 进程</span>
+<span class="n">Flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="nb">true</span><span class="p">;</span>
+<span class="n">While</span> <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">1</span><span class="p">]);</span>
+<span class="n">Critical</span> <span class="n">section</span><span class="p">;</span>
+<span class="n">Flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="nb">false</span><span class="p">;</span>
+<span class="n">Remainder</span> <span class="n">section</span><span class="p">;</span>
+<span class="c1">//p 2 进程</span>
+<span class="n">Flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="nb">true</span><span class="p">;</span>
+<span class="n">While</span> <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]);</span>
+<span class="n">Critical</span> <span class="n">section</span><span class="p">;</span>
+<span class="n">Flag</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="nb">false</span><span class="p">;</span>
+<span class="n">Remainder</span> <span class="n">section</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>主要问题：由于进程是并发进行的，可能会两个同时上锁，都进不去，违反空闲让进和有限等待原则</p>
+
+<p>会饥饿</p>
+
+<p>4、Peterson 算法</p>
+
+<p>主动让对方先使用处理器</p>
+
+<div class="language-cpp highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Bool</span> <span class="n">flag</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">=</span><span class="p">{</span><span class="nb">false</span><span class="p">,</span> <span class="nb">false</span><span class="p">};</span>
+<span class="n">Int</span> <span class="n">turn</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="c1">//p 1 进程</span>
+<span class="n">Flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="nb">true</span><span class="p">;</span>
+<span class="n">Turn</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+<span class="n">While</span> <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">&amp;&amp;</span><span class="n">turn</span><span class="o">==</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">Critical</span> <span class="n">section</span><span class="p">;</span>
+<span class="n">Flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">=</span><span class="nb">false</span><span class="p">;</span>
+<span class="n">Remainder</span> <span class="n">section</span><span class="p">;</span>
+<span class="c1">//p 2 进程</span>
+<span class="n">Flag</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="nb">true</span><span class="p">;</span>
+<span class="n">Turn</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span>
+<span class="n">While</span> <span class="p">(</span><span class="n">flag</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">&amp;&amp;</span><span class="n">turn</span><span class="o">==</span><span class="mi">0</span><span class="p">);</span>
+<span class="n">Critical</span> <span class="n">section</span><span class="p">;</span>
+<span class="n">Flag</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">=</span><span class="nb">false</span><span class="p">;</span>
+<span class="n">Remainder</span> <span class="n">section</span><span class="p">;</span>
+</code></pre></div></div>
+
+<p>遵循空闲让进、忙则等待、有限等待三个原则</p>
+
+<p>但是未遵循让权等待的原则</p>
+
+<h3 id="23_3-进程互斥的硬件实现方法">2.3_3 进程互斥的硬件实现方法</h3>
+
+<p>1、中断屏蔽方法</p>
+
+<p>关中断（不允许进程中断）</p>
+
+<p>临界区</p>
+
+<p>开中断</p>
+
+<p>简单、高校</p>
+
+<p>多处理机，可能会同时访问临界资源</p>
+
+<p>使用 OS 内核进程</p>
+
+<p>2、TestAndSet（TSL 指令）</p>
+
+<p>TSL 是用硬件实现的，上锁、检查一气呵成</p>
+
+<p>不满足让权等待，会盲等</p>
+
+<p>C 语言描述逻辑：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//true 表示已经上锁</span>
+<span class="n">Bool</span> <span class="nf">TestAndSet</span> <span class="p">(</span><span class="n">bool</span> <span class="o">*</span><span class="n">lock</span><span class="p">){</span>
+    <span class="n">Bool</span> <span class="n">old</span><span class="p">;</span>
+    <span class="n">Old</span><span class="o">=*</span><span class="n">lock</span><span class="p">;</span>
+    <span class="o">*</span><span class="n">lock</span><span class="o">=</span><span class="nb">true</span><span class="p">;</span>
+    <span class="n">Return</span> <span class="n">old</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//以下是使用 TSL 指令实现互斥的算法逻辑</span>
+<span class="n">While</span> <span class="p">(</span><span class="n">TestAndSet</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">lock</span><span class="p">));</span><span class="c1">//上锁并检查</span>
+<span class="err">临界区代码段</span>
+<span class="n">Lock</span><span class="o">=</span><span class="nb">false</span><span class="p">;</span> <span class="c1">//解锁</span>
+
+</code></pre></div></div>
+
+<p>3、Swap 指令</p>
+
+<p>别称：Exchange 指令、XCHG 指令</p>
+
+<p>Swap 指令是用硬件实现的</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//true 表示已经上锁</span>
+<span class="n">Void</span> <span class="nf">Swap</span> <span class="p">(</span><span class="n">bool</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="n">bool</span> <span class="o">*</span><span class="n">b</span><span class="p">){</span>
+    <span class="n">Bool</span> <span class="n">temp</span><span class="p">;</span>
+    <span class="n">Temp</span><span class="o">=*</span><span class="n">a</span><span class="p">;</span>
+    <span class="o">*</span><span class="n">a</span><span class="o">=*</span><span class="n">b</span><span class="p">;</span>
+    <span class="o">*</span><span class="n">b</span><span class="o">=</span><span class="n">temp</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">//以下是使用 Swap 指令实现互斥的算法逻辑</span>
+<span class="n">Bool</span> <span class="n">old</span><span class="o">=</span><span class="nb">true</span><span class="p">;</span>
+<span class="n">While</span> <span class="p">(</span><span class="n">old</span><span class="o">=</span><span class="nb">true</span><span class="p">)</span>
+    <span class="n">Swap</span> <span class="p">(</span><span class="o">&amp;</span><span class="n">lock</span><span class="p">,</span><span class="o">&amp;</span><span class="n">old</span><span class="p">);</span>
+<span class="err">临界区代码段</span>
+<span class="n">Lock</span><span class="o">=</span><span class="nb">false</span><span class="p">;</span> <span class="c1">//解锁</span>
+<span class="c1">//剩余代码段</span>
+</code></pre></div></div>
+
+<p>简单</p>
+
+<p>适用多处理机</p>
+
+<p>不能让权等待</p>
+
+<h3 id="23_4-信号量机制">2.3_4 信号量机制</h3>
+
+<p>信号量：</p>
+
+<p>信号量是一种变量，表示系统中某种资源的数量</p>
+
+<p>一对原语：wait（S）原语和 signal（S）原语，分别简称 P（S）、V（S）</p>
+
+<p>1、整形信号量</p>
+
+<p>用一个整数表示系统资源的变量，用来表示系统中某种资源的数量</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Int</span> <span class="n">S</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span>
+<span class="n">Void</span> <span class="nf">wait</span> <span class="p">(</span><span class="kt">int</span> <span class="n">S</span><span class="p">){</span> <span class="c1">//wait 原语，相当于：进入区</span>
+    <span class="n">While</span> <span class="p">(</span><span class="n">S</span><span class="o">&lt;=</span><span class="mi">0</span><span class="p">);</span>  <span class="c1">//如果资源数不够，就意志循环等待</span>
+    <span class="n">S</span><span class="o">=</span><span class="n">S</span><span class="o">-</span><span class="mi">1</span><span class="p">;</span>        <span class="c1">//如果资源数够，则占用一个资源</span>
+<span class="p">}</span>
+
+<span class="n">Void</span> <span class="nf">signal</span> <span class="p">(</span><span class="kt">int</span> <span class="n">S</span><span class="p">){</span><span class="c1">//signal 原语，相当于“退出区”</span>
+    <span class="n">S</span><span class="o">=</span><span class="n">S</span><span class="o">+</span><span class="mi">1</span><span class="p">;</span>         <span class="c1">//使用完资源后，在退出区释放资源</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>可能会出现盲等</p>
+
+<p>2、记录型信号量</p>
+
+<p>记录型数据结构表示的信号量</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">//记录型信号量的定义</span>
+<span class="n">Typedef</span> <span class="k">struct</span><span class="p">{</span>
+    <span class="n">Int</span> <span class="n">value</span><span class="p">;</span>
+    <span class="n">Struct</span> <span class="n">process</span> <span class="o">*</span><span class="n">L</span><span class="p">;</span>
+<span class="p">}</span> <span class="n">semaphore</span><span class="p">;</span>
+<span class="c1">//某进程需要使用资源时，通过 wait 原语申请</span>
+<span class="n">Void</span> <span class="nf">wait</span> <span class="p">(</span><span class="n">semaphore</span> <span class="n">S</span><span class="p">){</span>
+    <span class="n">S</span><span class="p">.</span><span class="n">value</span><span class="o">--</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">S</span><span class="p">.</span><span class="n">value</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">){</span>
+        <span class="n">block</span> <span class="p">(</span><span class="n">S</span><span class="p">.</span><span class="n">L</span><span class="p">);</span><span class="c1">//将该进程加入到消息队列中</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="c1">//进程使用完资源后，通过 signal 原语释放</span>
+<span class="n">Void</span> <span class="nf">signal</span> <span class="p">(</span><span class="n">semaphore</span> <span class="n">S</span><span class="p">){</span>
+    <span class="n">S</span><span class="p">.</span><span class="n">value</span><span class="o">++</span><span class="p">;</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">S</span><span class="p">.</span><span class="n">valie</span><span class="o">&lt;=</span><span class="mi">0</span><span class="p">){</span>
+        <span class="n">wakeup</span> <span class="p">(</span><span class="n">S</span><span class="p">.</span><span class="n">L</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>除非特别说明，否则默认 S 为记录型信号量</p>
+
+<h3 id="23_5-用信号量机制实现进程互斥同步前驱关系">2.3_5 用信号量机制实现进程互斥、同步、前驱关系</h3>
+
+<p>1、实现进程互斥</p>
+
+<p>设置互斥信号量 mutex，初值为 1</p>
+
+<p>对不同的临界资源需要设置不同的互斥信号量</p>
+
+<p>PV 必须成对出现</p>
+
+<p>2、实现进程同步</p>
+
+<p>保证一前一后的操作顺序</p>
+
+<p>设置同步信号量 S，初始为 0</p>
+
+<p>在“前操作”之后执行 V（S）</p>
+
+<p>在“后操作”之后执行（V）</p>
+
+<p>3、实现进程的前驱关系</p>
+
+<p>1、要为每一对前驱关系各设置一个同步变量</p>
+
+<p>2、在“前操作”之后对相应的同步变量执行 V 操作</p>
+
+<p>3、在“后操作”之前对相应的同步变量执行 P 操作</p>
+
+<p><img src="https://user-images.githubusercontent.com/107924376/217713731-b387a1c7-cd88-4dd3-a605-a8f1a75261c9.PNG" alt="" /></p>
+
+<h3 id="23_6-生产者-消费者问题">2.3_6 生产者-消费者问题</h3>
+
+<p>（好像很幼稚的逻辑</p>
+
+<p>只有缓冲区没满时，生产者才能把产品放入缓冲区，否则必须等待</p>
+
+<p>只有缓冲区不空时，消费者才能从中取出产品，否则必须等待</p>
+
+<p>缓冲区是临界资源，各个进程互斥访问</p>
+
+<p>实现互斥的 P 操作要放在实现同步的 P 操作之后，不然会发生死锁</p>
+
+<p>V 操作不会导致进程发生阻塞的状态，所以可以交换</p>
+
+<p>使用操作不要放在临界区，不然并发度会降低</p>
+
+<h3 id="23_7-多生产者-多消费者模型">2.3_7 多生产者-多消费者模型</h3>
+
+<p>在生产-消费者问题中，如果缓冲区大小为 1，那么有可能不需要设置互斥信号量就可以实现互斥访问缓冲区</p>
+
+<p>分析同步问题是，应该从“事件”的角度来考虑
+具体就是看两个事件的先后顺序，而不是看进程引起事件的先后顺序，因为一个事件可以被好多个进程引起，这样互斥是事件的互斥然后再加入到进程中就能实现进程的互斥了。</p>
+
+<p><img src="https://user-images.githubusercontent.com/107924376/217731751-b89c6ff8-ea6c-4cb6-bfd8-e571913e9820.PNG" alt="" /></p>
+
+<h3 id="23_8-吸烟者问题">2.3_8 吸烟者问题</h3>
+
+<p>解决“可以让生产多个产品的单生产者”问题提供一个思路；</p>
+
+<p>若一个生产者要生产多种产品（或者说会引发多种前驱事件），那么各个 V 操作应该放在各自对应的“事件”发生之后的位置</p>
+
+<p><img src="https://user-images.githubusercontent.com/107924376/217739518-1c7cf427-a1ac-457e-9293-5d055ab60a6c.PNG" alt="" /></p>
+
+<h3 id="23_9-读者-写者问题">2.3_9 读者-写者问题</h3>
+
+<p>1、允许多个读者同时对文件执行读操作</p>
+
+<p>2、只允许一个写者往文件中写信息</p>
+
+<p>3、任一写者在完成写操作之前不允许其他读者或写者工作</p>
+
+<p>4、写者执行写操作前，应让已有的读者和写者全部退出</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Semaphore</span> <span class="n">rw</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="c1">//用于实现对文件的互斥访问。表示当前是否有进程在访问共享文件</span>
+<span class="n">Int</span> <span class="n">count</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="c1">//记录当前有几个读进程在访问文件</span>
+<span class="n">Semaphore</span> <span class="n">mutex</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="c1">//用于保证对 count 变量的互斥访问</span>
+<span class="n">Semaphore</span> <span class="n">w</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span> <span class="c1">//用于实现“写优先”</span>
+    
+<span class="n">Writer</span> <span class="p">(){</span>
+    <span class="n">While</span> <span class="p">(</span><span class="mi">1</span><span class="p">){</span>
+        <span class="n">P</span><span class="err">（</span><span class="n">w</span><span class="err">）</span><span class="p">;</span>
+        <span class="n">P</span> <span class="p">(</span><span class="n">rw</span><span class="p">);</span> <span class="c1">//写之前“加锁”</span>
+        <span class="err">写文件。。。</span>
+        <span class="n">V</span><span class="err">（</span><span class="n">rw</span><span class="p">);</span><span class="c1">//写之后“解锁”</span>
+    	<span class="n">V</span> <span class="p">(</span><span class="n">w</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">Reader</span> <span class="p">(){</span>
+    <span class="n">While</span> <span class="p">(</span><span class="mi">1</span><span class="p">){</span>
+        <span class="n">P</span> <span class="p">(</span><span class="n">w</span><span class="p">);</span>
+	    <span class="n">P</span> <span class="p">(</span><span class="n">mutex</span><span class="p">);</span>   <span class="c1">//各读进程互斥访问 count</span>
+        <span class="n">If</span> <span class="p">(</span><span class="n">count</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span> 
+            <span class="n">P</span> <span class="p">(</span><span class="n">rw</span><span class="p">);</span>  <span class="c1">//第一个读进程的读进程数+1</span>
+        <span class="n">Count</span><span class="o">++</span><span class="p">;</span>	<span class="c1">//访问文件的读进程数+1</span>
+        <span class="n">V</span> <span class="p">(</span><span class="n">mutex</span><span class="p">);</span>	
+        <span class="n">V</span> <span class="p">(</span><span class="n">w</span><span class="p">);</span>
+        <span class="err">读文件</span><span class="p">...</span>
+        <span class="n">P</span> <span class="p">(</span><span class="n">mutex</span><span class="p">);</span>	<span class="c1">//各读进程互斥访问 count</span>
+        <span class="n">Count</span><span class="o">--</span><span class="p">;</span>	<span class="c1">//访问文件的读进程数-1</span>
+        <span class="n">If</span> <span class="p">(</span><span class="n">count</span><span class="o">==</span><span class="mi">0</span><span class="p">)</span>
+            <span class="n">V</span> <span class="p">(</span><span class="n">rw</span><span class="p">);</span>	<span class="c1">//最后一个读进程负责“解锁”</span>
+        <span class="n">V</span> <span class="p">(</span><span class="n">mutex</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="23_10-哲学家进餐问题">2.3_10 哲学家进餐问题</h3>
+
+<p>五个人，必须拿左右的筷子才能吃饭</p>
+
+<p>避免死锁发生</p>
+
+<p>解决方案：
+1、可以对哲学家进程施加一些限制条件，比如最多允许四个哲学家同时进餐，这样可以保证至少有一个哲学家是可以拿到左右两只筷子的。</p>
+
+<p>2、要求奇数号哲学家先拿左边的筷子，然后再拿右边的筷子，而偶数号哲学家刚好相反。用这种方法可以保证如果相邻的两个奇偶号哲学家都想吃饭，那么只会有其中一个可以拿起第一只筷子，另一个会直接阻塞。这就避免了占有一只后再等待另一只的情况。</p>
+
+<p>3、仅当一个哲学家左右两只筷子都可用时才允许他抓起筷子。</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Semaphore</span> <span class="n">chopstick</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="o">=</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">,</span><span class="mi">1</span><span class="p">};</span>
+<span class="n">Semaphore</span> <span class="n">mutex</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>  <span class="c1">//互斥地取筷子</span>
+<span class="n">Pi</span> <span class="p">(){</span>				 <span class="c1">//i 号哲学家的进程</span>
+    <span class="n">While</span> <span class="p">(</span><span class="mi">1</span><span class="p">){</span>
+        <span class="n">P</span> <span class="p">(</span><span class="n">mutex</span><span class="p">);</span>
+        <span class="n">P</span> <span class="p">(</span><span class="n">chopstick</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>      <span class="c1">//拿右</span>
+        <span class="n">P</span> <span class="p">(</span><span class="n">chopstick</span><span class="p">[(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="mi">5</span><span class="p">]);</span><span class="c1">//拿左</span>
+        <span class="n">V</span> <span class="p">(</span><span class="n">mutex</span><span class="p">);</span>
+        <span class="err">吃饭</span><span class="p">...</span>
+        <span class="n">V</span> <span class="p">(</span><span class="n">chopstick</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+        <span class="n">V</span> <span class="p">(</span><span class="n">chopstick</span><span class="p">[(</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span><span class="o">%</span><span class="mi">5</span><span class="p">]);</span>
+        <span class="err">思考</span><span class="p">...</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<h3 id="23_11-管程">2.3_11 管程</h3>
+
+<p>1、为什么要引入管程</p>
+
+<p>PV 操作容易出错、困难</p>
+
+<p>2、管程的定义和基本特征</p>
+
+<p>定义：</p>
+
+<ul>
+  <li>局部于管程的共享数据结构说明</li>
+  <li>对该数据结构进程操作的一组过程</li>
+  <li>对局部于管程的共享数据设置初始值的语句</li>
+  <li>管程有一个名字</li>
+</ul>
+
+<p>基本特征：</p>
+
+<ul>
+  <li>局部于管程数据结构只能被局部于管程的过程所访问</li>
+  <li>一个进程只有通过调用管程内的过程才能进入管程访问共享数据</li>
+  <li>每次仅允许一个进程在管程内执行某个内部过程</li>
+</ul>
+
+<p>心得：相当于 C++的类，管程是数据放在 private 中，函数放在 public 中</p>
+
+<p>拓展 1：用管程解决生产者消费者问题</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">Monitor</span> <span class="n">producerconsumer</span>
+    <span class="n">Condition</span> <span class="n">full</span><span class="p">,</span> <span class="n">empty</span><span class="p">;</span>
+    <span class="n">Int</span> <span class="n">count</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="n">Void</span> <span class="nf">insert</span> <span class="p">(</span><span class="n">Item</span> <span class="n">item</span><span class="p">){</span>
+        <span class="n">If</span> <span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="n">N</span><span class="p">)</span>
+            <span class="n">Wait</span> <span class="p">(</span><span class="n">full</span><span class="p">);</span>
+        <span class="n">Count</span><span class="o">++</span><span class="p">;</span>
+        <span class="n">Insert_item</span> <span class="p">(</span><span class="n">item</span><span class="p">);</span>
+        <span class="n">If</span> <span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">Signal</span> <span class="p">(</span><span class="n">empty</span><span class="p">);</span>
+    <span class="p">}</span>
+    <span class="n">Item</span> <span class="nf">remove</span> <span class="p">(){</span>
+        <span class="n">If</span> <span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="n">Wait</span> <span class="p">(</span><span class="n">empty</span><span class="p">);</span>
+        <span class="n">Count</span><span class="o">--</span><span class="p">;</span>
+        <span class="n">If</span> <span class="p">(</span><span class="n">count</span> <span class="o">==</span> <span class="n">N</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+            <span class="n">Signal</span> <span class="p">(</span><span class="n">full</span><span class="p">);</span>
+        <span class="n">Return</span> <span class="n">remove_item</span> <span class="p">();</span>
+    <span class="p">}</span>
+    <span class="n">End</span> <span class="n">monitor</span><span class="p">;</span>
+
+<span class="c1">//使用</span>
+<span class="n">Producer</span> <span class="p">(){</span>
+    <span class="n">While</span> <span class="p">(</span><span class="mi">1</span><span class="p">){</span>
+        <span class="n">Item</span> <span class="o">=</span> <span class="err">生产一个产品</span><span class="p">;</span>
+        <span class="n">Producerconsumer</span><span class="p">.</span> <span class="n">Insert</span> <span class="p">(</span><span class="n">item</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+
+<span class="n">Consumer</span> <span class="p">(){</span>
+    <span class="n">While</span> <span class="p">(</span><span class="mi">1</span><span class="p">){</span>
+        <span class="n">Item</span> <span class="o">=</span> <span class="n">producerconsumer</span><span class="p">.</span> <span class="n">Remove</span> <span class="p">();</span>
+        <span class="err">消费产品</span> <span class="n">item</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div></div>
+
+<p>拓展 2：Java 中类似于管程的机制</p>
+
+<p>Java 中用 synchronized 来描述一个函数, 这个函数同一时间只能被一个线程调用</p>
+
+<h3 id="24_1-死锁的概念">2.4_1 死锁的概念</h3>
+
+<p>1、什么是死锁</p>
+
+<p>各进程互相等待对方手里的资源，导致各进程都阻塞，无法向前推进的现象。</p>
+
+<p>2、进程死锁、饥饿、死循环的区别</p>
+
+<p>死锁：</p>
+
+<p>定义：各进程互相等待对方手里的资源，导致各进程都阻塞，无法向前推进的现象。</p>
+
+<p>区别：至少两个或两个的进程同时发生死锁</p>
+
+<p>饥饿：</p>
+
+<p>定义：由于长期得不到想要的资源，某进程无法向前推进的现象。</p>
+
+<p>区别：可能只有一个进程发生饥饿</p>
+
+<p>死循环：</p>
+
+<p>定义：某进程执行过程中一直跳不出某个循环的现象。</p>
+
+<p>区别：死循环是程序员的问题</p>
+
+<p>3、死锁产生的必要条件</p>
+
+<ul>
+  <li>互斥条件：多个进程争夺资源发生死锁</li>
+  <li>不剥夺条件：进程获得的资源不能由其它进程强行抢夺</li>
+  <li>请求和保持条件：某个进程有了资源，还在请求资源</li>
+  <li>循环等待条件：存在资源的循环等待链</li>
+</ul>
+
+<p>4、什么时候会发生死锁</p>
+
+<ul>
+  <li>对系统资源的竞争</li>
+  <li>进程推进顺序非法</li>
+  <li>信号量的使用不当也会造成死锁</li>
+</ul>
+
+<p>5、死锁的处理策略</p>
+
+<ul>
+  <li>预防死锁</li>
+  <li>避免死锁</li>
+  <li>死锁的检测和解除</li>
+</ul>
+
+<h3 id="24_2-死锁的处理策略预防死锁">2.4_2 死锁的处理策略——预防死锁</h3>
+
+<p>1、不允许死锁发生</p>
+
+<ul>
+  <li>静态策略：预防死锁
+    <ul>
+      <li>破坏互斥条件（有些不能破坏）
+      把互斥的资源改造为共享资源</li>
+      <li>破坏不剥夺条件（复杂，造成之前工作失效，降低系统开销，会全部放弃、导致饥饿）
+      方案 1：当请求得不到满足的时候，立即释放手里的资源
+      方案 2：由系统介入，强行帮助剥夺</li>
+      <li>破坏请求和保持条件（资源利用率极低，可能会导致某些进程饥饿）
+      采用静态分配方法，一次性全部申请，如果申请不到，不要允许</li>
+      <li>破坏循环等待条件（不方便增加新的设备，实际使用与递增顺序不一致，会导致资源的浪费，必须按规定次序申请资源）
+      顺序资源分配法：对资源编号，进程按编号递增顺序请求资源</li>
+    </ul>
+  </li>
+  <li>动态检测：避免死锁</li>
+</ul>
+
+<p>2、允许死锁发生</p>
+
+<ul>
+  <li>死锁的检测和解除</li>
+</ul>
+
+<h3 id="24_3-死锁的处理策略避免死锁">2.4_3 死锁的处理策略——避免死锁</h3>
+
+<p>动态检测：避免死锁</p>
+
+<ul>
+  <li>
+    <p>什么是安全序列</p>
+
+    <p>进行后面的某些情况，不会使系统发生死锁</p>
+  </li>
+  <li>
+    <p>什么是系统的不安全状态，与死锁有何联系
+如果系统处于安全状态，就一定不会发生死锁。如果系统进入不安全状态，就可能发生死锁（处于不安全状态未必就是发生了死锁，但发生死锁时一定时在不安全状态）</p>
+  </li>
+  <li>
+    <p>如何避免系统进入不安全状态——银行家算法</p>
+
+    <p>初始分配完成后，优先全部分配给最少的，并且拿回资源</p>
+  </li>
+</ul>
+
+<p>​		步骤：</p>
+
+<p>​			1、检查此次申请是否超过了之前声明的最大需求数</p>
+
+<p>​			2、检查此时系统剩余的可用资源是否还能满足这次请求</p>
+
+<p>​			3、试探着分配，更改各数据结构</p>
+
+<p>​			4、用安全性算法检查此次所分配是否会导致系统进入不安全状态</p>
+
+<h3 id="24_4-死锁的处理策略检测和解除">2.4_4 死锁的处理策略——检测和解除</h3>
+
+<p>死锁的检测</p>
+
+<p>1、用某种数据结构来保存资源的请求和分配信息</p>
+
+<p>2、提供一种算法，利用上述信息来检测系统是否已进入死锁状态</p>
+
+<p>死锁的解除</p>
+
+<p>1、资源剥夺法：挂起某些死锁进程，并抢占它的资源，将这些资源分配给其他的死锁进程。</p>
+
+<p>2、撤销进程法：强制撤销部分，甚至全部死锁进程，并剥夺这些进程的资源。</p>
+
+<p>3、进程回退法：让一个或多个死锁进程回退到足以避免死锁的地步。</p>
+
+<h2 id="第五章内存管理">第五章内存管理</h2>
+<h3 id="31_1-内存的基础知识">3.1_1 内存的基础知识</h3>
+
+<p>1、什么是内存</p>
+
+<p>存储单元：每个地址对应一个存储单元</p>
+
+<p>内存地址：</p>
+
+<p>2、进程运行的基本原理</p>
+
+<p>指令的工作原理：</p>
+
+<p>逻辑地址 vs 物理地址：逻辑地址就是相对地址</p>
+
+<p>从写程序到程序运行：编辑-编译-链接-装入</p>
+
+<p>三种链接方式：静态链接（在程序运行前，先将各目标模块及它们所需的库函数连接成一个完整的可执行文件）、装入时动态链接（将各目标模块装入内存时，边装入边链接的链接方式）、运行时动态链接（在程序执行中需要该模块时，才对它进行链接，其优点时便于修改和更新。）</p>
+
+<p>三种装入方式：绝对装入（在编译的时候就知道程序放在内存的哪个位置）、静态重定位（装入时将逻辑地址转表为物理地址）、动态重定位（把地址转化推迟到程序真正要执行时才进行）</p>
+
+<h3 id="31_2-内存管理的概念">3.1_2 内存管理的概念</h3>
+
+<p>1、内存空间的分配与回收</p>
+
+<p>2、内存空间的扩充</p>
+
+<p>内存的虚拟性</p>
+
+<p>3、地址转换</p>
+
+<p>逻辑地址和物理地址转换</p>
+
+<p>4、存储保护</p>
+
+<ul>
+  <li>设置上下限寄存器</li>
+  <li>采用重定位寄存器（基址寄存器）和界地址寄存器（限长寄存器）</li>
+</ul>
+
+<h3 id="31_3-覆盖与交换">3.1_3 覆盖与交换</h3>
+
+<p>内存空间的扩充</p>
+
+<p>覆盖技术：将程序分为多个段，内存分为”固定区“和”覆盖区“，需要常驻的放在”固定区“，调入后就不再调出，不常用的段放在”覆盖区“，需要用到时调入内存，用不到时掉出内存</p>
+
+<p>交换技术：内存空间紧张时，系统将内存中某些进程暂时换出外存，把外存中某些已具备运行条件的进程换入内存（PCB 会常驻内存，不会被患处）</p>
+
+<p>虚拟存储技术：</p>
+
+<h3 id="31_4-连续分配管理方式">3.1_4 连续分配管理方式</h3>
+
+<p>连续分配方式</p>
+
+<p>单一连续分配：内存被分配为系统区和用户区，系统区在低地址，用户区是一个用户独享</p>
+
+<p>固定分区分配：将用户区分割为若干固定分区给各道程序，分割策略有分区大小相等和分区大小不相等，可以建议一个分区说明表来管理各个分区</p>
+
+<p>动态分区分配：可变分区分配，不会预先划分内存分区，而是在进程装入内存时，根据进程的大小动态地建立分区，并使分区的大小正好适合进程的需要。</p>
+
+<p>内部碎片：分配给某进程的内存区域中，如果有些部分没有用上</p>
+
+<p>外部碎片：是指内存中的某些空闲分区由于太小而难以利用（如果有外部碎片，可以采用紧凑技术）</p>
+
+<h3 id="31_5-动态分区分配算法">3.1_5 动态分区分配算法</h3>
+
+<p>1、首次适应算法（First Fit)</p>
+
+<p>算法思想：每次从低地址开始查找，找到第一个能满足大小的空闲分区</p>
+
+<p>2、最佳适应算法 (Best Fit)</p>
+
+<p>算法思想：为了保证“大进程”到来时能有连续的大片区域，可以尽可能留下大片的空闲区，优先使用更小的空闲区。</p>
+
+<p>空闲分区按容量递增次序链接，分配内存时顺序查找空闲分区链</p>
+
+<p>缺点：会留下小碎片</p>
+
+<p>3、最坏适应算法 (Worst Fit)</p>
+
+<p>算法思想：和最佳适应算法相反，按容量递减次序排列，每次尽可能用大的分区</p>
+
+<p>4、领近适应算法 (Next Fit)</p>
+
+<p>算法思想：每次从上次查找结束的位置开始检索</p>
+
+<p>缺点：大空间容易被用完</p>
+
+<h3 id="31_6-基本分页存储管理的基本概念">3.1_6 基本分页存储管理的基本概念</h3>
+
+<p>允许一个进程分散地装入道许多不相邻的位置</p>
+
+<p>连续分配：为用户进程分配连续的内存空间</p>
+
+<p>非连续分配：为用户进程分配分散的内存空间</p>
+
+<p>将内存分为大小相等的小分区“页框”，将用户的进程空间也分为大小相等的一个个区域，以页框的基本单位分配给每个进程片</p>
+
+<p>分页管理：物理地址=页面的其实位置+偏移量</p>
+
+<p>计算机中用 2 的整数倍表示页面的大小</p>
+
+<p>页表：存放页号和块号的对应关系</p>
+
+<h3 id="31_7-基本地址变换机构">3.1_7 基本地址变换机构</h3>
+
+<p>页表寄存器（PTR），存放页表在内存中的起始地址 F 和页表长度 M，进程未执行时，页表的起始地址和页表的长度放在进程控制块（PCB）中，当进程被调度时，操作系统内核会把它们放在页表寄存器中。</p>
+
+<h3 id="31_8-具有快表的地址变换机构">3.1_8 具有快表的地址变换机构</h3>
+
+<p>1、局部性原理</p>
+
+<p>时间局部性：访问某个变量后，在不久的将来还会被访问</p>
+
+<p>空间局部性：程序访问了某个存储单元，不久之后，其附近的存储单元也很有可能被访问</p>
+
+<p>2、什么是快表（TLB）</p>
+
+<p>快表：又称联想寄存器（TLB），是一种访问速度比内存快很多的高速缓冲存储器，用来存放当前访问的若干页表项，以加速地址变换的过程。与此对应，内存中的页表常称为慢表。</p>
+
+<p>3、引入快表后，地址的变换过程</p>
+
+<h3 id="31_9-两级页表">3.1_9 两级页表</h3>
+
+<p>1、单级页表存在什么问题？如何解决？</p>
+
+<p>所有页表项必须连续存放，页表过大时需要很大的连续空间</p>
+
+<p>在一段时间内并非所有页面都用得到，因此没必要让整个页表常驻内存</p>
+
+<p>2、两级页表的原理、逻辑地址结构</p>
+
+<p>将长长的页表再分页</p>
+
+<p>逻辑地址结构：（一级页号、二级页号、页内偏移量）</p>
+
+<p>页目录表、外层页表、顶级页表</p>
+
+<p>3、如何实现地址变换？</p>
+
+<p>按照地址结构将逻辑地址拆分成三部分</p>
+
+<p>从 PCB 中读出页目录表始址，根据一级页号查页目录表，找到下一级页表在内存中的存放位置</p>
+
+<p>根据二级页号查表，找到最终想访问的内存块号</p>
+
+<p>结合页内偏移量得到物理地址</p>
+
+<p>4、两级页表问题需要注意的几个细节</p>
+
+<p>多级页表中，各级页表的大小不能超过一个页面。若两级页表不够，可以分更多级</p>
+
+<p>多级页表的访问次数（假设没有快表结构）——N 级页表访问一个逻辑地址需要 N+1 次访存</p>
+
+<h3 id="31_10-基本分段存储管理方式">3.1_10 基本分段存储管理方式</h3>
+
+<p>1、什么是分段？</p>
+
+<p>进程的地址空间：按照程序自身的逻辑关系划分为若干个段，每段有段名，每段从 0 开始编址</p>
+
+<p>段号的位数决定了每个进程最多可以分几个段</p>
+
+<p>段内地址位数决定了每个段的最大长度是多少</p>
+
+<p>2、什么是段表</p>
+
+<p>段表：段映射表</p>
+
+<p>每个程序被分段后，用段表记录该程序在内存中存放的位置</p>
+
+<p>段表：段号段长基址</p>
+
+<p>3、如何实现地址变换</p>
+
+<p>4、分段、分页管理的对比</p>
+
+<p>页：信息的物理单位，实现离散分配，提高内存利用率，地址是一维的，访存两次</p>
+
+<p>段：信息的逻辑单位，对系统可见，地址是二维的，访存 3 次</p>
+
+<p>分段比分页更容易实现信息的共享和保护（不能被修改的代码称为纯代码和可重入代码，不属于临界资源）</p>
+
+<h3 id="31_11-段页式的管理方式">3.1_11 段页式的管理方式</h3>
+
+<p>1、分页、分段管理方式最大的优缺点</p>
+
+<p>分页：利用率高，碎片少，不方便进行信息共享和保护</p>
+
+<p>分段：方便信息共享和保护，如果段长大，容易产生外部碎片</p>
+
+<p>2、分段+分页的结合——段页式管理方式</p>
+
+<p>先分段再分页</p>
+
+<p>段号+页号+页内偏移量</p>
+
+<p>地址结构是二维的</p>
+
+<p>3、段表、页表</p>
+
+<p>4、如何实现地址变换</p>
+
+<h3 id="32_1-虚拟内存的基本概念">3.2_1 虚拟内存的基本概念</h3>
+
+<p>1、传统存储管理方式的特征、缺点</p>
+
+<p>之前讲的</p>
+
+<p>一次性：作业必须全部装入内存后才能开始运行，并发性下降</p>
+
+<p>驻留性：一旦作业被装入内存，就会一直驻留在内存</p>
+
+<p>2、局部性原理</p>
+
+<ul>
+  <li>时间局部性</li>
+  <li>空间局部性</li>
+  <li>高速缓存技术</li>
+</ul>
+
+<p>3、虚拟内存的定义和特征</p>
+
+<p>虚拟内存最大容量是计算机地址结构确定的</p>
+
+<p>虚拟内存的实际容量=min (内存和外存容量之和，CPU 寻址范围)</p>
+
+<p>Eg：某计算机地址结构为 32 位，按字节编址，内存大小为 512 MB，外存大小为 2 DB.</p>
+
+<p>则虚拟内存的最大容量为 2^32 B=4 GB</p>
+
+<p>虚拟内存的实际容量=min (2^32 B, 512 MB+2 GB)=2 GB+512 MB</p>
+
+<p>多次性：无需在作业运行时一次性全部装入内存，而是允许被分成多次调用内存</p>
+
+<p>对换性：在作业运行时无需一直常驻内存，而是允许在作业运行过程中，将作业换入换出</p>
+
+<p>虚拟性：从逻辑上扩充了内存的容量，使用户看到的内存容量，远大于实际的容量</p>
+
+<p>4、如何实现虚拟内存技术</p>
+
+<p>在程序执行过程中，当所访问的信息不再内存时，由操作系统负责将所需信息从外存调入内存，然后继续执行程序。</p>
+
+<p>若内存空间不够，由操作系统负责将内存中暂时用不到的信息换出到外存。</p>
+
+<h3 id="32_2-请求分页管理方式">3.2_2 请求分页管理方式</h3>
+
+<p>1、页表机制</p>
+
+<p>请求分页存储的页表：</p>
+
+<p>内存块号状态位访问字段修改位外存地址</p>
+
+<p>2、缺页中断机构</p>
+
+<p>内中断，可被修复</p>
+
+<p>3、地址变换机构</p>
+
+<h3 id="32_3-页面置换算法">3.2_3 页面置换算法</h3>
+
+<p>1、最佳置换算法（OPT）</p>
+
+<p>每次选择淘汰的页面是以后永不使用或者在最长时间内不再被访问的页面，这样可以保证最低的缺页率。</p>
+
+<p>实际上不知道后面的序列</p>
+
+<p>2、先进先出置换算法（FIFO）</p>
+
+<p>每次选择淘汰的页面是最早进入内存的页面</p>
+
+<p>Belady 异常，当分配的内存块增大时，缺页次数反而增加</p>
+
+<p>3、最近最久未使用置换算法（LRU）</p>
+
+<p>每次淘汰最近最久未使用的页面</p>
+
+<p>4、时钟置换算法（最近未用算法，CLOCK）</p>
+
+<p>简单的：最多经历两轮扫描，初始为 1，扫一下为 0，再扫一下被踢</p>
+
+<p>5、改进型的时钟置换算法</p>
+
+<p>优先淘汰没有被修改过的，因为没有修改过的不用进行 IO 操作 00-&gt;01（改）-&gt;00-&gt;01</p>
+
+<p>### 3.2_4 页面分配策略</p>
+
+<p>1、驻留集</p>
+
+<p>指请求分页存储管理中给进程分配的物理块的集合</p>
+
+<p>2、页面分配、置换策略</p>
+
+<ul>
+  <li>固定分配局部替换：驻留集大小不可改变</li>
+  <li>可变分配全局替换：可以将操作系统保留的空闲物理块分配给缺页进程</li>
+  <li>可变分配局部替换：只能选进程自己的物理块置换</li>
+</ul>
+
+<p>3、调入页面的时机</p>
+
+<p>预调页策略：一次调用若干个相邻页面，运行前调入</p>
+
+<p>请求调页策略：运行时缺页再调入</p>
+
+<p>4、从何处调页</p>
+
+<p>对换区：快，采用连续分配方式</p>
+
+<p>文件区：慢，采用离散分配方式</p>
+
+<p>5、抖动（颠簸）现象</p>
+
+<p>刚刚换出的又要换入，刚刚换入的又要换出，物理块不够</p>
+
+<p>6、工作集</p>
+
+<p>指在某段时间间隔里，进程实际访问页面的集合</p>
+
+<h2 id="第六章文件系统">第六章文件系统</h2>
+
+<h3 id="41_1-初识文件管理">4.1_1 初识文件管理</h3>
+
+<p>提供的功能：</p>
+
+<p>处理机管理</p>
+
+<p>存储器管理</p>
+
+<p>文件管理</p>
+
+<p>设备管理</p>
+
+<p>目标：安全高效</p>
+
+<h3 id="41_2-文件的逻辑结构">4.1_2 文件的逻辑结构</h3>
+
+<p>1、无结构文件</p>
+
+<p>文件由一系列二进制文件流组成</p>
+
+<p>2、有结构文件（记录式文件）</p>
+
+<p>顺序文件：文件中的记录一个接一个顺序排列，定长或变长，可以顺序存储或者链式存储</p>
+
+<p>按照是否与关键字顺序有关，可以分为串结构和顺序结构</p>
+
+<p>链式：无法随机存取</p>
+
+<p>顺序存储：</p>
+
+<ul>
+  <li>可变长：无法随机存取</li>
+  <li>定长：可以随机存取，采用串结构，无法快速找到关键字；采用顺序结构，可以快速查找关键字</li>
+</ul>
+
+<p>索引文件：索引表本身是定长的顺序文件</p>
+
+<p>索引顺序文件：多级索引表嵌套查找</p>
+
+<h3 id="41_3-文件目录">4.1_3 文件目录</h3>
+
+<p>1、文件控制块（FCB）</p>
+
+<p>搜索、创建文件、删除文件、显示目录、修改目录</p>
+
+<p>2、目录结构</p>
+
+<ul>
+  <li>单级目录结构</li>
+  <li>两级目录结构</li>
+</ul>
+
+<p>​		主文件目录（MFD）+用户文件目录（UFD）</p>
+
+<ul>
+  <li>多级目录结构（树形目录结构）</li>
+</ul>
+
+<p>​		当代操作系统采用方法、不便于文件共享</p>
+
+<ul>
+  <li>
+    <p>无环图目录结构</p>
+
+    <p>可以共享</p>
+  </li>
+</ul>
+
+<p>3、索引节点（对文件控制块</p>
+
+<p>压缩文件名和信息</p>
+
+<h3 id="41_4-文件的物理结构文件分配方式">4.1_4 文件的物理结构（文件分配方式）</h3>
+
+<p>1、对非空闲磁盘块的管理</p>
+
+<p>连续分配：连续分配方式要求每个文件在磁盘上占有一组连续的块，对文件的拓展不方便，有很多磁盘碎片</p>
+
+<p>链接分配</p>
+
+<ul>
+  <li>隐式分配：采用链接分配方式的文件，只支持顺序访问，不支持随机访问，方便拓展</li>
+  <li>显示分配：文件分配表显式记录下一块物理块的位置，方便拓展，支持随机访问，文件表会占内存空间</li>
+</ul>
+
+<h3 id="41_4-文件的物理结构文件分配方式-1">4.1_4 文件的物理结构（文件分配方式）</h3>
+
+<p>索引分配</p>
+
+<p>索引分配允许文件离散地分配在各个磁盘块中，系统会为每个文件建立一张索引表，索引表记录了文件的各个逻辑块对应的物理块</p>
+
+<p>支持随机访问</p>
+
+<ul>
+  <li>
+    <p>链接方案</p>
+  </li>
+  <li>
+    <p>多层索引</p>
+  </li>
+  <li>
+    <p>混合索引</p>
+  </li>
+</ul>
+
+<h3 id="41_5-文件存储空间管理">4.1_5 文件存储空间管理</h3>
+
+<p>1、存储空间的划分与初始化</p>
+
+<ul>
+  <li>文件卷（逻辑卷）的概念</li>
+  <li>目录区与文件区</li>
+</ul>
+
+<p>2、几种管理方法</p>
+
+<ul>
+  <li>空闲表法：首位置+长度，回收时注意修改</li>
+  <li>空闲链表法（空闲盘块链、空闲盘区链）</li>
+  <li>位示图法</li>
+  <li>成组链接法：文件卷的目录区中专门用一个磁盘块作为超级块，当系统启动时需要将超级内存块读入内存。并且保证内存与外存中的超级块数据一致。</li>
+</ul>
+
+<h3 id="41_6-文件的基本操作">4.1_6 文件的基本操作</h3>
+
+<p>创建文件（create）</p>
+
+<p>1、在外存中找到文件所需的空间</p>
+
+<p>2、创建该文件对应的目录项</p>
+
+<p>删除文件 (delete)</p>
+
+<p>1、找到文件名对应的目录项</p>
+
+<p>2、回收文件占用的磁盘块</p>
+
+<p>3、删除文件对应的目录项</p>
+
+<p>读文件 (read)</p>
+
+<p>写文件 (write)</p>
+
+<p>打开文件 (open)</p>
+
+<p>1、找到文件名对应的目录项</p>
+
+<p>2、将目录项复制到内存中的“打开文件”中</p>
+
+<p>关闭文件 (close)</p>
+
+<h3 id="41_7-文件共享">4.1_7 文件共享</h3>
+
+<p>1、基于索引结点的共享方式（硬链接）</p>
+
+<p>直接指向文件的索引节点</p>
+
+<p>2、基于符号链的共享方式（软链接）</p>
+
+<p>相当于 win 的快捷方式</p>
+
+<h3 id="41_8-文件保护">4.1_8 文件保护</h3>
+
+<p>1、口令保护</p>
+
+<p>2、加密保护</p>
+
+<p>保密性强，不需要在系统中存储“密码”</p>
+
+<p>编码/译码，需要花费一定时间</p>
+
+<p>3、访问控制
+在每个文件的 FCB 中增加一个访问控制表（ACL），该表记录了各个用户可以对该文件执行哪些操作</p>
+
+<h3 id="41_9-文件系统的层次结构">4.1_9 文件系统的层次结构</h3>
+
+<p>用户/应用接口</p>
+
+<p>用户接口</p>
+
+<p>文件目录系统</p>
+
+<p>存取控制模块</p>
+
+<p>逻辑文件系统与文件信息缓冲区</p>
+
+<p>物理文件系统</p>
+
+<p>辅助分配模块设备管理模块</p>
+
+<p>​									设备</p>
+
+<h3 id="42_1-磁盘的结构">4.2_1 磁盘的结构</h3>
+
+<p>磁盘、磁道、扇区的概念</p>
+
+<p>如何在磁盘中读写数据</p>
+
+<p>盘面柱面的概念</p>
+
+<p>磁盘的物理地址</p>
+
+<p>磁盘的分类</p>
+
+<h3 id="42_2-磁盘调度算法">4.2_2 磁盘调度算法</h3>
+
+<p>​	1、一次磁盘读/写操作需要的时间</p>
+
+<ul>
+  <li>寻找时间 Ts=s+m*n</li>
+  <li>延迟时间 Tr=1/(2 r)</li>
+  <li>传输时间 Tt=b/(rN)</li>
+</ul>
+
+<p>2、磁盘调度算法</p>
+
+<ul>
+  <li>先来先服务（FCFS）</li>
+  <li>最短寻找时间优先（SSTF）</li>
+</ul>
+
+<p>​		优先处理最近的磁道，可能会产生饥饿现象</p>
+
+<ul>
+  <li>扫描算法（SCAN）</li>
+</ul>
+
+<p>​		只有磁头移动到最外侧磁道的时候才能往内移动，移动到最内侧磁道的时候才能往外移动</p>
+
+<p>​		LOOK，如果在磁头移动方向上已经没有别的请求，就可以立即改变磁头移动方向</p>
+
+<ul>
+  <li>循环扫描算法（C-SCAN）</li>
+</ul>
+
+<p>返回时直接快速移动至起始端而不处理任何请求</p>
+
+<p>​	C-LOOK，如果在磁头移动方向上已经没有别的请求，就可以立即改变磁头移动方向</p>
+
+<h3 id="42_3-减小磁盘延迟时间的方法">4.2_3 减小磁盘延迟时间的方法</h3>
+
+<p>1、寻找时间（寻道时间）：启动磁臂、移动磁头所花的时间</p>
+
+<p>2、延迟时间：将目标扇区转到磁头下面所化的时间</p>
+
+<p>磁头读取一块内容后，需要一小段的时间处理</p>
+
+<p>采用交替编号策略</p>
+
+<p>柱面号在盘面号之前，可以减少磁头移动消耗的时间</p>
+
+<p>错位命名</p>
+
+<p>3、传输时间：读/写数据花费的时间</p>
+
+<h3 id="42_4-磁盘的管理">4.2_4 磁盘的管理</h3>
+
+<p>1、磁盘初始化</p>
+
+<p>低级格式化/物理分区</p>
+
+<p>2、引导块</p>
+
+<p>ROM 不可修改，ROM 中只存放很小的“自举装入程序”</p>
+
+<p>3、坏块的管理</p>
+
+<p>在 FAT 表上标明（坏块对操作系统不透明）</p>
+
+<h2 id="第七章io设备">第七章IO设备</h2>
+
+<h3 id="51_1-i-o-设备的概念和分类">5.1_1 I-O 设备的概念和分类</h3>
+
+<p>1、什么是 I-O 设备</p>
+
+<p>输入/输出</p>
+
+<p>2、按使用特性分类</p>
+
+<p>人机交互的外部设备</p>
+
+<p>存储设备</p>
+
+<p>网络通信设备</p>
+
+<p>3、按传输速率分类</p>
+
+<p>低俗设备、中速设备、高速设备</p>
+
+<p>4、按信息交换的单位分类</p>
+
+<p>块设备、字符设备</p>
+
+<h3 id="51_2-i-o-控制器">5.1_2 I-O 控制器</h3>
+
+<p>机械部件：鼠标等</p>
+
+<p>电子部件</p>
+
+<p>功能：</p>
+
+<p>1、接受和识别 CPU 发出的命令</p>
+
+<p>控制寄存器</p>
+
+<p>2、向 CPU 报告设备的状态</p>
+
+<p>状态寄存器</p>
+
+<p>3、数据交换</p>
+
+<p>数据寄存器</p>
+
+<p>4、地址识别</p>
+
+<p><img src="https://user-images.githubusercontent.com/107924376/222328366-c649e96f-b86c-47cc-bece-67c544b18f78.PNG" alt="" /></p>
+
+<p>内存映射 IO</p>
+
+<p>寄存器独立编制</p>
+
+<h3 id="51_3-i-o-控制方式">5.1_3 I-O 控制方式</h3>
+
+<p>1、程序直接控制方式</p>
+
+<p>轮询：完成一次读/写操作的流程</p>
+
+<p>CPU 干预频繁</p>
+
+<p>每次读写一个字</p>
+
+<p>实现简单</p>
+
+<p>会使 CPU 忙等</p>
+
+<p>2、中断驱动方式</p>
+
+<p>让 cpu 发出 io 指令后做其它的事情</p>
+
+<p>大量中断会使 cpu 效率低</p>
+
+<p>每次读写一个字</p>
+
+<p>Cpu 和 io 可并行工作</p>
+
+<p>3、DMA 方式：直接存储器存取</p>
+
+<p>数据单位：连续的多个块</p>
+
+<p>直接从设备到内存</p>
+
+<p>减少了 cpu 干预</p>
+
+<p>DR：数据寄存器</p>
+
+<p>MAR：内存地址寄存器</p>
+
+<p>DC：剩余读写字节数</p>
+
+<p>CR：命令/状态寄存器</p>
+
+<p>4、通道控制方式</p>
+
+<p>弱鸡版 cpu</p>
+
+<p>通道程序：任务清单</p>
+
+<p>Cpu 发送命令给通道，然后让通道处理 IO 操作就行了</p>
+
+<p>处理完了，向 cpu 发送中断信号</p>
+
+<h3 id="51_4-i-o-软件层次结构">5.1_4 I-O 软件层次结构</h3>
+
+<p>1、用户层软件</p>
+
+<p>实现与用户交互的接口，向上提供方便易用的库函数</p>
+
+<p>2、设备独立性软件（设备无关性软件）</p>
+
+<p>向上层提供统一的调用接口（read/write）</p>
+
+<p>设备的保护</p>
+
+<p>差错处理</p>
+
+<p>设备的分配与回收</p>
+
+<p>数据缓冲区管理</p>
+
+<p>建立逻辑设备名到物理设备名的映射关系</p>
+
+<p>根据设备类型选择调用相应的驱动程序</p>
+
+<p>3、设备驱动程序（比如打印机驱动）</p>
+
+<p>设置设备寄存器、检查设备状态</p>
+
+<p>4、中断处理程序</p>
+
+<p>进行中断处理</p>
+
+<p>5、硬件</p>
+
+<p>执行 IO 操作，有机械部件、电子部件组成</p>
+
+<h3 id="51_5-i-o-核心子系统">5.1_5 I-O 核心子系统</h3>
+
+<p>1、用户层软件</p>
+
+<p>假脱机系统</p>
+
+<p>2、设备独立性软件（设备无关性软件）</p>
+
+<p>IO 调度、设备保护、设备分配与回收、缓冲区管理</p>
+
+<p>3、设备驱动程序（比如打印机驱动）</p>
+
+<p>4、中断处理程序</p>
+
+<p>5、硬件</p>
+
+<h3 id="51_6-假脱机技术">5.1_6 假脱机技术</h3>
+
+<p>1、什么是脱机技术，脱机技术可以解决什么问题</p>
+
+<p>脱离主机的控制进行输入/输出控制</p>
+
+<p>SPPOLing 系统：必须要有多道程序并发进行</p>
+
+<p>2、假脱机技术的实现原理</p>
+
+<ul>
+  <li>输入井和输出井</li>
+  <li>输入进程和输出进程</li>
+  <li>输入缓冲区和输出缓冲区</li>
+</ul>
+
+<p>3、共享打印机的原理分析</p>
+
+<h3 id="51_7-设备的分配与回收">5.1_7 设备的分配与回收</h3>
+
+<p>1、设备分配时应考虑的因素</p>
+
+<p>设备的固有属性：独占设备、共享设备、虚拟设备</p>
+
+<p>设备分配算法：</p>
+
+<p>设备分配中的安全：为进程分配一个设备后就将进程阻塞，本次 IO 完成后才将进程唤醒</p>
+
+<p>2、静态分配与动态分配</p>
+
+<p>静态分配：进程运行前为其分配全部所需资源、运行结束后归还资源</p>
+
+<p>动态分配：运行中动态分配</p>
+
+<p>3、设备分配管理中的数据结构</p>
+
+<p>树</p>
+
+<p>系统设备表 SDT，表目：（设备类型、设备标识符、DCT、驱动程序入口）</p>
+
+<p>设备控制表 DCT（设备类型、设备标识符、设备状态、指向控制器表的指针、重复执行次数或事件、设备队列的队首指针）</p>
+
+<p>控制器控制表 COCT（控制器标识符、控制器状态、指向通道表的指针设备队列的队首指针、控制器队列的队尾指针）</p>
+
+<p>通道控制表 CHCT（通道标识符、通道状态、与通道连接的控制器表首址、通道队列的队首指针、通道队列的队尾指针）</p>
+
+<p>4、设备分配的步骤</p>
+
+<p>根据进程请求的物理设备名——&gt;设备控制表——&gt;控制器控制表——&gt;通道</p>
+
+<p>5、设备分配步骤的改进方法</p>
+
+<p>建立逻辑设备名和设备的映射</p>
+
+<h3 id="51_8-缓冲区管理">5.1_8 缓冲区管理</h3>
+
+<p>1、什么时缓冲区？有什么作用？</p>
+
+<p>缓冲区是一个存储区域</p>
+
+<p>缓和 CPU 与 IO 设备之间速度不匹配的矛盾</p>
+
+<p>减少对 CPU 的中断频率</p>
+
+<p>解决数据粒度不匹配的问题</p>
+
+<p>提高 CPU 与 IO 设备之间的并行性</p>
+
+<p>2、单缓冲</p>
+
+<p>在内存中分配一块缓冲区</p>
+
+<p>处理一块时间=max（C, T)+M</p>
+
+<p>3、双缓冲</p>
+
+<p>在内存中分配两块缓冲区</p>
+
+<p>Max (T, C+M)</p>
+
+<p>4、循环缓冲</p>
+
+<p>5、缓冲池</p>
+
+<p>由系统中共用的缓冲区组成。这些缓冲区可以分为：空缓冲队列、装满输入数据的缓冲队列、装满输出数据的缓冲队列</p>
+
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2023-12-01T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2023/11/23/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E5%9B%9B%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html">计算机网络第四次实验报告</a></div><div class="next"><span>下篇</span><a href="/2023/12/02/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html">自然语言处理第一次实验报告</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Gao Xingjie"><meta itemprop="url" content="/"><meta itemprop="description" content="To be a question, to be an answer."><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"><li title="给我发邮件。">
+      <a class="button button--circle mail-button" itemprop="email" href="mailto:xingjie-gao@outlook.com" target="_blank">
+        <i class="fas fa-envelope"></i>
+      </a><li title="在 Github 上关注我。">
+        <a class="button button--circle github-button" itemprop="sameAs" href="https://github.com/Kfkcome" target="_blank">
+          <div class="icon"><svg fill="#000000" width="24px" height="24px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path class="svgpath" data-index="path_0" fill="#272636" d="M0 525.2c0 223.6 143.3 413.7 343 483.5 26.9 6.8 22.8-12.4 22.8-25.4l0-88.7c-155.3 18.2-161.5-84.6-172-101.7-21.1-36-70.8-45.2-56-62.3 35.4-18.2 71.4 4.6 113.1 66.3 30.2 44.7 89.1 37.2 119 29.7 6.5-26.9 20.5-50.9 39.7-69.6C248.8 728.2 181.7 630 181.7 513.2c0-56.6 18.7-108.7 55.3-150.7-23.3-69.3 2.2-128.5 5.6-137.3 66.5-6 135.5 47.6 140.9 51.8 37.8-10.2 80.9-15.6 129.1-15.6 48.5 0 91.8 5.6 129.8 15.9 12.9-9.8 77-55.8 138.8-50.2 3.3 8.8 28.2 66.7 6.3 135 37.1 42.1 56 94.6 56 151.4 0 117-67.5 215.3-228.8 243.7 26.9 26.6 43.6 63.4 43.6 104.2l0 128.8c0.9 10.3 0 20.5 17.2 20.5C878.1 942.4 1024 750.9 1024 525.3c0-282.9-229.3-512-512-512C229.1 13.2 0 242.3 0 525.2L0 525.2z" />
+</svg>
+</div>
+        </a>
+      </li></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© Ennis's Blog 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script>
+  window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
+    var $canvas = null, $this = null, _ctx = null, _text = '';
+    $('.language-chart').each(function(){
+      $this = $(this);
+      $canvas = $('<canvas></canvas>');
+      _text = $this.text();
+      $this.text('').append($canvas);
+      _ctx = $canvas.get(0).getContext('2d');
+      (_ctx && _text) && (new Chart(_ctx, JSON.parse(_text)) && $this.attr('data-processed', true));
+    });
+  });
+</script>
+<script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};_config.TeX = { equationNumbers: { autoNumber: "all" } };MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+

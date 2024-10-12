@@ -1,0 +1,1986 @@
+<!DOCTYPE html><html lang="zh-Hans">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>接口技术和微机技术笔记 - Ennis's Blog</title>
+
+<meta name="description" content="接口技术和微机技术接口微机接口就是微处理器 CPU 与外部世界的连接电路，是 CPU 与外界进行信息交换的中转站。接口的功能  对外部设备进行寻址的功能  信号转换功能  数据缓冲功能  联络功能  中断管理功能  可编程功能    接口的组成    硬件电路软件编程  接口的 I/O 端口  状态端口  数据端...">
+<link rel="canonical" href="http://localhost:4000/2023/12/06/%E6%8E%A5%E5%8F%A3%E6%8A%80%E6%9C%AF%E5%92%8C%E5%BE%AE%E6%9C%BA%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Willing to be a question, willing to be an answer.
+" href="/">Ennis's Blog</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E6%8E%A5%E5%8F%A3%E6%8A%80%E6%9C%AF%E5%92%8C%E5%BE%AE%E6%9C%BA%E6%8A%80%E6%9C%AF">接口技术和微机技术</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0">课程笔记</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2023年 12月06日</span>
+            </li></ul></div><div class="article__header"><header><h1>接口技术和微机技术笔记</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2023-12-6-接口技术和微机技术笔记.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">接口技术和微机技术接口微机接口就是微处理器 CPU 与外部世界的连接电路，是 CPU 与外界进行信息交换的中转站。接口的功能  对外部设备进行寻址的功能  信号转换功能  数据缓冲功能  联络功能  中断管理功能  可编程功能    接口的组成    硬件电路软件编程  接口的 I/O 端口  状态端口  数据端口  命令端口    I/O 端口的编址方式    统一编址  独立编址 采用专...</p></div></div>
+              </div>
+            </div><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="接口技术和微机技术笔记"><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2023-12-06T00:00:00+08:00">
+    <meta itemprop="keywords" content="接口技术和微机技术,课程笔记"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><h1 id="接口技术和微机技术">接口技术和微机技术</h1>
+<h2 id="接口">接口</h2>
+
+<p>微机接口就是微处理器 CPU 与外部世界的连接电路，是 CPU 与外界进行信息交换的中转站。</p>
+<h3 id="接口的功能">接口的功能</h3>
+<ol>
+  <li>对外部设备进行寻址的功能</li>
+  <li>信号转换功能</li>
+  <li>数据缓冲功能</li>
+  <li>联络功能</li>
+  <li>中断管理功能</li>
+  <li>可编程功能
+    <h3 id="接口的组成">接口的组成</h3>
+    <p>硬件电路
+软件编程</p>
+  </li>
+</ol>
+
+<h3 id="接口的-io-端口">接口的 I/O 端口</h3>
+<ol>
+  <li>状态端口</li>
+  <li>数据端口</li>
+  <li>命令端口
+    <h3 id="io-端口的编址方式">I/O 端口的编址方式</h3>
+  </li>
+  <li>统一编址</li>
+  <li>独立编址
+ 采用专门的 I/O 指令来访问具有独立空间的 I/O 端口
+    <h3 id="cpu-与接口数据的交换">CPU 与接口数据的交换</h3>
+  </li>
+  <li>无条件方式</li>
+  <li>查询方式</li>
+  <li>中断方式</li>
+  <li>直接存储器存取方式——DMA 方式</li>
+</ol>
+
+<h2 id="8086-cpu-的一些概念">8086 CPU 的一些概念</h2>
+<h3 id="cpu-组成">Cpu 组成</h3>
+<p>Cpu 由 EU （execution Unit，执行部件）和 BIU （BUS interface unit，总线接口部件）组成，两者形成两级流水线</p>
+<h4 id="eu-的组成">EU 的组成</h4>
+<p>4 个通用寄存器 ax bx cx dx
+4 个专用寄存器 sp（stack pointer） bp di si
+1 个 16 位算数逻辑单元
+1 个 16 位标志寄存器 PSW
+EU 控制电路</p>
+<h4 id="总线接口部分">总线接口部分</h4>
+
+<p>5 个段寄存器 cs ds ss es ip</p>
+
+<h3 id="cpu-微处理器引脚功能">CPU 微处理器引脚功能</h3>
+
+<p>最小模式
+最大模式</p>
+
+<h3 id="8086微处理器-引脚功能">8086微处理器 引脚功能</h3>
+
+<h4 id="工作模式">工作模式</h4>
+
+<p>最小模式：</p>
+
+<p>系统只有一个8086一个微处理器</p>
+
+<p>最大模式：</p>
+
+<p>包含两个或两个以上的处理器</p>
+
+<h4 id="引脚">引脚：</h4>
+
+<p><strong>BHE：</strong> 高8位地址总线允许/状态信号，输出</p>
+
+<p><strong>READY：</strong>表示CPU访问的存储器或I/O端口已经准备好数据了</p>
+
+<p><strong>ALE：</strong>8086处理器使用16位地址总线来寻址外部设备。当8086处理器需要将地址传输到外部总线上时，它会通过ALE引脚发出一个脉冲信号。这个脉冲信号的上升沿会触发外部设备对地址进行锁存，以便外部设备可以读取或响应该地址。</p>
+
+<p><strong>M/IO:</strong> 当M/IO引脚为高电平时，处理器将通过数据总线传输内存数据。这意味着，处理器将把内存地址放在地址总线上，并从内存中读取或写入数据。这种传输方式通常称为存储器总线操作。当M/IO引脚为低电平时，处理器将通过数据总线传输I/O数据。这意味着，处理器将把I/O端口地址放在地址总线上，并从I/O端口读取或写入数据。这种传输方式通常称为I/O总线操作。</p>
+
+<p><strong>DEN/S2</strong>: DEN是数据使能信号，用于控制数据的传输。当DEN引脚为低电平时，8086将在数据总线上输出有效的数据。当DEN引脚为高电平时，数据总线上的数据将被禁用。</p>
+
+<p>DT/nR</p>
+
+<ol>
+  <li>数据传输（DT）功能：
+当DT/nR引脚处于高电平时，它被用作数据传输（Data Transfer）控制引脚。在这种模式下，DT/nR引脚用于控制8086与外部设备之间的数据传输。当引脚处于高电平时，数据可以在8086和外部设备之间进行双向传输。</li>
+  <li>总线复位（nR）功能：
+当DT/nR引脚处于低电平时，它被用作总线复位（Bus Reset）控制引脚。在这种模式下，DT/nR引脚用于将8086的外部总线复位。当引脚处于低电平时，会触发一个复位信号，将8086的内部状态和外部总线恢复到初始状态。</li>
+</ol>
+
+<p>RD：低电平有效，为低电平时cpu正在进行读取存储器和或读IO端口的操作</p>
+
+<p>READY：准备就绪信号，输入。当READY=1时，表示cpu访问的存储器或IO端口已经准备好传送数据了。</p>
+
+<p>74HC273锁存器：</p>
+
+<p>MR: MR引脚用于将74HC273的所有触发器置于复位状态。当MR引脚为低电平（或使能）时，所有的触发器将被复位，即其输出将被强制为低电平。这意味着，无论之前的输入数据是什么，触发器的输出都将被清零。当MR引脚为高电平时，触发器将根据输入信号进行正常的工作，即根据时钟信号和D输入信号更新其输出状态。</p>
+
+<p>74HC245锁存器</p>
+
+<p>CE:当CE引脚处于高电平（通常为Vcc电源电压）时，74HC245处于使能状态，可以正常工作。在这种情况下，数据可以从A端输入引脚（A0-A7）输入到B端输出引脚（B0-B7），或者从B端输入引脚输入到A端输出引脚。数据传输的方向由方向控制引脚（DIR）确定。</p>
+
+<p>当CE引脚处于低电平（通常为地）时，74HC245被禁用，处于锁存状态。在锁存状态下，输入数据被保持在器件内部的锁存器中，不会传输到输出端口。这种功能对于需要保持数据稳定性或者需要在特定时刻进行数据传输的应用非常有用。</p>
+
+<p>AB/BA:当DIR引脚处于高电平（通常为Vcc电源电压）时，数据传输方向是从A到B，也就是A端作为输入，B端作为输出。在这种情况下，数据从A端输入引脚进入74HC245，并从B端输出引脚输出。</p>
+
+<h2 id="可编程并行接口-8255-a">可编程并行接口 8255 A</h2>
+
+<h3 id="概述">概述</h3>
+
+<p>概述 8255 A 是一款广泛用于微处理器系统中的<strong>并行 I/O（输入/输出）接口芯片</strong>，(就是指 8 位、16 位或者 32 为传输单位) 由 Intel（现在的英特尔）公司设计和制造。该芯片有多个操作模式，可用于控制数字输入和输出，因此在嵌入式系统、计算机外设和工业控制等领域得到了广泛应用。</p>
+
+<p>三个输入输出端口：端口 A、端口 B、端口 C。每个端口都可通过编程设定为<strong>输出端口</strong>或者为<strong>输出端口</strong>，但是各自又不同的方式和特点。</p>
+
+<p>端口 C 可作为一个独立的端口使用，但是通常配合端口 A 和端口 B 工作，为这两个端口的输入和输出提供<strong>控制联络信号</strong>
+·</p>
+
+<h3 id="内部结构">内部结构</h3>
+
+<p>接口图</p>
+
+<p><img src="./接口技术和微机技术.assets/image-20230920151456709.png" alt="image-20230920151456709" /></p>
+
+<p>内部结构图：</p>
+
+<p><img src="./%E6%8E%A5%E5%8F%A3%E6%8A%80%E6%9C%AF%E5%92%8C%E5%BE%AE%E6%9C%BA%E6%8A%80%E6%9C%AF.assets/image-20230925200232132.png" alt="image-20230925200232132" /></p>
+
+<p>(1)三个 8 位端口 A、B、C
+<strong>与外设相连，与外设交换数据、控制和状态信息.</strong>
+1)端口 A 和端口 B：含一个 8 位输出锁存器和一个 8 位输入锁存器。作为输入或输出端口时，数据均被锁存.
+2)端口 C：含一个 8 位数据输出锁存器和一个 8 位的数据输入缓冲器. 作为<strong>输出时能对数据进行锁存</strong>，<strong>输入时不能锁存.</strong>端口 C 可以分成两个 4 位端口，分别可以定义为输入端口或输出端口，还可定义为控制、状态端口，以配合端口 A 和端口 B 工作.
+(2) A 组和 B 组
+1)<strong>端口 A 和端口 C 的高 4 位 (PC 7~PC 4)构成 A 组</strong>，由 A 组控制部件来对它进行控制。
+2)<strong>端口 B 和端口 C 的低 4 位 (PC 3~PC 0)构成 B 组</strong>，由 B 组控制部件对它进行控制.
+<strong>A 组和 B 组各有一个控制单元，接收来自数据总线送来的控制字，并根据控制字确定各端口的工作状态和工作方式</strong></p>
+
+<p>(3)数据缓冲器</p>
+
+<p>数据缓冲器是一个双向的三态 8 位缓冲器，它与 cpu 系统数据总线相连。</p>
+
+<p><strong>输入数据，输出数据，控制命令字</strong>都是通过数据总线缓冲器进行传送的。</p>
+
+<p>(4)读/写控制逻辑</p>
+
+<p>读写控制逻辑接收来自 CPU 地址总线（$A_0 A_1$ 就是地址总线）的信号和控制信号，并发出命令到 A 组和 B 组，</p>
+
+<ol>
+  <li>把 CPU 发出的控制命令字或输出的数据通过数据总线缓冲器送到相应的端口，</li>
+  <li>把外设的状态或输入的数据从相应的端口通过数据总线缓冲器送到 CPU。</li>
+</ol>
+
+<h3 id="控制字">控制字</h3>
+
+<p>可编程并行接口芯片，<strong>可编程就是用指令的形式先对芯片进行初始化，</strong>设置芯片的端口是处于输入状态还是输出状态以及每个端口的工作方式。</p>
+
+<ol>
+  <li>8255 A 通过设置控制字来决定他的工作方式</li>
+  <li>控制字分为两类：
+    <ol>
+      <li>工作方式控制字，可使 8255 A 的三个数据端口工作在不同的方式</li>
+      <li>C 端口按位置位/复位控制字，它可使 c 端口中任何一位进行置位或复位</li>
+    </ol>
+  </li>
+</ol>
+
+<h3 id="工作方式选择控制字">工作方式选择控制字</h3>
+
+<p><img src="./接口技术和微机技术.assets/image-20230920154306127.png" alt="image-20230920154306127" /></p>
+
+<h3 id="工作方式">工作方式</h3>
+
+<ol>
+  <li>
+    <p>方式 0 基本输入输出方式</p>
+
+    <p><strong>功能：</strong>方式 0 是 8255 A 的最简单工作模式之一，它将 8255 A 的三个 8 位 I/O 端口（Port A、Port B 和 Port C）配置为一个单独的 8 位输出端口。这意味着三个端口同时用于输出，并且可以通过控制字配置输出的数据。</p>
+
+    <p>基本输入输出方式适用于无条件传送和查询方式的接口电路;
+不需要应答联络信号;
+端口 A、B 和 C 的高 4 位及低 4 位都可以作为输入、输出端口;</p>
+  </li>
+  <li>
+    <p>方式 1 选通输入输出方式
+适用于查询和中断方式的接口电路;
+A 和 B 口可用方式 1，但要利用 C 口提供 3 个固定的信号，联络外设和 CPU。</p>
+
+    <p><strong>功能：</strong> Mode 1 将 8255 A 的三个 8 位 I/O 端口分成两个组，Port A 和 Port B 组成一个双向数据总线，而 Port C 独立作为一个输入端口。这允许数据在 Port A 和 Port B 之间双向传输，而 Port C 用于输入</p>
+
+    <p>当 A 口和 B 口都为方式 1，则 C 口的 6 位被占用; C 口的其他 2 位可作为方式0使用。
+A 口或 B 口中，一个为方式 1，另一个为方式 0，则 C 口中有3位被占
+用; 而其它 5 位可工作于方式 0，设为输入或输出。</p>
+  </li>
+  <li>
+    <p>方式 2 双向选通输入输出方式</p>
+
+    <p>方式 2: 双向选通传送方式
+适用于双向传送数据的外设
+适用于查询和中断方式的接口电路</p>
+  </li>
+</ol>
+
+<h2 id="中断系统和中断控制器-8259-a">中断系统和中断控制器 8259 A</h2>
+
+<h3 id="8086-cpu-的中断系统">8086 CPU 的中断系统</h3>
+<h4 id="中断系统的作用">中断系统的作用</h4>
+<ul>
+  <li>多外设</li>
+  <li>实时处理</li>
+  <li>故障处理
+    <h4 id="中断源">中断源</h4>
+  </li>
+  <li>外部设备</li>
+  <li>定时中断</li>
+  <li>故障请求中断</li>
+  <li>程序性中断
+外部中断：由连至 CPU 引脚上的信号引发
+内部中断：由程序中断源引发
+    <h4 id="中断屏蔽">中断屏蔽</h4>
+    <p>为了增加中断控制的灵活性，CPU 和 I/O 接口中分别设置触发器。</p>
+  </li>
+  <li>CPU 内部中断允许触发器（PSW. IF，控制可屏蔽中断）
+    <ul>
+      <li>为 0：关中断，指令 CLI
+ 为“1：开中断，指令 STI</li>
+      <li>可屏蔽中断（INT）受中断允许触发器控制：</li>
+      <li>非屏蔽中断（NMI）<strong>不受中断允许触发器控制</strong>：</li>
+    </ul>
+  </li>
+  <li>在接口电路中，设置中断请求触发器和中断屏蔽触发器
+    <ul>
+      <li>有中断请求时中断请求触发器置 1；</li>
+      <li>若中断屏蔽触发器为“0，该请求送往 CPU，CPU 响应后触发器清“0</li>
+      <li>若中断屏蔽触发器为“1，该请求不送往 CPU，称该中断请求被屏蔽
+        <h4 id="中断优先级">中断优先级</h4>
+        <p>几个中断源同时请求中断，而 CPU 一次只能为一个中断服务；
+事先为每个中断源确定一个中断优先级
+CPU 一般首先响应优先权高的中断请求</p>
+        <h4 id="中断嵌套">中断嵌套</h4>
+        <p>允许高优先权中断源打断优先权低的中断服务，称为中断嵌套
+ 若新的中断源为同级或低级，（一般）不能打断正在处理的中断服务。</p>
+        <h3 id="8259-a-简介">8259 A 简介</h3>
+        <h4 id="中断控制器-8259-a-功能">中断控制器 8259 A 功能</h4>
+        <p>现代计算机采用功能很强的中断系统，可同时处理多个中断源，配置中断控制器管理外部中断，功能如下：</p>
+        <ol>
+          <li>接收外部的<strong>中断请求</strong>；</li>
+          <li>确认当前<strong>优先级</strong>最高的请求，并送至 CPU 的 INTR 引脚</li>
+          <li>当 CPU 响应中断时，提供<strong>中断类型码</strong>：</li>
+          <li>中断处理过程中<strong>屏蔽</strong>低优先权的中断请求，而允许高优先权的中断请求送出，实现中断嵌套；</li>
+          <li>Intel 8259 A 是典型的中断控制器芯片，广泛应用于微机系统中。
+            <h4 id="8259-a-的性能概述">8259 A 的性能概述</h4>
+          </li>
+        </ol>
+      </li>
+    </ul>
+  </li>
+  <li>每片 8259 A 能管理 8 级中断，可采用 9 片级联构成主从式 64 级中断管理系统；</li>
+  <li>每级中断都可以被<strong>屏蔽或允许</strong>；</li>
+  <li>中断响应期间提供<strong>中断类型码：</strong></li>
+  <li>允许多级中断<strong>嵌套；</strong></li>
+  <li>可设置<strong>多种</strong>优先权管理方式及屏蔽功能；</li>
+  <li>可编程选择不同的<strong>工作方式</strong></li>
+  <li>提供<strong>中断查询</strong>（中断查询（Interrupt Polling）是一种中断处理方法，用于检查外部设备是否发生了中断请求，而不是依赖硬件中断信号来通知计算机系统。），使得 CPU 在关中断的情况下仍可通过查询为特定中断服务。
+    <h4 id="8259-a-的结构和引脚">8259 A 的结构和引脚</h4>
+    <p>示意图：
+<img src="attachements/Pasted%20image%2020230927204515.png" alt="" /></p>
+    <h5 id="8259-a-的引脚功能">8259 A 的引脚功能</h5>
+  </li>
+  <li>电源 VCC 和接地 GND</li>
+  <li><strong>中断请求输入线</strong>IR 7~IRO：接受来自外设或 8259 A 从片的中断请求信号，可设置为上升沿或高电平触发；</li>
+  <li>双向三态数据线 D 7~DO 与系统数据总线相连；</li>
+  <li>中断请求线 INT：输出信号，与 CPU 的 INTR 相连，向 CPU 送中断请求信号；</li>
+  <li>中断响应线 INTA：接收 CPU 发来的中断响应信号，8259 A 接到此信号后，送中断类型码：</li>
+  <li>片选信号 CS： 高位地址译码产生；</li>
+  <li>地址线 AO： 选择 8259 A 内部不同寄存器；</li>
+  <li>读信号 RD：读取 IRR、ISR 和 IMR</li>
+  <li>写信号 WR：写入控制字；</li>
+  <li>级联线 CAS 2~CASO：主从系统中所有 CAS 2~CAS 0 引脚对应连接在一起，与 SP/EN 信号配合级联。8259 A 主片<strong>用于输出</strong>，<strong>从片用于输入</strong>。<strong>在 CPU 响应中断时，主片用 CAS 2~CAS 0 选中对应的从片，三个引脚信号的不同组合 000~111，对应于8个从片</strong></li>
+  <li>从片编程/缓冲使能 SP/EN：双向。在<strong>非缓冲</strong>方式下，用作输入线 SP，SP=1 表示该 8259 A 为主片，否则为从片；缓冲方式下用作输出线 EN，控制外接数据缓冲器的接收和发送。
+    <ul>
+      <li>在非缓冲方式下，”SP/EN” 用作输入线 SP（Slave Present），表示该 8259 A 控制器是主片还是从片。
+        <ul>
+          <li>当 SP=1 时，表示该 8259 A 控制器是主片（Master），用于处理中断请求。</li>
+          <li>当 SP=0 时，表示该 8259 A 控制器是从片（Slave），通常用于级联连接多个 8259 A 控制器以处理更多的中断请求。</li>
+        </ul>
+      </li>
+      <li>在非缓冲方式下，”SP/EN” 不用作输出线。
+        <ul>
+          <li>在缓冲方式下，”SP/EN” 用作输出线 EN（Enable），用于控制外接数据缓冲器的接收和发送。</li>
+          <li>当 “SP/EN” 为高电平时（EN=1），外接数据缓冲器被启用，允许 8259 A 控制器发送中断请求和接收中断控制命令。</li>
+          <li>当 “SP/EN” 为低电平时（EN=0），外接数据缓冲器被禁用，停止发送和接收操作。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h5 id="内部结构-1">内部结构</h5>
+<p><strong>中断请求寄存器 IRR</strong>：8 位，用于锁存中断请求信号。当相应的引脚有中断请求时，寄存器的相应位置 1；
+<strong>优先权判别电路 PR</strong>：识别同时申请的中断的优先级，允许嵌套时须考虑正在服务中断的优先级别，然后送出最高优先级中断源，并在 CPU 响应周期中将中断服务寄存器 ISR 的相应位置位。
+<strong>中断服务寄存器 ISR</strong>：8 位，记录已响应的中断。该位由普通或特殊 EOI 命令复位。中断嵌套时，会有多个位同时被置位，对应已响应而又未处理完毕的多个中断
+<strong>中断屏蔽寄存器 IMR</strong>: 8 位，存放被屏的中断，由编程设定。当 IMR 中某位被屏蔽即使 IRR 对应位被置位，其中断申请也不能送往 CPU；
+<strong>数据总线缓冲器</strong>：8 位双向三态缓冲器，是 8259 A 与 CPU 间的数据传输通道。写入控制字，读出状态信息。中断响应周期内，向 CPU 送中断类型码
+<strong>级联缓冲比较器</strong>：实现 8259 A 的级联，构成主从式扩展中断管理系统；
+<strong>读写控制逻辑</strong>：根据编程设定工作方式产生片内控制信号：据 IRR、IMR 的内容和 PR 的判断结果向 CPU 发出中断请求；并接受来自 CPU 的中断响应信号。</p>
+<h4 id="8259-a-工作过程">8259 A 工作过程</h4>
+<ol>
+  <li>1 个或同时多个外部中断请求送至 8259 A 引脚</li>
+  <li>IRR 接收中断请求并锁存，相应位置置位 1；</li>
+  <li>根据 IMR 的屏蔽情况决定是否允许中断请求进入 PR；</li>
+  <li>PR 判别当前优先级最高的中断请求（允许嵌套时还要参考 ISR 的状态），根据判优结果决定发送 INTR 信号或等待</li>
+  <li>若 IF=1（8086 CPU 标志寄存器 FR 中的一位，IF=1 表明允许中断）, 发送 INT 信号，8259 A 使 ISR 相应位置位，同时将 IRR 相应位清零避免重发请求</li>
+  <li>然后 CPU <strong><em>发送第二个 INT</em></strong> 后 8259 A 送出类型码</li>
+  <li>若为 AEOI 方式（自动结束），直接清除 ISR 相应位置，否则需要在中断服务结束时，由 CPU 送出普通或特殊中断结束命令 EOI，清除 ISR 响应的位，标志一个中断结束
+    <h3 id="8259-a-的工作方式">8259 A 的工作方式</h3>
+    <h4 id="中断触发方式">中断触发方式</h4>
+  </li>
+  <li><strong><em>电平触发</em></strong>
+ 中断请求线上出现<strong>高电平</strong>为有效请求信号。
+ 对其时间有限制：过短，不能触发；过长，重复触发
+ 要求触发高电平持续至 cpu 响应总线周期中第一个 INTA 脉冲</li>
+  <li><strong><em>边缘触发</em></strong>
+ 中断请求线上出现<strong>上升沿</strong>为中断请求信号，触发后一直保持高电平也不会重复触发。常用负脉冲的后沿实现，<strong>同时要防止第 1 个 INTA 信号有效前出现新的中断请求脉冲。</strong>
+    <h4 id="屏蔽中断源的方式">屏蔽中断源的方式</h4>
+    <p>清除 IF 指令（CLI）可使 CPU 屏蔽所以可屏蔽中断，但无法屏蔽<strong>选择性屏蔽</strong>。
+8259 A 可选择性屏蔽。</p>
+  </li>
+  <li>普通屏蔽方式
+ 将中断屏蔽寄存器 IMR 的某些位置 1，选择性屏蔽对应编程</li>
+  <li>特殊屏蔽方式
+ 有时希望一个<strong>中断服务程序内可动态改变优先权结构</strong>：中断服务程序的一部分希望禁止中断，而到另一部分时又能够开放中断。可用特殊屏蔽解决该问题，CPU 只对本级中断屏蔽，允许级别比它高或比它低的中断源申请中断。例子：如 IR 3 中断服务过程中，需要从 IR 5 的外设上读取数据。使得低优先级也有机会得到服务。</li>
+</ol>
+
+<h4 id="中断优先权的四种方式">中断优先权的四种方式</h4>
+<ol>
+  <li><mark style="background: #FF5582A6;">普通全嵌套方式</mark>：IR 7-IR 0 优先级依次升高，<strong>是固定优先级顺序</strong></li>
+  <li><mark style="background: #FF5582A6;">特殊全嵌套方式</mark>：顺序与普通全嵌套相同，但允许<strong>同级中断嵌套</strong>。用在级联系统中，主片设为特殊全嵌套，当从片某中断请求被处理时，从片较高优先权中断源能够得到响应。</li>
+  <li><mark style="background: #FF5582A6;">优先权自动循环方式</mark> ：优先权自动循环：各中断源重要性差别不大时，优先权顺序变化。一个中断服务结束后，优先级自动降为最低，下一级升为最高</li>
+  <li><mark style="background: #FF5582A6;">优先权特殊循环方式</mark>：优先权特殊循环方式：与自动循环类似，但初始最低优先级是在主程序或中断服务程序中由命令字指定，而不是刚刚处理完的中断。
+    <h4 id="中断结束eoi的三种方式">中断结束（EOI）的三种方式</h4>
+  </li>
+  <li><mark style="background: #FF5582A6;">自动结束方式</mark>（有风险但是简单）：
+ Cpu 一旦中断响应 8259 A 将自动 ISR 相应位置清零。由于不能再为 PR 提供判优依据，会造成重复嵌套。
+ 常用在不允许中断嵌套或保证不出现中断嵌套的情况下</li>
+  <li><mark style="background: #FF5582A6;">普通结束方式</mark>
+ CPU 用 out 指令发送一个普通 EOI 命令，8259 A 收到后将 ISR 中已置 1 的具有最高优先级的位清 0；</li>
+  <li><mark style="background: #FF5582A6;">特殊结束命令</mark>
+ 特殊屏蔽时低优先级的被服务，不应清楚 ISR 中最高优先级位，需要 cpu 发送特殊的 EOI 命令
+注意：级联方式下一个中断结束要发送两次 EOI 命令，分别清楚主从 ISR 中的相应位。
+    <h4 id="级联方式">级联方式</h4>
+    <ul>
+      <li>一个主片可以带至多 8 个从片，将中断源扩展到 64 级；</li>
+      <li>从片的 INT 接至主片的 IRi 端，从片上的中断请求通过主片的 INT 送至 CPU；</li>
+      <li>CPU 的中断响应信号 INTA 分别送至主、从片上；</li>
+      <li><strong>主片在级联线 CAS 2~CAS 0 上送出标识符编码，对应编码相同的从片可以获得 INTA 信号；</strong></li>
+      <li><strong>在第二个 INTA 负脉冲时，主片不动作，由从片送上中断类型码；</strong></li>
+      <li>通常主片的优先权控制采用特殊全嵌套方式，允许同级中断产生嵌套。
+        <h4 id="连接总线的方式">连接总线的方式</h4>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<p><strong>缓冲方式：</strong> 在多片 8259 A 级联的大系统中，8259 A 通过总线缓冲器与系统数据总线相连，SP/EN 用作输出 EN，控制总线缓冲器的数据传送；
+<strong>适用于在数据线上设有数据缓冲器的大型系统。</strong></p>
+
+<p><strong>非缓冲方式：</strong> 当系统中只有一片或几片 8259 A 芯片时，8259 A 直接与数据总线相连。单片系统，SP/EN 接高电平；多片级联系统，主片 SP/EN 接高电平，从片 SP/EN 接低电平。</p>
+
+<h4 id="中断查询方式">中断查询方式</h4>
+<ul>
+  <li>CPU 不是通过中断响应获得中断类型码，而是通过查询获得中断请求；</li>
+  <li>在 IF＝0，CPU 关中断的情况下，CPU 仍可通过查询为特定中断服务。 
+<strong>中断查询方式：</strong> CPU 内部的中断允许触发器复位, 所以禁止了外部对 CPU 的中断请求。
+中断查询方式可以用在多于 64 级中断的场合。例如系统有 128 个中断源，则其中 64 个用常规方式接 CPU 的 INT 和 INTA*，另外的 64 个只能用查询方式。
+中断查询方式也可以用在一个中断服务程序中的几个模块分别为几个中断设备服务的情况。多个相关或相似的中断源。
+    <h3 id="8259-a-的编程">8259 A 的编程</h3>
+    <p>8259 A 工作方式可以编程设定</p>
+    <ol>
+      <li>初始化命令字 ICW 1～4：
+  8259 A 开始工作前，必须首先写入 ICW，使其处于预定的初始状态，并明确其所处的硬件环境；
+  ICW 设定后在整个工作过程中保持不变。</li>
+      <li>操作命令字 OCW 1～3：
+  控制 8259 A 执行不同的操作方式；
+  8259 A 工作期间，任意时刻都可以通过重置 OCW，动态改变 8259 A 的操作方式。</li>
+    </ol>
+  </li>
+</ul>
+
+<h4 id="8259-a-的端口">8259 A 的端口</h4>
+<ul>
+  <li>8259 A 占用<strong>两个 I/O 端口地址</strong>，通过 A 0 引脚区分:</li>
+  <li>通常称低的地址为<strong>偶地址</strong>，而高的地址为<strong>奇地址;</strong></li>
+  <li>8259 A 内部并不是只有两个寄存器，为<strong>区分对不同寄存器 (命令)的输入/输出操作</strong>，需要采用在控制信息中加<strong>特征位</strong>或者规定有关<strong>操作顺序</strong>等方法。
+    <h4 id="初始化命令字">初始化命令字</h4>
+    <p>8259 A 开始工作时，必须首先写入 ICW，使其处于预定的初始状态，并明确其所处的硬件环境；
+ICW 设定后整个工作过程中<strong>保持不变</strong>（除非断电重启）</p>
+  </li>
+</ul>
+
+<p><strong><em>ICW 1:</em></strong>
+<img src="Pasted%20image%2020230927150344.png" alt="" /></p>
+
+<p><strong><em>ICW 2</em></strong>:
+<img src="Pasted%20image%2020230927150713.png" alt="" /></p>
+
+<p>高 5 位自己设置，随便设置，不要和系统的中断类型冲突
+后三位是 8 级中断类型码，对应 8 个中断请求线</p>
+
+<p><strong><em>ICW 3</em></strong>：
+<img src="Pasted%20image%2020230927150953.png" alt="" /></p>
+
+<p><strong><em>ICW 4</em></strong>：
+<img src="Pasted%20image%2020230927151054.png" alt="" /></p>
+
+<p><strong><em>说明：</em></strong></p>
+<ul>
+  <li>ICW 3 用在 8259 A 工作于级联方式，即 ICW 1 的 D 1=0；</li>
+  <li>主片 ICW 3 的 S 7～S 0 分别对应于 IR 7~IR 0 的连接情况。</li>
+  <li>从片 ICW 3 的 D 7～D 3 位设为 0，D 2～D 0 位指明该从片连至主片的哪一个 IRi 引脚。</li>
+  <li>级联方式下，主、从片的 CAS 2~CAS 0 对应连接。当 CPU 发出中断响应信号时，<mark style="background: #ADCCFFA6;">主片通过 CAS 2~CAS 0 送出一个编码，从片将其与本身 ICW 3 的 D 2～D 0 位比较。若相等，则将它的中断类型码送数据线。</mark></li>
+</ul>
+
+<h5 id="初始化规则">初始化规则</h5>
+<ul>
+  <li>开始工作前，<strong>每一片</strong>8259 A 都要通过写入 ICW<strong>初始化;</strong></li>
+  <li>ICW 1~4 的写入顺序固定，其中 ICW 1, 和 ICW 2 必须设置，而 ICW 3 和 ICW4可选;</li>
+  <li><strong>ICW 1</strong>写入偶地址，并指明是否要<strong>ICW 3 和 ICW 4;</strong>
+    <ul>
+      <li>写入 ICW 1 启动 8259 A 的初始化，内部电路自动完成: 边沿触发、电路复位、<strong>IMR（Interrupt Mask Register 用于屏蔽或允许特定中断请求线）清 0</strong>、<strong>IR 7（Interrupt Request 7 是指 8259 A 芯片中的 IRQ 7，对应着第 7 个中断请求线）被置为最低优先级</strong>、普通全嵌套方式、固定优先权排序、清除特殊屏蔽方式、读 IRR 状态;</li>
+    </ul>
+  </li>
+  <li>ICW 2~4 写入奇地址，按写入顺序加以区分;</li>
+  <li>级联方式下，主、从片都需设置 ICW 3。
+<strong><em>示意图：</em></strong>
+<img src="Pasted%20image%2020230927151414.png" alt="" />
+    <h4 id="操作命令字">操作命令字</h4>
+  </li>
+</ul>
+
+<p><strong><em>OCW 1（写中断屏蔽 IMR）</em></strong>
+<img src="Pasted%20image%2020230927152831.png" alt="" /></p>
+
+<p><strong><em>OCW 2</em></strong>
+<img src="Pasted%20image%2020230927153046.png" alt="" /></p>
+<ul>
+  <li>控制<strong>优先权方式</strong>和<strong>中断结束方式</strong>，写入偶地址;</li>
+  <li>D 4 D 3 是特征位;</li>
+  <li>R: 优先权控制位，若 R=1 循环优先级，R=0 固定优先级;</li>
+  <li>SL: 指定 L₂~L。位是否有效，SL=1，L 位有效; SL=0, L 无效;</li>
+  <li>EOI: 中断结束命令位。当 ICW 4 中 AEOI=0，则中断服务程序最后不会发中断结束 (EOI)，则需要将 OCW 2 作为 EOI 命令，用以清除 ISR 的对应位;</li>
+  <li>L₂~L。：（就是类似一种参数）位: 在 SL=1 时有效，编码指示对应要操作的中断级别。
+<img src="attachements/Pasted%20image%2020231112152434.png" alt="" />
+例子：
+OCW 2=100 00000，设置工作于中断优先权自动循环方式，即中断处理过程中，ISR 对应位置 0，同时降低为最低优先级；
+OCW 2=011 00011，特殊 EOI 命令，指定清除 ISR 的 D3位；
+OCW 2=111 00010，特殊 EOI 并设置优先权特殊循环，指定 IR 2 为最低优先级。</li>
+</ul>
+
+<p><strong><em>OCW 3</em></strong>
+<img src="attachements/Pasted%20image%2020231112152906.png" alt="" />
+三个功能：<strong>读 IRR 和 ISR</strong>；<strong>设置是否使用特殊屏蔽</strong>(只对本级中断屏蔽，允许级别比它高或比它低的中断源申请中断。目的是临时开放低级中断)；<strong>设置是否使用中断查询</strong>；
+$D_1 D_0$ =11 读中断服务寄存器 ISR；$D_1 D_0$  =10 读中断申请寄存器 IRR。
+$D_6 D_5$ =11 设置特殊屏蔽；$D_6 D_5$ =10，撤销特殊屏蔽。
+$D_4 D_3$ =01，特征位；
+$D_2$ =1 使 8259 A 处于中断查询方式，随后执行输入指令 IN。
+	读入数据表明是否有中断，并提供最高优先权的中断。
+	<img src="attachements/Pasted%20image%2020231112154135.png" alt="" />
+	$D_7=I=1$ 表示有中断请求，否则无请求；
+	$W_{2}$ ~$W_0$ 给出当前优先权最高的中断请求的代码。
+	【例】当 CPU 发来一个 OCW 3 查询命令（D 2=P=1），此时 8259 A 的优先权次序为 IR 3、 IR 4、 IR 5、…… 、 IR 2，且 IR 4 和 IR 2 有中断请求。当 CPU 随后执行一条输入指令，便可得到查询字：84 H。说明有中断请求，且优先权最高的为 IR4 。</p>
+
+<h3 id="级联方式编程">级联方式编程</h3>
+<ul>
+  <li>8259 A 有非缓冲和缓冲两种级联方式
+    <ul>
+      <li>非缓冲方式 ：主、从片的区分由 SP/EN 引脚的高低决定；</li>
+      <li>缓冲方式：8259 A 主从关系由 ICW 4 的 BUF、M/S 位组合确定。</li>
+    </ul>
+  </li>
+  <li>主、从片必须分别初始化，主片通常设置为特殊全嵌套方式；</li>
+  <li>中断服务程序需要发送两条中断结束命令 EOI
+    <ul>
+      <li>首先发一条普通 EOI 给引起中断的从片，然后读取该从片的 ISR；</li>
+      <li>若 ISR=0，说明当前中断是片上唯一被响应的中断，则向主片发一条普通 EOI 命令；</li>
+      <li>若 ISR≠0，说明该从片上还有其他中断请求未处理完毕，此时不应向主片发 EOI 命令。
+        <h4 id="中断优先级和中断嵌套的实现">中断优先级和中断嵌套的实现</h4>
+        <p>先<strong>判别</strong>优先级，进而解决多个中断<strong>排队</strong>和实现中断<strong>嵌套</strong>
+ <strong>CPU 内部中断逻辑</strong>可以确定<strong>内部中断</strong>、<strong>外部非屏蔽中断（NMI）</strong> 和<strong>可屏蔽中断（INTR）</strong>  间的等级关系；
+<strong>外部可屏蔽中断源的优先级需要通过软件（CPU）或<em>硬件（接口）</em> 方案解决</strong></p>
+        <h5 id="软件确定中断优先权">软件确定中断优先权</h5>
+      </li>
+      <li>CPU 在中断服务程序中查询确定是哪个中断源提出中断请求查询的次序决定了中断优先次序，最先被查询的优先级最高</li>
+      <li><strong>优点</strong>：不需要复杂的硬件电路，简单易实现；</li>
+      <li><strong>缺点</strong>：中断源较多时查询时间长，中断响应速度慢。
+<img src="attachements/Pasted%20image%2020230927195109.png" alt="" />
+        <h5 id="硬件确定中断优先权">硬件确定中断优先权</h5>
+        <p><strong>链式优先权排队电路</strong>：中断源串行连接形成链，用逻辑电路代替查询程序。某中断源得到 CPU 中断服务后，封锁后面中断源的中断请求，前面的中断源可以提出申请。
+<strong>专用硬件一中断控制器</strong>
+如 Intel 8259 A，具有 8 个优先权控制，经级联可扩展至 64 级。编程设置工作方式，方便灵活</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="8253-可编程定时计数器">8253 可编程定时/计数器</h2>
+<h3 id="用处">用处</h3>
+<ul>
+  <li>分时操作系统，以便切换线程。</li>
+  <li>统计外部事件发生的次数。</li>
+  <li>检测外部事件发生的频率或周期。</li>
+  <li>在定时或计数达到预定值后，向 CPU 申请中断。</li>
+  <li>向 I/O 设备周期性输出精确的定时信号。</li>
+  <li>用作可编程波特率或速率发生器。
+    <h3 id="定时的实现">定时的实现</h3>
+    <ol>
+      <li>软件定时（因为每条指令的运行时间一定，所以可以定时），缺点是降低了 cpu 的利用率</li>
+      <li>硬件定时： 555 电路，由阻容控制不受软件控制，无法修改，精度欠佳</li>
+      <li>可编程接口芯片定时 Intel 8253
+        <h3 id="外部引脚">外部引脚</h3>
+        <p><img src="attachements/Pasted%20image%2020231009144738.png" alt="" />
+输入引脚：
+  CS: 片选信号
+  RD: 读运行信号
+  WR：写芯片
+  A 0/A 1 地址线
+连接外部设备：
+  CLK：要计的时钟，是输入
+  GATE：控制信号，门控信号，门控信号，用于启动/停止定时或计数工作的控制. 该信号有效时定时/计数器才开始工作
+  OUT：输出，当计数完成的时候就输出</p>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<h3 id="内部结构-2">内部结构</h3>
+<p><img src="attachements/Pasted%20image%2020231009145434.png" alt="" />
+每个计数器：</p>
+
+<p><img src="attachements/Pasted%20image%2020231009145825.png" alt="" />
+减 1计数器：一个<mark style="background: #FF5582A6;"><mark style="background: #FF5582A6;"> 16 位减 1 计数寄存器<mark style="background: #FF5582A6;"></mark></mark></mark>，初值为初值寄存器的值. CLK 输入一个脉冲，减1 计数寄存器的内容减 1，减到 0 时，Out 输出，只要有脉冲就计数，<mark style="background: #FF5582A6;">gate 不能控制他，gate 控制的是锁存器</mark></p>
+
+<h3 id="编程">编程</h3>
+<p>寻址方式：
+<img src="attachements/Pasted%20image%2020231009150300.png" alt="" />
+控制字
+<img src="attachements/Pasted%20image%2020231009150347.png" alt="" />
+因为数据线是 8 位的所以写 16 位要分两次写</p>
+<h4 id="初始化编程的要求">初始化编程的要求</h4>
+<p>1、8253 三个端口的地址各自独立，控制字分别对各端口的工作方式进行设置。
+2、对某一个端口设置初值时，先设置控制字
+3、设置初值时，要符合 D 5、D 4 的规定，分别输入计数值。（16 位计数值要用两条指令写入计数值）
+4、锁存（D 5 D 4=00）的目的：在 CPU 读取计数值前先锁存减 1 计数器的当前值，CPU 取走数据后，锁存自动失效。
+5、编程顺序：<strong>先写入控制字到控制寄存器，然后写入计数初值到所确定的计数器端口.</strong></p>
+
+<h3 id="工作方式-1">工作方式</h3>
+<p>6 个方式的原则：
+1）8253 在上电后必须先对其初始化设置。
+2）写入控制字时所有的控制逻辑电路复位，输出端 OUT 进入初始化状态。工作方式不同，OUT 电平不同。
+3）初值写入后，需经过一个时钟周期减 1 计数器才开始工作，时钟脉冲的下降沿使计数器减。如果初值为 0，则为最大值 (65536 或为 10000)。</p>
+<h4 id="方式-0计数结束后输出由低变高">方式 0——计数结束后输出由低变高</h4>
+<p>写入方式 0 控制字后，OUT 立即变成低电平。当写入计数初值 N 后，<strong>若 GATE 为高电平，计数器开始计数。</strong>
+特点：</p>
+<ol>
+  <li><strong>计数器只计一遍数</strong>。当计数到 0 时，并不恢复计数器初值，OUT 由低变高且一直保持</li>
+  <li><strong>计数过程中可改变计数值。写入后计数器按新的计数值重新开始计数。</strong></li>
+  <li><strong>在计数过程中，可由门控信号 GATE 控制暂停。当 GATE=0 时，计数器暂停计数；当 GATE 变为 1 后，就接着计数。</strong></li>
+  <li>方式 0 的 OUT 信号在计数到 0 时由低变高，若作为中断请求信号, 需连接 8259 中断控制器。</li>
+</ol>
+
+<h4 id="方式-1可重复触发的单脉冲gate-触发">方式 1——可重复触发的单脉冲（GATE 触发）</h4>
+<p>写入控制字后 OUT 输出高电平，<strong>再写入初值后 (且 GATE=1)启动计数</strong>，OUT 输出变低，计数到 0 时输出变为高。因此，输出为一低脉冲，脉冲宽度由计数初值来决定。</p>
+
+<p><em>特点：</em></p>
+<ol>
+  <li>计数器可再次由 GATE 启动，而不需要再次送一个初值。
+与方式 0 的区别</li>
+  <li>计数过程中改变计数初值不影响本次计数过程。GATE 再次触发，计数器才按新的初值计数。
+<em>与方式一的区别：</em></li>
+  <li>方式 0 设置计数初值后立即计数；方式 1 设置计数初值后不立即计数，直到有触发信号后才开始计数。</li>
+  <li>方式 0 在计数过程中能用门控信号暂停计数；方式 1 在计数过程中若有门控脉冲时不停止计数，<strong>而是使计数过程重新开始。</strong></li>
+  <li>方式 0 在计数过程中改变计数初值时，立即按新的计数初值开始计数；方式 1 现行计数不受影响，新计数初值在 GATE 跳变后才以新的初值开始计数。</li>
+  <li>方式 0 在计数结束后，重新设置计数初值才能再次计数，即计数初值只能使用一次；方式 1 的计数初值在一次计数过程完成后继续有效。
+    <h4 id="方式-2分频器">方式 2——分频器</h4>
+    <p>如果计数值为 N，则在 CLK 端每输入 N-1 个脉冲后，OUT 就输出一个时钟宽度的负脉冲。因此，这种方式可以作为分频器或用于产生实时时钟中断。
+特点：</p>
+  </li>
+  <li>计数到 0 后<strong>自动装入初值</strong>, 计数器能够连续工作，输出固定频率的脉冲。</li>
+  <li>计数过程可由门控信号 GATE 控制。当 GATE 为 0 时，暂停计数。当 GATE 变为 1 后，下一个 CLK 脉冲使计数器恢复初值，重新开始计数。</li>
+  <li>在计数过程中可以改变计数初值，对方式 2 改变计数初值时，在下一次计数有效。</li>
+</ol>
+
+<h4 id="方式-3方波发生器">方式 3——方波发生器</h4>
+<p>工作过程：写入控制字后，输出为高电平。在写入计数初值后就开始计数，输出保持为高。当计数到一半计数初值时，输出变为低，直至计数到 0，输出又变为高，重新开始计数。 
+特点：</p>
+<ol>
+  <li>当初值 N 为偶数时，高低电平持续时间相等；N 为奇数时，高电平多一个脉冲周期，即高电平 (N+1)/2 个周期,低电平 (N-1)/2 个周期。</li>
+  <li>GATE=1，允许计数；GATE=0，停止计数。当 GATE 变高以后，在下一个 CLK 脉冲来到时，<strong>计数器重新装入初始值，开始计数。</strong></li>
+</ol>
+
+<h4 id="方式-4软件触发的选通脉冲触发">方式 4——软件触发的选通脉冲触发</h4>
+<ul>
+  <li>写入控制字后，输出端 OUT 变为高。</li>
+  <li>写入计数初值后开始计数，称为软件触发。（靠软件将初始值写入后，不要 GATE 的上升沿）</li>
+  <li>若初值为 N，<strong>则在写入后经过 N 个 CLK，输出一个负脉冲。</strong></li>
+  <li>这种方式计数是一次性的，输入新的计数值后，才开始新的计数过程。</li>
+</ul>
+
+<p>特点：在计数过程中若改变计数初值则按新的计数初值开始计数. 这称为<strong>软件再触发</strong></p>
+
+<h4 id="方式-5硬件触发的选通脉冲触发器">方式 5——硬件触发的选通脉冲触发器</h4>
+<p><strong><em>写入计数初值后，计数器并不立即开始计数，而是要由 GATE 的上升沿来启动计数，称为硬件触发</em></strong>。经过 N 个 CLK 脉冲，输出一个负脉冲。</p>
+
+<p>特点：</p>
+<ol>
+  <li>方式 4 软件更改计数初值后立即起作用，方式 5 软件更改计数初值后要有门控信号的触发才能起作用。</li>
+  <li>在计数过程中，若 GATE 端又出现一个脉冲进行触发，则使计数器重新开始计数，但对输出状态没有影响。</li>
+  <li>方式 4 软件更改计数初值后立即起作用，方式 5 软件更改计数初值后要有门控信号的角触发才能起作用。
+    <h4 id="六个方式的对比">六个方式的对比</h4>
+    <p><strong>方式 0、4 是由软件触发</strong> (写入计数值)启动计数，无自动装入计数初值的功能。GATE 高时，减 1 计数器减 1， GATE 低时，减 1 计数器停止计数。
+<strong>区别：</strong> 方式 0 输出为低电平，计数结束输出高电平并一直保持。
+方式 4 输出为高电平，计数结束时输出一个时钟周期的负脉冲，然后又保持高电平。</p>
+  </li>
+</ol>
+
+<p><strong>方式 1、5 是硬件触发 (GATE 上升沿)启动计数</strong>，写入初值后并不马上计数，必须在 GATE 的上升沿触发后才开始计数。
+<strong>区别：</strong> 方式 1 输出 NxTCLK 的负脉冲。
+      方式 5 输出一个 TCLK 的负脉冲。</p>
+
+<p><strong>方式 2、3 都具有自动装入计数值的能力，都是分频器</strong>，但方式 2 输出 N-1 占空比的波形，方式 3 则输出方波。</p>
+<h3 id="8253-的读写操作">8253 的读/写操作</h3>
+<h4 id="写">写</h4>
+<p>8253写操作包括写控制字和写计数初值：</p>
+<ol>
+  <li><strong>各计数器的控制字都写到同一地址单元</strong>，而初值写到<strong>各自</strong>的地址单元中</li>
+  <li>先写控制字，后写计数初值。因为后者的格式是由前者决定的。</li>
+  <li>16 位数据应先写低 8 位，再写高 8 位。 <strong>给多个计数器写入控制字和计数初值顺序无要求</strong>
+    <h4 id="读">读</h4>
+    <p>8253 的读操作所得到的是当前计数值。</p>
+  </li>
+  <li>读操作是通过访问各计数器的地址实现。</li>
+  <li>读操作必须按照控制字确定的格式。如果是 16 位计数，读操作要进行两次，先读低 8 位，后读高 8 位。</li>
+  <li>当计数值为 16 位时，为了避免在两次读出过程中计数值的变化，要先使用计数器锁存命令将计数值锁存。
+    <ul>
+      <li>控制字的 D 7 D 6 为所要锁存的计数器号， D 5 D 4=00。输出锁存器的值平时跟随计数值而变化，写入锁存命令后计数值被锁存。</li>
+      <li>当 CPU 读取后，锁存状态被解除。
+<strong>读计数器的值时，控制字的 D 7 D 6 两位为所要锁存的计数器号， D 5 D 4 两位置为 00，其它位不用考虑。</strong></li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="串行通信和串行通信可编程接口-8251">串行通信和串行通信可编程接口 8251</h2>
+<h3 id="串行通信">串行通信</h3>
+<p>并行：多条传送线速度相对高，适宜近距离
+串行：节省传送线，速度相对低，适宜远距离</p>
+<h4 id="数据传送方式">数据传送方式</h4>
+<ol>
+  <li>单工通信 (Simplex): 仅能一个方向数据传送
+<img src="attachements/Pasted%20image%2020231011144216.png" alt="" /></li>
+  <li>全双工通信（Full duplex）：AB 均能在发送的同时接收
+<img src="attachements/Pasted%20image%2020231011144304.png" alt="" /></li>
+  <li>半双工通信 (Half Duplex )：交替进行但是不能同时进行
+<img src="attachements/Pasted%20image%2020231011144316.png" alt="" />
+    <h3 id="异步传送与同步传送">异步传送与同步传送</h3>
+    <p><strong>收发两端必须相互协调</strong>: <mark style="background: #ADCCFFA6;">约定速率</mark>与<mark style="background: #ADCCFFA6;">判定起始</mark>
+约定速度：<strong>采样的时间间隔</strong> (使用波特率来实现速率约定)
+判定起始: 接收端数据线和采样时刻有两种方式：<strong>异步和同步</strong></p>
+    <h4 id="异步传送">异步传送</h4>
+    <p>收发方的频率差在十分之一内
+同时要<strong>确定字符格式</strong>和<strong>波特率</strong></p>
+    <h4 id="字符格式">字符格式</h4>
+    <p>字符的编码形式的规定
+四个部分：1 个起始位，5~8 个数据位，0~1 个奇偶校验位，1~2 个停止位
+<img src="attachements/Pasted%20image%2020231011145707.png" alt="" />
+每个字符传送前，传输线处于“1”状态，<strong>当“1”变为“0”并持续 1 码元时间时，就表明这是起始位</strong>，后面就是<strong>数据位，先送低位，后送高位</strong>。
+直到收到完整字符。
+一个字符传送完后立即传送下一个; 如后续数据跟不上，则加入空闲位 1。</p>
+    <h5 id="波特率">波特率</h5>
+    <p>波特率：每秒钟传送的二进制位数。发端和收端<strong>波特率必须一致</strong>。
+设传送速率是120字符/s，而每个字符有10个位(1个起始位、7个数据位、1个校验位和1个停止位)，则波特率为：</p>
+  </li>
+</ol>
+
+<p>     120字符/s*10 bit/字符=1200 bit/s=1200波特</p>
+
+<p>   每个数据位的传送时间T为波特率的倒数：</p>
+
+<p>      T ＝1/1200＝0.000 833 s＝0.833 ms</p>
+
+<p> 可选波特率有300、600、1200、2400、4800、<strong>9600</strong>、19200和<strong>115200</strong>。通常用波特率除以10估计每秒钟传送的字符数。</p>
+<h4 id="同步传送">同步传送</h4>
+<p>同步传送是指<strong>去除起始位和停止位</strong>，而是用<strong>1~2个同步字符表示数据块传送的开始</strong>，<strong>数据块以连续的形式发送</strong>，一次传送可达几十到几百个字节。</p>
+
+<p>每个<strong>发送时钟周期(TxC)</strong> 发送一位，故同步传送中要求对传送信息的每一位都必须在收、发两端严格保持“位同步”。通常发送器和接收器比较复杂，成本较高。</p>
+
+<p>用于同步通信的数据格式有多种。</p>
+<ol>
+  <li>单同步数据格式
+<img src="attachements/Pasted%20image%2020231011151208.png" alt="" /></li>
+  <li>双同步格式数据格式
+<img src="attachements/Pasted%20image%2020231011151225.png" alt="" /></li>
+  <li>SDLC 同步数据格式（Synchronous Data Link  Control）
+<img src="attachements/Pasted%20image%2020231011151131.png" alt="" /></li>
+  <li>HDLC 同步数据格式 (High-level Data Link Control)
+<img src="attachements/Pasted%20image%2020231011151250.png" alt="" />
+    <h5 id="信号的调制">信号的调制</h5>
+    <p>高低电平占用很宽的频带，且有很大<strong>直流成分</strong>（直流成分意味着电流或电压持续保持一个恒定的数值，不随时间变化），因此仅适用于在短距离传输（1m）。如果用电话线传输，信号将会出现畸变。
+为了克服畸变，在发送端把信号转换成适于传输的<strong>模拟信号(调制)</strong>，接收端再将模拟信号转换成电平信号(解调)。完成调制、解调功能的设备叫做调制解调器(Modem)。
+适用于异步通信方式，它不提供同步时钟信号。常用的调制方法是频移键控(FSK，Frequency Shift Keying) 。
+例子：
+<img src="attachements/Pasted%20image%2020231011151822.png" alt="" /></p>
+    <h3 id="串行通信接口芯片">串行通信接口芯片</h3>
+  </li>
+</ol>
+
+<blockquote>
+  <p>TTL（Transistor-Transistor Logic）电平是一种常用的数字逻辑电平标准，它用于描述逻辑门电路中的高电平和低电平状态。
+根据 TTL 标准，高电平（High level）通常被定义为大约2.4V 到5V 之间的电压范围，而低电平（Low level）通常被定义为0V 到0.8V 之间的电压范围。这意味着在 TTL 电平定义下，如果电压在2.4V 以上，那么信号被认为是高电平；如果电压在0.8V 以下，信号则被认为是低电平。</p>
+</blockquote>
+
+<p><strong>Intel 的8251以及 National Semiconductor 的8250等完成 TTL 电平的<em>并串或串并转换</em></strong>。
+为了增大传送距离，可在串行接口电路与外部设备之间增加信号转换电路。如 RS–232收发器、RS–485收发器和 Modem 等。</p>
+<ul>
+  <li>RS–232将 TTL 电平转换为±15 V 电压传送，最大距离15 m。</li>
+  <li>RS–485收发器将 TTL 电平转换为差分信号传送，最大传送距离为1.2 km。</li>
+  <li>Modem 将电平信号调制成频率信号送入电话网，如同音频信号一样在电话网中传送。
+    <h3 id="可编程串行接口芯片8251a">可编程串行接口芯片8251A</h3>
+    <p><strong>功能</strong>：数据格式化、串并转换、控制波特率、校验、电平转换、提供 RS-232控制信号线。
+<strong>特点：</strong></p>
+  </li>
+  <li>可异步，可同步。</li>
+  <li>异步，停止位可为1位、1位半或2位。</li>
+  <li>同步，可设为单同步、双同步或外同步。</li>
+  <li>可设定奇偶校验或不校验，校验都由芯片完成。</li>
+  <li>异步通信的时钟频率可设为波特率的1倍、16倍或64倍。</li>
+  <li>波特率可设定。</li>
+  <li>提供调制解调器的联络信号。</li>
+  <li>收、发送数据分别有各自的缓冲器，可全双工通信。
+    <h4 id="内部结构-3">内部结构</h4>
+    <p><img src="attachements/Pasted%20image%2020231011153930.png" alt="" />
+<strong>C/D: 地址线</strong>（相当于 $A_0$）如果是 0 则是 D（data），如果是 1 则是 C(command)
+CLK: 芯片工作的时钟
+reset：复位信号，（复位之后设置工作方式）
+DSR，DTR，CTS，RTS 控制信号和调制解调器联络用的
+TxD (Transit data): 发送信号，
+发送缓冲器：只有一个字节，存发的信息
+TxRDY（TxReady）告诉 cpu 说已经发送出去了，现在是空的，可以再接收 cpu 的数据（往往是中断请求）（对应的是发送缓冲器）
+TxE （）：代表真正转换完毕发送完了
+TxC：波特率是这个信号分频得到的
+RxD：接收信号
+RxRDY：接收完毕</p>
+    <h4 id="cpu-控制">cpu 控制</h4>
+  </li>
+</ul>
+
+<p><strong>读写控制</strong>：
+<img src="attachements/Pasted%20image%2020231011155600.png" alt="" />
+<strong>收发联络信号</strong></p>
+<ul>
+  <li>TXRDY—发送准备好信号，输出，高电平有效。当发送寄存器空且允许发送(命令字中 TXEN 位为1)时，TXRDY 输出为高电平，以通知 CPU 当前8251A 已做好发送准备，CPU 可以向8251A 传送一个字符。当 CPU 把发送的数据写入8251A 后，TXRDY 恢复为低电平。</li>
+</ul>
+
+<p>  TXRDY可作为8251A向CPU发送的中断请求信号(发送中断)。也可作为查询方式的联络信号。</p>
+
+<ul>
+  <li>
+    <p>TxE—发送器空。输出，高电平时表示并—串缓冲器空。</p>
+  </li>
+  <li>
+    <p>TxE 与 TXRDY 的区别：TXRDY 表示发送缓冲器的状态，而 TxE 表示经发送数据缓冲器的并—串转换器的状态。</p>
+  </li>
+  <li>
+    <p>TXD:发送数据输出线。</p>
+  </li>
+</ul>
+
+<h5 id="与调制解调器的连接">与调制解调器的连接</h5>
+<p>（1） 控制发送的
+RTS：请求发送，输出，低有效。用于通知调制解调器 CPU 准备发送数据。初始化时 CPU 将控制寄存器的 D5位置1，可使 RTS 变为低电平。（cpu 要去控制它，给它的一位写为 0，告诉外部，cpu 要进行数据的发送了）
+CTS：发送允许，输入，低有效。调制解调器对8251A 的 RTS 的<strong>响应</strong>，<strong>表示允许8251A 发送数据。</strong>（回应 RTS）
+CPU 发送 RTS 后，一旦收到 CTS=0，则开始发送数据。在发送过程中，如果 CTS 失效，发送器将已经写入的数据全部发送完后才停止发送。
+（2 ）控制接收的
+DTR：数据终端(8251)准备好，输出，低电平有效。<strong>通知 MODEM 当前8251已准备好</strong>。初始化时 CPU 对8251A 写入命令字使 DTR 变为低电平。（受命令字控制）
+DSR：数据装置(MODEM)准备好，输入，低电平有效。这<strong>是由 MODEM 发给8251A 的，对 DTR 的回答信号</strong>，表示 MODEM 的数据已经准备好。</p>
+<h5 id="时钟线">时钟线</h5>
+<ul>
+  <li>
+    <p>RXC：接收时钟<strong>输入端</strong>，控制8251A 接收字符的速度。同步方式时，由外设(或 MODEM)提供，<strong>RXC 的频率等于波特率</strong>。异步方式时，<strong>RXC 由专门的时钟发生器提供，其频率是波特率的1、16或64倍，即波特率等于 RXC 分频得到，</strong> 分频系数可设定为1、16或64。</p>
+  </li>
+  <li>
+    <p>TXC：发送时钟输入端。TXC 的频率与波特率之间的关系同 RXC。数据在 TXC 的下降沿由发送器移位输出。</p>
+  </li>
+  <li>实际上，RXC 和 TXC 往往连在一起，共同接到一个时钟源上，由专门的辅助电路产生。
+    <h2 id="dma-控制器与8237a-芯片">DMA 控制器与8237A 芯片</h2>
+    <h3 id="dmadirect-memory-assess直接存储器存取">DMA（Direct Memory Assess）直接存储器存取</h3>
+    <p><strong>DMA 实现的功能</strong>：外设和内存，内存和内存的数据传输。少数控制器也可外设间传输。
+CPU 只启动 DMA，但不干预传输过程，传输过程是由硬件自动完成的，不需要软件介入。</p>
+    <h4 id="工作过程">工作过程</h4>
+    <p>DMA 控制器的工作过程分为四个阶段，分别是：</p>
+  </li>
+  <li>申请阶段</li>
+  <li>响应阶段</li>
+  <li>数据传送阶段</li>
+  <li>传送结束阶段
+    <h3 id="8237a-芯片">8237A 芯片</h3>
+    <p><strong>特点：</strong></p>
+    <blockquote>
+      <p>与其他芯片不同 8237 A 会主动的向 cpu 送信号
+ 一次对多传送 64 KB
+ <strong>他的数据线是 8 位</strong>
+ <strong>数据线可以复用为地址线，总共地址线可以为 16 位</strong>
+ 4 种传送方式：单字、数据块、请求、级联
+ 每个通道又不同优先级，即可以固定优先级也可以循环优先级，与中断不同，优先级高不可打断原有传输。</p>
+    </blockquote>
+  </li>
+</ul>
+
+<p><strong>内部结构</strong>：<img src="attachements/Pasted%20image%2020231018084150.png" alt="" /></p>
+
+<p><strong>外部引脚</strong>
+<img src="attachements/Pasted%20image%2020231018085442.png" alt="" />
+DACK <em>(DMA Acknowledge )</em>： DMA 响应外部设备的引脚
+DREQ <em>(DMA Request)</em>：外部设备请求 DMA 的引脚
+HLDA <em>(Hold Acknowledge)</em>:总线响应信号。CPU 对 HRQ 的回答，表示已让出总线控制权。
+HRQ <em>(Hold Request )</em> :总线请求信号。8237A 向 CPU 请求使用总线。
+A 3-A 0：地址, 双向。<strong>CPU 控制总线时输入，选中某个寄存器</strong>。DMAC 控制总线时，输出 16 位地址中的 A 3-A0</p>
+
+<h4 id="连接方式">连接方式</h4>
+<p><img src="attachements/Pasted%20image%2020231018153414.png" alt="" /></p>
+
+<p><strong><em>对于20位地址线，8237如何处理？</em></strong></p>
+<ol>
+  <li>在8086/88系统中地址线有20条，需要用<strong>硬件提供一组4位的页寄存器</strong>。</li>
+  <li>通道0、1、2、3各增加一个4位的页寄存器。在进行 DMA 传送之前，这些页寄存器可利用 I/O 地址来装入和读出。当进行 DMA 传送时，DMAC 将 A0-A15放在系统总线上，同时页寄存器把 A16-A19也放在系统总线上，形成 A0-A19这20位地址信号实现 DMA 传送。其地址产生如图所示。</li>
+</ol>
+
+<h4 id="工作方式-2">工作方式</h4>
+<h5 id="主模块与从模块">主模块与从模块</h5>
+<ol>
+  <li>主模块：取得总线控制权后，取代 CPU 而成为系统的主控者。DMAC 通过三总线向 M 或 I/O 发出地址码及读/写信号，以控制 M 和 I/O 设备之间的数据传送。</li>
+  <li>从模块：取得总线控制前，与其他 I/O 设备相同，受 CPU 的控制。这时 CPU 对 DMAC 进行初始化操作或从 DMAC 读取状态信息。
+    <h5 id="传输模式">传输模式</h5>
+  </li>
+  <li><strong>单字传输模式</strong>：DMA 控制器每次请求总线只传送一个字，传送完后即释放总线控制权。</li>
+  <li><strong>块传输模式</strong>: 指 DMA 控制器每次请求总线连续传送一个数据块，然后释放总线控制权。
+DREQ 启动连续地传送数据。
+DREQ 只需维持到 DACK 有效</li>
+  <li><strong>请求传输模式</strong>: 与块传输方式类似，不同的是每传输完一个数据，DMA 控制器都要检测 DREQ 是否仍然有效，有效则继续传输；否则就暂停，交还总线控制权给 CPU；直至 DREQ 再次变为有效，则从暂停点继续进行。
+    <h5 id="操作类型">操作类型</h5>
+  </li>
+  <li>DMA 读：内存–》IO；用 MEMR 和 IOW 控制</li>
+  <li>DMA 写：IO–》内存；用 MEMW 和 IOR 控制</li>
+  <li>DMA 校验: 这是一种伪传输，实际上是校验 8237 A 芯片内部的读写信号，8237 A 芯片如同 DMA 读和 DMA 写一样，产生地址及响应信号，但并不实际传输。
+    <h5 id="优先级">优先级</h5>
+  </li>
+  <li>固定优先级：四通道优先级固定，通道 0 最高，通道 3 最低。即：DREQ 0–DREQ 3</li>
+  <li>循环优先级：优先级相同。当某一通道被响应且服务后，它就被指定为最低优先级，下一通道就为最高优先级。
+注意：DMA 禁止嵌套，优先级排队只在 DMA 响应前有效，DMA 响应后不能中断当前传输。</li>
+</ol>
+
+<h5 id="自动初始化">自动初始化</h5>
+<p>通过对方式字寄存器的编程，可以设置某个通道为自动初始化方式。
+自动初始化方式的功能：
+   当某通道完成一个数据传送时用基地址寄存器和基字寄存器，使相应的当前地址寄存器和当前字计数器恢复初值。
+自动初始化，通道就做好了另一次数据传送的准备。</p>
+
+<h3 id="控制字-1">控制字</h3>
+<h4 id="工作方式控制字0bh">工作方式控制字（0BH）</h4>
+<p><img src="attachements/Pasted%20image%2020231122164941.png" alt="" /></p>
+<h4 id="操作命令控制字-08h">操作命令控制字 (08H)</h4>
+<p><img src="attachements/Pasted%20image%2020231122165004.png" alt="" /></p>
+<h4 id="请求控制字-09h">请求控制字 (09H)</h4>
+<p><img src="attachements/Pasted%20image%2020231122170046.png" alt="" /></p>
+<h4 id="屏蔽控制字">屏蔽控制字</h4>
+
+<p><img src="attachements/Pasted%20image%2020231122170331.png" alt="" /></p>
+<h4 id="状态寄存器-读-08-h">状态寄存器 (读 08 H)</h4>
+<p><img src="attachements/Pasted%20image%2020231122170403.png" alt="" /></p>
+
+<h4 id="通道寄存器">通道寄存器</h4>
+<h5 id="基地址寄存器"><strong><em>基地址寄存器</em></strong></h5>
+<p>16 位，存放 DMA 传送的内存首地址；
+初始化时写入，先低字节后高字节；
+传送过程中保持不变；
+自动预置时，将其内容装入当前地址寄存器；
+只能写不能读；</p>
+<h5 id="当前地址寄存器"><strong><em>当前地址寄存器</em></strong></h5>
+<p>16 位，存放 DMA 传送过程中的内存地址；
+每传送一次自动加一或减一；
+可读可写；</p>
+<h5 id="基字计数器"><strong><em>基字计数器</em></strong></h5>
+<p>16 位，存放 DMA 传送的总字数；
+初始化时写入，先低字节后高字节；
+传送过程中保持不变；
+自动预置时，将其内容装入当前字寄存器；
+只能写不能读；
+欲传送 N 个字，写入 N-1 (不强调)。</p>
+<h5 id="当前字计数器"><strong><em>当前字计数器</em></strong></h5>
+<p>16 位，存放 DMA 传送过程中没有传送完的字数；
+每传送一次自动减一；
+值由 0 减至 FFFF 时，产生/EOP 信号；
+可读可写。</p>
+
+<h2 id="da-0832-数模转换">D/A 0832 数模转换</h2>
+<p>DAC0832是采用CMOS工艺制造的8位电流输出型D/A转换器。
+ （1） 分辨率8位
+ （2） 建立时间为1 μs
+ （3）功耗20mW
+ （4）数字输入电平为TTL电平
+ （5）差动输出</p>
+<h3 id="内部结构-4">内部结构</h3>
+<p><img src="attachements/Pasted%20image%2020231122153625.png" alt="" />
+2.3 0832 引脚信号
+（1）输入寄存器控制信号
+       D 7～D 0：输入数据线
+       ILE：输入锁存允许 
+       CS：片选信号
+       WR 1：写输入锁存器            <br />
+（2）用于 DAC 寄存器的控制信号
+       WR 2：写 DAC 寄存器
+       XFER：传送控制信号，允许输入锁存器的数据传送到 DAC 寄存器</p>
+
+<h3 id="工作模式-1">工作模式</h3>
+<p><strong><em>单缓冲模式：</em></strong> 只用一级输入锁存，另一级始终直通
+  i）使输入锁存器或DAC寄存器二者之一处于直通，即芯片只占用一个端口地址。
+   ii）CPU只需一次写入即开始转换。
+   写入数据的程序为：
+		  MOV DX，PORT
+		  MOV AL，DATA
+		  OUT DX，AL
+<img src="attachements/Pasted%20image%2020231122154037.png" alt="" /></p>
+
+<p><strong><em>双缓冲模式 （标准模式）：</em></strong>：两级输入锁存
+       I）对输入寄存器和 DAC 寄存器均需控制；
+       Ii）当输入寄存器控制信号有效时，数据写入输入寄存器中；再在 DAC 寄存器控制信号有效时，数据才写入 DAC 寄存器，并启动变换；
+       目标：数据接收与D/A转换可异步进行，可实现<strong>多个DAC同步转换输出</strong>，分时写入、同步转换。</p>
+<h3 id="例子">例子</h3>
+<p>锯齿波
+<img src="attachements/Pasted%20image%2020231122155949.png" alt="" />
+    控制程序如下：</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>START:  MOV  AL, 0           ;数字量初始值 
+        MOV  DX, 208 H   ;DAC 0832 地址
+   EE:  OUT  DX, AL 
+        CALL  DELAY      ;若加延时，可改变锯齿波的斜率
+        INC  AL                ;数字量加 1
+        JMP  EE                ;循环
+</code></pre></div></div>
+
+<h2 id="ad-0809--模数转换">A/D 0809  模数转换</h2>
+<h3 id="21-ad0809芯片特点">2.1 A/D0809芯片特点</h3>
+
+<p>ADC0809是CMOS<strong>逐次逼近式</strong>8位A/D转换器。
+（1）8通道（8路）模拟量输入
+（2）8位字长数字量输出
+（3）模拟输入电压范围为0V～+5V，不需零点和满刻度校准。
+（4）转换时间100μs
+（5）低功耗，约15mW
+（6）时钟频率：典型值500kHz（范围为10 kHz～1280 kHz）。
+原理是逐次逼近</p>
+<h3 id="adc0809-芯片的引脚">ADC0809 芯片的引脚</h3>
+<p>   （1）D7～D0：8位输出(平时高阻)
+   （2）IN0～IN7：8路模拟输入（只能有一路输入有效，是由 ADDA，ADDB，ADDC 选中的）
+   （3）ADDA、ADDB、ADDC：用于选择模拟通道。
+   （4）ALE：通道地址锁存输入
+   （5）START：启动转换
+   （6）EOC：转换结束(中断请求)
+   （7）OE：数字量输出允许
+   （8）CLOCK：时钟输入(10KHz~1.2MHz)
+   （9）VREF (+)、VREF(-) ：参考电压输入（比如 255 这个数对应哪个电压）
+   （10） VCC、GND：+5 V、0V
+   <img src="attachements/Pasted%20image%2020231023153853.png" alt="" />
+   内部结构：
+   <img src="attachements/Pasted%20image%2020231023154100.png" alt="" /></p>
+
+<h3 id="工作过程-1">工作过程</h3>
+<p>（1）首先由<strong>ADDA、ADDB、ADDC</strong>决定选择哪一路模拟信号。
+（2）由 ALE 控制该路模拟信号经选择开关到达比较器输入端（就是保存输入）。
+（3）START正脉冲启动A/D。
+（4）EOC输出信号变低，表示正在转换。
+（5）转换结束，EOC 变为高电平（<strong>可以作为中断申请</strong> ）。此时数据保存在锁存器中。
+（6）OE信号变为高电平，锁存缓冲器<strong>输出数据</strong>。</p>
+
+<h4 id="判断转换结束的3种方法">判断转换结束的3种方法</h4>
+
+<p>（1）软件延时等待（比如延时1ms）
+		 此时不用EOC信号——CPU效率最低
+（2）软件查询EOC状态
+（3）把 EOC 作为中断申请信号                 <br />
+		 在中断服务程序中读入转换结果，效率高</p>
+<h4 id="具体判断转换结束的程序">具体判断转换结束的程序</h4>
+<p>（1）用延时等待的方法
+          ……
+  MOV    DX, start_port 
+  OUT    DX, AL      ;启动转换（只用执行一个写的操作的，写什么无所谓，然后就开始转换了）
+  CALL  DELAY_1MS                 ;延时1ms
+  MOV    DX, oe_port
+  IN    AL, DX      ;读入结果
+          ……</p>
+
+<p>（2）用查询EOC状态的方法</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code> …… MOV DX, start_port  OUT DX, AL                        ;启动转换 LL: MOV DX, eoc_port  IN AL, DX  AND AL, 01H                         ;测试EOC状态 JZ  LL  MOV  DX, oe_port IN  AL, DX                        ;读入结果
+  ……
+</code></pre></div></div>
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2023-12-06T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2023/12/05/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%94%E8%AE%B0.html">计算机网络笔记</a></div><div class="next"><span>下篇</span><a href="/2023/12/07/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E4%BA%94%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html">计算机网络第五次实验报告</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Gao Xingjie"><meta itemprop="url" content="/"><meta itemprop="description" content="To be a question, to be an answer."><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"><li title="给我发邮件。">
+      <a class="button button--circle mail-button" itemprop="email" href="mailto:xingjie-gao@outlook.com" target="_blank">
+        <i class="fas fa-envelope"></i>
+      </a><li title="在 Github 上关注我。">
+        <a class="button button--circle github-button" itemprop="sameAs" href="https://github.com/Kfkcome" target="_blank">
+          <div class="icon"><svg fill="#000000" width="24px" height="24px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path class="svgpath" data-index="path_0" fill="#272636" d="M0 525.2c0 223.6 143.3 413.7 343 483.5 26.9 6.8 22.8-12.4 22.8-25.4l0-88.7c-155.3 18.2-161.5-84.6-172-101.7-21.1-36-70.8-45.2-56-62.3 35.4-18.2 71.4 4.6 113.1 66.3 30.2 44.7 89.1 37.2 119 29.7 6.5-26.9 20.5-50.9 39.7-69.6C248.8 728.2 181.7 630 181.7 513.2c0-56.6 18.7-108.7 55.3-150.7-23.3-69.3 2.2-128.5 5.6-137.3 66.5-6 135.5 47.6 140.9 51.8 37.8-10.2 80.9-15.6 129.1-15.6 48.5 0 91.8 5.6 129.8 15.9 12.9-9.8 77-55.8 138.8-50.2 3.3 8.8 28.2 66.7 6.3 135 37.1 42.1 56 94.6 56 151.4 0 117-67.5 215.3-228.8 243.7 26.9 26.6 43.6 63.4 43.6 104.2l0 128.8c0.9 10.3 0 20.5 17.2 20.5C878.1 942.4 1024 750.9 1024 525.3c0-282.9-229.3-512-512-512C229.1 13.2 0 242.3 0 525.2L0 525.2z" />
+</svg>
+</div>
+        </a>
+      </li></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© Ennis's Blog 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script>
+  window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
+    var $canvas = null, $this = null, _ctx = null, _text = '';
+    $('.language-chart').each(function(){
+      $this = $(this);
+      $canvas = $('<canvas></canvas>');
+      _text = $this.text();
+      $this.text('').append($canvas);
+      _ctx = $canvas.get(0).getContext('2d');
+      (_ctx && _text) && (new Chart(_ctx, JSON.parse(_text)) && $this.attr('data-processed', true));
+    });
+  });
+</script>
+<script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};_config.TeX = { equationNumbers: { autoNumber: "all" } };MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+

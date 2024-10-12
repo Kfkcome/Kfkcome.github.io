@@ -1,0 +1,1595 @@
+<!DOCTYPE html><html lang="zh-Hans">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>多媒体技术基础课程笔记 - Ennis's Blog</title>
+
+<meta name="description" content="多媒体技术基础多媒体技术概论多媒体硬件环境数字声音和语音编码MPC (MultimediaPersonalComputer 多媒体个人电脑)软件系统：  多媒体应用软件  多媒体创作软件  多媒体处理软件  多媒体操作系统  多媒体驱动软件硬件系统  多媒体硬件  多媒体 I/O 控制卡及接口  多媒体外围设备M...">
+<link rel="canonical" href="http://localhost:4000/2023/12/03/%E5%A4%9A%E5%AA%92%E4%BD%93%E6%8A%80%E6%9C%AF%E5%9F%BA%E7%A1%80%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Willing to be a question, willing to be an answer.
+" href="/">Ennis's Blog</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E5%A4%9A%E5%AA%92%E4%BD%93%E6%8A%80%E6%9C%AF%E5%9F%BA%E7%A1%80">多媒体技术基础</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0">课程笔记</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2023年 12月03日</span>
+            </li></ul></div><div class="article__header"><header><h1>多媒体技术基础课程笔记</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2023-12-3-多媒体技术基础课程笔记.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">多媒体技术基础多媒体技术概论多媒体硬件环境数字声音和语音编码MPC (MultimediaPersonalComputer 多媒体个人电脑)软件系统：  多媒体应用软件  多媒体创作软件  多媒体处理软件  多媒体操作系统  多媒体驱动软件硬件系统  多媒体硬件  多媒体 I/O 控制卡及接口  多媒体外围设备MPC 技术标准与特征标准： MPC 1、MPC 2、MPC 3特征： 数字光盘存...</p></div></div>
+              </div>
+            </div><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="多媒体技术基础课程笔记"><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2023-12-03T00:00:00+08:00">
+    <meta itemprop="keywords" content="多媒体技术基础,课程笔记"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><h1 id="多媒体技术基础">多媒体技术基础</h1>
+
+<h2 id="多媒体技术概论">多媒体技术概论</h2>
+
+<h2 id="多媒体硬件环境">多媒体硬件环境</h2>
+
+<h2 id="数字声音和语音编码">数字声音和语音编码</h2>
+
+<p><strong>MPC (MultimediaPersonalComputer 多媒体个人电脑)</strong></p>
+
+<p>软件系统：</p>
+
+<ol>
+  <li>多媒体应用软件</li>
+  <li>多媒体创作软件</li>
+  <li>多媒体处理软件</li>
+  <li>多媒体操作系统</li>
+  <li>多媒体驱动软件</li>
+</ol>
+
+<p>硬件系统</p>
+
+<ol>
+  <li>多媒体硬件</li>
+  <li>多媒体 I/O 控制卡及接口</li>
+  <li>多媒体外围设备</li>
+</ol>
+
+<p><img src="./多媒体技术基础.assets/image-20230920083332695.png" alt="image-20230920083332695" /></p>
+
+<h3 id="mpc-技术标准与特征">MPC 技术标准与特征</h3>
+
+<p><strong>标准：</strong> MPC 1、MPC 2、MPC 3</p>
+
+<p><strong>特征：</strong> 数字光盘存储设备；高质量的数字声音设备；高分辨率的图形、图像显示；带有多媒体管理如软件</p>
+
+<h3 id="音频接口">音频接口</h3>
+
+<p><strong>音频卡</strong>：处理音频信号的 PC 插卡是音频卡，又称声音卡，声音卡处理的媒体有：合成音乐（MIDI），数字化声音（WAVE），CD 音频</p>
+
+<p><strong>功能：</strong> 音频的录制与播放，编辑与合成 MIDI 接口 CD_ROM 接口游戏接口</p>
+
+<h4 id="midi-接口规范">MIDI 接口规范</h4>
+
+<p>MIDI (Musical Instructment Digital Interface)乐器数字接口标准</p>
+
+<p>MIDI 的音乐符号化的过程实际上就是产生 MIDI 数字信号的过程。</p>
+
+<ol>
+  <li>MIDI IN: 接受其他 MIDI 装置传来的消息</li>
+  <li>MIDI OUT（输出口）：发送某装置生成的原始 MIDI 消息</li>
+  <li>MIDI Thru 传送从输入口接受的信息到其他 MIDI 装置</li>
+</ol>
+
+<p><img src="./多媒体技术基础.assets/image-20230920093642230.png" alt="image-20230920093642230" /></p>
+
+<h4 id="声卡">声卡</h4>
+
+<ol>
+  <li>声音卡的技术标准
+    <ol>
+      <li>采样频率和量化位数</li>
+      <li>MIDI 合成方式</li>
+      <li>DSP 数字信号处理器</li>
+      <li>音频压缩</li>
+    </ol>
+  </li>
+  <li>声卡的声道数
+    <ol>
+      <li>单声道与立体声</li>
+      <li>四声道环绕</li>
+      <li>5.1 声道</li>
+    </ol>
+  </li>
+</ol>
+
+<h2 id="数字压缩技术">数字压缩技术</h2>
+
+<h3 id="压缩的可能性">压缩的可能性</h3>
+
+<p>各种媒体数据内部存在<strong>冗余（相关性）</strong> 所以可以采用不同编码与解码算法以减弱冗余，达到压缩目的</p>
+
+<p>数据冗余类型：</p>
+
+<ol>
+  <li>空间冗余</li>
+</ol>
+
+<p>​	<img src="./多媒体技术基础.assets/image-20230922101314346.png" alt="image-20230922101314346" /></p>
+
+<ol>
+  <li>
+    <p>时间冗余</p>
+
+    <p><img src="./多媒体技术基础.assets/image-20230922101404868.png" alt="image-20230922101404868" /></p>
+  </li>
+  <li>
+    <p>熵冗余</p>
+
+    <p>编码符号的序列中码字冗余，信息熵冗余</p>
+  </li>
+  <li>
+    <p>其他冗余： 结构冗余，结构冗余</p>
+  </li>
+</ol>
+
+<h3 id="压缩指标">压缩指标</h3>
+
+<ol>
+  <li>
+    <p>压缩比：输入数据和输出数据之比</p>
+  </li>
+  <li>压缩质量：压缩后在多大程度上接近压缩前的
+    <ol>
+      <li>有损压缩、无损压缩</li>
+      <li>信噪比，主观感受</li>
+    </ol>
+  </li>
+  <li>压缩速度和解压缩速度</li>
+  <li>压缩和解压缩的标准化</li>
+</ol>
+
+<h3 id="压缩的过程">压缩的过程</h3>
+
+<p>一、 <strong>压缩的基本思想</strong>
+<strong>针对数据冗余类型采用合适的压缩方法;</strong>
+<strong>建立以少代多或以局部代全体的数据变换关系; 从而以最少的数码表示信号。</strong>
+(1) 空间压缩: 把相同视觉区当作一个整体进行表示。
+(2) 时间压缩: 把连续帧间的相同部分或渐变过程中的相似部分当作一个整体，用极少的数据量表示。</p>
+
+<p><strong>二、压缩的过程</strong></p>
+
+<p>（1）编码</p>
+
+<p>原始数据符号化; 体现压缩算法及正变换
+(有内容信息→无内容的信号序列)
+<strong>信源编码器:</strong>完成大部分压缩任务;
+<strong>信道编码器:</strong></p>
+
+<ol>
+  <li>
+    <p>侧重解决传输可靠性的问题</p>
+  </li>
+  <li>把压缩的位流转译成既适应存储又适合传输的信号</li>
+  <li>降低信号调制/解调过程中的误码率</li>
+</ol>
+
+<p>（2）解码</p>
+
+<p>码元恢复与信号合成; 体现解压算法及逆变换
+(无内容的编码数据→有内容的还原数据）</p>
+
+<p>（3）对称和非对称</p>
+
+<p>压/解实时; 压缩非实时，解压实时</p>
+
+<ul>
+  <li>
+    <p>实时解压缩是指在接收数据的同时进行解压缩，以还原原始数据</p>
+  </li>
+  <li>对称加密：在对称加密中，相同的密钥用于加密和解密数据。这意味着发送方和接收方都必须共享相同的密钥。对称加密算法通常比非对称加密算法更快速，因此在实时通信和数据传输中很有用。但是，对称加密存在一个安全性挑战，即如何安全地共享密钥。</li>
+  <li>非对称加密：在非对称加密中，存在一对密钥：公钥和私钥。公钥用于加密数据，而私钥用于解密。这种加密方式更安全，因为不需要共享私钥，但通常比对称加密慢得多，因此在实时通信中可能不太适用。</li>
+</ul>
+
+<h3 id="压缩的方法分类">压缩的方法分类</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>压缩类型</th>
+      <th>编码技术</th>
+      <th> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>无损压缩</td>
+      <td>统计编码</td>
+      <td><strong>行程编码</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td> </td>
+      <td><strong>霍夫曼</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td> </td>
+      <td><strong>算术编码</strong></td>
+    </tr>
+    <tr>
+      <td>有损压缩</td>
+      <td>变换编码</td>
+      <td>快速傅里叶变换（FFT）</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td> </td>
+      <td><strong>离散傅里叶变换</strong>（DCT）</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td> </td>
+      <td>离散小波变换（DWT）</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td>重要性</td>
+      <td><strong>自带编码</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="1-哈夫曼编码">1. 哈夫曼编码</h3>
+
+<h4 id="编码方案的效率的评判">编码方案的效率的评判</h4>
+
+<p>信息量:<strong>某信息消除不确定性的度量</strong>。设信源 X 的符号集为 $\huge X_i(i=1,2,…N)$，X.出现的概率为 $\huge P(X_i)$</p>
+
+<p>则 X 的信息量为:
+\(S(X_i)=-log_{2}P(X_i)\)
+式中底为 2 则单位为<strong>bit (binarydigit)</strong>
+信息熵: 信源数据所携带的<strong>平均信息量。</strong>故信源 X 的熵定义为:
+\(S(X) = -\sum_{i=1}^{n} P(X_i) log_2 P(X_i)\)
+若信源 X 的熵为 2 bit，意味着为 X 编码需要的平均码长为 2。</p>
+
+<p>然后计算编码的平均码长 $l_i$ 是对应编码的长度 $P (X_i)$ 是对应出现的概率
+\(\sum_{i=1}^n l_i P (X_i)\)
+这就是熵编码原理的数学依据:<strong>信源符号集的平均码长→S (X)</strong>(最理想情况下会接近平均信息熵，一般情况下是平均码长比平均信息量要大)。
+按熵值定义信源符号集的<strong>最小平均码长</strong>，设计编码方案。</p>
+
+<h4 id="哈夫曼编码总结">哈夫曼编码总结</h4>
+
+<ol>
+  <li>适用场合: 可用于非均匀概率分布的信源编码
+只要码表以大量统计数据为基础，就能获得好的压缩效果。
+注意: 均匀概率的信源，编码会产生定长码 - 失效。</li>
+  <li>Huffman 树及编码不唯一，与信源初始条件和左右节点赋值{(0,1), (1,0)}有关;
+但平均码长应相等，故压缩效率相同。</li>
+</ol>
+
+<h3 id="2-行程编码">2. 行程编码</h3>
+
+<p>行程: 具有相同灰度值的连续符号的长度;</p>
+
+<p>示例：</p>
+
+<p><img src="./多媒体技术基础.assets/image-20230922111959222.png" alt="image-20230922111959222" /></p>
+
+<p>编码结果: 用 13 对 (NL)数值取代了 64 个像元的灰度值以少代多思想</p>
+
+<p>编码后，只要存储或传输两个数值 (NL)，就可取代 L 个像元
+的相同灰度值 N; 从而代替大量邻域冗余。</p>
+
+<p><strong>适用场景：</strong>适用于二值图像压缩，是传真编码的压缩方法;
+在 JPEG 编码中，用于处理 DCT 交流系数。
+<strong>扫描方式：</strong>行程越长压缩率越高。
+应选择行程长的扫描方向: 水平，垂直，之字形 (Zig-Zag)</p>
+
+<h3 id="3-算术编码">3. 算术编码</h3>
+
+<p>在 JPEG 扩展系统中取代 Huffman 编码。优点:
+①用在数据概率分布较均匀的场合; 与 Huffman 编码形成互补;
+②压缩效率高出 Huffman 编码约 5%。
+(1)算术编码的基本原理
+<strong>基本思想:</strong> 基于递归概率区间划分的二进制编码。</p>
+
+<p><strong>具体过程:</strong></p>
+
+<ol>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>把信源符号序列{X</td>
+          <td>i=1,2,…, n}发生的概率用实数区间[0，1]上的间隔 (X 的取值范围)来表示;</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>按符号概率大小来分配符号间隔</li>
+  <li>使[0，1]随迭代计算次数的增加而逐次变窄;</li>
+  <li>最后范围便是替代{X.}符号串编码的取值范围
+    <h2 id="声音编码压缩技术">声音编码压缩技术</h2>
+  </li>
+</ol>
+
+<h3 id="一些概念">一些概念</h3>
+
+<p><strong><em>音频信号的分类</em></strong>：语音信号和非语音信号
+<strong><em>声音的频谱</em></strong>：线性频谱，连续频谱
+<strong>线性频谱</strong>是具有周期性的单一频率的声波。
+<strong>连续频谱</strong>是具有非周期性的带有一定的频带所有频率分量的声波。
+<strong>声音的 A/D（模数转换）</strong> 与 <strong>D/A 转换（数模转换）</strong>（A 是 Analog ，模拟；D 是 digital ,数字)</p>
+
+<h3 id="模拟音频数字化的过程">模拟音频数字化的过程</h3>
+<ol>
+  <li><strong>音频采样</strong></li>
+  <li><strong>量化</strong></li>
+  <li><strong>编码</strong>
+采样和量化的过程可由 A/D 转换器实现。
+A/D 转换器以固定的频率去采样，即每个周期测量和量化信号一次，经<strong>采样</strong>和<strong>量化</strong>后声音信号经<strong>编码</strong>后就成为数字音频信号，可以将其以文件的形式保存在计算机的存储介质中，这样的文件一般成为数字声波文件。</li>
+</ol>
+
+<p>过程示意图：
+<img src="attachements/Pasted%20image%2020230927102715.png" alt="" /></p>
+
+<h3 id="数字音频的文件格式">数字音频的文件格式</h3>
+
+<p><strong>1. WAV 文件</strong>
+	WAV 文件又称为<strong>波形文件</strong>，是对声音模拟波形的采样，WAV 文件由<strong>文件头</strong>和<strong>文件数据块</strong>组成，文件头包括标志符，语音特征值，声道特征以及 PCM（脉冲编码调制）格式类型标志等。WAV 格式支持多种压缩算法、多种音频位数，采样频率和声道，但其文件尺寸较大，多用于存储简短的<strong>声音片段</strong>。
+	未压缩声音大数据量可用下式计算：
+	数据量（KB）=（采样频率 KHz * 采样位数 bit * 声道数 * 时间秒）/8
+<strong>2. MPEG 音频文件——. MP 1/. MP 2/. MP 3</strong>
+	MP 3 是 MPEG 标准中的音频部分，是一种有损压缩，根据压缩质量和编码复杂程度的不同可分为三层（MPEG Audio Layer 1/2/3), 即 MP 1, MP 2 和 MP 3
+	MPEG 音频压缩率很高，MP 1 和 MP 2 的分别为 4：1 何 6：1~8：1, 而 MP 3 的压缩率高达 10：1~12：1。一分钟 CD 音质的音乐未经压缩 10 MB，压缩后只有 1 MB，同时其音质基本不失真</p>
+<ol>
+  <li>VOC 文件</li>
+  <li>AIFF 文件（Audio Interchange File Format)</li>
+  <li>RealAudio 文件——. RA/. RM/. RAM
+    <h3 id="声音质量的评价">声音质量的评价</h3>
+    <p>三种方法可以衡量声音的质量。</p>
+  </li>
+  <li>带宽衡量声音质量
+ DAT（48 KHz), CD (44.1 KHz), FM (2.05 KHz), AM (11.025 KHz)和数字电话（8 KHz）。
+ 示意图：
+ <img src="attachements/Pasted%20image%2020230927104849.png" alt="" /></li>
+  <li>信噪比（singal to  noise ratio, SNR)
+ 声音信号与噪音强度之间的比，信噪比越高表示音频质量越好
+ \(SNR=20 lg (\frac{V_{signal}}{V_{nosie}})\) 
+ 单位是 (dB)
+ 分贝：以$20\mu Pa$为基准，这是人耳能听到的最小的声音，大致相当于 3 米外一直蚊子在飞</li>
+  <li>声音主观质量的度量
+    <h3 id="脉冲编码调制pulse-code-modulationpcm">脉冲编码调制（Pulse Code Modulation，PCM）</h3>
+    <p>它将模拟信号通过一系列固定时间间隔的采样得到离散样本，并将每个样本量化成一个二进制数字，然后通过串行传输将这些数字发送到接收端。<strong>它是一种将模拟音频信号转换为数字形式的过程，也称为音频数字化。</strong>
+（1）PCM 编码的原理
+·波形编码：使重构语音信号的波形与原始信号波形尽量接近。
+·概念上最简单、理论上最完善的编码系统，质量最好。
+<img src="attachements/Pasted%20image%2020230927110555.png" alt="" /></p>
+  </li>
+</ol>
+
+<p>（2）步骤：
+第一步是<strong>采样</strong>，每隔一段时间间隔读一次声音的幅度；
+第二步是<strong>量化</strong>，把采样得到的声音信号幅度归属到量化电平。量化可归纳为两类：一类称为<strong>均匀量化</strong>，另一类称为<strong>非均匀量化</strong>。量化方法不同量化后的数据量也不同。因此，可以说量化也是一种压缩数据的方法；
+第三步是<strong>编码</strong>，按一定格式记录采样和量化后的数据。</p>
+
+<p><strong>均匀量化</strong>：采用均匀的时间间隔度量采样得到的电平
+<img src="attachements/Pasted%20image%2020230927111034.png" alt="" />
+<strong>非均匀量化</strong>：非均匀量化在某些情况下可以提高信号的编码效率。例如，在人类听觉系统中，对于低幅度信号的敏感度比高幅度信号要高，因此在音频信号编码中使用非均匀量化可以提高信号的编码效率，减少编码所需的位数，从而节省传输和存储空间。
+大的输入信号采用大的量化间隔，小的输入信号采用小的量化间隔。这样就可以在满足精度要求的同时用较少的位数来表示。数据还原时采用相同的规则。
+<img src="attachements/Pasted%20image%2020230927111258.png" alt="" /></p>
+
+<h3 id="增量调制dm">增量调制（DM）</h3>
+<p>PCM 编码的变形，是一种预测编码技术。如果实际的采样信号与预测信号之差极性为“正”（就是实际的比预测的大），则用 1 表示，相反则用 0 表示
+<img src="attachements/Pasted%20image%2020230927112036.png" alt="" /></p>
+<ul>
+  <li>增量调制器的输出不能跟踪输入信号的快速变化称为<strong>斜率过载</strong>。</li>
+  <li>在输入信号缓慢变化部分，输出交变的“0”和“1”。称为<strong>粒状噪声</strong>（granular noise），这种噪声是不可能消除的。
+    <h3 id="自适应脉冲编码调制adepted-pluse-code-modulation-apcm">自适应脉冲编码调制（Adepted Pluse Code Modulation ，APCM）</h3>
+  </li>
+  <li><strong>根据输入信号幅度大小来动态改变量化阶大小的一种波形编码技术</strong>。这种自适应可以是瞬时自适应，即量化阶的大小每隔几个样本就改变，也可以是非瞬时自适应，即量化阶的大小在较长时间才发生变化。</li>
+  <li>改变量化阶大小的方法有两种：<strong>前向自适应</strong>和<strong>后向自适应</strong>。前者是根据<strong>未量化的样本值的均方根值</strong>来估算输入信号的电平，以此来确定量化阶的大小，并对其电平进行编码作为边信息（side information）传送到接收端。后者是从量化器刚<strong>输出的过去样本中来提取量化阶信息</strong>。
+    <h3 id="线性预测编码lpc">线性预测编码（LPC）</h3>
+    <p>基本思想：
+声音是惰性腔体不可突变，因而语音信号具有短时间内的相关性，通过分析话音波来产生声道参数，对声音的编码就替代了为了对于这些参数的编码，这样声音编码就会大大减少为参数编码。
+过程：
+使用过去 P 个样本来预测当前时刻的采样值，预测值可以用过去 p 个采样值表示</p>
+  </li>
+</ul>
+
+<h3 id="音频编码标准">音频编码标准</h3>
+
+<h2 id="数字图像与视频">数字图像与视频</h2>
+<p>可见光，波长 350~750 nm ，大多数可见光是由不同波长的光组合而成
+频段应用
+<img src="attachements/Pasted%20image%2020230929102430.png" alt="" />
+颜色空间</p>
+<ol>
+  <li>RGB 显示器信号</li>
+  <li>HSI 人眼识别</li>
+  <li>YUV 电视信号</li>
+  <li>CMY 彩色印刷
+    <h3 id="色彩空间">色彩空间</h3>
+    <h4 id="rgb-色彩空间">RGB 色彩空间</h4>
+    <p>Red Green Blue
+颜色=R (红色的百分比)+G (绿色的百分比)+B (蓝色的百分比)</p>
+  </li>
+</ol>
+
+<h4 id="hsl">HSL</h4>
+<p>HSL 模型（hue-saturation-lightness, HSL）颜色模型
+H 定义颜色波长，称为色调，S 定义颜色强度，表示颜色的深浅的程度，L 定义参入白光的量，定义为亮度</p>
+<h4 id="cmy-彩色空间">CMY 彩色空间</h4>
+<p>青色 (Cyan), 品红 (Magenta), 黄（yellow）
+\(C=255-R \newline\)
+\(M=255-G\)</p>
+
+\[Y=255-B\]
+
+<p>彩色打印机用的是青，品红，黄和黑色
+因为 cmy 更节省，每种颜料吸收了一种颜色反射了两种颜色，然后用来配置一种颜色花费的颜料就更少
+<img src="attachements/Pasted%20image%2020230929111316.png" alt="" /></p>
+<h4 id="yuvyiqycbcr-色彩空间">YUV，YIQ，YCbCr 色彩空间</h4>
+<p>他们的色彩空间是为电视系统开发的。
+\(\begin{pmatrix}Y \\
+U \\
+V \\
+\end{pmatrix}=\begin{pmatrix}0.3 \ \ \ \ \ \ \ \ 0.59   \ \ \ \ 0.11 \\
+-0.15 \ \ \ \ -0.29 \ \ \ \ 0.44  \\
+0.16 \ \ \ \  -0.52 \ \ \ \  -0.96\end{pmatrix} \\
+\begin{pmatrix} R \\ G \\ B\end{pmatrix}\)</p>
+
+<h3 id="数字图像属性">数字图像属性</h3>
+
+<h4 id="分辨率">分辨率</h4>
+<p>图像中的每个像素的颜色、亮度等信息按照矩阵的形式紧密的排列构成</p>
+
+<h4 id="图像深度">图像深度</h4>
+<p>每个像素的<strong>二进制数字位数</strong>
+24 位（$2^{24}$种颜色）
+32 位（RGB 个 8 位，剩下的 8 位称为 alpha channel 可在图像上叠加文字</p>
+
+<h4 id="显示器与颜色">显示器与颜色</h4>
+<p>$显示数据容量=水平分辨率\times 垂直分辨率\times 显示深度$</p>
+<h4 id="真彩色和伪彩色">真彩色和伪彩色</h4>
+<h3 id="图像格式">图像格式</h3>
+<ol>
+  <li>
+    <p>位图
+图像中每个像素用一个数组组成
+每个数组包括：颜色、亮度、属性</p>
+  </li>
+  <li>矢量图（bmp）
+每个矢量图时是一个图像实体，它具有颜色、形状、轮廓大小位置属性
+矢量属性可以调整</li>
+  <li>Bmp</li>
+  <li>GIF</li>
+  <li>JPEG
+    <h3 id="jpeg-压缩标准">JPEG 压缩标准</h3>
+    <p>JPEG 算法: 连续色调, 多级灰度, 静态图像的压缩编码方法 (彩色、灰度、静止图像)
+<strong>应用场景</strong>
+a.静态图像压缩;
+b.图像序列的帧内压缩
+<strong>设计目标</strong>
+a.压缩比与图像保真度达到较高技术水平;
+b.能适用于任何种类的连续色调的图像; 长宽、内容、复杂度、统计特性是不受限的;
+c.计算复杂性是可控制的: 软件可完成, 硬件实现算法.
+<strong>jpeg 的压缩流程：</strong>
+<img src="attachements/Pasted%20image%2020231013103450.png" alt="" />
+熵编码不损失信息
+量化器损失信息</p>
+    <h4 id="正向离散余弦变换fdctforward-discrete-cosine-transform">正向离散余弦变换（FDCT，forward Discrete Cosine Transform）</h4>
+    <p>(1)对每个单独的图像分量，把整个分量图像分成 8 X 8 的图像块，对每个图像块进行离散余弦变换的输入。通过 DCT变换，把能量集中在少数几个系数上。</p>
+    <h4 id="量化损失信息">量化（损失信息）</h4>
+    <h4 id="z-字扫描">Z 字扫描</h4>
+    <h4 id="差分脉冲编码调制">差分脉冲编码调制</h4>
+    <h4 id="行程长度编码">行程长度编码</h4>
+    <h4 id="熵编码">熵编码</h4>
+  </li>
+</ol>
+
+<h4 id="jpeg-标准的可选压缩操作jpeg-静态图像压缩国际标准体系">Jpeg 标准的可选压缩操作（JPEG 静态图像压缩国际标准体系）</h4>
+
+<h2 id="多媒体通信和网络">多媒体通信和网络</h2>
+
+<h3 id="多媒体通信性能需求">多媒体通信性能需求</h3>
+<h4 id="吞吐量">吞吐量</h4>
+<h4 id="可靠性">可靠性</h4>
+<h4 id="延时">延时</h4>
+
+<h3 id="多媒体通信的qos">多媒体通信的Qos</h3>
+
+<h3 id="多媒体通信协议">多媒体通信协议</h3>
+<p>互连网早期主要用来提供可靠的数据传送服务，对延时几乎没有什么要求。TCP/IP 协议就是为这种类型的通信设计的，而且工作得很好。然而，多媒体应用却具有不同的特性，因此就需要不同的协议来提供所需要的服务。与多媒体应用密切相关的协议包括应用层的 RTP、RTCP、RTSP 和传输层的 RSVP 等。</p>
+<h4 id="实时运输协议-rtpreal-time-trainsport-protocol-">实时运输协议 RTP（Real Time Trainsport Protocol ）</h4>
+<p>应用: RTP 广泛应用于流媒体通信，电话、视频会议、电视。</p>
+
+<p><strong>RTP 的特点：</strong></p>
+<ul>
+  <li>RTP 为实时应用提供端到端的运输，但<strong>不提供任何服务质量的保证。</strong></li>
+  <li>多媒体数据块经压缩编码后先送给 RTP 封装为 RTP 分组，再装入运输层的 UDP 用户数据报，然后再交给 IP 层。</li>
+  <li>RTP 是一个协议框架，只包含了实时传输的一些共同功能。</li>
+  <li>RTP 并不<strong>对多媒体数据块做任何处理</strong>，而只是向应用层提供一些附加的信息，让应用层知道应当如何进行处理。</li>
+</ul>
+
+<p><strong>RTP 的层次</strong></p>
+<ul>
+  <li>从应用开发者的角度看，RTP 应当是应用层的一部分。</li>
+  <li>在发送端，开发者必须编写用 RTP 封装分组的程序代码，然后把 RTP 分组交给 UDP 套接口。</li>
+  <li>在接收端，RTP 分组进入应用层后，要利用开发者的程序代码从 RTP 分组中把数据块提取出来。</li>
+  <li>RTP 封装了多媒体应用的数据块。由于 RTP 向多媒体应用程序提供了服务 (如时间戳和序号)，因此也可以将 RTP 看成是在 UDP 之上的一个传输层的子层。</li>
+</ul>
+
+<p><strong>示意图：</strong>
+<img src="attachements/Pasted%20image%2020231101081305.png" alt="" /></p>
+<h5 id="rtp-的首部格式">RTP 的首部格式</h5>
+<p><img src="attachements/Pasted%20image%2020231101081437.png" alt="" /></p>
+
+<p>P 是表示是否补充了数据的长度，因为可能需要让包的长度一样的（但不是必须要一样的）
+M：对于视频（由于视频比较大一帧数据传不完）表示一帧是这一幅图传输的结束，对于音频是标志为对话的开始
+有效载荷类型：音频压缩的标准，或是视频压缩的标准
+序号：提供分组的先后顺序（是因为 udp 中没有序号这一个字段，rtp 的下层是 udp），可以用来检测报文的丢失情况，可以用来排序
+时间戳：提供分组产生的时间，单位是采样的周期（时间是相对的）（音频一秒钟采 8000 次）就是要保证的视频的时间正常（就是真实发生的要和播放的速度要一致的）
+同步源标识符：就是指的是产生该数据的源（例如话筒，例如摄像头），每一个不同的源对应一个唯一的标识
+参与源标识符：标识有多少个源参与了这个数据的产生，最多允许 16 个，与参与源数配合</p>
+
+<p><strong>有效载荷类型：</strong>
+<img src="attachements/Pasted%20image%2020231101083653.png" alt="" /></p>
+
+<h4 id="实时运输控制协议-rtcprtp-control-protocol">实时运输控制协议 RTCP（RTP Control Protocol）</h4>
+
+<p>封装的统计报表的</p>
+<ul>
+  <li>RTCP 是与 RTP 配合使用的协议。</li>
+  <li>RTCP 为应用程序提供会话质量或者广播性能的信息。</li>
+  <li>RTCP 不封装声音或者视频数据，而是封装发送端和/或者接收端的统计报表。包括发送的信息包数目、丢失的信息包数目和信息包的抖动等，这些信息对发送端、接收端或者网络管理员都很有用。</li>
+  <li>RTCP 没有指定使用这个反馈信息做什么，这取决于应用程序开发人员。例如，发送端可以根据反馈信息来修改传输速率; 接收端可以判断问题是本地的、区域的还是全局的;</li>
+  <li>网络管理员可以评估网络用于多目标广播的性能。</li>
+</ul>
+
+<p><strong>RTCP 内容示例</strong></p>
+<ul>
+  <li>RTCP 告诉另外一方，在一段时间 (如 5 秒)内它发送多少数据包给对方，接收到了多少对方的包。</li>
+  <li>RTCP 发送 64 位的绝对时间戳和 32 位的相对时间戳。64 位绝对时间戳的前 32 位是从 1900-1-1 日 0 时开始到现在的以秒为单位的整数部分，后 32 位是此时间的小数部分。32 位的相对时间戳和 RTP 中的时间戳没有区别。</li>
+  <li>当应用程序建立一个 RTP 会话时，目的传输地址由一个网络地址和一对端口。RTP 数据发向偶数 UDP 端口，而 RTCP 数据发向偶数+1 UDP 端口。</li>
+</ul>
+
+<p>发送：</p>
+<ul>
+  <li>每个参与者周期性地发送 RTCP 控制信息包，它带有发送端和接收端对服务质量的统计信息报告。</li>
+  <li>RTCP 分组与 RTP 均使用 UDP 传送可将多个 RTCP 分组封装在一个 UDP 用户数据报中。</li>
+  <li>
+    <p>RTCP 一般控制在会话带宽的 5%内。
+<img src="attachements/Pasted%20image%2020231101091516.png" alt="" /></p>
+  </li>
+  <li>发送端报告分组 SR 周期性地向所有接收端用多播方式进行报告。</li>
+  <li>接收端报告分组 RR 周期性地向所有的点用多播方式进行报告。</li>
+  <li>特定应用分组 APP 使应用程序能够定义新的分组类型。</li>
+  <li>源点描述分组 SDES 给出会话参加者的描述。</li>
+  <li>结束分组 BYE 表示关闭一个数据流。</li>
+</ul>
+
+<h4 id="实时流播协议-rtsp">实时流播协议 RTSP</h4>
+<p>RTSP 协议以客户/服务器方式工作，它是一个<strong>多媒体播放控制协议</strong>，使得用户在播放从因特网实时数据时能够进行控制，如: 暂停/继续、后退、前进等。因此 RTSP又称为“因特网遥控协议”。
+RTSP 在体系结构上位于 RTP 和 RTCP 之上，它使用 TCP (UDP 也可实现)完成数据传输。</p>
+
+<p>**<img src="attachements/Pasted%20image%2020231101091925.png" alt="" /></p>
+
+<ul>
+  <li>应用层协议 RTSP 描述了与 RTP 间的交互操作。<strong>RTSP 控制 RTP 会话的协议</strong>，使得实时流媒体的受控和点播变得可能。</li>
+  <li>RTSP 可以对流媒体提供<strong>播放、暂停、快进等 12 种操作</strong>，它定义具体的控制消息、操作方法、状态码等。</li>
+  <li>RTSP 参考了 <strong>HTTP/1.1 协议</strong>。HTTP 传送 HTML，而 RTSP 传送的是多媒体数据。</li>
+  <li>用来控制具有实时性的数据传输，但它本身并不<strong>传输数据</strong>，而是依赖于下层传输协议的服务。</li>
+</ul>
+
+<h4 id="rsvp-协议">RSVP 协议</h4>
+
+<p>当前因特网主要是为 IP 数据报提供服务，而对吞吐率和时延不提供任何保证。
+QoS 需要一种机制，这种机制允许应用程序保留网上的资源。资源保留协议 (Resource Reservation Protocol, RSVP)就是这样一个标准。
+RSVP 协议允许应用程序为它们的数据流保留带宽。主机使用 RSVP 向网络请求保留一定带宽，路由器也使用 RSVP 转发带宽请求。为了执行 RSVP 协议，在接收端、发送端和路由器中都必需要支持 RSVP 协议。</p>
+
+<p><strong>工作原理</strong>
+<img src="attachements/Pasted%20image%2020231101092547.png" alt="" /></p>
+<ol>
+  <li>发送方发送一个 RSVP 的路径消息给接收方;</li>
+  <li>接收方接收到该消息;</li>
+  <li>接收方沿相反的方向申请预留资源; 路由器查看是否能够满足该请求;</li>
+  <li>发送方收到一个资源预留消息;</li>
+  <li>发送方开始台发送数据。</li>
+</ol>
+
+<p><strong>RSVP 的特点：</strong></p>
+
+<p>RSVP 是传输层的协议
+RSVP 是信令 (signaling)协议，传输的是命令而不是有效载荷。
+RSVP 是接收端启动的协议
+<strong>说明:</strong> RSVP 标准没有指定网络如何为数据流保留资源。一旦提出要求保留资源，实际上是路由器来为数据流保留带宽。</p>
+
+<h4 id="区分服务-diffserv">区分服务 DiffServ</h4>
+
+<p><strong>区分服务的基本概念</strong></p>
+<ul>
+  <li>由于综合服务 IntServ 和资源预留协议 RSVP 都较复杂，很难在大规模的网络中实现，因此 IETF 提出了新的策略，即<strong>区分服务 DiffServ</strong>。在网络边界将数据流按 QoS 要求进行<strong>简单分类，不同的类别在内部节点的转发中实现不同的转发特性。</strong></li>
+  <li>区分服务有时也简写为 <strong>DS</strong>，具有区分服务功能的结点就称为 DS 结点。</li>
+</ul>
+
+<p><strong>与 IntSer 相比的 DiffServ 的优点</strong></p>
+<ol>
+  <li>首先，路由器无须维护每个连接的信息，对系统资源要求低;</li>
+  <li>其次，对网络上的多种业务进行优先级归类合并成有限的几个优先级类别，网络设备处理更简单;</li>
+  <li>再次，采用 IP 包中的 ToS 字段进行优先级标示，没有附加的标签，这种做法兼容性好，易于实现。</li>
+  <li>另外，随着网络的扩展，优先级类别无须扩展。</li>
+</ol>
+
+<p><strong>区分服务的实现（略）</strong>
+对应字段的划分
+把负担放在了边界路由器上了</p>
+
+<p>只要知道概念和区分服务对比的优点</p>
+
+<h2 id="超媒体与-web-系统">超媒体与 Web 系统</h2>
+
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2023-12-03T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2023/12/02/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html">自然语言处理第一次实验报告</a></div><div class="next"><span>下篇</span><a href="/2023/12/04/%E6%9C%BA%E5%99%A8%E5%AD%A6%E4%B9%A0%E5%AF%BC%E5%BC%95%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0.html">机器学习导引笔记</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Gao Xingjie"><meta itemprop="url" content="/"><meta itemprop="description" content="To be a question, to be an answer."><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"><li title="给我发邮件。">
+      <a class="button button--circle mail-button" itemprop="email" href="mailto:xingjie-gao@outlook.com" target="_blank">
+        <i class="fas fa-envelope"></i>
+      </a><li title="在 Github 上关注我。">
+        <a class="button button--circle github-button" itemprop="sameAs" href="https://github.com/Kfkcome" target="_blank">
+          <div class="icon"><svg fill="#000000" width="24px" height="24px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path class="svgpath" data-index="path_0" fill="#272636" d="M0 525.2c0 223.6 143.3 413.7 343 483.5 26.9 6.8 22.8-12.4 22.8-25.4l0-88.7c-155.3 18.2-161.5-84.6-172-101.7-21.1-36-70.8-45.2-56-62.3 35.4-18.2 71.4 4.6 113.1 66.3 30.2 44.7 89.1 37.2 119 29.7 6.5-26.9 20.5-50.9 39.7-69.6C248.8 728.2 181.7 630 181.7 513.2c0-56.6 18.7-108.7 55.3-150.7-23.3-69.3 2.2-128.5 5.6-137.3 66.5-6 135.5 47.6 140.9 51.8 37.8-10.2 80.9-15.6 129.1-15.6 48.5 0 91.8 5.6 129.8 15.9 12.9-9.8 77-55.8 138.8-50.2 3.3 8.8 28.2 66.7 6.3 135 37.1 42.1 56 94.6 56 151.4 0 117-67.5 215.3-228.8 243.7 26.9 26.6 43.6 63.4 43.6 104.2l0 128.8c0.9 10.3 0 20.5 17.2 20.5C878.1 942.4 1024 750.9 1024 525.3c0-282.9-229.3-512-512-512C229.1 13.2 0 242.3 0 525.2L0 525.2z" />
+</svg>
+</div>
+        </a>
+      </li></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© Ennis's Blog 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script>
+  window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
+    var $canvas = null, $this = null, _ctx = null, _text = '';
+    $('.language-chart').each(function(){
+      $this = $(this);
+      $canvas = $('<canvas></canvas>');
+      _text = $this.text();
+      $this.text('').append($canvas);
+      _ctx = $canvas.get(0).getContext('2d');
+      (_ctx && _text) && (new Chart(_ctx, JSON.parse(_text)) && $this.attr('data-processed', true));
+    });
+  });
+</script>
+<script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};_config.TeX = { equationNumbers: { autoNumber: "all" } };MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+
