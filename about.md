@@ -24,8 +24,22 @@ titles:
   fr-LU   : *FR
   # @end locale config
 key: page-about
+mode: immersive
+header:
+  theme: dark
+article_header:
+  type: cover
+  theme: ocean
+  # background_color: '#203028'
+  image:
+    # gradient: 'linear-gradient(135deg, rgba(34, 139, 87 , .4), rgba(139, 34, 139, .4))'
+    src: /assets/images/cover3.jpg
 ---
-
+<style>
+  .page__header .header__brand path {
+    fill: rgba(255, 255, 255, .95);
+  }
+</style>
 Welcome to my blog! 🌏 🌍 🌎
 
 My Name is Gao Xingjie, I am a computer science and technology student at NEU.

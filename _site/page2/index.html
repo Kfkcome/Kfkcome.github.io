@@ -254,9 +254,9 @@
 </head>
   <body>
     <div class="root" data-is-touch="false">
-      <div class="layout--page js-page-root"><div class="page__main js-page-main page__viewport cell cell--auto">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport cell cell--auto">
 
-      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header header--dark"><div class="main">
       <div class="header__title">
         <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 width="24px" height="24px" viewBox="0 0 24 24">
@@ -271,14 +271,16 @@
         <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
       </nav></div>
   </header>
-</div><div class="page__content"><div class ="main"><div class="grid grid--reverse">
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero hero--dark overlay" style="background-image:linear-gradient(135deg, rgba(34, 139, 87 , .4), rgba(139, 34, 139, .4)),url(/assets/images/cover3.jpg);background-color:#203028;"><div class="hero__content"><div class ="main"><header style="display:none;"><h1>高星杰的博客</h1></header><p class="overlay__excerpt">Ennis's Blog | 高星杰的博客</p></div></div>
+              </div>
+            </div><div class ="main"><div class="grid grid--reverse">
 
               <div class="col-aside d-print-none js-col-aside"></div>
 
               <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
 
 <!-- end custom main top snippet -->
-<article itemscope itemtype="http://schema.org/WebPage"><header style="display:none;"><h1>高星杰的博客</h1></header><meta itemprop="headline" content="高星杰的博客"><meta itemprop="author" content="Gao Xingjie"/><div class="js-article-content"><div class="layout--articles"><div class="article-list items items--divided"><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
+<article itemscope itemtype="http://schema.org/WebPage"><meta itemprop="headline" content="高星杰的博客"><meta itemprop="author" content="Gao Xingjie"/><div class="js-article-content"><div class="layout--articles"><div class="article-list items items--divided"><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
           <header><a href="/2023/12/08/%E6%8E%A5%E5%8F%A3%E6%8A%80%E6%9C%AF%E5%AE%9E%E9%AA%8C%E5%A4%A7%E4%BD%9C%E4%B8%9A%E5%A4%9A%E5%8A%9F%E8%83%BD%E6%97%B6%E9%92%9F.html"><h2 itemprop="headline" class="item__header">接口技术实验大作业多功能时钟</h2></a></header>
           <div class="item__description"><div class="article__content" itemprop="description articleBody"><h2 id="接口技术实验大作业多功能时钟">接口技术实验大作业多功能时钟</h2>
 
@@ -455,7 +457,7 @@
             </li></ul></div><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2023-12-04T00:00:00+08:00">
     <meta itemprop="keywords" content="机器学习,课程笔记"></div>
       </article></div>
-</div><div class="layout--home"><div class="pagination"><p>共计 23 篇文章，3 页。</p>
+</div><div class="layout--home"><div class="pagination"><p>共计 24 篇文章，3 页。</p>
     <div class="pagination__menu">
       <ul class="menu menu--nowrap"><li><a class="button button--secondary button--circle" href="/">
             <i class="fas fa-angle-left"></i>
@@ -475,7 +477,11 @@
 })();*/
 </script>
 
-
+<style>
+  .page__header .header__brand path {
+    fill: rgba(255, 255, 255, .95);
+  }
+</style>
 
 </div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
 
