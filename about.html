@@ -255,9 +255,9 @@
 </head>
   <body>
     <div class="root" data-is-touch="false">
-      <div class="layout--page js-page-root"><div class="page__main js-page-main page__viewport cell cell--auto">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport cell cell--auto">
 
-      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header header--dark"><div class="main">
       <div class="header__title">
         <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 width="24px" height="24px" viewBox="0 0 24 24">
@@ -272,7 +272,7 @@
         <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item navigation__item--active"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
       </nav></div>
   </header>
-</div><div class="page__content"><div class ="main"><div class="grid grid--reverse">
+</div><div class="page__content"><img class="article__header--cover" src="/assets/images/cover3.jpg" /><div class ="main"><div class="grid grid--reverse">
 
               <div class="col-aside d-print-none js-col-aside"></div>
 
@@ -282,7 +282,13 @@
 <article itemscope itemtype="http://schema.org/Article"><div class="article__header"><header><h1>关于</h1></header></div><meta itemprop="headline" content="关于"><meta itemprop="author" content="Gao Xingjie"/><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
 
 <!-- end custom article top snippet -->
-<div class="article__content" itemprop="articleBody"><p>Welcome to my blog! 🌏 🌍 🌎</p>
+<div class="article__content" itemprop="articleBody"><style>
+  .page__header .header__brand path {
+    fill: rgba(255, 255, 255, .95);
+  }
+</style>
+
+<p>Welcome to my blog! 🌏 🌍 🌎</p>
 
 <p>My Name is Gao Xingjie, I am a computer science and technology student at NEU.</p>
 

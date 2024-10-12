@@ -1,105 +1,62 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2024-10-12T13:22:58+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2024-10-12T18:08:40+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
 </subtitle><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><entry><title type="html">博客的开头</title><link href="http://localhost:4000/2024/10/10/%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%BC%80%E5%A4%B4.html" rel="alternate" type="text/html" title="博客的开头" /><published>2024-10-10T00:00:00+08:00</published><updated>2024-10-10T00:00:00+08:00</updated><id>http://localhost:4000/2024/10/10/%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%BC%80%E5%A4%B4</id><content type="html" xml:base="http://localhost:4000/2024/10/10/%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%BC%80%E5%A4%B4.html"><![CDATA[<h1 id="博客的开头">博客的开头</h1>
 <p>一直想要搞一个博客，但是奈何没有时间，现在终于闲下来了，找到网上的教程，做了这么个简陋的博客。
-记忆会消失，文字不会，所以想要用博客来记录自己的成长，记录自己的学习，同时希望可以能帮助到你。</p>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><summary type="html"><![CDATA[博客的开头 一直想要搞一个博客，但是奈何没有时间，现在终于闲下来了，找到网上的教程，做了这么个简陋的博客。 记忆会消失，文字不会，所以想要用博客来记录自己的成长，记录自己的学习，同时希望可以能帮助到你。]]></summary></entry><entry><title type="html">自然语言处理课程报告</title><link href="http://localhost:4000/2024/01/12/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E8%AF%BE%E7%A8%8B%E6%8A%A5%E5%91%8A.html" rel="alternate" type="text/html" title="自然语言处理课程报告" /><published>2024-01-12T00:00:00+08:00</published><updated>2024-01-12T00:00:00+08:00</updated><id>http://localhost:4000/2024/01/12/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E8%AF%BE%E7%A8%8B%E6%8A%A5%E5%91%8A</id><content type="html" xml:base="http://localhost:4000/2024/01/12/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E8%AF%BE%E7%A8%8B%E6%8A%A5%E5%91%8A.html"><![CDATA[<h2 id="自然语言处理课程报告">自然语言处理课程报告</h2>
+记忆会消失，文字不会，所以想要用博客来记录自己的成长，记录自己的学习，同时希望可以能帮助到你。</p>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><summary type="html"><![CDATA[博客的开头 一直想要搞一个博客，但是奈何没有时间，现在终于闲下来了，找到网上的教程，做了这么个简陋的博客。 记忆会消失，文字不会，所以想要用博客来记录自己的成长，记录自己的学习，同时希望可以能帮助到你。]]></summary></entry><entry><title type="html">自然语言处理课程报告</title><link href="http://localhost:4000/2024/01/12/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E8%AF%BE%E7%A8%8B%E6%8A%A5%E5%91%8A.html" rel="alternate" type="text/html" title="自然语言处理课程报告" /><published>2024-01-12T00:00:00+08:00</published><updated>2024-01-12T00:00:00+08:00</updated><id>http://localhost:4000/2024/01/12/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E8%AF%BE%E7%A8%8B%E6%8A%A5%E5%91%8A</id><content type="html" xml:base="http://localhost:4000/2024/01/12/%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86%E8%AF%BE%E7%A8%8B%E6%8A%A5%E5%91%8A.html"><![CDATA[<style>
+  .page__header .header__brand path {
+    fill: rgba(255, 255, 255, .95);
+  }
+</style>
+
+<h2 id="自然语言处理课程报告">自然语言处理课程报告</h2>
 
 <p>基于Transfer Text-to-Text Transformer（T5）论文标题生成模型</p>
 
 <!---more-->
 
 <!---more-->
-<style> .pdf-embed-wrap-71cb1fab-b218-4b11-bb68-33174bf6a91c { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-71cb1fab-b218-4b11-bb68-33174bf6a91c { height: 100%; } .pdf-embed-container-71cb1fab-b218-4b11-bb68-33174bf6a91c iframe { width: 100%; height: 100%; } </style>
-<div class="pdf-embed-wrap-71cb1fab-b218-4b11-bb68-33174bf6a91c"> <div class="pdf-embed-container-71cb1fab-b218-4b11-bb68-33174bf6a91c"> <iframe src="/assets/pdf/自然语言处理/自然语言处理课程报告.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><category term="自然语言处理" /><category term="nlp" /><category term="实验报告" /><summary type="html"><![CDATA[自然语言处理课程报告 基于Transfer Text-to-Text Transformer（T5）论文标题生成模型]]></summary></entry><entry><title type="html">计算机网络实验大作业SDN</title><link href="http://localhost:4000/2024/01/04/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E5%A4%A7%E4%BD%9C%E4%B8%9ASDN.html" rel="alternate" type="text/html" title="计算机网络实验大作业SDN" /><published>2024-01-04T00:00:00+08:00</published><updated>2024-01-04T00:00:00+08:00</updated><id>http://localhost:4000/2024/01/04/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E5%A4%A7%E4%BD%9C%E4%B8%9ASDN</id><content type="html" xml:base="http://localhost:4000/2024/01/04/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E5%A4%A7%E4%BD%9C%E4%B8%9ASDN.html"><![CDATA[<h2 id="计算机网络实验大作业sdn">计算机网络实验大作业SDN</h2>
-
-<p>SDN 实际应用实践
-<!---more--></p>
-<style> .pdf-embed-wrap-fa74fd9e-5c11-4df7-92f7-b913fa335297 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-fa74fd9e-5c11-4df7-92f7-b913fa335297 { height: 100%; } .pdf-embed-container-fa74fd9e-5c11-4df7-92f7-b913fa335297 iframe { width: 100%; height: 100%; } </style>
-<div class="pdf-embed-wrap-fa74fd9e-5c11-4df7-92f7-b913fa335297"> <div class="pdf-embed-container-fa74fd9e-5c11-4df7-92f7-b913fa335297"> <iframe src="/assets/pdf/计算机网络实验/计算机网络实验大作业SDN.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><category term="计算机网络" /><category term="实验报告" /><summary type="html"><![CDATA[计算机网络实验大作业SDN SDN 实际应用实践]]></summary></entry><entry><title type="html">计算机网络第七次实验报告</title><link href="http://localhost:4000/2024/01/04/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E4%B8%83%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html" rel="alternate" type="text/html" title="计算机网络第七次实验报告" /><published>2024-01-04T00:00:00+08:00</published><updated>2024-01-04T00:00:00+08:00</updated><id>http://localhost:4000/2024/01/04/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E4%B8%83%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A</id><content type="html" xml:base="http://localhost:4000/2024/01/04/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E4%B8%83%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html"><![CDATA[<h2 id="计算机网络第七次报告">计算机网络第七次报告</h2>
+<style> .pdf-embed-wrap-19c30b3b-8562-462a-a9b5-1fa39a36e849 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-19c30b3b-8562-462a-a9b5-1fa39a36e849 { height: 100%; } .pdf-embed-container-19c30b3b-8562-462a-a9b5-1fa39a36e849 iframe { width: 100%; height: 100%; } </style>
+<div class="pdf-embed-wrap-19c30b3b-8562-462a-a9b5-1fa39a36e849"> <div class="pdf-embed-container-19c30b3b-8562-462a-a9b5-1fa39a36e849"> <iframe src="/assets/pdf/自然语言处理/自然语言处理课程报告.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><category term="自然语言处理" /><category term="nlp" /><category term="实验报告" /><summary type="html"><![CDATA[自然语言处理课程报告 基于Transfer Text-to-Text Transformer（T5）论文标题生成模型]]></summary></entry><entry><title type="html">计算机网络第七次实验报告</title><link href="http://localhost:4000/2024/01/04/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E4%B8%83%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html" rel="alternate" type="text/html" title="计算机网络第七次实验报告" /><published>2024-01-04T00:00:00+08:00</published><updated>2024-01-04T00:00:00+08:00</updated><id>http://localhost:4000/2024/01/04/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E4%B8%83%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A</id><content type="html" xml:base="http://localhost:4000/2024/01/04/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E4%B8%83%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html"><![CDATA[<h2 id="计算机网络第七次报告">计算机网络第七次报告</h2>
 
 <p>访问控制列表的配置与应用</p>
 
 <!---more-->
-<style> .pdf-embed-wrap-67746541-b25c-4402-9d44-30eff38d67f5 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-67746541-b25c-4402-9d44-30eff38d67f5 { height: 100%; } .pdf-embed-container-67746541-b25c-4402-9d44-30eff38d67f5 iframe { width: 100%; height: 100%; } </style>
-<div class="pdf-embed-wrap-67746541-b25c-4402-9d44-30eff38d67f5"> <div class="pdf-embed-container-67746541-b25c-4402-9d44-30eff38d67f5"> <iframe src="/assets/pdf/计算机网络实验/计算机网络第七次实验报告.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><category term="计算机网络" /><category term="实验报告" /><summary type="html"><![CDATA[计算机网络第七次报告 访问控制列表的配置与应用]]></summary></entry><entry><title type="html">操作系统实验二</title><link href="http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%BA%8C.html" rel="alternate" type="text/html" title="操作系统实验二" /><published>2024-01-01T00:00:00+08:00</published><updated>2024-01-01T00:00:00+08:00</updated><id>http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%BA%8C</id><content type="html" xml:base="http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%BA%8C.html"><![CDATA[<h2 id="操作系统实验二存储管理">操作系统实验二—————存储管理</h2>
+<style> .pdf-embed-wrap-31ea330b-dd56-4833-9748-e77fcbce88c5 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-31ea330b-dd56-4833-9748-e77fcbce88c5 { height: 100%; } .pdf-embed-container-31ea330b-dd56-4833-9748-e77fcbce88c5 iframe { width: 100%; height: 100%; } </style>
+<div class="pdf-embed-wrap-31ea330b-dd56-4833-9748-e77fcbce88c5"> <div class="pdf-embed-container-31ea330b-dd56-4833-9748-e77fcbce88c5"> <iframe src="/assets/pdf/计算机网络实验/计算机网络第七次实验报告.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><category term="计算机网络" /><category term="实验报告" /><summary type="html"><![CDATA[计算机网络第七次报告 访问控制列表的配置与应用]]></summary></entry><entry><title type="html">计算机网络实验大作业SDN</title><link href="http://localhost:4000/2024/01/04/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E5%A4%A7%E4%BD%9C%E4%B8%9ASDN.html" rel="alternate" type="text/html" title="计算机网络实验大作业SDN" /><published>2024-01-04T00:00:00+08:00</published><updated>2024-01-04T00:00:00+08:00</updated><id>http://localhost:4000/2024/01/04/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E5%A4%A7%E4%BD%9C%E4%B8%9ASDN</id><content type="html" xml:base="http://localhost:4000/2024/01/04/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E5%AE%9E%E9%AA%8C%E5%A4%A7%E4%BD%9C%E4%B8%9ASDN.html"><![CDATA[<h2 id="计算机网络实验大作业sdn">计算机网络实验大作业SDN</h2>
+
+<p>SDN 实际应用实践
+<!---more--></p>
+<style> .pdf-embed-wrap-01b22b70-cc5d-45b4-a27f-047d2991fc44 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-01b22b70-cc5d-45b4-a27f-047d2991fc44 { height: 100%; } .pdf-embed-container-01b22b70-cc5d-45b4-a27f-047d2991fc44 iframe { width: 100%; height: 100%; } </style>
+<div class="pdf-embed-wrap-01b22b70-cc5d-45b4-a27f-047d2991fc44"> <div class="pdf-embed-container-01b22b70-cc5d-45b4-a27f-047d2991fc44"> <iframe src="/assets/pdf/计算机网络实验/计算机网络实验大作业SDN.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><category term="计算机网络" /><category term="实验报告" /><summary type="html"><![CDATA[计算机网络实验大作业SDN SDN 实际应用实践]]></summary></entry><entry><title type="html">操作系统实验二</title><link href="http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%BA%8C.html" rel="alternate" type="text/html" title="操作系统实验二" /><published>2024-01-01T00:00:00+08:00</published><updated>2024-01-01T00:00:00+08:00</updated><id>http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%BA%8C</id><content type="html" xml:base="http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%BA%8C.html"><![CDATA[<h2 id="操作系统实验二存储管理">操作系统实验二—————存储管理</h2>
 
 <p>存储管理</p>
 
 <!---more-->
-<style> .pdf-embed-wrap-9f5fcdb5-583b-46f4-9e05-c0dd95e9dc27 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-9f5fcdb5-583b-46f4-9e05-c0dd95e9dc27 { height: 100%; } .pdf-embed-container-9f5fcdb5-583b-46f4-9e05-c0dd95e9dc27 iframe { width: 100%; height: 100%; } </style>
-<div class="pdf-embed-wrap-9f5fcdb5-583b-46f4-9e05-c0dd95e9dc27"> <div class="pdf-embed-container-9f5fcdb5-583b-46f4-9e05-c0dd95e9dc27"> <iframe src="/assets/pdf/操作系统实验/操作系统实验二.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><category term="操作系统" /><category term="实验报告" /><summary type="html"><![CDATA[操作系统实验二—————存储管理 存储管理]]></summary></entry><entry><title type="html">操作系统实验三</title><link href="http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%B8%89.html" rel="alternate" type="text/html" title="操作系统实验三" /><published>2024-01-01T00:00:00+08:00</published><updated>2024-01-01T00:00:00+08:00</updated><id>http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%B8%89</id><content type="html" xml:base="http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%B8%89.html"><![CDATA[<h2 id="操作系统实验三死锁">操作系统实验三—————死锁</h2>
-
-<p>死锁</p>
-
-<!---more-->
-<style> .pdf-embed-wrap-0f7d30a6-5f98-42ad-9497-2bbc814089c3 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-0f7d30a6-5f98-42ad-9497-2bbc814089c3 { height: 100%; } .pdf-embed-container-0f7d30a6-5f98-42ad-9497-2bbc814089c3 iframe { width: 100%; height: 100%; } </style>
-<div class="pdf-embed-wrap-0f7d30a6-5f98-42ad-9497-2bbc814089c3"> <div class="pdf-embed-container-0f7d30a6-5f98-42ad-9497-2bbc814089c3"> <iframe src="/assets/pdf/操作系统实验/操作系统实验三.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><category term="操作系统" /><category term="实验报告" /><summary type="html"><![CDATA[操作系统实验三—————死锁 死锁]]></summary></entry><entry><title type="html">操作系统实验一</title><link href="http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%B8%80.html" rel="alternate" type="text/html" title="操作系统实验一" /><published>2024-01-01T00:00:00+08:00</published><updated>2024-01-01T00:00:00+08:00</updated><id>http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%B8%80</id><content type="html" xml:base="http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%B8%80.html"><![CDATA[<h2 id="操作系统实验一进程调度">操作系统实验一—————进程调度</h2>
+<style> .pdf-embed-wrap-ff612451-17df-4e34-bfe1-20c500a48e34 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-ff612451-17df-4e34-bfe1-20c500a48e34 { height: 100%; } .pdf-embed-container-ff612451-17df-4e34-bfe1-20c500a48e34 iframe { width: 100%; height: 100%; } </style>
+<div class="pdf-embed-wrap-ff612451-17df-4e34-bfe1-20c500a48e34"> <div class="pdf-embed-container-ff612451-17df-4e34-bfe1-20c500a48e34"> <iframe src="/assets/pdf/操作系统实验/操作系统实验二.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><category term="操作系统" /><category term="实验报告" /><summary type="html"><![CDATA[操作系统实验二—————存储管理 存储管理]]></summary></entry><entry><title type="html">操作系统实验一</title><link href="http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%B8%80.html" rel="alternate" type="text/html" title="操作系统实验一" /><published>2024-01-01T00:00:00+08:00</published><updated>2024-01-01T00:00:00+08:00</updated><id>http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%B8%80</id><content type="html" xml:base="http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%B8%80.html"><![CDATA[<h2 id="操作系统实验一进程调度">操作系统实验一—————进程调度</h2>
 
 <p>进程调度</p>
 
 <!---more-->
-<style> .pdf-embed-wrap-6bfcaf52-bfda-4c22-b088-a9e368065f46 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-6bfcaf52-bfda-4c22-b088-a9e368065f46 { height: 100%; } .pdf-embed-container-6bfcaf52-bfda-4c22-b088-a9e368065f46 iframe { width: 100%; height: 100%; } </style>
-<div class="pdf-embed-wrap-6bfcaf52-bfda-4c22-b088-a9e368065f46"> <div class="pdf-embed-container-6bfcaf52-bfda-4c22-b088-a9e368065f46"> <iframe src="/assets/pdf/操作系统实验/操作系统实验一.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><category term="操作系统" /><category term="实验报告" /><summary type="html"><![CDATA[操作系统实验一—————进程调度 进程调度]]></summary></entry><entry><title type="html">计算机网络第六次实验报告</title><link href="http://localhost:4000/2023/12/21/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E5%85%AD%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html" rel="alternate" type="text/html" title="计算机网络第六次实验报告" /><published>2023-12-21T00:00:00+08:00</published><updated>2023-12-21T00:00:00+08:00</updated><id>http://localhost:4000/2023/12/21/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E5%85%AD%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A</id><content type="html" xml:base="http://localhost:4000/2023/12/21/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E5%85%AD%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html"><![CDATA[<h2 id="计算机网络第六次报告">计算机网络第六次报告</h2>
+<style> .pdf-embed-wrap-cb5bff51-b703-43e0-af8a-c5f9be1da3a1 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-cb5bff51-b703-43e0-af8a-c5f9be1da3a1 { height: 100%; } .pdf-embed-container-cb5bff51-b703-43e0-af8a-c5f9be1da3a1 iframe { width: 100%; height: 100%; } </style>
+<div class="pdf-embed-wrap-cb5bff51-b703-43e0-af8a-c5f9be1da3a1"> <div class="pdf-embed-container-cb5bff51-b703-43e0-af8a-c5f9be1da3a1"> <iframe src="/assets/pdf/操作系统实验/操作系统实验一.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><category term="操作系统" /><category term="实验报告" /><summary type="html"><![CDATA[操作系统实验一—————进程调度 进程调度]]></summary></entry><entry><title type="html">操作系统实验三</title><link href="http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%B8%89.html" rel="alternate" type="text/html" title="操作系统实验三" /><published>2024-01-01T00:00:00+08:00</published><updated>2024-01-01T00:00:00+08:00</updated><id>http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%B8%89</id><content type="html" xml:base="http://localhost:4000/2024/01/01/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AE%9E%E9%AA%8C%E4%B8%89.html"><![CDATA[<h2 id="操作系统实验三死锁">操作系统实验三—————死锁</h2>
+
+<p>死锁</p>
+
+<!---more-->
+<style> .pdf-embed-wrap-e171c640-c228-4c7a-ada2-d00438846f89 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-e171c640-c228-4c7a-ada2-d00438846f89 { height: 100%; } .pdf-embed-container-e171c640-c228-4c7a-ada2-d00438846f89 iframe { width: 100%; height: 100%; } </style>
+<div class="pdf-embed-wrap-e171c640-c228-4c7a-ada2-d00438846f89"> <div class="pdf-embed-container-e171c640-c228-4c7a-ada2-d00438846f89"> <iframe src="/assets/pdf/操作系统实验/操作系统实验三.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><category term="操作系统" /><category term="实验报告" /><summary type="html"><![CDATA[操作系统实验三—————死锁 死锁]]></summary></entry><entry><title type="html">计算机网络第六次实验报告</title><link href="http://localhost:4000/2023/12/21/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E5%85%AD%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html" rel="alternate" type="text/html" title="计算机网络第六次实验报告" /><published>2023-12-21T00:00:00+08:00</published><updated>2023-12-21T00:00:00+08:00</updated><id>http://localhost:4000/2023/12/21/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E5%85%AD%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A</id><content type="html" xml:base="http://localhost:4000/2023/12/21/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C%E7%AC%AC%E5%85%AD%E6%AC%A1%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A.html"><![CDATA[<h2 id="计算机网络第六次报告">计算机网络第六次报告</h2>
 
 <p>动态路由</p>
 
 <!---more-->
-<style> .pdf-embed-wrap-8b068ef3-ba7f-4ded-9abc-e0d59f933228 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-8b068ef3-ba7f-4ded-9abc-e0d59f933228 { height: 100%; } .pdf-embed-container-8b068ef3-ba7f-4ded-9abc-e0d59f933228 iframe { width: 100%; height: 100%; } </style>
-<div class="pdf-embed-wrap-8b068ef3-ba7f-4ded-9abc-e0d59f933228"> <div class="pdf-embed-container-8b068ef3-ba7f-4ded-9abc-e0d59f933228"> <iframe src="/assets/pdf/计算机网络实验/计算机网络第六次实验报告.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><category term="计算机网络" /><category term="实验报告" /><summary type="html"><![CDATA[计算机网络第六次报告 动态路由]]></summary></entry><entry><title type="html">人工智能知识点——背</title><link href="http://localhost:4000/2023/12/08/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E7%9F%A5%E8%AF%86%E7%82%B9-%E8%83%8C.html" rel="alternate" type="text/html" title="人工智能知识点——背" /><published>2023-12-08T00:00:00+08:00</published><updated>2023-12-08T00:00:00+08:00</updated><id>http://localhost:4000/2023/12/08/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E7%9F%A5%E8%AF%86%E7%82%B9%E2%80%94%E2%80%94%E8%83%8C</id><content type="html" xml:base="http://localhost:4000/2023/12/08/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E7%9F%A5%E8%AF%86%E7%82%B9-%E8%83%8C.html"><![CDATA[<h1 id="人工智能知识点背">人工智能知识点——背</h1>
-<h2 id="概念辨析">概念辨析</h2>
-<h3 id="第一章绪论">第一章绪论</h3>
-<ol>
-  <li>什么是智能</li>
-  <li>什么是人工智能</li>
-  <li><strong><em>强人工智能和弱人工智能</em></strong></li>
-  <li>图灵测试</li>
-  <li>人工智能的近期目标和远期目标</li>
-  <li>人工智能的三大学派
+<style> .pdf-embed-wrap-dfc8d2d7-8fb7-43f5-bb71-58d8c1bf3317 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-dfc8d2d7-8fb7-43f5-bb71-58d8c1bf3317 { height: 100%; } .pdf-embed-container-dfc8d2d7-8fb7-43f5-bb71-58d8c1bf3317 iframe { width: 100%; height: 100%; } </style>
+<div class="pdf-embed-wrap-dfc8d2d7-8fb7-43f5-bb71-58d8c1bf3317"> <div class="pdf-embed-container-dfc8d2d7-8fb7-43f5-bb71-58d8c1bf3317"> <iframe src="/assets/pdf/计算机网络实验/计算机网络第六次实验报告.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><category term="计算机网络" /><category term="实验报告" /><summary type="html"><![CDATA[计算机网络第六次报告 动态路由]]></summary></entry><entry><title type="html">接口技术实验大作业多功能时钟</title><link href="http://localhost:4000/2023/12/08/%E6%8E%A5%E5%8F%A3%E6%8A%80%E6%9C%AF%E5%AE%9E%E9%AA%8C%E5%A4%A7%E4%BD%9C%E4%B8%9A%E5%A4%9A%E5%8A%9F%E8%83%BD%E6%97%B6%E9%92%9F.html" rel="alternate" type="text/html" title="接口技术实验大作业多功能时钟" /><published>2023-12-08T00:00:00+08:00</published><updated>2023-12-08T00:00:00+08:00</updated><id>http://localhost:4000/2023/12/08/%E6%8E%A5%E5%8F%A3%E6%8A%80%E6%9C%AF%E5%AE%9E%E9%AA%8C%E5%A4%A7%E4%BD%9C%E4%B8%9A%E5%A4%9A%E5%8A%9F%E8%83%BD%E6%97%B6%E9%92%9F</id><content type="html" xml:base="http://localhost:4000/2023/12/08/%E6%8E%A5%E5%8F%A3%E6%8A%80%E6%9C%AF%E5%AE%9E%E9%AA%8C%E5%A4%A7%E4%BD%9C%E4%B8%9A%E5%A4%9A%E5%8A%9F%E8%83%BD%E6%97%B6%E9%92%9F.html"><![CDATA[<h2 id="接口技术实验大作业多功能时钟">接口技术实验大作业多功能时钟</h2>
+
+<p>基于Proteus 8086实现的多功能时钟</p>
+
 <!---more-->
-    <h3 id="第二章知识表示方法">第二章知识表示方法</h3>
-  </li>
-  <li>什么是知识</li>
-  <li>知识的特性（4）</li>
-  <li>知识的分类</li>
-  <li>什么是知识表示</li>
-  <li>知识表示的要求</li>
-  <li>知识表示的方法</li>
-  <li>一阶谓词的优缺点</li>
-  <li>产生式系统的组成——三部分</li>
-  <li>产生式系统的反向推理、正向推理和双向推理</li>
-  <li>产生式系统的优缺点——</li>
-  <li>语义网求解系统的组成——两部分组成</li>
-  <li>语义网的优缺点</li>
-  <li>什么是框架</li>
-  <li>框架的组成</li>
-  <li>框架的优缺点
-    <h3 id="第三章不确定性推理">第三章不确定性推理</h3>
-  </li>
-  <li>什么是不确定性推理推理</li>
-  <li>什么是可信度</li>
-  <li>贝叶斯网络——有向无环图</li>
-  <li>贝叶斯网络中什么组成了马尔可夫覆盖
-    <h3 id="第四章智能搜索">第四章智能搜索</h3>
-  </li>
-  <li>什么是搜索，什么是智能搜索</li>
-  <li>什么是状态空间法</li>
-  <li>什么叫问题规约</li>
-  <li><strong><em>状态空间图与与或图有什么区别及联系？</em></strong></li>
-  <li>什么是启发式信息，启发式信息的作用</li>
-  <li>什么是估价函数</li>
-  <li>什么是 open 表，什么是 close 表</li>
-  <li>什么是 A 算法</li>
-  <li>什么是 A * 算法</li>
-  <li>什么是解树</li>
-  <li>什么是希望树</li>
-  <li>什么是 $\alpha-\beta$ 剪枝</li>
-  <li>什么是蒙特卡洛搜索
-    <h3 id="第六章神经网络">第六章神经网络</h3>
-  </li>
-  <li><strong><em>前馈网络和反馈网络的联系和区别</em></strong></li>
-  <li><strong>正向传播和方向传播的联系和区别</strong></li>
-  <li>卷积核</li>
-  <li>池化层</li>
-</ol>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><category term="人工智能导论" /><category term="课程笔记" /><summary type="html"><![CDATA[人工智能知识点——背 概念辨析 第一章绪论 什么是智能 什么是人工智能 强人工智能和弱人工智能 图灵测试 人工智能的近期目标和远期目标 人工智能的三大学派]]></summary></entry><entry><title type="html">人工智能导论考试重点</title><link href="http://localhost:4000/2023/12/08/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E8%80%83%E8%AF%95%E9%87%8D%E7%82%B9.html" rel="alternate" type="text/html" title="人工智能导论考试重点" /><published>2023-12-08T00:00:00+08:00</published><updated>2023-12-08T00:00:00+08:00</updated><id>http://localhost:4000/2023/12/08/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E8%80%83%E8%AF%95%E9%87%8D%E7%82%B9</id><content type="html" xml:base="http://localhost:4000/2023/12/08/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E8%80%83%E8%AF%95%E9%87%8D%E7%82%B9.html"><![CDATA[<!---more-->
+<style> .pdf-embed-wrap-b768d50c-cb8b-4ace-bd94-f9027aa055c1 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-b768d50c-cb8b-4ace-bd94-f9027aa055c1 { height: 100%; } .pdf-embed-container-b768d50c-cb8b-4ace-bd94-f9027aa055c1 iframe { width: 100%; height: 100%; } </style>
+<div class="pdf-embed-wrap-b768d50c-cb8b-4ace-bd94-f9027aa055c1"> <div class="pdf-embed-container-b768d50c-cb8b-4ace-bd94-f9027aa055c1"> <iframe src="/assets/pdf/接口技术/接口技术实验大作业报告.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Gao Xingjie</name><email>xingjie-gao@outlook.com</email></author><category term="接口技术和微机技术" /><category term="实验报告" /><summary type="html"><![CDATA[接口技术实验大作业多功能时钟 基于Proteus 8086实现的多功能时钟]]></summary></entry><entry><title type="html">人工智能导论考试重点</title><link href="http://localhost:4000/2023/12/08/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E8%80%83%E8%AF%95%E9%87%8D%E7%82%B9.html" rel="alternate" type="text/html" title="人工智能导论考试重点" /><published>2023-12-08T00:00:00+08:00</published><updated>2023-12-08T00:00:00+08:00</updated><id>http://localhost:4000/2023/12/08/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E8%80%83%E8%AF%95%E9%87%8D%E7%82%B9</id><content type="html" xml:base="http://localhost:4000/2023/12/08/%E4%BA%BA%E5%B7%A5%E6%99%BA%E8%83%BD%E8%80%83%E8%AF%95%E9%87%8D%E7%82%B9.html"><![CDATA[<!---more-->
 <p><img src="/assets/attachements/Pasted%20image%2020231119153238.png" alt="" /></p>
 <h1 id="第一章">第一章</h1>
 
