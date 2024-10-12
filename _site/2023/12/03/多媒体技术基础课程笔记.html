@@ -324,7 +324,7 @@
   <li>多媒体外围设备</li>
 </ol>
 
-<p><img src="./多媒体技术基础.assets/image-20230920083332695.png" alt="image-20230920083332695" /></p>
+<p><img src="/assets/多媒体技术基础.assets/image-20230920083332695.png" alt="image-20230920083332695" /></p>
 
 <h3 id="mpc-技术标准与特征">MPC 技术标准与特征</h3>
 
@@ -350,7 +350,7 @@
   <li>MIDI Thru 传送从输入口接受的信息到其他 MIDI 装置</li>
 </ol>
 
-<p><img src="./多媒体技术基础.assets/image-20230920093642230.png" alt="image-20230920093642230" /></p>
+<p><img src="/assets/多媒体技术基础.assets/image-20230920093642230.png" alt="image-20230920093642230" /></p>
 
 <h4 id="声卡">声卡</h4>
 
@@ -384,13 +384,13 @@
   <li>空间冗余</li>
 </ol>
 
-<p>​	<img src="./多媒体技术基础.assets/image-20230922101314346.png" alt="image-20230922101314346" /></p>
+<p>​	<img src="/assets/多媒体技术基础.assets/image-20230922101314346.png" alt="image-20230922101314346" /></p>
 
 <ol>
   <li>
     <p>时间冗余</p>
 
-    <p><img src="./多媒体技术基础.assets/image-20230922101404868.png" alt="image-20230922101404868" /></p>
+    <p><img src="/assets/多媒体技术基础.assets/image-20230922101404868.png" alt="image-20230922101404868" /></p>
   </li>
   <li>
     <p>熵冗余</p>
@@ -548,7 +548,7 @@
 
 <p>示例：</p>
 
-<p><img src="./多媒体技术基础.assets/image-20230922111959222.png" alt="image-20230922111959222" /></p>
+<p><img src="/assets/多媒体技术基础.assets/image-20230922111959222.png" alt="image-20230922111959222" /></p>
 
 <p>编码结果: 用 13 对 (NL)数值取代了 64 个像元的灰度值以少代多思想</p>
 
@@ -606,7 +606,7 @@ A/D 转换器以固定的频率去采样，即每个周期测量和量化信号�
 </ol>
 
 <p>过程示意图：
-<img src="attachements/Pasted%20image%2020230927102715.png" alt="" /></p>
+<img src="/assets/attachements/Pasted%20image%2020230927102715.png" alt="" /></p>
 
 <h3 id="数字音频的文件格式">数字音频的文件格式</h3>
 
@@ -627,7 +627,7 @@ A/D 转换器以固定的频率去采样，即每个周期测量和量化信号�
   <li>带宽衡量声音质量
  DAT（48 KHz), CD (44.1 KHz), FM (2.05 KHz), AM (11.025 KHz)和数字电话（8 KHz）。
  示意图：
- <img src="attachements/Pasted%20image%2020230927104849.png" alt="" /></li>
+ <img src="/assets/attachements/Pasted%20image%2020230927104849.png" alt="" /></li>
   <li>信噪比（singal to  noise ratio, SNR)
  声音信号与噪音强度之间的比，信噪比越高表示音频质量越好
  \(SNR=20 lg (\frac{V_{signal}}{V_{nosie}})\) 
@@ -639,7 +639,7 @@ A/D 转换器以固定的频率去采样，即每个周期测量和量化信号�
 （1）PCM 编码的原理
 ·波形编码：使重构语音信号的波形与原始信号波形尽量接近。
 ·概念上最简单、理论上最完善的编码系统，质量最好。
-<img src="attachements/Pasted%20image%2020230927110555.png" alt="" /></p>
+<img src="/assets/attachements/Pasted%20image%2020230927110555.png" alt="" /></p>
   </li>
 </ol>
 
@@ -649,14 +649,14 @@ A/D 转换器以固定的频率去采样，即每个周期测量和量化信号�
 第三步是<strong>编码</strong>，按一定格式记录采样和量化后的数据。</p>
 
 <p><strong>均匀量化</strong>：采用均匀的时间间隔度量采样得到的电平
-<img src="attachements/Pasted%20image%2020230927111034.png" alt="" />
+<img src="/assets/attachements/Pasted%20image%2020230927111034.png" alt="" />
 <strong>非均匀量化</strong>：非均匀量化在某些情况下可以提高信号的编码效率。例如，在人类听觉系统中，对于低幅度信号的敏感度比高幅度信号要高，因此在音频信号编码中使用非均匀量化可以提高信号的编码效率，减少编码所需的位数，从而节省传输和存储空间。
 大的输入信号采用大的量化间隔，小的输入信号采用小的量化间隔。这样就可以在满足精度要求的同时用较少的位数来表示。数据还原时采用相同的规则。
-<img src="attachements/Pasted%20image%2020230927111258.png" alt="" /></p>
+<img src="/assets/attachements/Pasted%20image%2020230927111258.png" alt="" /></p>
 
 <h3 id="增量调制dm">增量调制（DM）</h3>
 <p>PCM 编码的变形，是一种预测编码技术。如果实际的采样信号与预测信号之差极性为“正”（就是实际的比预测的大），则用 1 表示，相反则用 0 表示
-<img src="attachements/Pasted%20image%2020230927112036.png" alt="" /></p>
+<img src="/assets/attachements/Pasted%20image%2020230927112036.png" alt="" /></p>
 <ul>
   <li>增量调制器的输出不能跟踪输入信号的快速变化称为<strong>斜率过载</strong>。</li>
   <li>在输入信号缓慢变化部分，输出交变的“0”和“1”。称为<strong>粒状噪声</strong>（granular noise），这种噪声是不可能消除的。
@@ -677,7 +677,7 @@ A/D 转换器以固定的频率去采样，即每个周期测量和量化信号�
 <h2 id="数字图像与视频">数字图像与视频</h2>
 <p>可见光，波长 350~750 nm ，大多数可见光是由不同波长的光组合而成
 频段应用
-<img src="attachements/Pasted%20image%2020230929102430.png" alt="" />
+<img src="/assets/attachements/Pasted%20image%2020230929102430.png" alt="" />
 颜色空间</p>
 <ol>
   <li>RGB 显示器信号</li>
@@ -703,7 +703,7 @@ H 定义颜色波长，称为色调，S 定义颜色强度，表示颜色的深�
 
 <p>彩色打印机用的是青，品红，黄和黑色
 因为 cmy 更节省，每种颜料吸收了一种颜色反射了两种颜色，然后用来配置一种颜色花费的颜料就更少
-<img src="attachements/Pasted%20image%2020230929111316.png" alt="" /></p>
+<img src="/assets/attachements/Pasted%20image%2020230929111316.png" alt="" /></p>
 <h4 id="yuvyiqycbcr-色彩空间">YUV，YIQ，YCbCr 色彩空间</h4>
 <p>他们的色彩空间是为电视系统开发的。
 \(\begin{pmatrix}Y \\
@@ -750,7 +750,7 @@ a.压缩比与图像保真度达到较高技术水平;
 b.能适用于任何种类的连续色调的图像; 长宽、内容、复杂度、统计特性是不受限的;
 c.计算复杂性是可控制的: 软件可完成, 硬件实现算法.
 <strong>jpeg 的压缩流程：</strong>
-<img src="attachements/Pasted%20image%2020231013103450.png" alt="" />
+<img src="/assets/attachements/Pasted%20image%2020231013103450.png" alt="" />
 熵编码不损失信息
 量化器损失信息</p>
     <h4 id="正向离散余弦变换fdctforward-discrete-cosine-transform">正向离散余弦变换（FDCT，forward Discrete Cosine Transform）</h4>
@@ -796,9 +796,9 @@ c.计算复杂性是可控制的: 软件可完成, 硬件实现算法.
 </ul>
 
 <p><strong>示意图：</strong>
-<img src="attachements/Pasted%20image%2020231101081305.png" alt="" /></p>
+<img src="/assets/attachements/Pasted%20image%2020231101081305.png" alt="" /></p>
 <h5 id="rtp-的首部格式">RTP 的首部格式</h5>
-<p><img src="attachements/Pasted%20image%2020231101081437.png" alt="" /></p>
+<p><img src="/assets/attachements/Pasted%20image%2020231101081437.png" alt="" /></p>
 
 <p>P 是表示是否补充了数据的长度，因为可能需要让包的长度一样的（但不是必须要一样的）
 M：对于视频（由于视频比较大一帧数据传不完）表示一帧是这一幅图传输的结束，对于音频是标志为对话的开始
@@ -809,7 +809,7 @@ M：对于视频（由于视频比较大一帧数据传不完）表示一帧是�
 参与源标识符：标识有多少个源参与了这个数据的产生，最多允许 16 个，与参与源数配合</p>
 
 <p><strong>有效载荷类型：</strong>
-<img src="attachements/Pasted%20image%2020231101083653.png" alt="" /></p>
+<img src="/assets/attachements/Pasted%20image%2020231101083653.png" alt="" /></p>
 
 <h4 id="实时运输控制协议-rtcprtp-control-protocol">实时运输控制协议 RTCP（RTP Control Protocol）</h4>
 
@@ -835,7 +835,7 @@ M：对于视频（由于视频比较大一帧数据传不完）表示一帧是�
   <li>RTCP 分组与 RTP 均使用 UDP 传送可将多个 RTCP 分组封装在一个 UDP 用户数据报中。</li>
   <li>
     <p>RTCP 一般控制在会话带宽的 5%内。
-<img src="attachements/Pasted%20image%2020231101091516.png" alt="" /></p>
+<img src="/assets/attachements/Pasted%20image%2020231101091516.png" alt="" /></p>
   </li>
   <li>发送端报告分组 SR 周期性地向所有接收端用多播方式进行报告。</li>
   <li>接收端报告分组 RR 周期性地向所有的点用多播方式进行报告。</li>
@@ -848,7 +848,7 @@ M：对于视频（由于视频比较大一帧数据传不完）表示一帧是�
 <p>RTSP 协议以客户/服务器方式工作，它是一个<strong>多媒体播放控制协议</strong>，使得用户在播放从因特网实时数据时能够进行控制，如: 暂停/继续、后退、前进等。因此 RTSP又称为“因特网遥控协议”。
 RTSP 在体系结构上位于 RTP 和 RTCP 之上，它使用 TCP (UDP 也可实现)完成数据传输。</p>
 
-<p>**<img src="attachements/Pasted%20image%2020231101091925.png" alt="" /></p>
+<p>**<img src="/assets/attachements/Pasted%20image%2020231101091925.png" alt="" /></p>
 
 <ul>
   <li>应用层协议 RTSP 描述了与 RTP 间的交互操作。<strong>RTSP 控制 RTP 会话的协议</strong>，使得实时流媒体的受控和点播变得可能。</li>
@@ -864,7 +864,7 @@ QoS 需要一种机制，这种机制允许应用程序保留网上的资源。�
 RSVP 协议允许应用程序为它们的数据流保留带宽。主机使用 RSVP 向网络请求保留一定带宽，路由器也使用 RSVP 转发带宽请求。为了执行 RSVP 协议，在接收端、发送端和路由器中都必需要支持 RSVP 协议。</p>
 
 <p><strong>工作原理</strong>
-<img src="attachements/Pasted%20image%2020231101092547.png" alt="" /></p>
+<img src="/assets/attachements/Pasted%20image%2020231101092547.png" alt="" /></p>
 <ol>
   <li>发送方发送一个 RSVP 的路径消息给接收方;</li>
   <li>接收方接收到该消息;</li>

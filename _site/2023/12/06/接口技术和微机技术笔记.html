@@ -414,7 +414,7 @@ EU 控制电路</p>
 
 <p>接口图</p>
 
-<p><img src="./接口技术和微机技术.assets/image-20230920151456709.png" alt="image-20230920151456709" /></p>
+<p><img src="/assets/接口技术和微机技术.assets/image-20230920151456709.png" alt="image-20230920151456709" /></p>
 
 <p>内部结构图：</p>
 
@@ -460,7 +460,7 @@ EU 控制电路</p>
 
 <h3 id="工作方式选择控制字">工作方式选择控制字</h3>
 
-<p><img src="./接口技术和微机技术.assets/image-20230920154306127.png" alt="image-20230920154306127" /></p>
+<p><img src="/assets/接口技术和微机技术.assets/image-20230920154306127.png" alt="image-20230920154306127" /></p>
 
 <h3 id="工作方式">工作方式</h3>
 
@@ -557,7 +557,7 @@ CPU 一般首先响应优先权高的中断请求</p>
   <li>提供<strong>中断查询</strong>（中断查询（Interrupt Polling）是一种中断处理方法，用于检查外部设备是否发生了中断请求，而不是依赖硬件中断信号来通知计算机系统。），使得 CPU 在关中断的情况下仍可通过查询为特定中断服务。
     <h4 id="8259-a-的结构和引脚">8259 A 的结构和引脚</h4>
     <p>示意图：
-<img src="attachements/Pasted%20image%2020230927204515.png" alt="" /></p>
+<img src="/assets/attachements/Pasted%20image%2020230927204515.png" alt="" /></p>
     <h5 id="8259-a-的引脚功能">8259 A 的引脚功能</h5>
   </li>
   <li>电源 VCC 和接地 GND</li>
@@ -743,7 +743,7 @@ ICW 设定后整个工作过程中<strong>保持不变</strong>（除非断电�
   <li>SL: 指定 L₂~L。位是否有效，SL=1，L 位有效; SL=0, L 无效;</li>
   <li>EOI: 中断结束命令位。当 ICW 4 中 AEOI=0，则中断服务程序最后不会发中断结束 (EOI)，则需要将 OCW 2 作为 EOI 命令，用以清除 ISR 的对应位;</li>
   <li>L₂~L。：（就是类似一种参数）位: 在 SL=1 时有效，编码指示对应要操作的中断级别。
-<img src="attachements/Pasted%20image%2020231112152434.png" alt="" />
+<img src="/assets/attachements/Pasted%20image%2020231112152434.png" alt="" />
 例子：
 OCW 2=100 00000，设置工作于中断优先权自动循环方式，即中断处理过程中，ISR 对应位置 0，同时降低为最低优先级；
 OCW 2=011 00011，特殊 EOI 命令，指定清除 ISR 的 D3位；
@@ -751,14 +751,14 @@ OCW 2=111 00010，特殊 EOI 并设置优先权特殊循环，指定 IR 2 为最
 </ul>
 
 <p><strong><em>OCW 3</em></strong>
-<img src="attachements/Pasted%20image%2020231112152906.png" alt="" />
+<img src="/assets/attachements/Pasted%20image%2020231112152906.png" alt="" />
 三个功能：<strong>读 IRR 和 ISR</strong>；<strong>设置是否使用特殊屏蔽</strong>(只对本级中断屏蔽，允许级别比它高或比它低的中断源申请中断。目的是临时开放低级中断)；<strong>设置是否使用中断查询</strong>；
 $D_1 D_0$ =11 读中断服务寄存器 ISR；$D_1 D_0$  =10 读中断申请寄存器 IRR。
 $D_6 D_5$ =11 设置特殊屏蔽；$D_6 D_5$ =10，撤销特殊屏蔽。
 $D_4 D_3$ =01，特征位；
 $D_2$ =1 使 8259 A 处于中断查询方式，随后执行输入指令 IN。
 	读入数据表明是否有中断，并提供最高优先权的中断。
-	<img src="attachements/Pasted%20image%2020231112154135.png" alt="" />
+	<img src="/assets/attachements/Pasted%20image%2020231112154135.png" alt="" />
 	$D_7=I=1$ 表示有中断请求，否则无请求；
 	$W_{2}$ ~$W_0$ 给出当前优先权最高的中断请求的代码。
 	【例】当 CPU 发来一个 OCW 3 查询命令（D 2=P=1），此时 8259 A 的优先权次序为 IR 3、 IR 4、 IR 5、…… 、 IR 2，且 IR 4 和 IR 2 有中断请求。当 CPU 随后执行一条输入指令，便可得到查询字：84 H。说明有中断请求，且优先权最高的为 IR4 。</p>
@@ -786,7 +786,7 @@ $D_2$ =1 使 8259 A 处于中断查询方式，随后执行输入指令 IN。
       <li>CPU 在中断服务程序中查询确定是哪个中断源提出中断请求查询的次序决定了中断优先次序，最先被查询的优先级最高</li>
       <li><strong>优点</strong>：不需要复杂的硬件电路，简单易实现；</li>
       <li><strong>缺点</strong>：中断源较多时查询时间长，中断响应速度慢。
-<img src="attachements/Pasted%20image%2020230927195109.png" alt="" />
+<img src="/assets/attachements/Pasted%20image%2020230927195109.png" alt="" />
         <h5 id="硬件确定中断优先权">硬件确定中断优先权</h5>
         <p><strong>链式优先权排队电路</strong>：中断源串行连接形成链，用逻辑电路代替查询程序。某中断源得到 CPU 中断服务后，封锁后面中断源的中断请求，前面的中断源可以提出申请。
 <strong>专用硬件一中断控制器</strong>
@@ -811,7 +811,7 @@ $D_2$ =1 使 8259 A 处于中断查询方式，随后执行输入指令 IN。
       <li>硬件定时： 555 电路，由阻容控制不受软件控制，无法修改，精度欠佳</li>
       <li>可编程接口芯片定时 Intel 8253
         <h3 id="外部引脚">外部引脚</h3>
-        <p><img src="attachements/Pasted%20image%2020231009144738.png" alt="" />
+        <p><img src="/assets/attachements/Pasted%20image%2020231009144738.png" alt="" />
 输入引脚：
   CS: 片选信号
   RD: 读运行信号
@@ -827,17 +827,17 @@ $D_2$ =1 使 8259 A 处于中断查询方式，随后执行输入指令 IN。
 </ul>
 
 <h3 id="内部结构-2">内部结构</h3>
-<p><img src="attachements/Pasted%20image%2020231009145434.png" alt="" />
+<p><img src="/assets/attachements/Pasted%20image%2020231009145434.png" alt="" />
 每个计数器：</p>
 
-<p><img src="attachements/Pasted%20image%2020231009145825.png" alt="" />
+<p><img src="/assets/attachements/Pasted%20image%2020231009145825.png" alt="" />
 减 1计数器：一个<mark style="background: #FF5582A6;"><mark style="background: #FF5582A6;"> 16 位减 1 计数寄存器<mark style="background: #FF5582A6;"></mark></mark></mark>，初值为初值寄存器的值. CLK 输入一个脉冲，减1 计数寄存器的内容减 1，减到 0 时，Out 输出，只要有脉冲就计数，<mark style="background: #FF5582A6;">gate 不能控制他，gate 控制的是锁存器</mark></p>
 
 <h3 id="编程">编程</h3>
 <p>寻址方式：
-<img src="attachements/Pasted%20image%2020231009150300.png" alt="" />
+<img src="/assets/attachements/Pasted%20image%2020231009150300.png" alt="" />
 控制字
-<img src="attachements/Pasted%20image%2020231009150347.png" alt="" />
+<img src="/assets/attachements/Pasted%20image%2020231009150347.png" alt="" />
 因为数据线是 8 位的所以写 16 位要分两次写</p>
 <h4 id="初始化编程的要求">初始化编程的要求</h4>
 <p>1、8253 三个端口的地址各自独立，控制字分别对各端口的工作方式进行设置。
@@ -949,11 +949,11 @@ $D_2$ =1 使 8259 A 处于中断查询方式，随后执行输入指令 IN。
 <h4 id="数据传送方式">数据传送方式</h4>
 <ol>
   <li>单工通信 (Simplex): 仅能一个方向数据传送
-<img src="attachements/Pasted%20image%2020231011144216.png" alt="" /></li>
+<img src="/assets/attachements/Pasted%20image%2020231011144216.png" alt="" /></li>
   <li>全双工通信（Full duplex）：AB 均能在发送的同时接收
-<img src="attachements/Pasted%20image%2020231011144304.png" alt="" /></li>
+<img src="/assets/attachements/Pasted%20image%2020231011144304.png" alt="" /></li>
   <li>半双工通信 (Half Duplex )：交替进行但是不能同时进行
-<img src="attachements/Pasted%20image%2020231011144316.png" alt="" />
+<img src="/assets/attachements/Pasted%20image%2020231011144316.png" alt="" />
     <h3 id="异步传送与同步传送">异步传送与同步传送</h3>
     <p><strong>收发两端必须相互协调</strong>: <mark style="background: #ADCCFFA6;">约定速率</mark>与<mark style="background: #ADCCFFA6;">判定起始</mark>
 约定速度：<strong>采样的时间间隔</strong> (使用波特率来实现速率约定)
@@ -964,7 +964,7 @@ $D_2$ =1 使 8259 A 处于中断查询方式，随后执行输入指令 IN。
     <h4 id="字符格式">字符格式</h4>
     <p>字符的编码形式的规定
 四个部分：1 个起始位，5~8 个数据位，0~1 个奇偶校验位，1~2 个停止位
-<img src="attachements/Pasted%20image%2020231011145707.png" alt="" />
+<img src="/assets/attachements/Pasted%20image%2020231011145707.png" alt="" />
 每个字符传送前，传输线处于“1”状态，<strong>当“1”变为“0”并持续 1 码元时间时，就表明这是起始位</strong>，后面就是<strong>数据位，先送低位，后送高位</strong>。
 直到收到完整字符。
 一个字符传送完后立即传送下一个; 如后续数据跟不上，则加入空闲位 1。</p>
@@ -989,19 +989,19 @@ $D_2$ =1 使 8259 A 处于中断查询方式，随后执行输入指令 IN。
 <p>用于同步通信的数据格式有多种。</p>
 <ol>
   <li>单同步数据格式
-<img src="attachements/Pasted%20image%2020231011151208.png" alt="" /></li>
+<img src="/assets/attachements/Pasted%20image%2020231011151208.png" alt="" /></li>
   <li>双同步格式数据格式
-<img src="attachements/Pasted%20image%2020231011151225.png" alt="" /></li>
+<img src="/assets/attachements/Pasted%20image%2020231011151225.png" alt="" /></li>
   <li>SDLC 同步数据格式（Synchronous Data Link  Control）
-<img src="attachements/Pasted%20image%2020231011151131.png" alt="" /></li>
+<img src="/assets/attachements/Pasted%20image%2020231011151131.png" alt="" /></li>
   <li>HDLC 同步数据格式 (High-level Data Link Control)
-<img src="attachements/Pasted%20image%2020231011151250.png" alt="" />
+<img src="/assets/attachements/Pasted%20image%2020231011151250.png" alt="" />
     <h5 id="信号的调制">信号的调制</h5>
     <p>高低电平占用很宽的频带，且有很大<strong>直流成分</strong>（直流成分意味着电流或电压持续保持一个恒定的数值，不随时间变化），因此仅适用于在短距离传输（1m）。如果用电话线传输，信号将会出现畸变。
 为了克服畸变，在发送端把信号转换成适于传输的<strong>模拟信号(调制)</strong>，接收端再将模拟信号转换成电平信号(解调)。完成调制、解调功能的设备叫做调制解调器(Modem)。
 适用于异步通信方式，它不提供同步时钟信号。常用的调制方法是频移键控(FSK，Frequency Shift Keying) 。
 例子：
-<img src="attachements/Pasted%20image%2020231011151822.png" alt="" /></p>
+<img src="/assets/attachements/Pasted%20image%2020231011151822.png" alt="" /></p>
     <h3 id="串行通信接口芯片">串行通信接口芯片</h3>
   </li>
 </ol>
@@ -1030,7 +1030,7 @@ $D_2$ =1 使 8259 A 处于中断查询方式，随后执行输入指令 IN。
   <li>提供调制解调器的联络信号。</li>
   <li>收、发送数据分别有各自的缓冲器，可全双工通信。
     <h4 id="内部结构-3">内部结构</h4>
-    <p><img src="attachements/Pasted%20image%2020231011153930.png" alt="" />
+    <p><img src="/assets/attachements/Pasted%20image%2020231011153930.png" alt="" />
 <strong>C/D: 地址线</strong>（相当于 $A_0$）如果是 0 则是 D（data），如果是 1 则是 C(command)
 CLK: 芯片工作的时钟
 reset：复位信号，（复位之后设置工作方式）
@@ -1047,7 +1047,7 @@ RxRDY：接收完毕</p>
 </ul>
 
 <p><strong>读写控制</strong>：
-<img src="attachements/Pasted%20image%2020231011155600.png" alt="" />
+<img src="/assets/attachements/Pasted%20image%2020231011155600.png" alt="" />
 <strong>收发联络信号</strong></p>
 <ul>
   <li>TXRDY—发送准备好信号，输出，高电平有效。当发送寄存器空且允许发送(命令字中 TXEN 位为1)时，TXRDY 输出为高电平，以通知 CPU 当前8251A 已做好发送准备，CPU 可以向8251A 传送一个字符。当 CPU 把发送的数据写入8251A 后，TXRDY 恢复为低电平。</li>
@@ -1108,10 +1108,10 @@ CPU 只启动 DMA，但不干预传输过程，传输过程是由硬件自动完
   </li>
 </ul>
 
-<p><strong>内部结构</strong>：<img src="attachements/Pasted%20image%2020231018084150.png" alt="" /></p>
+<p><strong>内部结构</strong>：<img src="/assets/attachements/Pasted%20image%2020231018084150.png" alt="" /></p>
 
 <p><strong>外部引脚</strong>
-<img src="attachements/Pasted%20image%2020231018085442.png" alt="" />
+<img src="/assets/attachements/Pasted%20image%2020231018085442.png" alt="" />
 DACK <em>(DMA Acknowledge )</em>： DMA 响应外部设备的引脚
 DREQ <em>(DMA Request)</em>：外部设备请求 DMA 的引脚
 HLDA <em>(Hold Acknowledge)</em>:总线响应信号。CPU 对 HRQ 的回答，表示已让出总线控制权。
@@ -1119,7 +1119,7 @@ HRQ <em>(Hold Request )</em> :总线请求信号。8237A 向 CPU 请求使用总
 A 3-A 0：地址, 双向。<strong>CPU 控制总线时输入，选中某个寄存器</strong>。DMAC 控制总线时，输出 16 位地址中的 A 3-A0</p>
 
 <h4 id="连接方式">连接方式</h4>
-<p><img src="attachements/Pasted%20image%2020231018153414.png" alt="" /></p>
+<p><img src="/assets/attachements/Pasted%20image%2020231018153414.png" alt="" /></p>
 
 <p><strong><em>对于20位地址线，8237如何处理？</em></strong></p>
 <ol>
@@ -1159,16 +1159,16 @@ DREQ 只需维持到 DACK 有效</li>
 
 <h3 id="控制字-1">控制字</h3>
 <h4 id="工作方式控制字0bh">工作方式控制字（0BH）</h4>
-<p><img src="attachements/Pasted%20image%2020231122164941.png" alt="" /></p>
+<p><img src="/assets/attachements/Pasted%20image%2020231122164941.png" alt="" /></p>
 <h4 id="操作命令控制字-08h">操作命令控制字 (08H)</h4>
-<p><img src="attachements/Pasted%20image%2020231122165004.png" alt="" /></p>
+<p><img src="/assets/attachements/Pasted%20image%2020231122165004.png" alt="" /></p>
 <h4 id="请求控制字-09h">请求控制字 (09H)</h4>
-<p><img src="attachements/Pasted%20image%2020231122170046.png" alt="" /></p>
+<p><img src="/assets/attachements/Pasted%20image%2020231122170046.png" alt="" /></p>
 <h4 id="屏蔽控制字">屏蔽控制字</h4>
 
-<p><img src="attachements/Pasted%20image%2020231122170331.png" alt="" /></p>
+<p><img src="/assets/attachements/Pasted%20image%2020231122170331.png" alt="" /></p>
 <h4 id="状态寄存器-读-08-h">状态寄存器 (读 08 H)</h4>
-<p><img src="attachements/Pasted%20image%2020231122170403.png" alt="" /></p>
+<p><img src="/assets/attachements/Pasted%20image%2020231122170403.png" alt="" /></p>
 
 <h4 id="通道寄存器">通道寄存器</h4>
 <h5 id="基地址寄存器"><strong><em>基地址寄存器</em></strong></h5>
@@ -1202,7 +1202,7 @@ DREQ 只需维持到 DACK 有效</li>
  （4）数字输入电平为TTL电平
  （5）差动输出</p>
 <h3 id="内部结构-4">内部结构</h3>
-<p><img src="attachements/Pasted%20image%2020231122153625.png" alt="" />
+<p><img src="/assets/attachements/Pasted%20image%2020231122153625.png" alt="" />
 2.3 0832 引脚信号
 （1）输入寄存器控制信号
        D 7～D 0：输入数据线
@@ -1221,7 +1221,7 @@ DREQ 只需维持到 DACK 有效</li>
 		  MOV DX，PORT
 		  MOV AL，DATA
 		  OUT DX，AL
-<img src="attachements/Pasted%20image%2020231122154037.png" alt="" /></p>
+<img src="/assets/attachements/Pasted%20image%2020231122154037.png" alt="" /></p>
 
 <p><strong><em>双缓冲模式 （标准模式）：</em></strong>：两级输入锁存
        I）对输入寄存器和 DAC 寄存器均需控制；
@@ -1229,7 +1229,7 @@ DREQ 只需维持到 DACK 有效</li>
        目标：数据接收与D/A转换可异步进行，可实现<strong>多个DAC同步转换输出</strong>，分时写入、同步转换。</p>
 <h3 id="例子">例子</h3>
 <p>锯齿波
-<img src="attachements/Pasted%20image%2020231122155949.png" alt="" />
+<img src="/assets/attachements/Pasted%20image%2020231122155949.png" alt="" />
     控制程序如下：</p>
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>START:  MOV  AL, 0           ;数字量初始值 
         MOV  DX, 208 H   ;DAC 0832 地址
@@ -1261,9 +1261,9 @@ DREQ 只需维持到 DACK 有效</li>
    （8）CLOCK：时钟输入(10KHz~1.2MHz)
    （9）VREF (+)、VREF(-) ：参考电压输入（比如 255 这个数对应哪个电压）
    （10） VCC、GND：+5 V、0V
-   <img src="attachements/Pasted%20image%2020231023153853.png" alt="" />
+   <img src="/assets/attachements/Pasted%20image%2020231023153853.png" alt="" />
    内部结构：
-   <img src="attachements/Pasted%20image%2020231023154100.png" alt="" /></p>
+   <img src="/assets/attachements/Pasted%20image%2020231023154100.png" alt="" /></p>
 
 <h3 id="工作过程-1">工作过程</h3>
 <p>（1）首先由<strong>ADDA、ADDB、ADDC</strong>决定选择哪一路模拟信号。
