@@ -1,0 +1,1845 @@
+<!DOCTYPE html><html lang="zh-Hans">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>编译原理 第一次实验 词法分析 - Ennis's Blog</title>
+
+<meta name="description" content="">
+<link rel="canonical" href="http://localhost:4000/2024/03/28/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86-%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C-%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Willing to be a question, willing to be an answer.
+" href="/">Ennis's Blog</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86">编译原理</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">实验报告</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 03月28日</span>
+            </li></ul></div><div class="article__header"><header><h1>编译原理 第一次实验 词法分析</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2024-3-28-编译原理 第一次实验 词法分析.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt"></p></div></div>
+              </div>
+            </div><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="编译原理 第一次实验 词法分析"><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2024-03-28T00:00:00+08:00">
+    <meta itemprop="keywords" content="编译原理,实验报告"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><p><!---more--></p>
+<div class="cover" style="page-break-after:always;font-family:仿宋;width:100%;height:100%;border:none;margin: 0 auto;text-align:center;">
+    <div style="width:80%;;margin: 0 auto;height:0;padding-bottom:25%;">
+        <img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%20%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%20%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90.assets/1-538-png_6_0_0_188_115_242_92_893.024_1263-1400-0-255-1400.jpg" alt="校名" style="width:100%;" /></div>
+    <br /><br />
+    <div style="width:40%;margin: 0 auto;height:0;padding-bottom:40%;">
+        <img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%20%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%20%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90.assets/image-20240616111344139.png" alt="校徽" style="width:100%;" /></div>
+    <br /><br />
+    <p style="text-align:center;font-size:24pt;margin: 0 auto">《编译原理实验》</p>
+    <p style="text-align:center;font-size:24pt;margin: 0 auto">实验报告 </p>
+    <br /><br />
+    <table style="border:none;text-align:center;width:80%;font-family:仿宋;margin: 0 auto;">
+    <tbody style="font-family:仿宋;font-size:16pt;">
+    	<tr style="font-weight:bold;"> 
+    		<td style="width:25%;text-align:right;">题&emsp;&emsp;目</td><td style="width:5%">：</td> 
+    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">第⼀次实验 词法分析</td></tr>
+        <tr style="font-weight:bold;"> 
+    		<td style="width:25%;text-align:right;">姓&emsp;&emsp;名</td><td style="width:5%">：</td> 
+    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">高星杰</td></tr>
+    	<tr style="font-weight:bold;"> 
+    		<td style="width:25%;text-align:right;">学&emsp;&emsp;号</td><td style="width:5%">：</td> 
+    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">2021307220712</td></tr>
+        <tr style="font-weight:bold;"> 
+    		<td style="width:25%;text-align:right;">专&emsp;&emsp;业</td><td style="width:5%">：</td> 
+    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">计算机科学与技术</td></tr>
+    	<tr style="font-weight:bold;"> 
+    		<td style="width:25%;text-align:right;">上课时间</td><td style="width:5%">：</td> 
+    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">2024春</td></tr>
+    	<tr style="font-weight:bold;"> 
+    		<td style="width:25%;text-align:right;">授课教师</td><td style="width:5%">：</td> 
+    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">刘善梅</td></tr>
+    </tbody></table>
+ 		<br /><br /><p style="text-align:center;">2024 年 3月 28 日</p>
+</div>
+
+<p>[TOC]</p>
+
+<h1 id="编译原理-第一次实验-词法分析">编译原理 第一次实验 词法分析</h1>
+
+<h2 id="实验目的">实验目的</h2>
+
+<ul>
+  <li>设计、编制并调试一个简单的词法分析程序。</li>
+  <li>加深对词法分析原理的理解</li>
+</ul>
+
+<h2 id="实验要求">实验要求</h2>
+
+<p>根据PL/0语言的文法规范，编写PL/0语言的词法分析程序。要求：</p>
+
+<ul>
+  <li>把词法分析器设计成一个独立一遍的过程。</li>
+  <li>词法分析器的输出形式采用二元式序列，即：(单词种类, 单词的值)</li>
+</ul>
+
+<blockquote>
+  <p>[!important]</p>
+
+  <p>【PL语言简介】</p>
+
+  <p>PL0语言功能简单、结构清晰、可读性强，而又具备了一般高级程序设计语言的必须部分，因而PL0语言的编译程序能充分体现一个高级语言编译程序实现的基本方法和技术。</p>
+
+  <p><strong>1．PL/0语言文法的EBNF</strong></p>
+
+  <p><strong>1.1</strong> <strong>符号说明：</strong></p>
+
+  <p>‘&lt;&gt;’用左右尖括号括起来的中文字表示语法构造成分，或称语法单位，为非终结符。</p>
+
+  <p>‘::=’该符号的左部由右部定义，可读作“定义为”。</p>
+
+  <table>
+    <tbody>
+      <tr>
+        <td>‘</td>
+        <td>’表示“或”，为左部可由多个右部定义.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>‘{}’表示花括号内的语法成分可以重复。在不加上下界时可重复0到任意次数，有上下界时为可重复次数的限制。</p>
+
+  <p>‘[]’表示方括号内的成分为任选项。</p>
+
+  <p>‘()’表示圆括号内的成分优先。上述符号称“元符号”，定义文法用到上述符号作为文法符号时需要引号‘’括起。</p>
+
+  <p><strong>1.2 PL/0 语言文法的EBNF:</strong></p>
+
+  <程序>::=<分程序>.
+
+<分程序> ::=[<常量说明>\]\[<变量说明>][<过程说明>]<语句>
+
+<常量说明> ::=CONST<常量定义>{，<常量定义>};
+
+<常量定义> ::=<标识符>=<无符号整数>
+
+<无符号整数> ::= <数字>{<数字>}
+
+<变量说明> ::=VAR <标识符>{, <标识符>};
+
+<标识符> ::=<字母>{<字母>|<数字>}
+
+<过程说明> ::=<过程首部><分程序>{; <过程说明> };
+
+<过程首部> ::=PROCEDURE <标识符>;
+
+<语句> ::=<赋值语句>|<条件语句>|<当循环语句>|<过程调用语句>
+
+​        |<复合语句>|<读语句><写语句>|<空>
+
+<赋值语句> ::=<标识符>:=<表达式>
+
+<复合语句> ::=BEGIN <语句> {;<语句> }END
+
+<条件语句> ::= <表达式> <关系运算符> <表达式> |ODD<表达式>
+
+<表达式> ::= [+|-]<项>{<加法运算符> <项>}
+
+<项> ::= <因子>{<乘法运算符> <因子>}
+
+<因子> ::= <标识符>|<无符号整数>| ‘(’<表达式>‘)’
+
+<加法运算符> ::= +|-
+
+<乘法运算符> ::= *|/
+
+<关系运算符> ::= =|#|&lt;|&lt;=|&gt;|&gt;=
+
+<条件语句> ::= IF <条件> THEN <语句>
+
+<过程调用语句> ::= CALL 标识符
+
+<当循环语句> ::= WHILE <条件> DO <语句>
+
+<读语句> ::= READ‘(’<标识符>{,<标识符>}‘)’
+
+<写语句> ::= WRITE‘(’<表达式>{,<表达式>}‘)’
+
+<字母> ::= a|b|…|X|Y|Z
+
+<数字> ::= 0|1|…|8|9
+
+
+
+**2．PL/0语言的词汇表**
+
+| **序号** | **类别**   | **单词**                                                     | **编码**                                                     |
+| -------- | ---------- | ------------------------------------------------------------ | ------------------------------------------------------------ |
+| **1**    | **基本字** | begin, call, const, do, end if, odd, procedure, read then, var, while, write | **beginsym, callsym, constsym** **dosym, endsym, ifsym, oddsym** **，** **proceduresym, readsym,  thensym** **，** **varsym, whilesym, writesym** |
+| **2**    | **标识符** |                                                              | **ident**                                                    |
+| **3**    | **常数**   |                                                              | **number**                                                   |
+| **4**    | **运算符** | +, -, \*, /, odd =, &lt;&gt;, &lt;, &lt;=, &gt;, &gt;=,  :=                    | **plus, minus, times, slash, oddsym** **，** **eql, neq, lss, leq, gtr, geq,  becomes** |
+| **5**    | **界符**   | （ ） ， ； .                                                | **lparen, rparen, comma, semicolon** **，** **period**       |
+</数字></字母></表达式></表达式></写语句></标识符></标识符></读语句></语句></条件></当循环语句></过程调用语句></语句></条件></条件语句></关系运算符></乘法运算符></加法运算符></表达式></无符号整数></标识符></因子></因子></乘法运算符></因子></项></项></加法运算符></项></表达式></表达式></表达式></关系运算符></表达式></条件语句></语句></语句></复合语句></表达式></标识符></赋值语句></空></写语句></读语句></复合语句></过程调用语句></当循环语句></条件语句></赋值语句></语句></标识符></过程首部></过程说明></分程序></过程首部></过程说明></数字></字母></字母></标识符></标识符></标识符></变量说明></数字></数字></无符号整数></无符号整数></标识符></常量定义></常量定义></常量定义></常量说明></语句></过程说明></变量说明></常量说明></分程序></分程序></程序>
+</blockquote>
+
+<h2 id="设计思想">设计思想</h2>
+
+<p>要想手工设计词法分析器，实现PL/0语言子集的识别，就要明白什么是词法分析器，它的功能是什么。词法分析是编译程序进行编译时第一个要进行的任务，主要是对源程序进行编译预处理（去除注释、无用的回车换行找到包含的文件等）之后，对整个源程序进行分解，分解成一个个单词，这些单词有且只有五类，分别是<strong>标识符、保留字、常数、运算符、界符</strong>。以便为下面的语法分析和语义分析做准备。<strong>可以说词法分析面向的对象是单个的字符，目的是把它们组成有效的单词（字符串）；而语法的分析则是利用词法分析的结果作为输入来分析是否符合语法规则并且进行语法制导下的语义分析，最后产生四元组(中间代码)，进行优化（可有可无）之后最终生成目标代码</strong>。可见词法分析是所有后续工作的基础，如果这一步出错，比如明明是‘&lt;=’却被拆分成‘&lt;’和‘=’就会对下文造成不可挽回的影响。因此，在进行词法分析的时候一定要定义好这五种符号的集合。</p>
+
+<p>首先我们可以从需求入手，然后再尝试设计出一个词法分析器。</p>
+
+<h3 id="1-预计成果">1 预计成果</h3>
+
+<p>词法分析的成果就是由一系列单词符号构成的单词流。单词符号其实就是 token，一般有以下五大类：</p>
+
+<ul>
+  <li>关键字：例如 <code class="language-plaintext highlighter-rouge">while</code>，<code class="language-plaintext highlighter-rouge">if</code>，<code class="language-plaintext highlighter-rouge">int</code> 等</li>
+  <li>标识符：变量名、常量名、函数名等</li>
+  <li>常数：例如，<code class="language-plaintext highlighter-rouge">100</code>，<code class="language-plaintext highlighter-rouge">'text'</code>，<code class="language-plaintext highlighter-rouge">TRUE</code> 等</li>
+  <li>运算符：例如 <code class="language-plaintext highlighter-rouge">+</code>，<code class="language-plaintext highlighter-rouge">*</code>，<code class="language-plaintext highlighter-rouge">/</code> 等</li>
+  <li>界符：逗号，分号，括号，点等</li>
+</ul>
+
+<p>具体来说，一个单词符号在形式上是这样的一个二元式：<code class="language-plaintext highlighter-rouge">（单词种别，单词符号的属性值）</code></p>
+
+<blockquote>
+  <p>[!tip]</p>
+
+  <p>为了更好的解释，这里解释一下两个概念：</p>
+
+  <p><strong>单词种别：</strong></p>
+
+  <p>单词种别通常用整数编码。一个语言的单词符号如何分种，分成几种，怎样编码是一个技术问题。它取决于处理上的方便。</p>
+
+  <ul>
+    <li>标识符一般统归为一种。比如说变量 <code class="language-plaintext highlighter-rouge">a</code> 和 <code class="language-plaintext highlighter-rouge">b</code>，可能我们都只用 <code class="language-plaintext highlighter-rouge">1</code> 作为它们的单词种别。</li>
+    <li>常数则宜按类型（整、实、布尔等）分种，比如说整数可能用 <code class="language-plaintext highlighter-rouge">2</code> 表示，布尔值可能用 <code class="language-plaintext highlighter-rouge">3</code> 表示。</li>
+    <li>关键字可以把全体视为一种，也可以一字一种。</li>
+    <li>运算符可以把具有一定共性的运算符视为一种，也可以一符一种。</li>
+    <li>界符一般是一符一种。</li>
+  </ul>
+
+  <p><strong>单词符号的属性值</strong></p>
+
+  <p>由上面的单词种别可以知道，关键字、运算符、界符基本都是一字（或者一符）对应一个种别，所以只依靠单词种别即可确切地判断出具体是哪一种单词符号了。但是标识符和常数却不是这样，一个种别可能对应好几个单词符号。所以我们需要借助单词符号的属性值<strong>做进一步的区分</strong>。</p>
+
+  <p>对于标识符类型的单词符号，它的属性值通常是一个指针，这个指针指向符号表的某个表项，这个表项包含了该单词符号的相关信息；对于常数类型的单词符号，它的属性值也是一个指针，这个指针指向常数表的某个表项，这个表项包含了该单词符号的相关信息。</p>
+</blockquote>
+
+<p><strong>而我们要生成的单词种别是PL/0的单词种别，实验的要求中已经全部给出了单词种别，我们要做的就是要识别每个单词是属于哪个单词种别的。</strong> <strong>然后我们最终的输出结构就用token这种数据结构给出。</strong></p>
+
+<h3 id="2-设计要点">2 设计要点</h3>
+
+<h4 id="21-是否作为一趟">2.1 是否作为一趟？</h4>
+
+<p>按照我们常规的想法，应该是词法分析器扫描整个源程序，产生单词流，之后再由语法分析器分析生成的单词。如果是这样，那么就说词法分析器独立负责了一趟的扫描。但其实，更多的时候我们认为词法分析器并不负责独立的一趟，而是作为语法分析器的子程序被调用。也就是说，一上来就准备对源程序进行语法分析，但是语法分析无法处理字符流，所以它又回过头调用了词法分析器，将字符流转化成单词流，再去分析它的语法。以此类推，后面每次遇到字符串流，都是这样的一个过程。</p>
+
+<p><strong>但是由于我们仅仅要实现词法分析，不涉及语法分析，所以我们这里实现的是作为一趟。</strong></p>
+
+<h4 id="22-输入和预处理">2.2 输入和预处理</h4>
+
+<p>字符流输入后首先到达<strong>输入缓冲区</strong>，在词法分析器正式对它进行扫描之前，还得先做一些预处理的工作。预处理子程序会对<strong>一定长度</strong>的字符流进行处理，包括去除注释、合并多个空白符、处理回车符和换行符等。处理完之后再把这部分字符流送到<strong>扫描缓冲区</strong>。此时，词法分析器才正式开始拆分字符流的工作。</p>
+
+<p><strong>这里我们可以直接使用input来模拟字符流的输入，然后使用一些方法进行预处理</strong></p>
+
+<h4 id="23-超前扫描">2.3 超前扫描</h4>
+
+<p>像 FORTRAN 这样的语言，关键字不加保护（只要不引起矛盾，用户可以用它们作为普通标识符），关键字和用户自定义的标识符或标号之间没有特殊的界符作间隔。这使得关键字的识别变得很麻烦。比如 <code class="language-plaintext highlighter-rouge">DO99K=1,10</code> 和 <code class="language-plaintext highlighter-rouge">DO99K=1.10</code>。前者的意思是，K 从 1 变到 10 之后，跳转到第 99 行执行；后者的意思是，为变量 DO99K 赋值 1.10。问题在于，我们并不能在扫描到 <code class="language-plaintext highlighter-rouge">DO</code> 的时候就肯定这是一个关键字，事实上，它既有可能是关键字，也有可能作为标识符的一部分。而具体是哪一种，只有在我们扫描到 <code class="language-plaintext highlighter-rouge">=1</code> 后面才能确定 —— 如果后面是逗号，则这是关键字，如果是点号，则是标识符的一部分。</p>
+
+<p><strong>但是我们这里使用PL/0，对关键词是有保护的，所以我们无需进行超前扫描</strong></p>
+
+<h3 id="3-设计词法分析的模型">3 设计词法分析的模型</h3>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%20%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%20%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90.assets/1157683-20170521210839775-1386424259.png" alt="模型" /></p>
+
+<h4 id="31-单词种类及其正规式">3.1 单词种类及其正规式</h4>
+
+<ol>
+  <li>基本字</li>
+</ol>
+
+<table>
+  <thead>
+    <tr>
+      <th>单词的值</th>
+      <th>单词类型</th>
+      <th>正规式</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>begin</td>
+      <td>beginsym</td>
+      <td>begin</td>
+    </tr>
+    <tr>
+      <td>call</td>
+      <td>callsym</td>
+      <td>call</td>
+    </tr>
+    <tr>
+      <td>const</td>
+      <td>constsym</td>
+      <td>const</td>
+    </tr>
+    <tr>
+      <td>do</td>
+      <td>dosym</td>
+      <td>do</td>
+    </tr>
+    <tr>
+      <td>end</td>
+      <td>endsym</td>
+      <td>end</td>
+    </tr>
+    <tr>
+      <td>if</td>
+      <td>ifsym</td>
+      <td>if</td>
+    </tr>
+    <tr>
+      <td>odd</td>
+      <td>oddsym</td>
+      <td>odd</td>
+    </tr>
+    <tr>
+      <td>procedure</td>
+      <td>proceduresym</td>
+      <td>procedure</td>
+    </tr>
+    <tr>
+      <td>read</td>
+      <td>readsym</td>
+      <td>read</td>
+    </tr>
+    <tr>
+      <td>then</td>
+      <td>thensym</td>
+      <td>then</td>
+    </tr>
+    <tr>
+      <td>var</td>
+      <td>varsym</td>
+      <td>var</td>
+    </tr>
+    <tr>
+      <td>while</td>
+      <td>whilesym</td>
+      <td>while</td>
+    </tr>
+    <tr>
+      <td>write</td>
+      <td>writesym</td>
+      <td>write</td>
+    </tr>
+  </tbody>
+</table>
+
+<ol>
+  <li>标识符</li>
+</ol>
+
+<table>
+  <thead>
+    <tr>
+      <th>单词的值</th>
+      <th>单词类型</th>
+      <th>正规式</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>标识符</td>
+      <td>ident</td>
+      <td>(字母)(字母|数字)*</td>
+    </tr>
+  </tbody>
+</table>
+
+<ol>
+  <li>常数</li>
+</ol>
+
+<table>
+  <thead>
+    <tr>
+      <th>单词的值</th>
+      <th>单词类型</th>
+      <th>正规式</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>常数</td>
+      <td>number</td>
+      <td>(数字)(数字)*</td>
+    </tr>
+  </tbody>
+</table>
+
+<ol>
+  <li>运算符</li>
+</ol>
+
+<table>
+  <thead>
+    <tr>
+      <th>单词的值</th>
+      <th>单词类型</th>
+      <th>正规式r</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>+</td>
+      <td>plus</td>
+      <td>+</td>
+    </tr>
+    <tr>
+      <td>-</td>
+      <td>minus</td>
+      <td>-</td>
+    </tr>
+    <tr>
+      <td>*</td>
+      <td>times</td>
+      <td>*</td>
+    </tr>
+    <tr>
+      <td>/</td>
+      <td>slash</td>
+      <td>/</td>
+    </tr>
+    <tr>
+      <td>=</td>
+      <td>eql</td>
+      <td>=</td>
+    </tr>
+    <tr>
+      <td>&lt;&gt;</td>
+      <td>neq</td>
+      <td>&lt;&gt;</td>
+    </tr>
+    <tr>
+      <td>&lt;</td>
+      <td>lss</td>
+      <td>&lt;</td>
+    </tr>
+    <tr>
+      <td>&lt;=</td>
+      <td>leq</td>
+      <td>&lt;=</td>
+    </tr>
+    <tr>
+      <td>&gt;</td>
+      <td>gtr</td>
+      <td>&gt;</td>
+    </tr>
+    <tr>
+      <td>&gt;=</td>
+      <td>geq</td>
+      <td>&gt;=</td>
+    </tr>
+    <tr>
+      <td>:=</td>
+      <td>becomes</td>
+      <td>:=</td>
+    </tr>
+  </tbody>
+</table>
+
+<ol>
+  <li>界符</li>
+</ol>
+
+<table>
+  <thead>
+    <tr>
+      <th>单词的值</th>
+      <th>单词类型</th>
+      <th>正规式</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>(</td>
+      <td>lparen</td>
+      <td>(</td>
+    </tr>
+    <tr>
+      <td>)</td>
+      <td>rparen</td>
+      <td>)</td>
+    </tr>
+    <tr>
+      <td>，</td>
+      <td>comma</td>
+      <td>，</td>
+    </tr>
+    <tr>
+      <td>；</td>
+      <td>semicolon</td>
+      <td>；</td>
+    </tr>
+    <tr>
+      <td>.</td>
+      <td>period</td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="32-根据正规式构造nfa">3.2 根据正规式构造NFA</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%20%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%20%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90.assets/2605248-20230430160845156-1512298939.jpg" alt="img" style="zoom:80%;" /></p>
+
+<h4 id="33-将nfa转换为dfa">3.3 将NFA转换为DFA</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%20%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%20%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90.assets/image-20240616170255817.png" alt="image-20240616170255817" style="zoom:33%;" /></p>
+
+<p>使用这三个规则实现转换</p>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%20%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%20%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90.assets/2605248-20230430160908823-793550145.jpg" alt="img" style="zoom: 67%;" /></p>
+
+<h4 id="33-最小化dfa">3.3 最小化DFA</h4>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%20%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%20%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90.assets/2605248-20230430160927151-1106412564.jpg" alt="img" style="zoom:80%;" /></p>
+
+<h2 id="算法流程">算法流程</h2>
+
+<p><strong>下面说一下整个程序的流程：</strong></p>
+
+<ol>
+  <li>词法分析程序<strong>打开源文件</strong>，读取文件内容，直至遇上’$’文件结束符，然后读取结束。</li>
+  <li>对读取的文件进行<strong>预处理</strong>，从头到尾进行扫描，<strong>去除//和/* */的内容，以及一些无用的、影响程序执行的符号如换行符、回车符、制表符等</strong>。但是千万注意不要在这个时候去除空格，<strong>因为空格在词法分析中有用，</strong>比如说int i=3;这个语句，如果去除空格就变成了“inti=3”,这样就失去了程序的本意，因此不能在这个时候去除空格。</li>
+  <li>选下面就要<strong>对源文件从头到尾进行扫描</strong>了，从头开始扫描，这个时候扫描程序首先要询问当前的字符是不是空格，若是空格，则继续扫描下一个字符，直至不是空格，然后询问这个字符是不是字母，若是则进行标识符和保留字的识别；若这个字符为数字，则进行数字的判断。否则，依次对这个字符可能的情况进行判断，<strong>若是将所有可能都走了一遍还是没有知道它是谁，则认定为错误符号</strong>，输出该错误符号，然后结束。每次成功识别了一个单词后，单词都会存在token[ ]中。<strong>然后确定这个单词的种别码，最后进行下一个单词的识别。</strong>这就是扫描程序进行的工作，可以说这个程序彻底实现了<strong>确定有限自动机</strong>的某些功能，比如说识别标识符，识别数字等。为了简单起见，这里的数字只是整数。</li>
+  <li><strong>主控程序</strong>主要负责对每次识别的种别码syn进行判断，对于不同的单词种别做出不同的反应，如对于标识符则将其插入标识符表中。对于保留字则输出该保留字的种别码和助记符，等等吧。<strong>直至遇到syn=0;</strong>程序结束。</li>
+</ol>
+
+<p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%20%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%20%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90.assets/2605248-20230430161009075-442898421.png" alt="img" style="zoom:80%;" /></p>
+
+<h2 id="源程序">源程序</h2>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">from</span> <span class="n">enum</span> <span class="kn">import</span> <span class="n">Enum</span><span class="p">,</span> <span class="n">auto</span>
+
+
+<span class="c1"># 定义一个名为TokenType的枚举类型，表示所有可能的标记类型。
+</span><span class="k">class</span> <span class="nc">TokenType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="c1"># 下面的每一行都是定义一个标记类型，例如BEGINSYM、CALLSYM等。
+</span>    <span class="n">BEGINSYM</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>
+    <span class="n">CALLSYM</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>
+    <span class="n">CONSTSYM</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>
+    <span class="n">DOSYM</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>
+    <span class="n">ENDSYM</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>
+    <span class="n">IFSYM</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>
+    <span class="n">ODDSYM</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>
+    <span class="n">PROCEDURESYM</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>
+    <span class="n">READSYM</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>
+    <span class="n">THENSYM</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>
+    <span class="n">VARSYM</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>
+    <span class="n">WHILESYM</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>
+    <span class="n">WRITESYM</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>
+    <span class="n">IDENT</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 标识符
+</span>    <span class="n">NUMBER</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 数字
+</span>    <span class="n">PLUS</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 加号
+</span>    <span class="n">MINUS</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 减号
+</span>    <span class="n">TIMES</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 乘号
+</span>    <span class="n">SLASH</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 斜杠
+</span>    <span class="n">ODD</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 奇数
+</span>    <span class="n">EQL</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 等号
+</span>    <span class="n">NEQ</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 不等号
+</span>    <span class="n">LSS</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 小于号
+</span>    <span class="n">LEQ</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 小于等于号
+</span>    <span class="n">GTR</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 大于号
+</span>    <span class="n">GEQ</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 大于等于号
+</span>    <span class="n">BECOMES</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 赋值号
+</span>    <span class="n">LPAREN</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 左括号
+</span>    <span class="n">RPAREN</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 右括号
+</span>    <span class="n">COMMA</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 逗号
+</span>    <span class="n">SEMICOLON</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 分号
+</span>    <span class="n">PERIOD</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 句号
+</span>    <span class="n">UNKNOWN</span> <span class="o">=</span> <span class="nf">auto</span><span class="p">()</span>  <span class="c1"># 未知标记
+</span>
+
+<span class="c1"># 定义一个名为Token的类，用于表示一个标记。每个标记都有一个类型和一个值。
+</span><span class="k">class</span> <span class="nc">Token</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="nb">type</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="nb">type</span> <span class="o">=</span> <span class="nb">type</span>  <span class="c1"># 标记的类型
+</span>        <span class="n">self</span><span class="p">.</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span>  <span class="c1"># 标记的值
+</span>
+
+<span class="c1"># 定义一个名为Lexer的类，用于执行词法分析。这个类有一个输入字符串和一个位置指针。
+</span><span class="k">class</span> <span class="nc">Lexer</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">input_str</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="nb">input</span> <span class="o">=</span> <span class="n">input_str</span>  <span class="c1"># 将输入字符串保存到self.input中
+</span>        <span class="n">self</span><span class="p">.</span><span class="n">position</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># 初始化位置指针为0
+</span>
+    <span class="k">def</span> <span class="nf">get_next_token</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="nf">skip_whitespace</span><span class="p">()</span>  <span class="c1"># 跳过空白字符
+</span>
+        <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">position</span> <span class="o">&gt;=</span> <span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nb">input</span><span class="p">):</span>  <span class="c1"># 如果当前位置超过输入字符串的长度
+</span>            <span class="k">return</span> <span class="nc">Token</span><span class="p">(</span><span class="n">TokenType</span><span class="p">.</span><span class="n">PERIOD</span><span class="p">,</span> <span class="sh">"</span><span class="s">.</span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 返回一个句号标记
+</span>
+        <span class="n">current_char</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nb">input</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">position</span><span class="p">]</span>  <span class="c1"># 获取当前位置的字符
+</span>
+        <span class="k">if</span> <span class="n">current_char</span><span class="p">.</span><span class="nf">isalpha</span><span class="p">():</span>  <span class="c1"># 如果是字母
+</span>            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">get_identifier_or_keyword</span><span class="p">()</span>  <span class="c1"># 获取标识符或关键字
+</span>
+        <span class="k">if</span> <span class="n">current_char</span><span class="p">.</span><span class="nf">isdigit</span><span class="p">():</span>  <span class="c1"># 如果是数字
+</span>            <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">get_number</span><span class="p">()</span>  <span class="c1"># 获取数字
+</span>
+        <span class="c1"># 处理单字符标记
+</span>        <span class="k">if</span> <span class="n">current_char</span> <span class="o">==</span> <span class="sh">'</span><span class="s">+</span><span class="sh">'</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">advance</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nc">Token</span><span class="p">(</span><span class="n">TokenType</span><span class="p">.</span><span class="n">PLUS</span><span class="p">,</span> <span class="sh">"</span><span class="s">+</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">current_char</span> <span class="o">==</span> <span class="sh">'</span><span class="s">-</span><span class="sh">'</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">advance</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nc">Token</span><span class="p">(</span><span class="n">TokenType</span><span class="p">.</span><span class="n">MINUS</span><span class="p">,</span> <span class="sh">"</span><span class="s">-</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">current_char</span> <span class="o">==</span> <span class="sh">'</span><span class="s">*</span><span class="sh">'</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">advance</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nc">Token</span><span class="p">(</span><span class="n">TokenType</span><span class="p">.</span><span class="n">TIMES</span><span class="p">,</span> <span class="sh">"</span><span class="s">*</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">current_char</span> <span class="o">==</span> <span class="sh">'</span><span class="s">/</span><span class="sh">'</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">advance</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nc">Token</span><span class="p">(</span><span class="n">TokenType</span><span class="p">.</span><span class="n">SLASH</span><span class="p">,</span> <span class="sh">"</span><span class="s">/</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">current_char</span> <span class="o">==</span> <span class="sh">'</span><span class="s">(</span><span class="sh">'</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">advance</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nc">Token</span><span class="p">(</span><span class="n">TokenType</span><span class="p">.</span><span class="n">LPAREN</span><span class="p">,</span> <span class="sh">"</span><span class="s">(</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">current_char</span> <span class="o">==</span> <span class="sh">'</span><span class="s">)</span><span class="sh">'</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">advance</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nc">Token</span><span class="p">(</span><span class="n">TokenType</span><span class="p">.</span><span class="n">RPAREN</span><span class="p">,</span> <span class="sh">"</span><span class="s">)</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">current_char</span> <span class="o">==</span> <span class="sh">'</span><span class="s">,</span><span class="sh">'</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">advance</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nc">Token</span><span class="p">(</span><span class="n">TokenType</span><span class="p">.</span><span class="n">COMMA</span><span class="p">,</span> <span class="sh">"</span><span class="s">,</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">current_char</span> <span class="o">==</span> <span class="sh">'</span><span class="s">;</span><span class="sh">'</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">advance</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nc">Token</span><span class="p">(</span><span class="n">TokenType</span><span class="p">.</span><span class="n">SEMICOLON</span><span class="p">,</span> <span class="sh">"</span><span class="s">;</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">current_char</span> <span class="o">==</span> <span class="sh">'</span><span class="s">:</span><span class="sh">'</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">advance</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">self</span><span class="p">.</span><span class="n">position</span> <span class="o">&lt;</span> <span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nb">input</span><span class="p">)</span> <span class="ow">and</span> <span class="n">self</span><span class="p">.</span><span class="nb">input</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">position</span><span class="p">]</span> <span class="o">==</span> <span class="sh">'</span><span class="s">=</span><span class="sh">'</span><span class="p">:</span>  <span class="c1"># 检查是否是赋值符号 :=
+</span>                <span class="n">self</span><span class="p">.</span><span class="nf">advance</span><span class="p">()</span>
+                <span class="k">return</span> <span class="nc">Token</span><span class="p">(</span><span class="n">TokenType</span><span class="p">.</span><span class="n">BECOMES</span><span class="p">,</span> <span class="sh">"</span><span class="s">:=</span><span class="sh">"</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="nc">Token</span><span class="p">(</span><span class="n">TokenType</span><span class="p">.</span><span class="n">UNKNOWN</span><span class="p">,</span> <span class="sh">"</span><span class="s">:</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">current_char</span> <span class="o">==</span> <span class="sh">'</span><span class="s">=</span><span class="sh">'</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">advance</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nc">Token</span><span class="p">(</span><span class="n">TokenType</span><span class="p">.</span><span class="n">EQL</span><span class="p">,</span> <span class="sh">"</span><span class="s">=</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">current_char</span> <span class="o">==</span> <span class="sh">'</span><span class="s">.</span><span class="sh">'</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">advance</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nc">Token</span><span class="p">(</span><span class="n">TokenType</span><span class="p">.</span><span class="n">PERIOD</span><span class="p">,</span> <span class="sh">"</span><span class="s">.</span><span class="sh">"</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">advance</span><span class="p">()</span>
+            <span class="k">return</span> <span class="nc">Token</span><span class="p">(</span><span class="n">TokenType</span><span class="p">.</span><span class="n">UNKNOWN</span><span class="p">,</span> <span class="n">current_char</span><span class="p">)</span>  <span class="c1"># 未知标记
+</span>
+    <span class="k">def</span> <span class="nf">advance</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">self</span><span class="p">.</span><span class="n">position</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># 前进一个字符
+</span>
+    <span class="k">def</span> <span class="nf">skip_whitespace</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="c1"># 跳过空白字符
+</span>        <span class="k">while</span> <span class="n">self</span><span class="p">.</span><span class="n">position</span> <span class="o">&lt;</span> <span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nb">input</span><span class="p">)</span> <span class="ow">and</span> <span class="n">self</span><span class="p">.</span><span class="nb">input</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">position</span><span class="p">].</span><span class="nf">isspace</span><span class="p">():</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">advance</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">get_identifier_or_keyword</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">identifier</span> <span class="o">=</span> <span class="sh">""</span>
+        <span class="k">while</span> <span class="n">self</span><span class="p">.</span><span class="n">position</span> <span class="o">&lt;</span> <span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nb">input</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                <span class="n">self</span><span class="p">.</span><span class="nb">input</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">position</span><span class="p">].</span><span class="nf">isalnum</span><span class="p">()</span> <span class="ow">or</span> <span class="n">self</span><span class="p">.</span><span class="nb">input</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">position</span><span class="p">]</span> <span class="o">==</span> <span class="sh">'</span><span class="s">_</span><span class="sh">'</span><span class="p">):</span>  <span class="c1"># 继续读取字母、数字或下划线
+</span>            <span class="n">identifier</span> <span class="o">+=</span> <span class="n">self</span><span class="p">.</span><span class="nb">input</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">position</span><span class="p">]</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">advance</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nc">Token</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nf">get_keyword_type</span><span class="p">(</span><span class="n">identifier</span><span class="p">),</span> <span class="n">identifier</span><span class="p">)</span>  <span class="c1"># 返回标识符或关键字
+</span>
+    <span class="k">def</span> <span class="nf">get_number</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
+        <span class="n">number</span> <span class="o">=</span> <span class="sh">""</span>
+        <span class="k">while</span> <span class="n">self</span><span class="p">.</span><span class="n">position</span> <span class="o">&lt;</span> <span class="nf">len</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="nb">input</span><span class="p">)</span> <span class="ow">and</span> <span class="n">self</span><span class="p">.</span><span class="nb">input</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">position</span><span class="p">].</span><span class="nf">isdigit</span><span class="p">():</span>  <span class="c1"># 读取数字
+</span>            <span class="n">number</span> <span class="o">+=</span> <span class="n">self</span><span class="p">.</span><span class="nb">input</span><span class="p">[</span><span class="n">self</span><span class="p">.</span><span class="n">position</span><span class="p">]</span>
+            <span class="n">self</span><span class="p">.</span><span class="nf">advance</span><span class="p">()</span>
+        <span class="k">return</span> <span class="nc">Token</span><span class="p">(</span><span class="n">TokenType</span><span class="p">.</span><span class="n">NUMBER</span><span class="p">,</span> <span class="n">number</span><span class="p">)</span>  <span class="c1"># 返回数字标记
+</span>
+    <span class="k">def</span> <span class="nf">get_keyword_type</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">keyword</span><span class="p">):</span>
+        <span class="c1"># 将字符串转换为关键字类型
+</span>        <span class="k">if</span> <span class="n">keyword</span> <span class="o">==</span> <span class="sh">"</span><span class="s">begin</span><span class="sh">"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TokenType</span><span class="p">.</span><span class="n">BEGINSYM</span>
+        <span class="k">elif</span> <span class="n">keyword</span> <span class="o">==</span> <span class="sh">"</span><span class="s">call</span><span class="sh">"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TokenType</span><span class="p">.</span><span class="n">CALLSYM</span>
+        <span class="k">elif</span> <span class="n">keyword</span> <span class="o">==</span> <span class="sh">"</span><span class="s">const</span><span class="sh">"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TokenType</span><span class="p">.</span><span class="n">CONSTSYM</span>
+        <span class="k">elif</span> <span class="n">keyword</span> <span class="o">==</span> <span class="sh">"</span><span class="s">do</span><span class="sh">"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TokenType</span><span class="p">.</span><span class="n">DOSYM</span>
+        <span class="k">elif</span> <span class="n">keyword</span> <span class="o">==</span> <span class="sh">"</span><span class="s">end</span><span class="sh">"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TokenType</span><span class="p">.</span><span class="n">ENDSYM</span>
+        <span class="k">elif</span> <span class="n">keyword</span> <span class="o">==</span> <span class="sh">"</span><span class="s">if</span><span class="sh">"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TokenType</span><span class="p">.</span><span class="n">IFSYM</span>
+        <span class="k">elif</span> <span class="n">keyword</span> <span class="o">==</span> <span class="sh">"</span><span class="s">odd</span><span class="sh">"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TokenType</span><span class="p">.</span><span class="n">ODDSYM</span>
+        <span class="k">elif</span> <span class="n">keyword</span> <span class="o">==</span> <span class="sh">"</span><span class="s">procedure</span><span class="sh">"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TokenType</span><span class="p">.</span><span class="n">PROCEDURESYM</span>
+        <span class="k">elif</span> <span class="n">keyword</span> <span class="o">==</span> <span class="sh">"</span><span class="s">read</span><span class="sh">"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TokenType</span><span class="p">.</span><span class="n">READSYM</span>
+        <span class="k">elif</span> <span class="n">keyword</span> <span class="o">==</span> <span class="sh">"</span><span class="s">then</span><span class="sh">"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TokenType</span><span class="p">.</span><span class="n">THENSYM</span>
+        <span class="k">elif</span> <span class="n">keyword</span> <span class="o">==</span> <span class="sh">"</span><span class="s">var</span><span class="sh">"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TokenType</span><span class="p">.</span><span class="n">VARSYM</span>
+        <span class="k">elif</span> <span class="n">keyword</span> <span class="o">==</span> <span class="sh">"</span><span class="s">while</span><span class="sh">"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TokenType</span><span class="p">.</span><span class="n">WHILESYM</span>
+        <span class="k">elif</span> <span class="n">keyword</span> <span class="o">==</span> <span class="sh">"</span><span class="s">write</span><span class="sh">"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TokenType</span><span class="p">.</span><span class="n">WRITESYM</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">TokenType</span><span class="p">.</span><span class="n">IDENT</span>  <span class="c1"># 返回标识符类型
+</span>
+
+<span class="c1"># 主程序入口
+</span><span class="k">if</span> <span class="n">__name__</span> <span class="o">==</span> <span class="sh">"</span><span class="s">__main__</span><span class="sh">"</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">line</span> <span class="o">=</span> <span class="nf">input</span><span class="p">()</span>  <span class="c1"># 读取第一行输入
+</span>        <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="sh">"</span><span class="s">end.</span><span class="sh">"</span><span class="p">:</span>  <span class="c1"># 检查是否是结束符
+</span>            <span class="k">pass</span>
+        <span class="n">input_str</span> <span class="o">=</span> <span class="n">line</span> <span class="o">+</span> <span class="sh">"</span><span class="se">\n</span><span class="sh">"</span>  <span class="c1"># 将输入字符串初始化为第一行
+</span>        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">line</span> <span class="o">=</span> <span class="nf">input</span><span class="p">()</span>  <span class="c1"># 继续读取输入
+</span>                <span class="k">if</span> <span class="n">line</span> <span class="o">==</span> <span class="sh">"</span><span class="s">end.</span><span class="sh">"</span><span class="p">:</span>  <span class="c1"># 检查是否是结束符
+</span>                    <span class="n">input_str</span> <span class="o">+=</span> <span class="n">line</span>
+                    <span class="k">break</span>
+                <span class="n">input_str</span> <span class="o">+=</span> <span class="n">line</span> <span class="o">+</span> <span class="sh">"</span><span class="se">\n</span><span class="sh">"</span>
+            <span class="k">except</span> <span class="nb">EOFError</span><span class="p">:</span>  <span class="c1"># 处理EOF错误
+</span>                <span class="k">break</span>
+    <span class="k">except</span> <span class="nb">EOFError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="n">lexer</span> <span class="o">=</span> <span class="nc">Lexer</span><span class="p">(</span><span class="n">input_str</span><span class="p">)</span>  <span class="c1"># 创建Lexer对象
+</span>
+    <span class="n">tokens</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># 初始化tokens列表
+</span>    <span class="n">token</span> <span class="o">=</span> <span class="n">lexer</span><span class="p">.</span><span class="nf">get_next_token</span><span class="p">()</span>  <span class="c1"># 获取第一个标记
+</span>    <span class="k">while</span> <span class="n">token</span><span class="p">.</span><span class="nb">type</span> <span class="o">!=</span> <span class="n">TokenType</span><span class="p">.</span><span class="n">PERIOD</span><span class="p">:</span>  <span class="c1"># 直到遇到句号标记
+</span>        <span class="n">tokens</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">lexer</span><span class="p">.</span><span class="nf">get_next_token</span><span class="p">()</span>  <span class="c1"># 获取下一个标记
+</span>    <span class="n">tokens</span><span class="p">.</span><span class="nf">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>  <span class="c1"># 添加最后一个句号标记
+</span>
+    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokens</span><span class="p">:</span>  <span class="c1"># 输出所有标记
+</span>        <span class="nf">print</span><span class="p">(</span><span class="sa">f</span><span class="sh">"</span><span class="s">(</span><span class="si">{</span><span class="n">token</span><span class="p">.</span><span class="nb">type</span><span class="p">.</span><span class="n">name</span><span class="p">.</span><span class="nf">lower</span><span class="p">()</span><span class="si">}</span><span class="s">,</span><span class="si">{</span><span class="n">token</span><span class="p">.</span><span class="n">value</span><span class="si">}</span><span class="s">)</span><span class="sh">"</span><span class="p">)</span>
+
+</code></pre></div></div>
+
+<h2 id="调试数据">调试数据</h2>
+
+<h3 id="测试样例一">测试样例一</h3>
+
+<blockquote>
+  <p>[样例输入]</p>
+
+  <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">const</span> <span class="n">a</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span>
+<span class="n">var</span> <span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">;</span>
+<span class="n">begin</span>
+<span class="nf">read</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+<span class="n">c</span><span class="o">:=</span><span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">;</span>
+<span class="n">write</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+<span class="n">end</span><span class="p">.</span>
+</code></pre></div>  </div>
+
+  <p>【样例输出】</p>
+
+  <div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">(constsym,const)</span>
+<span class="err">(ident,a)</span>
+<span class="py">(eql,</span><span class="p">=</span><span class="err">)</span>
+<span class="err">(number,10)</span>
+<span class="err">(semicolon,;)</span>
+<span class="err">(varsym,var)</span>
+<span class="err">(ident,b)</span>
+<span class="err">(comma,,)</span>
+<span class="err">(ident,c)</span>
+<span class="err">(semicolon,;)</span>
+<span class="err">(beginsym,begin)</span>
+<span class="err">(readsym,read)</span>
+<span class="err">(lparen,()</span>
+<span class="err">(ident,b)</span>
+<span class="err">(rparen,))</span>
+<span class="err">(semicolon,;)</span>
+<span class="err">(ident,c)</span>
+<span class="py">(becomes,:</span><span class="p">=</span><span class="err">)</span>
+<span class="err">(ident,a)</span>
+<span class="err">(plus,+)</span>
+<span class="err">(ident,b)</span>
+<span class="err">(semicolon,;)</span>
+<span class="err">(writesym,write)</span>
+<span class="err">(lparen,()</span>
+<span class="err">(ident,c)</span>
+<span class="err">(rparen,))</span>
+<span class="err">(endsym,end)</span>
+<span class="err">(period,.)</span>
+</code></pre></div>  </div>
+
+  <p>输出结果</p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%20%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%20%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90.assets/image-20240616172443902.png" alt="image-20240616172443902" style="zoom: 33%;" /></p>
+</blockquote>
+
+<h3 id="测试样例二">测试样例二</h3>
+
+<blockquote>
+  <p>[样例输入]</p>
+
+  <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">const</span> <span class="n">a</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span>
+<span class="n">var</span> <span class="n">b</span><span class="p">,</span><span class="n">c</span><span class="p">,</span><span class="n">d</span><span class="p">;</span>
+<span class="n">begin</span>
+<span class="nf">read</span><span class="p">(</span><span class="n">b</span><span class="p">);</span>
+<span class="n">read</span><span class="p">(</span><span class="n">c</span><span class="p">);</span>
+<span class="n">d</span><span class="o">:=</span><span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="o">+</span><span class="n">c</span><span class="p">;</span>
+<span class="n">write</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+<span class="n">end</span><span class="p">.</span>
+</code></pre></div>  </div>
+
+  <p>【样例输出】</p>
+
+  <div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">(constsym,const)</span>
+<span class="err">(ident,a)</span>
+<span class="py">(eql,</span><span class="p">=</span><span class="err">)</span>
+<span class="err">(number,10)</span>
+<span class="err">(semicolon,;)</span>
+<span class="err">(varsym,var)</span>
+<span class="err">(ident,b)</span>
+<span class="err">(comma,,)</span>
+<span class="err">(ident,c)</span>
+<span class="err">(comma,,)</span>
+<span class="err">(ident,d)</span>
+<span class="err">(semicolon,;)</span>
+<span class="err">(beginsym,begin)</span>
+<span class="err">(readsym,read)</span>
+<span class="err">(lparen,()</span>
+<span class="err">(ident,b)</span>
+<span class="err">(rparen,))</span>
+<span class="err">(semicolon,;)</span>
+<span class="err">(readsym,read)</span>
+<span class="err">(lparen,()</span>
+<span class="err">(ident,c)</span>
+<span class="err">(rparen,))</span>
+<span class="err">(semicolon,;)</span>
+<span class="err">(ident,d)</span>
+<span class="py">(becomes,:</span><span class="p">=</span><span class="err">)</span>
+<span class="err">(ident,a)</span>
+<span class="err">(plus,+)</span>
+<span class="err">(ident,b)</span>
+<span class="err">(plus,+)</span>
+<span class="err">(ident,c)</span>
+<span class="err">(semicolon,;)</span>
+<span class="err">(writesym,write)</span>
+<span class="err">(lparen,()</span>
+<span class="err">(ident,d)</span>
+<span class="err">(rparen,))</span>
+<span class="err">(endsym,end)</span>
+<span class="err">(period,.)</span>
+</code></pre></div>  </div>
+
+  <p>输出结果</p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%20%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%20%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90.assets/image-20240616172626283.png" alt="image-20240616172626283" style="zoom: 33%;" /></p>
+</blockquote>
+
+<h3 id="测试样例三">测试样例三</h3>
+
+<blockquote>
+  <p>[样例输入]</p>
+
+  <div class="language-c++ highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">const</span> <span class="n">a</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span>
+<span class="k">const</span> <span class="n">b</span><span class="o">=</span><span class="mi">10</span><span class="p">;</span>
+<span class="n">var</span> <span class="n">c</span><span class="p">;</span>
+<span class="n">begin</span>
+<span class="n">c</span><span class="o">:=</span><span class="n">a</span><span class="o">+</span><span class="n">b</span><span class="p">;</span>
+<span class="n">write</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+<span class="n">end</span><span class="p">.</span>
+</code></pre></div>  </div>
+
+  <p>【样例输出】</p>
+
+  <div class="language-toml highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="err">(constsym,const)</span>
+<span class="err">(ident,a)</span>
+<span class="py">(eql,</span><span class="p">=</span><span class="err">)</span>
+<span class="err">(number,10)</span>
+<span class="err">(semicolon,;)</span>
+<span class="err">(constsym,const)</span>
+<span class="err">(ident,b)</span>
+<span class="py">(eql,</span><span class="p">=</span><span class="err">)</span>
+<span class="err">(number,10)</span>
+<span class="err">(semicolon,;)</span>
+<span class="err">(varsym,var)</span>
+<span class="err">(ident,c)</span>
+<span class="err">(semicolon,;)</span>
+<span class="err">(beginsym,begin)</span>
+<span class="err">(ident,c)</span>
+<span class="py">(becomes,:</span><span class="p">=</span><span class="err">)</span>
+<span class="err">(ident,a)</span>
+<span class="err">(plus,+)</span>
+<span class="err">(ident,b)</span>
+<span class="err">(semicolon,;)</span>
+<span class="err">(writesym,write)</span>
+<span class="err">(lparen,()</span>
+<span class="err">(ident,c)</span>
+<span class="err">(rparen,))</span>
+<span class="err">(endsym,end)</span>
+<span class="err">(period,.)</span>
+</code></pre></div>  </div>
+
+  <p>输出结果</p>
+
+  <p><img src="/assets/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%20%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%9E%E9%AA%8C%20%E8%AF%8D%E6%B3%95%E5%88%86%E6%9E%90.assets/image-20240616172821800.png" alt="image-20240616172821800" style="zoom: 33%;" /></p>
+</blockquote>
+
+<h2 id="实验调试情况及体会">实验调试情况及体会</h2>
+
+<p>每做一次比较大的实验，都应该写一下实验体会，来加深自己对知识的认识。其实这次的实验，算法部分并不难，<strong>只要知道了DFA，这个模块很好写</strong>，比较麻烦的就是五种类型的字符个数越多程序就越长。但为了能识别大部分程序，我还是用了比较大的子集，结果花了一下午的功夫才写完，虽然很累吧，但看着这个词法分析器的处理能力，觉得还是值得的。同时也加深了对字符的认识。程序的可读性还算不错。<strong>程序没有实现的是对所有复合运算的分离，但原理是相同的，比如“+=“，只需在”+“的逻辑之后向前扫描就行了，因此就没有再加上了。</strong>感受最深的是学习编译原理必须要做实验，写程序，这样才会提高自己的动手能力，加深自己对难点的理解，对于以后的求first{},follow{},fisrtVT{},lastVT{}更是应该如此。</p>
+
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-03-28T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2024/03/25/%E5%B5%8C%E5%85%A5%E5%BC%8F%E7%AC%AC%E4%BA%8C%E6%AC%A1%E5%AE%9E%E9%AA%8C.html">嵌入式 第二次实验 嵌入式编程基础实验</a></div><div class="next"><span>下篇</span><a href="/2024/03/31/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86%E7%AC%94%E8%AE%B0.html">编译原理笔记</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Gao Xingjie"><meta itemprop="url" content="/"><meta itemprop="description" content="To be a question, to be an answer."><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"><li title="给我发邮件。">
+      <a class="button button--circle mail-button" itemprop="email" href="mailto:xingjie-gao@outlook.com" target="_blank">
+        <i class="fas fa-envelope"></i>
+      </a><li title="在 Github 上关注我。">
+        <a class="button button--circle github-button" itemprop="sameAs" href="https://github.com/Kfkcome" target="_blank">
+          <div class="icon"><svg fill="#000000" width="24px" height="24px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path class="svgpath" data-index="path_0" fill="#272636" d="M0 525.2c0 223.6 143.3 413.7 343 483.5 26.9 6.8 22.8-12.4 22.8-25.4l0-88.7c-155.3 18.2-161.5-84.6-172-101.7-21.1-36-70.8-45.2-56-62.3 35.4-18.2 71.4 4.6 113.1 66.3 30.2 44.7 89.1 37.2 119 29.7 6.5-26.9 20.5-50.9 39.7-69.6C248.8 728.2 181.7 630 181.7 513.2c0-56.6 18.7-108.7 55.3-150.7-23.3-69.3 2.2-128.5 5.6-137.3 66.5-6 135.5 47.6 140.9 51.8 37.8-10.2 80.9-15.6 129.1-15.6 48.5 0 91.8 5.6 129.8 15.9 12.9-9.8 77-55.8 138.8-50.2 3.3 8.8 28.2 66.7 6.3 135 37.1 42.1 56 94.6 56 151.4 0 117-67.5 215.3-228.8 243.7 26.9 26.6 43.6 63.4 43.6 104.2l0 128.8c0.9 10.3 0 20.5 17.2 20.5C878.1 942.4 1024 750.9 1024 525.3c0-282.9-229.3-512-512-512C229.1 13.2 0 242.3 0 525.2L0 525.2z" />
+</svg>
+</div>
+        </a>
+      </li></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© Ennis's Blog 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script>
+  window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
+    var $canvas = null, $this = null, _ctx = null, _text = '';
+    $('.language-chart').each(function(){
+      $this = $(this);
+      $canvas = $('<canvas></canvas>');
+      _text = $this.text();
+      $this.text('').append($canvas);
+      _ctx = $canvas.get(0).getContext('2d');
+      (_ctx && _text) && (new Chart(_ctx, JSON.parse(_text)) && $this.attr('data-processed', true));
+    });
+  });
+</script>
+<script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};_config.TeX = { equationNumbers: { autoNumber: "all" } };MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+
