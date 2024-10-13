@@ -1,0 +1,5790 @@
+<!DOCTYPE html><html lang="zh-Hans">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>嵌入式 期末复习 - Ennis's Blog</title>
+
+<meta name="description" content="[TOC]嵌入式复习第一章 嵌入式系统概述1.嵌入式系统概念：定义、特点、应用、典型嵌入式系统结构从技术的角度定义：以应用为中心、以计算机技术为基础、软件硬件可裁剪、对功能、可靠性、成本、体积、功耗严格要求的专用计算机系统。">
+<link rel="canonical" href="http://localhost:4000/2024/04/03/%E5%B5%8C%E5%85%A5%E5%BC%8F%E5%A4%8D%E4%B9%A0.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Willing to be a question, willing to be an answer.
+" href="/">Ennis's Blog</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E5%B5%8C%E5%85%A5%E5%BC%8F">嵌入式</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0">课程笔记</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 04月03日</span>
+            </li></ul></div><div class="article__header"><header><h1>嵌入式 期末复习</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2024-4-3-嵌入式复习.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">[TOC]嵌入式复习第一章 嵌入式系统概述1.嵌入式系统概念：定义、特点、应用、典型嵌入式系统结构从技术的角度定义：以应用为中心、以计算机技术为基础、软件硬件可裁剪、对功能、可靠性、成本、体积、功耗严格要求的专用计算机系统。</p></div></div>
+              </div>
+            </div><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="嵌入式 期末复习"><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2024-04-03T00:00:00+08:00">
+    <meta itemprop="keywords" content="嵌入式,课程笔记"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><p>[TOC]</p>
+
+<h1 id="嵌入式复习">嵌入式复习</h1>
+
+<h2 id="第一章-嵌入式系统概述">第一章 嵌入式系统概述</h2>
+
+<h3 id="1嵌入式系统概念定义特点应用典型嵌入式系统结构">1.嵌入式系统概念：定义、特点、应用、典型嵌入式系统结构</h3>
+
+<p>从技术的角度定义：以<strong>应用为中心</strong>、以计算机技术为基础、软件硬件可裁剪、对<strong>功能、可靠性、成本、体积、功耗严格要求</strong>的<strong>专用计算机系统</strong>。
+<!---more-->
+从系统的角度定义：嵌入式系统是设计完成复杂功能的硬件和软件，并使其紧密耦合在一起的计算机系统</p>
+
+<h4 id="特点">特点：</h4>
+
+<p>特点一：<strong>嵌入式系统中运行的任务是专用而确定的</strong></p>
+
+<ul>
+  <li>嵌入式系统中运行的任务是<strong>专用而确定</strong>的</li>
+  <li>桌面通用系统需要支持<strong>大量的、需求多样的</strong>应用程序</li>
+</ul>
+
+<p>特点二：<strong>嵌入式系统往往对实时性提出较高的要求。</strong></p>
+
+<ul>
+  <li>
+    <p>嵌入式系统往往对<strong>实时性</strong>提出较高的要求。</p>
+
+    <ul>
+      <li>
+        <p>实时系统：指系统能够在限定的响应时间内提供所需水平的服务。</p>
+      </li>
+      <li>
+        <p>嵌入式实时系统可分为：</p>
+
+        <p>强实时型：响应时间μs～ms级；</p>
+
+        <p>一般实时：响应时间ms～s级；</p>
+
+        <p>弱实时型：响应时间s级以上。</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>嵌入式系统中使用的操作系统一般是<strong>实时操作系统</strong></p>
+  </li>
+</ul>
+
+<p>特点三：<strong>嵌入式系统运行需要高可靠性保障，比桌面系统的故障容忍能力弱很多</strong></p>
+
+<ul>
+  <li>
+    <p>嵌入式系统运行需要<strong>高可靠性</strong>保障，比桌面系统的故障容忍能力弱很多</p>
+  </li>
+  <li>
+    <p>嵌入式系统需要忍受长时间、无人值守条件下的运行</p>
+  </li>
+  <li>
+    <p>嵌入式系统运行的环境恶劣</p>
+  </li>
+</ul>
+
+<p>特点四：<strong>嵌入式系统大都有功耗约束</strong></p>
+
+<ul>
+  <li>嵌入式系统大都有<strong>功耗约束</strong></li>
+</ul>
+
+<p>特点五：<strong>嵌入式系统的开发需要专用工具和特殊方法</strong></p>
+
+<ul>
+  <li>嵌入式系统比桌面通用系统可用资源少得多</li>
+  <li>嵌入式系统的开发需要专用工具和特殊方法</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th><strong>服务器</strong></th>
+      <th><strong>个人计算机</strong></th>
+      <th><strong>嵌入式系统</strong></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>CPU计算能力</td>
+      <td>高</td>
+      <td>中等</td>
+      <td>低/多样</td>
+    </tr>
+    <tr>
+      <td>能耗</td>
+      <td>高</td>
+      <td>中等/低</td>
+      <td>更低</td>
+    </tr>
+    <tr>
+      <td>应用领域</td>
+      <td>数据中心</td>
+      <td>日常应用</td>
+      <td>多样</td>
+    </tr>
+    <tr>
+      <td>可靠性</td>
+      <td>高</td>
+      <td>低</td>
+      <td>严格</td>
+    </tr>
+    <tr>
+      <td>成本</td>
+      <td>高</td>
+      <td>低</td>
+      <td>多样</td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="应用">应用：</h4>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_1.png" alt="" /></p>
+
+<h4 id="典型嵌入式系统结构">典型嵌入式系统结构</h4>
+
+<p>嵌入式系统一般由</p>
+
+<ul>
+  <li>嵌入式处理器</li>
+  <li>外围硬件设备</li>
+  <li>嵌入式操作系统（可选）</li>
+  <li>以及用户的应用软件系统</li>
+</ul>
+
+<p>等四个部分组成</p>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_2.png" alt="" /></p>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_3.png" alt="" /></p>
+
+<h3 id="2嵌入式系统开发过程交叉编译的概念">2.嵌入式系统开发过程，交叉编译的概念</h3>
+
+<h4 id="一般应用程序的开发的过程">一般应用程序的开发的过程</h4>
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_4.png" alt="" /></p>
+
+<h4 id="在linux下本地软件开发的过程">在linux下本地软件开发的过程</h4>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_5.png" alt="" /></p>
+
+<h4 id="gcc编译的过程">gcc编译的过程</h4>
+
+<p>gcc的是GNU C Compiler 的缩写，gcc的整个编译过程，实质上是分四步进行的，这四步分别是：</p>
+
+<ol>
+  <li>预处理(也称预编译，Preprocessing)，调用cpp命令，对源文件中的包含文件和预编译语句进行分析并展开</li>
+  <li>编译(Compilation)，用cc命令编译源文件生成目标文件</li>
+  <li>汇编(Assembly) ，针对汇编语言的步骤，调用as命令生成目标文件</li>
+  <li>链接(Linking)，由ld命令来完成。</li>
+</ol>
+
+<h4 id="嵌入式软件开发模式">嵌入式软件开发模式</h4>
+
+<p>嵌入式系统资源受限，直接在嵌入式系统硬件平台上编写软件较为困难。
+解决方法：</p>
+
+<ul>
+  <li>首先在通用计算机上编写软件</li>
+  <li>然后通过<strong>交叉编译</strong>生成目标平台上可以运行的二进制代码格式</li>
+  <li>最后再下载到目标平台上运行</li>
+</ul>
+
+<p>宿主-目标机开发模式</p>
+
+<p><strong>嵌入式系统采用双机开发模式：宿主机－目标机开发模式，利用资源丰富的PC机来开发嵌入式软件。</strong></p>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_6.png" alt="" /></p>
+
+<p>嵌入式软件开发流程</p>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_7.png" alt="" /></p>
+
+<h4 id="什么是交叉编译crossing-compiling">什么是交叉编译（Crossing-compiling）</h4>
+
+<p>在一种平台上编译出能在另一种平台（体系结构不同）上运行的程序；</p>
+
+<p>交叉编译器和交叉链接器是指能够在宿主机上安装，但是能够生成在目标机上直接运行的二进制代码的编译器和链接器</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>交叉编译</th>
+      <th>本地调试</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>调试器和被调试程序运行在不同的计算机上</td>
+      <td>调试器和被调试程序运行在同一台计算机上</td>
+    </tr>
+    <tr>
+      <td>可独立运行</td>
+      <td>需要操作系统的支持</td>
+    </tr>
+    <tr>
+      <td>可以调试不同指令集的程序</td>
+      <td>只能调试相同指令集的程序</td>
+    </tr>
+    <tr>
+      <td>需要通过外部通信的方式来控制被调试程序</td>
+      <td>不需要通过外部通信的方式来控制被调试程序</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="3处理器结构哈弗-vs-冯诺依曼cisc-vs-risc">3.处理器结构：哈弗 vs 冯诺依曼，CISC vs RISC</h3>
+
+<p>CISC: Complex Instruction Set Compute 复杂指令集 适用于通用计算机</p>
+
+<p>RISC: Reduce Instruction Set Compute  精简指令集 适用于嵌入式系统</p>
+
+<p><strong>RISC中，CPU与memory之间不能直接进行数据传输必须通过load/store指令把数据从内存搬到register，CPU再操作register里面的数据</strong></p>
+
+<h3 id="4常见的嵌入式处理器操作系统">4.常见的嵌入式处理器、操作系统</h3>
+
+<h4 id="嵌入式微处理器">嵌入式微处理器</h4>
+
+<p>常见的嵌入式微处理器</p>
+
+<ul>
+  <li>ARM：体积小、低功耗、低成本、高性能</li>
+  <li>PowerPC （Performance Optimization With Enhanced RISC - Performance Computing）基于RISC</li>
+</ul>
+
+<p>处理器组成：</p>
+
+<ul>
+  <li>控制单元： 取指令</li>
+  <li>执行运算：数据运算</li>
+</ul>
+
+<p>处理器结构（<a href="https://blog.csdn.net/u014470361/article/details/79774331">详细解释</a>）：</p>
+
+<ul>
+  <li>
+    <p>哈佛结构：取指令和数据有各自的总线，<strong>执行效率高，设计复杂度高</strong></p>
+  </li>
+  <li>
+    <p>冯诺依曼结构：存储程序原理，代码本身也是数据；<em>简化了结果降低了复杂度</em>，<strong>总线的吞吐量成为性能提升的瓶颈</strong></p>
+  </li>
+  <li>
+    <p>改进的哈佛结构</p>
+
+    <p>改进型哈佛结构虽然也使用两个不同的存储器：程序存储器和数据存储器，但它把两个存储器的地址总线合并了，数据总线也进行了合并，即原来的哈佛结构需要４条不同的总线，改进后需要两条总线。</p>
+
+    <p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_8.png" alt="" /></p>
+  </li>
+</ul>
+
+<p>嵌入式处理的结构：</p>
+
+<ul>
+  <li>嵌入式微处理器 MPU</li>
+  <li>嵌入式微控制器 MCP</li>
+  <li>嵌入式DSP处理器 DSP</li>
+  <li>嵌入式片上系统 System On Chip</li>
+</ul>
+
+<h4 id="嵌入式操作系统">嵌入式操作系统：</h4>
+
+<ul>
+  <li>嵌入式操作系统实时操作系统的特点
+    <ul>
+      <li>嵌入式实时操作系统应用于实时性要求高的实时控制系统，而且应用程序的开发过程是通过交叉开发来完成的，即开发环境与运行环境是不一致。</li>
+      <li>嵌入式实时操作系统具有规模小(一般在几K~几十K内)、可固化使用实时性强(在毫秒或微秒数量级上)的特点 。</li>
+    </ul>
+  </li>
+  <li>
+    <p>嵌入式系统使用实时操作系统的必要性</p>
+
+    <ul>
+      <li>嵌入式操作系统在目前的嵌入式应用中用得越来越广泛，尤其在功能复杂、系统庞大的应用中显得愈来愈重要。</li>
+      <li>在嵌入式应用中，只有把CPU嵌入到系统中，同时又把<strong>操作系统嵌入进去</strong>，才是真正的计算机嵌入式应用。</li>
+      <li>使用实时操作系统主要有以下几个因素：
+        <ul>
+          <li>提高了系统的可靠性</li>
+          <li>提高了开发效率，缩短了开发周期</li>
+          <li>充分发挥了32位CPU的多任务潜力</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>嵌入式实时操作系统的优缺点</p>
+
+    <ul>
+      <li>优点
+        <ul>
+          <li>在嵌入式实时操作系统环境下开发实时<strong>应用程序使程序的设计和扩展变得容易</strong>，不需要大的改动就可以增加新的功能。</li>
+          <li>通过将应用程序分割成若干独立的任务模块，<strong>使应用程序的设计过程大为简化</strong>；而且对实时性要求苛刻的事件都得到了快速、可靠的处理。</li>
+          <li>通过有效的系统服务，嵌入式实时操作系统<strong>使得系统资源得到更好的利用</strong>。</li>
+        </ul>
+      </li>
+      <li>缺点
+        <ul>
+          <li>需要<strong>额外的ROM/RAM开销</strong>，2~5%的CPU额外负荷。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>操作系统的典型性能指标</p>
+
+    <ul>
+      <li>内核大小：几K～几百K；</li>
+      <li>调度时间：1ms；</li>
+      <li>实时任务响应时间：20～40微妙</li>
+      <li>一般任务响应时间：20微妙～几百毫秒</li>
+    </ul>
+  </li>
+  <li>
+    <p>常见嵌入式操作系统</p>
+
+    <ul>
+      <li>uClinux
+        <ul>
+          <li>开源、针对没有MMU的CPU、适用于没有虚拟内存或内存管理单元(MMU)的处理器</li>
+          <li>保留了Linux的大部分优点：稳定、良好的移植性、优秀的网络功能、完备的对各种文件系统的支持、以及标准丰富的API等。</li>
+        </ul>
+      </li>
+      <li>WinCE
+        <ul>
+          <li>Windows CE 是精简的 Windows 95</li>
+          <li>图形用户界面相当出色</li>
+          <li>使绝大多数的应用软件只需简单的修改和移植就可以在Windows CE平台上继续使用。</li>
+        </ul>
+      </li>
+      <li>Android
+        <ul>
+          <li>Android是一种基于Linux自由及开放源代码的操作系统</li>
+        </ul>
+      </li>
+      <li>IOS
+        <ul>
+          <li>iOS与苹果的Mac OS X操作系统一样，属于类Unix的操作系统</li>
+        </ul>
+      </li>
+      <li>VxWorks
+        <ul>
+          <li>良好的持续发展能力、高性能的内核以及友好的用户开发环境，在嵌入式实时操作系统领域占据一席之地。</li>
+          <li>它以其良好的可靠性和卓越的实时性被广泛地应用在通信、军事、航空、航天等高精尖技术及实时性要求极高的领域中。</li>
+        </ul>
+      </li>
+      <li>$\mu C/OS-H$​
+        <ul>
+          <li>源码公开、可移植、可固化、可裁剪、占先式的实时多任务操作系统。</li>
+          <li>用 C写的，使其可以方便地移植并支持大多数类型的处理器。</li>
+          <li>μC/OS-II占用很少的系统资源</li>
+        </ul>
+      </li>
+      <li>eCos
+        <ul>
+          <li>embedded Configurable operating system</li>
+          <li>是一个可配置、可移植的嵌入式实时操作系统，</li>
+          <li>eCOS的所有部分都开放源代码，可以按照需要自由修改和添加。</li>
+          <li>eCOS的关键技术是操作系统可配置性，允许用户组和自己的实时组件和函数以及实现方式，</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>嵌入式系统的设计流程</strong></p>
+
+<p>可以把嵌入式系统的开发看作对一个项目的实施。</p>
+
+<p>项目的生命周期一般分为</p>
+
+<ol>
+  <li>识别需求</li>
+  <li>提出解决方案</li>
+  <li>执行项目</li>
+  <li>结束项目</li>
+</ol>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_9.png" alt="" /></p>
+
+<p>嵌入式系统的开发流程</p>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_10.png" alt="" /></p>
+
+<h2 id="第二章-arm-体系结构">第二章 ARM 体系结构</h2>
+
+<blockquote>
+  <p>第二章目录</p>
+
+  <ul>
+    <li>ARM微处理器概述
+      <ul>
+        <li>ARM处理器系列</li>
+        <li>RISC体系结构</li>
+      </ul>
+    </li>
+    <li>ARM微处理器体系结构
+      <ul>
+        <li>ARM微处理器的工作状态 ARM和Thumb状态</li>
+        <li>ARM体系结构的存储器格式</li>
+        <li>处理器模式</li>
+        <li>寄存器组织</li>
+        <li>异常</li>
+      </ul>
+    </li>
+  </ul>
+</blockquote>
+
+<p>ARM(Advanced RISC Machines)，既可以认为是一个<strong>公司的名字</strong>，也可以认为是对一类<strong>微处理器的通称</strong>，还可以认为是一种<strong>技术的名字</strong>。</p>
+
+<p>基于ARM的SOC设计</p>
+
+<ul>
+  <li>从ARM或其他第三方购买IP</li>
+  <li>集成IP,仿真,验证,完成SoC设计</li>
+  <li>半导体制造公司完成流片</li>
+</ul>
+
+<p>特点</p>
+
+<ul>
+  <li>支持Thumb（16位）/ARM（32位）双指令集</li>
+  <li>使用寄存器，指令执行速度更快</li>
+  <li>大多数数据操作都在寄存器中完成</li>
+  <li>寻址方式灵活简单，执行效率高</li>
+  <li>指令长度固定</li>
+</ul>
+
+<h3 id="1-ip-核的概念软核硬核固核">1. IP 核的概念：软核、硬核、固核</h3>
+
+<p>IP核(Intellectual Property) 知识产权</p>
+
+<p><strong>硅知识产权核是预先设计好的电路功能模块，</strong>根据IP核的提供方式，分为软核（Soft IP Core），固核（Firm IP Core）硬核（Hard IP Core）</p>
+
+<ul>
+  <li>软核：综合之前的RTL代码，只经过功能仿真，需要经过综合以及布局布线才能使用。</li>
+  <li>固核：完成软核的设计外，及门级电路综合和时序仿真等设计环节，以门级电路网表的形式提供给用户。</li>
+  <li>硬核：基于物理描述并经过工艺验证，提供给用户的形式是电路物理结构、掩模版图和全套工艺文件。</li>
+</ul>
+
+<h3 id="2了解指令集架构处理器系列嵌入式系统总线">2.了解：指令集架构、处理器系列、嵌入式系统总线</h3>
+
+<h4 id="risc体系结构">RISC体系结构</h4>
+
+<p>特点：精简指令集计算机RISC结构的产生是相对于传统的复杂指令集计算机CISC 结构而言的。</p>
+
+<h5 id="cisccomplex-instruction-set-computer复杂指令集计算机缺点"><strong>CISC（Complex Instruction Set Computer，复杂指令集计算机）缺点</strong>：</h5>
+
+<ul>
+  <li>随着计算机技术的发展而不断引入新的复杂指令集，为支持这些新增的指令<strong>，计算机的体系结构会越来越复杂</strong></li>
+  <li>然而，在CISC指令集的各种指令中，其使用频率却相差悬殊，约20％的指令会被反复使用，占整个程序代码的80％。而余下的80％的指令却不经常使用，在程序设计中只占20％</li>
+</ul>
+
+<h5 id="基于不合理性提出了riscreduced-instruction-set-computer精简指令集计算机的概念"><strong>基于不合理性提出了RISC（Reduced Instruction Set Computer，精简指令集计算机）的概念：</strong></h5>
+
+<ul>
+  <li>指令系统相对<strong>简单</strong>，只要求硬件执行<strong>很有限</strong>且<strong>最常用</strong>的那部分指令，大部分复杂的操作则使用成熟的编译技术，由<strong>简单指令合成</strong>。</li>
+  <li>RISC不是简单地减少指令，   而是把着眼点放在 ：
+    <ul>
+      <li><strong>使计算机的结构更加简单；</strong></li>
+      <li><strong>合理地提高运算速度。</strong></li>
+    </ul>
+  </li>
+  <li>RISC优先选取使用频度最高的简单指令，避免复杂指令；</li>
+  <li><strong>将指令长度固定</strong>，指令格式和<strong>寻址方式种类减少</strong>；</li>
+</ul>
+
+<h5 id="risc特点"><strong>RISC特点：</strong></h5>
+
+<ul>
+  <li>指令<strong>规整</strong>、对称、简单。指令小于100条，基本寻址方式有2~3种。</li>
+  <li>指令<strong>字长度一致</strong>，单拍完成，<strong>便于流水操作</strong>;
+    <ul>
+      <li>ARM7 三级流水线:取值，译码，执行；</li>
+      <li>ARM9 五级流水线:取值，译码，执行，访存，回写；</li>
+    </ul>
+  </li>
+  <li><strong>大量的寄存器</strong>。寄存器不少于32个。数据处理器的指令只对寄存器的内容操作。只有加载／存储指令可以访问存储器。</li>
+</ul>
+
+<h5 id="cisc-vs-risc"><strong>CISC vs RISC</strong></h5>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_11.png" alt="" /></p>
+
+<h4 id="arm处理系列">ARM处理系列</h4>
+
+<h5 id="arm处理器的分类">ARM处理器的分类</h5>
+
+<ul>
+  <li>基于<strong>指令集体系结构版本</strong>分类
+    <ul>
+      <li>v1，v2，v5，v6，v7，v8，v9等</li>
+    </ul>
+  </li>
+  <li>
+    <p>基于<strong>处理器系列</strong>分类</p>
+
+    <ul>
+      <li>
+        <p>基于ARM体系结构设计的处理器系列</p>
+      </li>
+      <li>
+        <p>ARM7，ARM9，ARM10，ARM11，StrongARM，XScale等</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_12.png" alt="" /></p>
+
+<h5 id="arm架构发展系列">ARM架构发展系列</h5>
+
+<ol>
+  <li><strong>V1版本</strong> 该版架构只在原型机<strong>ARM1</strong>出现过<strong>,</strong>其基本性能：
+    <ol>
+      <li>基本的数据处理指令(无乘法)</li>
+      <li><strong>字节、半字和字的LOAD/STORE指令</strong></li>
+      <li>转移指令<strong>，</strong>包括子程序调用及链接指令</li>
+      <li>软件中断指令</li>
+      <li>寻址空间：<strong>64M字节(26)</strong></li>
+    </ol>
+  </li>
+  <li><strong>V2版架构</strong> 该版架构对V1版进行了扩展,如ARM2采用了V2架构，ARM3采用v2a架构，增加了以下功能：
+    <ol>
+      <li><strong>乘法和乘加指令</strong></li>
+      <li><strong>支持协处理器操作指令</strong></li>
+      <li>快速中断模式</li>
+      <li>SWP/SWPB指令，实现存储器与寄存器数据交换</li>
+      <li>寻址空间：64M字节(26)</li>
+    </ol>
+  </li>
+  <li><strong>V3版架构</strong> 从V3开始，ARM体系结构被大规模应用
+    <ol>
+      <li>寻址空间增至32位(4G字节)</li>
+      <li>增加了当前程序状态寄存器CPSR和备份程序状态寄存器SPSR以便于异常的处理。
+        <ol>
+          <li>CPSR: Current Program Status Register</li>
+          <li>SPSR: Saved Program Status Register</li>
+          <li>MRS指令将状态寄存器的值保存到通用寄存器，</li>
+          <li>MSR将通用寄存器中的值还原到状态寄存器</li>
+        </ol>
+      </li>
+      <li>增加了中止abort和未定义二种异常模式。</li>
+      <li>ARM6就采用该版架构</li>
+      <li>指令集变化如下：
+        <ol>
+          <li>增加了MRS/MSR指令,以访问新增的CPSR/SPSR寄存器</li>
+          <li>改进了从异常处理返回的指令功能</li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+  <li><strong>V4版架构</strong> V4版架构是应用最广泛的ARM体系结构, ARM7、ARM8、ARM9和StrongARM都采用该版架构。对V3版架构进行了进一步扩充, <strong>引入了16位的Thumb指令集,</strong>处理器存在两种工作状态，使ARM使用更加灵活。指令集中增加了以下功能：
+    <ol>
+      <li>有符号、无符号的半字和有符号字节的Load/Store指令。</li>
+      <li>引入了16位Thumb指令集</li>
+      <li>完善了软件中断SWI指令的功能</li>
+      <li>增加了处理器的系统模式。</li>
+    </ol>
+  </li>
+  <li><strong>V5版架构</strong> 在V4版基本上增加了一些新的指令, ARM9E,ARM10和XScale都采用v5版架构,这些新增指令有：
+    <ol>
+      <li>提高ARM和Thumb指令集混合使用的效率</li>
+      <li>增加了前导零计数CLZ指令</li>
+      <li>引入了软件断点指令BKPT，进行中断调试</li>
+      <li>增加了信号处理指令</li>
+      <li><strong>为协处理器增加更多可选择的指令</strong>
+CLZ：Count Leading Zeros，计算最高符号位与第一个1之间的0的个数；</li>
+    </ol>
+  </li>
+  <li><strong>V6版架构</strong>
+    <ol>
+      <li>2001年发布</li>
+      <li>首先在ARM11处理器中使用</li>
+      <li><strong>具备高性能DSP功能</strong></li>
+      <li>引入全新的Jazelle技术，降低Java应用程序对内存的空间占用</li>
+      <li><strong>增加了 SIMD(单指令流多数据流 )功能扩展，</strong>提高了嵌入式应用系统的语音，图像处理能力。<strong>SIMD：Single Instruction Multiple Data，(XYZW,RGBA)</strong></li>
+      <li>适合使用电池供电的便携式设备</li>
+    </ol>
+  </li>
+  <li><strong>V7版架构</strong>
+    <ol>
+      <li>目前为止32位ARM处理器体系结构的最高版本</li>
+      <li>Cortex系列基于V7架构</li>
+      <li><strong>Cortex-A—面向性能密集型系统的应用处理器内核</strong></li>
+      <li><strong>Cortex-R—面向实时应用的高性能内核</strong></li>
+      <li><strong>Cortex-M—面向各类嵌入式应用的微控制器内核</strong></li>
+    </ol>
+  </li>
+  <li><strong>V8版架构</strong>
+    <ol>
+      <li>2011年11月发布</li>
+      <li>首款支持<strong>64位指令集</strong>的处理器器架构</li>
+      <li>针对有更高性能要求的产品，如高档消费类电子</li>
+      <li>64位兼容32位</li>
+      <li>ARMv8架构包含两个执行状态：AArch64和AArch32</li>
+    </ol>
+  </li>
+  <li><strong>V9版架构</strong>
+    <ol>
+      <li>2021年3月发布</li>
+      <li>支持64位指令集的处理器器架构</li>
+      <li>针对有更高性能要求的产品，如高档消费类电子</li>
+      <li>64位兼容32位</li>
+      <li>引入机密计算技术Realm模块，防止像Spectre和Meltdown这样的新型安全漏洞攻击</li>
+      <li>对AI模块的升级，重点在于改善CPU的AI性能</li>
+      <li>扩展到PC、HPC高性能计算、深度学习等新市场</li>
+    </ol>
+  </li>
+</ol>
+
+<h5 id="arm处理器系列">ARM处理器系列</h5>
+
+<blockquote>
+  <p>[!NOTE]</p>
+
+  <p>命名规则</p>
+</blockquote>
+
+<table>
+  <thead>
+    <tr>
+      <th>标志</th>
+      <th>含义</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>T</td>
+      <td>支持Thumb指令集</td>
+      <td>Thumb指令集版本1：ARMv4T  Thumb指令集版本2：ARMv5T  Thumb-2：ARMv6T</td>
+    </tr>
+    <tr>
+      <td>D</td>
+      <td>片上调试</td>
+      <td>一个边界扫描链  JTAG，可使  CPU 进入调试模式</td>
+    </tr>
+    <tr>
+      <td>M</td>
+      <td>快速乘法器</td>
+      <td>32位乘32位得到64位，32位的乘加得到64位</td>
+    </tr>
+    <tr>
+      <td>I</td>
+      <td>Embedded  ICE</td>
+      <td>嵌入式跟踪宏单元，用于实现断点观测及变量观测的逻辑电路部分。提供片上断点和调试点</td>
+    </tr>
+    <tr>
+      <td>E</td>
+      <td>DSP指令</td>
+      <td>增加了DSP算法处理器指令：16位乘加指令，饱和的带符号数的加减法，双字数据操作，cache预取指令</td>
+    </tr>
+    <tr>
+      <td>J</td>
+      <td>Java加速器Jazelle</td>
+      <td>提高java代码的运行速度</td>
+    </tr>
+    <tr>
+      <td>S</td>
+      <td>可综合</td>
+      <td>提供VHDL或Verilog语言设计文件</td>
+    </tr>
+  </tbody>
+</table>
+
+<ol>
+  <li>ARM7
+    <ol>
+      <li>低功耗</li>
+      <li>EmbededICE软件调试方式 ICE：In Circuit Emulation，在线仿真器</li>
+      <li>0.9MIPS/MHz的3级流水线结构 MIPS：Million Instruction Per Second 每秒百万条指令</li>
+      <li>32位ARM指令集和16位的Thumb指令集</li>
+      <li>主频最高可达130MHz</li>
+      <li>该系列包括ARM7TDMI、ARM7TDMI-S、带有高速缓存处理器宏单元的ARM720T和扩充了Jazelle（ java加速器）的ARM7EJ-S。</li>
+      <li>ARM7系列广泛应用于多媒体和嵌入式设备，网络和调制解调器设备，以及移动电话、PDA等无线设备。</li>
+    </ol>
+  </li>
+  <li>AMR9  特点：
+    <ol>
+      <li>1.1MIPS/MHz的哈佛结构，5级流水线</li>
+      <li><strong>32位ARM指令集和16位Thumb指令集</strong></li>
+      <li>支持32位的高速AMBA总线接口</li>
+      <li>全性能的MMU，支持Windows CE、Linux、Palm OS等多种主流嵌入式操作系统 MMU：Memory Management Unit</li>
+      <li>支持数据Cache和指令Cache，具有更高的指令和数据处理能力</li>
+      <li>该系列包括ARM9TDMI、ARM920T和带有高速缓存处理器宏单元的ARM940T。</li>
+      <li>主要应用于引擎管理、仪器仪表、安全系统和机顶盒等领域</li>
+    </ol>
+  </li>
+  <li>ARM10E  ARM10E系列微处理器具有高性能、低功耗的特点，与ARM9器件相比较，在相同的时钟频率下，性能提高了近50％。
+    <ol>
+      <li>支持DSP指令集，适合于需要高速数字信号处理的场合。</li>
+      <li>6级整数流水线，指令执行效率更高，1.25MIPS/MHZ。</li>
+      <li>支持64位的高速AMBA总线接口。</li>
+      <li><strong>支持VFP10浮点处理协处理器。</strong></li>
+      <li>全性能的MMU，支持Windows CE、Linux、Palm OS等多种主流嵌入式操作系统。</li>
+      <li>支持数据Cache和指令Cache，具有更高的指令和数据处理能力</li>
+      <li><strong>主频最高可达400M。</strong></li>
+      <li>ARM10E系列微处理器主要应用于下一代无线设备、数字消费品、成像设备、工业控制、通信和信息系统等领域。</li>
+      <li>ARM10E系列微处理器包含ARM1020E、ARM1022E和ARM1026EJ-S三种类型，以适用于不同的应用场合。</li>
+    </ol>
+  </li>
+  <li>SecurCore
+    <ol>
+      <li>该系列涵盖了SC100、SC110、SC200和SC210处理核。</li>
+      <li>该系列处理器主要针对新兴的安全市场，以一种全新的<strong>安全处理器设计</strong>为智能卡和其它安全IC开发提供独特的32位系统设计。</li>
+      <li>主要应用于一些对安全性要求较高的应用产品及应用系统，如<strong>电子商务、电子政务、电子银行业务</strong>、网络和认证系统等领域。</li>
+    </ol>
+  </li>
+</ol>
+
+<h4 id="嵌入式系统总线">嵌入式系统总线</h4>
+
+<p><strong>ARM微控制器使用的是AMBA总线体系结构</strong></p>
+
+<p>AMBA（Advanced Microcontroller Bus Architecture）是ARM公司公布的总线标准，AMBA 2.0规范定义了三种总线：</p>
+
+<ul>
+  <li>AHB总线（Advanced High-performance Bus）：用于连接高性能系统模块。它支持突发数据传输方式及单个数据传输方式，所有时序 参考同一个时钟沿。</li>
+  <li>ASB总线（Advanced System Bus）：用于连接高性能系统模块，在不必要使用AHB的高速特性的场合,它支持突发数据传输模式。</li>
+  <li>APB总线（Advance Peripheral Bus）：是一个简单接口支持低性能的外围接口。</li>
+  <li>3.0 引入AXI总线 (Advanced eXtensible Interface)</li>
+</ul>
+
+<blockquote>
+  <p>[!NOTE]</p>
+
+  <p>会画图</p>
+</blockquote>
+
+<p><img src=".//assets/嵌入式复习gxj.assets/image-20240506153141680.png" alt="image-20240506153141680" /></p>
+
+<h3 id="3arm-处理器的两种工作状态及如何切换">3.ARM 处理器的两种工作状态，及如何切换</h3>
+
+<h4 id="arm和thumb状态">ARM和Thumb状态</h4>
+
+<p>ARM微处理器的工作状态一般有两种:</p>
+
+<ol>
+  <li>ARM状态—处理器执行32位的字对齐的ARM指令，伪指令CODE32声明；</li>
+  <li>Thumb状态—处理器执行16位的、半字对齐的Thumb指令，伪指令CODE16声明。</li>
+</ol>
+
+<p>Thumb指令可以看做是ARM指令压缩形式的子集</p>
+
+<p>Thumb指令集的功能是32位ARM指令集的功能子集。Thumb在性能和代码大小之间提供了出色的折中。</p>
+
+<ul>
+  <li>
+    <p>正在执行Thumb指令集的处理器是工作在Thumb状态下。</p>
+  </li>
+  <li>
+    <p>正在执行ARM指令集的处理器是工作在ARM状态下。</p>
+  </li>
+  <li>
+    <p>带状态切换的分支指令BX</p>
+  </li>
+</ul>
+
+<blockquote>
+  <p>代码密度：单位存储空间中包含的指令的个数。</p>
+
+  <p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_13.png" alt="" /></p>
+</blockquote>
+
+<h3 id="4-三级流水-vs-五级流水大端格式-vs-小端格式">4. 三级流水 vs 五级流水，大端格式 vs 小端格式</h3>
+
+<h4 id="三级流水">三级流水</h4>
+
+<ol>
+  <li><strong>第一级取指</strong>：取指级的任务是从程序存储器中读取指令。</li>
+  <li><strong>第二级译码</strong>：译码级完成对指令的解析，并为下一个周期准备数据路径需要的控制信号。由指令与译码逻辑完成，不占用数据通路。</li>
+  <li><strong>第三级执行：</strong>执行完成指令要求的操作，并根据需要将结果写回目的寄存器。</li>
+</ol>
+
+<p>注意：PC指向正被取指的指令，而非正在执行的指令</p>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_14.png" alt="" /></p>
+
+<h4 id="五级流水">五级流水</h4>
+
+<ol>
+  <li><strong>第一级取指</strong>：取指级的任务是从程序存储器中读取指令。</li>
+  <li><strong>第二级译码</strong>：译码级完成对指令的解析，并为下一个周期准备数据路径需要的控制信号。由指令与译码逻辑完成，不占用数据通路。</li>
+  <li><strong>第三级执行：</strong>执行完成指令要求的操作，并根据需要将结果写回目的寄存器。</li>
+  <li><strong>第四级访存</strong>：<strong>如果不是对存储器的访问指令，本级流水线为一个空的时钟周期</strong></li>
+  <li><strong>第五级写入</strong>：</li>
+</ol>
+
+<p>ARM9具有5级流水线，将存储器的访问和寄存器写操作分别有单独的流水线来处理，解决了3级流水线LDR/STR指令执行阶段的延迟，提高了指令执行效率。</p>
+
+<h4 id="arm体系结构的存储器格式">ARM体系结构的存储器格式</h4>
+
+<p>ARM体系结构可以用两种方法存储字数据，称为<strong>大端格式</strong>（Big-Endian）和<strong>小端格式</strong>（Little-Endian ）。</p>
+
+<ul>
+  <li>
+    <p>大多数CPU是小端格式，如DSP，PC机</p>
+  </li>
+  <li>
+    <p>单片机、网络传输的TCP/IP协议，是大端格式</p>
+  </li>
+  <li>
+    <p>51单片机，是大端格式</p>
+  </li>
+  <li>
+    <p>ARM默认小端格式，但用户可设置大、小端格式。</p>
+  </li>
+  <li>
+    <p>所以在使用TCP/IP协议通信的时候，要注意大、小端格式转换</p>
+  </li>
+</ul>
+
+<h5 id="大端格式big-endian">大端格式（Big Endian)</h5>
+
+<p>​	字数据的高字节存储在低地址中，而字数据的低字节则存放在高地址中。</p>
+
+<h5 id="小端格式little-endian">小端格式(Little Endian)</h5>
+
+<p>​	低地址中存放的是字数据的低字节，高地址存放的是字数据的高字节。</p>
+
+<h3 id="5-处理器的工作模式每种模式的特点特权模式异常模式">5. 处理器的工作模式，每种模式的特点，特权模式，异常模式</h3>
+
+<p>ARM体系结构支持7种处理器模式，分别为：</p>
+
+<p><strong>用户模式、系统模式、快中断模式、中断模式、管理模式、中止模式、未定义模式。</strong></p>
+
+<p>—–更好地支持操作系统并提高工作效率。</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>处理器模式</th>
+      <th>说明</th>
+      <th>备注</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>用户(usr)</td>
+      <td>正常程序工作模式</td>
+      <td>不能直接切换到其它模式</td>
+    </tr>
+    <tr>
+      <td>系统(sys)</td>
+      <td>用于支持操作系统的特权任务等</td>
+      <td>与用户模式类似，但具有可以直接切换到其它模式等特权</td>
+    </tr>
+    <tr>
+      <td>快中(fiq)</td>
+      <td>支持高速数据传输及通道处理</td>
+      <td>FIQ异常响应时进入此模式</td>
+    </tr>
+    <tr>
+      <td>中断(irq)</td>
+      <td>用于通用中断处理</td>
+      <td>IRQ异常响应时进入此模式</td>
+    </tr>
+    <tr>
+      <td>管理(svc)</td>
+      <td>操作系统保护代码</td>
+      <td>系统复位和软件中断响应时进入此模式</td>
+    </tr>
+    <tr>
+      <td>中止(abt)</td>
+      <td>用于支持虚拟内存和/或存储器保护</td>
+      <td>预取中止和数据中止</td>
+    </tr>
+    <tr>
+      <td>未定(und)</td>
+      <td>支持硬件协处理器的软件仿真</td>
+      <td>未定义指令异常响应时进入此模式</td>
+    </tr>
+  </tbody>
+</table>
+
+<ul>
+  <li>
+    <p>除用户模式外，其它模式均为<strong>特权模式</strong>。ARM内部寄存器和一些片内外设在硬件设计上只允许（或者可选为只允许）特权模式下访问。<strong>此外，特权模式可以自由地切换处理器模式，而用户模式不能直接切换到别的模式。</strong></p>
+  </li>
+  <li>
+    <p>除去（用户和系统）这五种模式称为<strong>异常模式</strong>。它们除了可以通过程序切换进入外，也可以由特定的异常进入。当特定的异常出现时，处理器进入相应的模式。每种异常模式都有一些独立的寄存器，以避免异常退出时用户模式的状态不可靠。</p>
+  </li>
+  <li>
+    <p>用户模式和系统模式这两种模式使用<strong>完全相同的寄存器组。</strong>
+系统模式是特权模式，不受用户模式的限制。操作系统在该模式下访问用户模式的寄存器就比较方便，而且操作系统的一些特权任务可以使用这个模式访问一些受控的资源。</p>
+  </li>
+</ul>
+
+<p><strong>处理器启动时的模式转换图</strong></p>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_15.png" alt="" /></p>
+
+<p>总结：</p>
+
+<ul>
+  <li>
+    <p>ARM微处理器的运行模式可以通过软件改变（特权模式），也可以通过外部中断或异常处理改变。</p>
+  </li>
+  <li>
+    <p>特权模式可以自由地访问系统资源和改变模式。</p>
+  </li>
+  <li>
+    <p><strong>大多数的应用程序运行在用户模式下，</strong>当处理器运行在用户模式下时，某些被保护的系统资源是不能被访问的。也不能改变模式。除非异常发生。</p>
+  </li>
+</ul>
+
+<p>​</p>
+
+<h3 id="6-寄存器组织个数特殊含义的寄存器-r13-r14-r15cpsrspsr读写-指令-mrsmsr">6. 寄存器组织，个数，特殊含义的寄存器 R13 R14 R15，CPSR,SPSR(读写 指令 MRS,MSR)</h3>
+
+<ul>
+  <li>ARM处理器有<strong>37(31+6)</strong>个物理寄存器,31个通用寄存器和6个状态寄存器 。</li>
+  <li>寄存器被安排成部分重叠的组。每种处理器模式都有不同的寄存器组。</li>
+  <li><strong>分组的寄存器在异常处理和特权操作时,可得到快速的上下文切换。</strong></li>
+</ul>
+
+<h4 id="arm状态下各模式寄存器">ARM状态下各模式寄存器</h4>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_16.png" alt="" /></p>
+
+<ul>
+  <li>
+    <p>所有的37个寄存器，分成两大类：</p>
+
+    <ul>
+      <li>
+        <p>31个通用32位寄存器；</p>
+      </li>
+      <li>
+        <p>6个状态寄存器</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>寄存器R13、R14分别有6个分组的物理寄存器。一个用于用户和系统模式，其余5个分别用于5种异常模式。</p>
+  </li>
+  <li>
+    <p><strong>寄存器R13常作为堆栈指针（SP）</strong>。在ARM指令集当中，没有以特殊方式使用R13的指令或其它功能，只是习惯上都这样使用。但是在Thumb指令集中存在使用R13的指令。</p>
+  </li>
+  <li>
+    <p>R14为<strong>链接寄存器（LR）</strong>，在结构上有两个特殊功能：</p>
+  </li>
+  <li>
+    <p>在每种模式下，模式自身的R14版本用于保存<strong>子程序返回地址</strong>；</p>
+  </li>
+  <li>
+    <p>当发生异常时，该模式下的R14被设置成该异常模式<strong>将要返回的地址</strong>。</p>
+  </li>
+  <li>
+    <p>R14寄存器与子程序调用的操作流程：</p>
+
+    <blockquote>
+      <ol>
+        <li>
+          <p>程序A执行过程中调用程序B；</p>
+        </li>
+        <li>
+          <p>程序跳转至标号Lable，执行程序B。同时<strong>硬件</strong>将“BL  Lable”指令的下一条指令所在地址存入R14；</p>
+        </li>
+        <li>
+          <p>程序B执行最后，将R14寄存器的内容放入PC，<strong>实现子程序返回</strong>，返回程序A；MOV PC, LR;</p>
+
+          <p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_17.png" alt="" /></p>
+        </li>
+      </ol>
+    </blockquote>
+  </li>
+  <li>
+    <p>R14寄存器与异常发生</p>
+
+    <blockquote>
+      <p><strong>异常发生时，</strong>程序要跳转至异常服务程序，对返回地址的处理与子程序调用类似，<strong>都是由硬件完成的</strong>。</p>
+
+      <p><strong>区别</strong>在于有些异常有一个小常量的偏移。</p>
+
+      <ol>
+        <li>
+          <p>IRQ服务程序A执行完毕，将R14_irq寄存器的内容<strong>减去</strong>某个常量后存入PC，返回之前被中断的程序；</p>
+
+          <p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_18.png" alt="" /></p>
+        </li>
+        <li>
+          <p>在程序B返回到程序A，然后在返回到用户模式下被中断的程序时，发生错误，将不能正确返回；</p>
+
+          <p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_19.png" alt="" /></p>
+
+          <p><strong>解决办法</strong>是确保R14的对应版本在发生中断嵌套时不再保存任何有意义的值（将R14入栈），或者切换到其它处理器模式下，或进入IRQ之后修改CPSR关闭使能位。</p>
+        </li>
+      </ol>
+    </blockquote>
+  </li>
+  <li>
+    <p>寄存器R15为<strong>程序计数器（PC）</strong>，它指向正在取指的地址。</p>
+
+    <ul>
+      <li>
+        <p>可以认为它是一个通用寄存器，但是对于它的使用有许多与指令相关的<strong>限制</strong>或特殊情况。</p>
+      </li>
+      <li>
+        <p>如果R15使用的方式超出了这些限制，那么结果将是不可预测的。</p>
+      </li>
+      <li>
+        <p>读取R15的限制</p>
+
+        <blockquote>
+          <p>正常操作时，从R15读取的值是处理器<strong>正在取指的地址</strong>，即当前正在<strong>执行指令的地址加上8个字节（两条ARM指令的长度）</strong>。</p>
+
+          <p>由于ARM指令总是以字为单位，所以R15寄存器的<strong>最低两位总是为0。</strong></p>
+        </blockquote>
+      </li>
+      <li>
+        <p>写R15的限制</p>
+
+        <blockquote>
+          <p>正常操作时，<strong>写入R15</strong> 的值被当作一个指令地址，程序从这个地址处继续执行（<strong>相当于执行一次无条件跳转</strong>）。</p>
+        </blockquote>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>程序状态寄存器CPSR 为程序状态寄存器</p>
+
+    <ul>
+      <li>在异常模式中，另外一个寄存器“程序状态保存寄存器（SPSR）”可以被访问。</li>
+      <li>每种异常都有自己的SPSR，在<strong>因为异常事件而进入异常时它保存CPSR的当前值，异常退出时可通过它恢复CPSR。</strong></li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="thumb状态下的寄存器32位不考">Thumb状态下的寄存器（32位）<strong><em>（不考）</em></strong></h4>
+
+<p>Thumb状态下的寄存器集是ARM状态集的子集，程序员可以<strong>直接访问</strong>的寄存器为：</p>
+
+<ul>
+  <li>8个通用寄存器R0～R7；</li>
+  <li>程序计数器（PC）；</li>
+  <li>堆栈指针（SP）；</li>
+  <li>链接寄存器（LR）；</li>
+  <li>有条件访问程序状态寄存器（ CPSR）。</li>
+</ul>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_20.png" alt="" /></p>
+
+<p>Thumb状态寄存器在Arm状态寄存器上的映射</p>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_21.png" alt="" /></p>
+
+<h4 id="程序状态寄存器cpsr1spsr5">程序状态寄存器—CPSR(1)+SPSR(5)</h4>
+
+<p>CPSR反映了当前处理器的状态：</p>
+
+<ul>
+  <li>４个条件码标志；</li>
+  <li>2个中断控制位；</li>
+  <li>5个对当前处理器模式进行编码的位；</li>
+  <li>1个指示当前执行指令的工作状态位；</li>
+  <li>保留位。</li>
+</ul>
+
+<p>SPSR：备份程序状态字，保存异常事件发生之前的CPSR．</p>
+
+<ul>
+  <li>每个异常模式带有一个备份程序状态寄存器，用于保存在异常事件发生之前的CPSR；CPSR和SPSR通过特殊指令进行访问。</li>
+</ul>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_22.png" alt="" /></p>
+
+<ul>
+  <li>
+    <p>条件代码标志</p>
+
+    <ul>
+      <li>大多数“数值处理指令”可以选择是否影响条件代码标志位（指令带S后缀）；但有些指令执行总是影响条件代码标志。</li>
+      <li>所有ARM指令都可按条件来执行，而Thumb指令中只有分支指令可按条件执行。</li>
+      <li>N:运算结果的最高位反映在N标志位。对于有符号二进制补码，结果为负数时N=1，结果为正数或零时N=0；</li>
+      <li>Z:指令结果为0时Z=1（表示比较结果“相等”），否则Z=0；</li>
+      <li>C:
+        <ul>
+          <li>当进行加法运算，并且最高位产生进位时C=0，否则C=1。</li>
+          <li>当进行减法运算，并且最高位产生借位时C=0，否则C=1。</li>
+          <li>对于移位操作指令，C为从最高位最后移出的值，其它指令C通常不变；</li>
+        </ul>
+      </li>
+      <li>V:　当进行加法运算，并且发生有符号溢出时V=1，否则V=0，其它指令V通常不变。</li>
+    </ul>
+  </li>
+  <li>
+    <p>保留位</p>
+
+    <ul>
+      <li>保留位被保留将来使用。为了提高程序的可移植性，当改变CPSR标志和控制位时，请不要改变这些保留位。另外，请确保程序的运行不受保留位的值影响，因为将来的处理器可能会将这些位设置为1或者0。</li>
+    </ul>
+  </li>
+  <li>
+    <p>控制位</p>
+
+    <ul>
+      <li>
+        <p>最低8位为控制位，当发生异常时，这些位被硬件改变。当处理器处于一个特权模式时，可用软件操作这些位。</p>
+      </li>
+      <li>
+        <p>CPSR模式位设置表</p>
+
+        <blockquote>
+          <table>
+            <thead>
+              <tr>
+                <th><strong>M[4:0]</strong></th>
+                <th><strong>模式</strong></th>
+                <th><strong>M[4:0]</strong></th>
+                <th><strong>模式</strong></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>10000</strong></td>
+                <td><strong>用户</strong></td>
+                <td><strong>10111</strong></td>
+                <td><strong>中止</strong></td>
+              </tr>
+              <tr>
+                <td><strong>10001</strong></td>
+                <td><strong>快中断</strong></td>
+                <td><strong>11011</strong></td>
+                <td><strong>未定义</strong></td>
+              </tr>
+              <tr>
+                <td><strong>10010</strong></td>
+                <td><strong>中断</strong></td>
+                <td><strong>11111</strong></td>
+                <td><strong>系统</strong></td>
+              </tr>
+              <tr>
+                <td><strong>10011</strong></td>
+                <td><strong>管理</strong></td>
+                <td> </td>
+                <td> </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p>注意：不是所有模式位的组合都定义了有效的处理器模式，如果使用了错误的设置，将引起一个无法恢复的错误。</p>
+        </blockquote>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>CPSR/SPSR的读写指令</strong></p>
+
+<p>状态寄存器访问指令MRS,MSR：</p>
+
+<ul>
+  <li>MRS: 状态寄存器到通用寄存器的传送指令(读状态寄存器)</li>
+  <li>MSR: 通用寄存器到状态寄存器的传送指令(写状态寄存器)</li>
+  <li>MRS和MSR指令可以实现对状态寄存器的读、修改、写操作，即修改状态寄存器的值。</li>
+</ul>
+
+<pre><code class="language-assembly">MRS  R1, CPSR 	;读取CPSR保存到通用寄存器R1
+MSR  CPSR, R1	; 传送R1到CPSR
+</code></pre>
+
+<h3 id="7-五种异常模式7-种异常类型复位的向量地址-0x0复位的优先级">7. 五种异常模式，7 种异常类型，复位的向量地址 0x0，复位的优先级</h3>
+
+<blockquote>
+  <p>异常：</p>
+
+  <p>​    <strong>只要正常的程序流被暂时中止，处理器就进入异常模式。</strong></p>
+
+  <p>例如响应一个来自外设的<strong>中断</strong>。在处理异常之前，ARM7TDMI内核保存当前的处理器状态，这样当处理程序结束时可以恢复执行原来的程序。</p>
+
+  <p>​    如果同时发生两个或更多异常，那么将按照固定的顺序来处理异常，详见“<strong>异常优先级</strong>”部分。</p>
+</blockquote>
+
+<p><strong>异常处理模式</strong></p>
+
+<table>
+  <thead>
+    <tr>
+      <th>异常类型</th>
+      <th>模式</th>
+      <th>向量地址</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>复位</strong></td>
+      <td><strong>管理</strong></td>
+      <td><strong>0x00000000</strong></td>
+    </tr>
+    <tr>
+      <td><strong>未定义指令</strong></td>
+      <td><strong>未定义</strong></td>
+      <td><strong>0x00000004</strong></td>
+    </tr>
+    <tr>
+      <td>软件中断（SWI）</td>
+      <td><strong>管理</strong></td>
+      <td><strong>0x00000008</strong></td>
+    </tr>
+    <tr>
+      <td>预取中止（取指令存储器中止）</td>
+      <td><strong>中止</strong></td>
+      <td><strong>0x0000000C</strong></td>
+    </tr>
+    <tr>
+      <td><strong>数据中止（数据访问存储器中止）</strong></td>
+      <td><strong>中止</strong></td>
+      <td><strong>0x00000010</strong></td>
+    </tr>
+    <tr>
+      <td><strong>IRQ（中断）</strong></td>
+      <td><strong>IRQ</strong></td>
+      <td><strong>0x00000018</strong></td>
+    </tr>
+    <tr>
+      <td><strong>FIQ（快速中断）</strong></td>
+      <td><strong>FIQ</strong></td>
+      <td><strong>0x0000001C</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>异常优先级</strong></p>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_23.png" alt="图片1" /></p>
+
+<h4 id="异常类型">异常类型</h4>
+
+<ol>
+  <li>复位：
+    <ol>
+      <li>当nRESET信号被拉低时（一般外部复位引脚电平的变化和芯片的其它复位源会改变这个内核信号），ARM7TDMI处理器放弃正在执行的指令。</li>
+      <li>当nRESET信号再次变为高电平时，ARM处理器执行下列操作：
+        <ol>
+          <li>强制M[4:0]变为<strong>b10011（管理模式）</strong>；</li>
+          <li>置位CPSR中的I和F位；写入1，先禁止.</li>
+          <li>清零CPSR中的T位；写入0，处理器为arm状态。</li>
+          <li>强制PC从地址0x00开始进行取指；</li>
+        </ol>
+      </li>
+    </ol>
+  </li>
+</ol>
+
+<h3 id="8-异常进入退出过程7-种异常类型的返回地址">8. 异常进入、退出过程、7 种异常类型的返回地址</h3>
+
+<h4 id="异常的入口和出口">异常的入口和出口</h4>
+
+<p>如果异常处理程序已经把返回地址拷贝到堆栈，那么可以使用一条多寄存器传送指令来恢复用户寄存器并实现返回。</p>
+
+<blockquote>
+  <p><strong>中断处理代码的开始部分和退出部分</strong></p>
+
+  <pre><code class="language-assembly">SUB   LR,LR,#4	;计算返回地址（偏移-4） LR就是R14该模式下的R14被设置成该异常模式将要返回的地址 
+STMFD SP!,{R0-R3,LR} ;保存使用到的寄存器 这条指令将R0、R1、R2、R3和LR寄存器的内容保存到堆栈中。
+. . .
+LDMFD SP!,{R0-R3,PC}^	;中断返回 这条指令将R0、R1、R2、R3和PC寄存器的内容从堆栈中恢复。
+</code></pre>
+
+  <p>注意：</p>
+
+  <ul>
+    <li>中断返回指令的寄存器列表（其中必须包括PC）后的“^”符号表示这是一条特殊形式的指令。这条指令在从存储器中装载PC的同时（PC是最后恢复的），CPSR也得到恢复。</li>
+    <li>这里使用的堆栈指针SP（R13）是属于异常模式的寄存器，每个异常模式有自己的堆栈指针。如R13_irq</li>
+    <li>这个堆栈指针应必须在系统启动时初始化。</li>
+    <li>指令末尾的“！”告诉汇编器，在寄存器被保存后，栈指针（SP）应该被更新。</li>
+  </ul>
+</blockquote>
+
+<h4 id="进入异常">进入异常</h4>
+
+<p><strong>在异常发生后，ARM7TDMI内核会作以下工作：</strong></p>
+
+<ol>
+  <li>
+    <p>在适当的LR中保存下一条指令的地址（R14_irq），当异常入口来自：</p>
+
+    <ul>
+      <li>ARM状态，那么ARM7TDMI将当前指令地址加4或加8复制（取决于异常的类型）到LR中</li>
+    </ul>
+  </li>
+  <li>
+    <p>将CPSR复制到适当的SPSR（如SPSR_irq）中；</p>
+  </li>
+  <li>
+    <p>置位I位（禁止IRQ中断）
+ 清零T位（进入ARM状态）
+ 设置MOD位，切换处理器模式至IRQ模式</p>
+  </li>
+  <li>
+    <p>强制PC从相关的异常向量处取指。</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>注：</p>
+
+  <ul>
+    <li>
+      <p>ARM7TDMI内核在中断异常时置位中断禁止标志(CPSR 第I位赋值=0x1)，这样可以防止不受控制的异常嵌套。</p>
+    </li>
+    <li>
+      <p>异常总是在ARM状态中进行处理。当处理器处于Thumb状态时发生了异常，在异常向量地址装入PC时，会自动切换到ARM状态。</p>
+    </li>
+  </ul>
+</blockquote>
+
+<h4 id="退出异常">退出异常</h4>
+
+<blockquote>
+  <p><strong>除了复位异常外，其余的异常都需要返回。</strong></p>
+</blockquote>
+
+<p>当异常结束时，异常处理程序必须：</p>
+
+<ol>
+  <li>将SPSR(如SPSR_irq)的值<strong>复制回</strong>CPSR；</li>
+  <li>
+    <p>若在进入异常处理时设置了<strong>中断禁止标志(I/F位)</strong>则清零该标志。</p>
+  </li>
+  <li><strong>将LR(如R14_irq)中的值减去偏移量后存入PC</strong>，偏移量根据异常的类型而有所不同；</li>
+</ol>
+
+<blockquote>
+  <p>假如指令A 是“BL”指令，则当执行该指令时，会把PC（=0x8008）保存到LR 寄存器里面，但是接下去处理器会马上对LR 进行一个自动的调整动作：LR=LR-0x4=PC-0x4</p>
+
+  <p><strong>无论发生什么异常（除复位），内核总是会首先将 PC-4 放到LR寄存器中。</strong></p>
+</blockquote>
+
+<h4 id="异常的类型">异常的类型</h4>
+
+<ol>
+  <li>
+    <p><strong>软件中断 SWI</strong></p>
+
+    <blockquote>
+      <ul>
+        <li>
+          <p>使用软件中断(SWI)指令可以进入管理模式，<strong>通常用于请求一个特定的管理函数。</strong></p>
+        </li>
+        <li>
+          <p>SWI处理程序通过执行下面的指令返回：</p>
+
+          <pre><code class="language-assembly">MOVS    PC,R14_svc
+</code></pre>
+
+          <p>​      这个动作恢复了PC和CPSR<strong>并返回到SWI之后的指令。</strong></p>
+        </li>
+        <li>
+          <p>SWI处理程序读取操作码以提取SWI函数编号。</p>
+
+          <pre><code class="language-assembly">SWI 12 ;产生软中断，中断号为12
+</code></pre>
+        </li>
+        <li>
+          <p><strong>异常是由当前执行的指令本身(SWI 12)引起的，</strong> 当产生中断时，程序计数器PC的值还未更新(未更新的意思就是PC还没有加4，仍然为0x8008)</p>
+
+          <pre><code class="language-assembly">;LR_svc=PC-4=0x8004
+MOVS    PC,R14_svc;异常返回
+</code></pre>
+        </li>
+      </ul>
+    </blockquote>
+  </li>
+  <li>
+    <p>未定义指令异常 UND</p>
+
+    <blockquote>
+      <ul>
+        <li>
+          <p>当ARM7TDMI处理器遇到一条自己和系统内任何协处理器都<strong>无法处理的指令</strong>时，ARM7TDMI内核<strong>执行未定义指令异常程序</strong>。</p>
+        </li>
+        <li>
+          <p>软件可使用这一机制通过<strong>模拟</strong>未定义的协处理器指令来扩展ARM指令集。</p>
+        </li>
+        <li>
+          <p>在模拟处理了失败的指令后，陷阱程序执行下面的指令：</p>
+        </li>
+      </ul>
+
+      <pre><code class="language-assembly">  MOVS    PC,R14_und
+</code></pre>
+
+      <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>这个动作恢复了PC和CPSR并返回到未定义指令之后的指令。 
+</code></pre></div>      </div>
+
+      <ul>
+        <li>
+          <p><strong>异常是由当前执行的指令自身（指令未定义）产生的，</strong>当产生中断时，程序计数器PC的值还未更新(未更新的意思就是PC还没有加4，PC=0x8008)</p>
+
+          <pre><code class="language-assembly">;LR_und=PC-4=0x8004
+MOVS    PC,R14_und
+</code></pre>
+
+          <p><strong>返回指令计算与SWI一致</strong></p>
+        </li>
+      </ul>
+    </blockquote>
+  </li>
+  <li>
+    <p>快速中断请求(FIQ)</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>快速中断请求(FIQ)适用于对一个突发事件的快速响应，这得益于在ARM状态中，快中断模式有8个专用的寄存器（R8-R15）可用来满足寄存器保护的需要（这可以加速上下文切换的速度）。</p>
+
+  <p>​    不管异常入口是来自ARM状态还是Thumb状态，FIQ处理程序都会通过执行下面的指令从中断返回：</p>
+
+  <pre><code class="language-assembly">SUBS    PC,R14_fiq,#4
+</code></pre>
+
+  <p>在一个特权模式中，可以通过置位CPSR中的F位来禁止FIQ异常。</p>
+
+  <p>注意还要再减4 后面有提到</p>
+</blockquote>
+
+<ol>
+  <li>中断请求（IRQ）</li>
+</ol>
+
+<blockquote>
+  <ul>
+    <li>
+      <p>中断请求（IRQ）异常是一个由<strong>nIRQ输入端的低电平</strong>所产生的正常中断（在具体的芯片中，nIRQ由片内外设拉低，<strong>nIRQ是内核的一个信号，对用户不可见</strong>）。</p>
+    </li>
+    <li>
+      <p>IRQ的优先级低于FIQ。进入FIQ处理时FIQ和IRQ都被禁。在一个特权模式下，可通过置位CPSR中的I 位来禁止IRQ。</p>
+    </li>
+    <li>
+      <p>不管异常入口是来自ARM状态还是Thumb状态，FIQ处理程序都会通过执行下面的指令从中断返回：</p>
+    </li>
+  </ul>
+
+  <pre><code class="language-assembly">SUBS    PC,R14_irq,#4
+</code></pre>
+
+  <p><strong>IRQ或FIQ中断时的返回地址</strong></p>
+
+  <p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_24.png" alt="" /></p>
+
+  <p>指令不会被中断打断，<strong>A指令执行完以后才能响应中断</strong>，此时PC已更新，PC指向指令D的地址（地址0x800C），LR =PC-4保存的地址值是C 的地址0x8008。中断返回后应该执行B指令，所以返回操作是：</p>
+
+  <pre><code class="language-assembly">;快速中断的返回指令
+SUBS    PC,R14_fiq,#4
+;中断请求的返回指令
+SUBS    PC,R14_irq,#4
+</code></pre>
+
+  <p><strong>FIQ为什么比IRQ快呢?</strong></p>
+
+  <ul>
+    <li>FIQ比IRQ有<strong>更高优先级</strong>，如果FIQ和IRQ同时产生，那么FIQ先处理</li>
+    <li>ARM的FIQ模式<strong>提供了更多的banked寄存器</strong>，R8,R9,R10,R11,R12,模式切换时CPU自动保存这些值到banked寄存器，退出FIQ模式时自动恢复</li>
+    <li>FIQ的中断向量地址在<strong>0x0000001C</strong>，而IRQ的在0x00000018。这样可以直接在1C处放FIQ的中断处理程序，不需要跳转，所以响应速度快。</li>
+    <li>IRQ和FIQ的<strong>中断响应延迟有区别</strong>，IRQ的响应并不及时，从Verilog仿真来看，IRQ会延迟几个指令周期才跳转到中断向量处</li>
+  </ul>
+</blockquote>
+
+<ol>
+  <li>中止（ABT）</li>
+</ol>
+
+<blockquote>
+  <p>​    中止发生在对存储器的访问不能完成时，当出现异常后，要重新再执行一次这条指令，中止包含两种类型：</p>
+
+  <ol>
+    <li>预取中止:    发生在指令预取过程中</li>
+    <li>数据中止:    发生在对数据访问时</li>
+  </ol>
+
+  <p><strong>预取中止</strong></p>
+
+  <ul>
+    <li>
+      <p>当发生预取中止时，ARM7TDMI内核将预取的指令标记为无效，但在指令到达流水线的执行阶段时才进入异常。</p>
+    </li>
+    <li>
+      <p>如果<strong>指令在流水线中因为发生分支而没有被执行，中止将不会发生</strong>。</p>
+    </li>
+    <li>
+      <p>在处理中止的原因之后，不管处于哪种处理器操作状态，处理程序都会执行下面的指令恢复PC和CPSR并重试被中止的指令：</p>
+
+      <pre><code class="language-assembly">SUBS    PC,R14_abt,#4
+</code></pre>
+    </li>
+    <li>
+      <p>减4的原因。</p>
+
+      <ul>
+        <li>
+          <p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_25.png" alt="" /></p>
+        </li>
+        <li>
+          <p><strong>预取异常是由于指令自身引起的，</strong>所以当产生中止时，程序计数器PC的值还未更新；</p>
+        </li>
+        <li>
+          <p>PC指向指令C的地址（地址0x8008），LR =PC-4保存的地址值是B 的地址0x8004。中断返回后应该执行A指令，所以返回操作是：</p>
+
+          <pre><code class="language-assembly"> SUBS    PC,R14_abt,#4
+</code></pre>
+
+          <p>要返回产生异常的指令，重新执行该指令</p>
+        </li>
+      </ul>
+    </li>
+  </ul>
+
+  <p><strong>数据中止</strong></p>
+
+  <p>​    在修复产生中止的原因后，不管处于哪种处理器操作状态，处理程序都必须执行下面的返回指令，这个动作恢复了PC和CPSR并重试被中止的指令：</p>
+
+  <pre><code class="language-assembly"> SUBS    PC,R14_abt,#8
+</code></pre>
+
+  <ul>
+    <li>
+      <p>返回减8的原因</p>
+
+      <ul>
+        <li>
+          <p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_26.png" alt="" /></p>
+        </li>
+        <li>
+          <p>数据访问异常中断由当前执行的指令在ALU里执行时产生，当数据访问异常中断发生时，<strong>程序计数器pc的值已经更新</strong>。
+PC指向指令D的地址（地址0x800C），LR =PC-4保存的地址值是B 的地址0x8008。中断返回后应该执行A指令，所以返回操作是：</p>
+
+          <pre><code class="language-assembly">SUBS    PC,R14_abt,#8
+</code></pre>
+        </li>
+      </ul>
+    </li>
+  </ul>
+</blockquote>
+
+<h5 id="异常类型和返回的指令">异常类型和返回的指令</h5>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_27.png" alt="" /></p>
+
+<h2 id="第三章-arm-指令集">第三章 ARM 指令集</h2>
+
+<h3 id="arm指令概述">arm指令概述</h3>
+
+<ul>
+  <li>
+    <p>ARM微处理器是基于精简指令计算机（<strong>RISC</strong>）的原理设计的，指令集和相关译码机制比较简单。</p>
+  </li>
+  <li>
+    <p>ARM7系列微处理器具有<strong>32位的ARM指令集和16位的Thumb指令集</strong>：</p>
+
+    <ul>
+      <li>
+        <p>ARM指令集效率高，但是代码密度低，占用较大的内存空间；</p>
+      </li>
+      <li>
+        <p>Thumb指令集属于ARM指令集的子集，具有较好的代码密度，功能简单。</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>所有的ARM指令都是<strong>可以有条件执行</strong></p>
+  </li>
+  <li>
+    <p>而Thumb指令集<strong>只有一条指令（B）具有条件执行的功能</strong>。</p>
+  </li>
+  <li>
+    <p>ARM指令和Thumb指令可以相互调用，<strong>两者之间的状态切换所用的开销几乎为0。</strong></p>
+  </li>
+</ul>
+
+<h3 id="1-寻址方式的概念及-9-种寻址方式选择题那种寻址方式">1. 寻址方式的概念，及 9 种寻址方式（选择题，那种寻址方式）</h3>
+
+<p>寻址方式：<strong>处理器根据指令中给出的地址信息来寻找被操作对象的物理地址的方式。</strong></p>
+
+<p><strong>ARM处理器具有9种基本寻址方式。</strong></p>
+
+<ol>
+  <li>
+    <p>寄存器寻址</p>
+
+    <blockquote>
+      <p>操作数的值在寄存器中，指令中的地址码字段指出的是寄存器编号，指令执行时直接取出寄存器值来操作。
+   寄存器寻址指令举例如下：</p>
+
+      <pre><code class="language-assembly">MOV  R1,R2	    ;将R2的值存入R1 
+SUB  R0,R1,R2    ;将R1的值减去R2的值，结果保存到R0 
+</code></pre>
+
+    </blockquote>
+  </li>
+  <li>
+    <p>立即寻址</p>
+
+    <blockquote>
+      <p>​    立即寻址指令中的操作码字段后面的地址码部分即是操作数本身，也就是说，<strong>数据就包含在指令当中，取出指令也就取出了可以立即使用的操作数</strong>(这样的数称为立即数)。</p>
+
+      <p>立即寻址指令举例如下：</p>
+
+      <pre><code class="language-assembly">SUBS	R0,R0,#1     ;R0减1，结果放入R0，并且影响标志位
+MOV	R0,#0xFF000  ;将立即数0xFF000装入R0寄存器 
+</code></pre>
+    </blockquote>
+  </li>
+  <li>
+    <p>寄存器移位寻址</p>
+
+    <blockquote>
+      <p><strong>以寄存器寻址为本，将寄存器中的数移位后作为操作数。</strong></p>
+
+      <p>寄存器移位寻址是ARM指令集特有的寻址方式。当第2个操作数是寄存器移位方式时，第2个寄存器操作数在与第1个操作数结合之前，选择进行移位操作。</p>
+
+      <p>寄存器移位寻址指令举例如下：</p>
+
+      <pre><code class="language-assembly">MOV	R0,R2,LSL #3   ;R2的值左移3位，结果放入R0，			        
+					;即是R0=R2×8 
+ANDS	R1,R1,R2,LSL R3 ;R2的值左移R3位，然后和R1相			           						;“与”操作，结果放入R1
+</code></pre>
+
+      <p>LSL：逻辑左移（Logical Shift Left），寄存器中字的低端空出的位补0。</p>
+
+      <p>LSR：逻辑右移（Logical Shift Right），寄存器中字的高端空出的位补0。</p>
+
+      <p>ASL：算术左移（Arithmetic Shift Left），和逻辑左移LSL相同。</p>
+
+      <p>ASR：算术右移（Arithmetic Shift Right），移位过程中符号位不变，即如果源操作数是正数，则字的高端空出的位补0，否则补１。</p>
+
+      <p>ROR：循环右移（Rotate Right），由字的低端移出的位填入字的高端空出的位。</p>
+
+      <p>RRX：带扩展的循环右移（Rotate Right eXtended），操作数右移一位，高端空出的位用进位标志C的值来填充，低端移出的位填入进位标志位。</p>
+
+    </blockquote>
+  </li>
+  <li>
+    <p>寄存器间接寻址</p>
+
+    <blockquote>
+      <p>寄存器间接寻址指令中的地址码给出的是一个通用寄存器的编号，所需的操作数保存在寄存器指定地址的存储单元中，即寄存器为操作数的地址指针。</p>
+
+      <p>寄存器间接寻址指令举例如下：</p>
+
+      <pre><code class="language-assembly">LDR	R1,[R2]	;将R2指向的存储单元的数据读出
+			;保存在R1中 
+STR	R1,[R0]	
+</code></pre>
+    </blockquote>
+  </li>
+  <li>
+    <p>基址寻址</p>
+
+    <blockquote>
+      <p>基址寻址就是将基址寄存器的内容与指令中给出的偏移量相加，形成操作数的有效地址。</p>
+
+      <ul>
+        <li>LDR:加载指定位置32位数据到目标寄存器；（从固定地址处进行取值）</li>
+        <li>STR：保存指定位置32位数据到目标位置；（给固定位置进行赋值）</li>
+        <li><strong>与mov的区别 mov只能在寄存器之间或立即数与寄存器之间传输数据</strong></li>
+      </ul>
+
+      <p>基址寻址指令举例如下：</p>
+
+      <pre><code class="language-assembly">LDR	R2,[R3,#0x0C]  ;读取R3+0x0C地址上的存储单元的内容，放入R2 
+STR	R1,[R0,#-4]!	;先R0-4，然后把R1的值保存到R0-4指定的存储单元       
+</code></pre>
+    </blockquote>
+  </li>
+  <li>
+    <p>多寄存器寻址</p>
+
+    <blockquote>
+      <p>多寄存器寻址一次可传送几个寄存器值，允许一条指令传送16个寄存器的任何子集或所有寄存器。
+    多寄存器寻址指令举例如下：</p>
+
+      <pre><code class="language-assembly">LDMIA	R1!,{R2-R7,R12}  ;将R1指向的单元中的数据读出到
+			    		;R2～R7、R12中(R1自动加4) 
+STMIA	R0!,{R2-R7,R12}  ;将寄存器R2～R7、R12的值保
+			    		;存到R0指向的存储; 单元中
+			    		;(R0自动加4)
+</code></pre>
+
+      <p><strong>使用多寄存器寻址指令时，寄存器子集的顺序是按由小到大的顺序排列，连续的寄存器可用“－”连接；否则用“，”分隔书写。</strong></p>
+
+    </blockquote>
+  </li>
+  <li>
+    <p>堆栈寻址</p>
+
+    <blockquote>
+      <p>堆栈即Stack，因为CPU的寄存器总是及其有限的，很多时候我们不得不使用内存来存储数据，比如进行多级跳转的时候，这时候堆栈就是一个很好的工具，每次跳转就将当前函数的返回地址存储到内存，最底层被调用的子函数会最先返回，就先将压入栈的现场返回，以此类推…，ARM使用SP(R13)作为栈指针，ARM设计的内存栈模型有2×2=4种</p>
+
+      <p>按照栈在内存增长的方向分为<strong>递增栈</strong>和<strong>递减栈</strong> ：</p>
+
+      <ul>
+        <li>
+          <p>递增(Increase) 堆栈：向堆栈写入数据时，堆栈由低地址向高地址生长。</p>
+        </li>
+        <li>
+          <p>递减(Descend) 堆栈：向堆栈写入数据时，堆栈由高地址向低地址生长。</p>
+        </li>
+      </ul>
+
+      <p>根据堆栈指针SP指向的位置，又可以把堆栈分为<strong>满堆栈</strong>和<strong>空堆栈</strong>两种。</p>
+
+      <ul>
+        <li>
+          <p>满堆栈(Full Stack)：SP始终指向栈顶元素，压栈的时候先移动SP，再将数据放入SP指向的地址。</p>
+        </li>
+        <li>
+          <p>空堆栈(Empty Stack)：SP始终指向下一个将要放入元素的位置，压栈时先将数据放入SP指向的地址，再移动SP</p>
+        </li>
+        <li>
+          <p>F: full</p>
+        </li>
+        <li>E:empty</li>
+        <li>A:Ascending</li>
+        <li>D:Descending</li>
+        <li>LDM:(load much)多数据加载,将地址上的值加载到寄存器上</li>
+        <li>STM:(store much)多数据存储,将寄存器的值存到地址上</li>
+      </ul>
+
+      <p>最后，可以得到4种基本的堆栈类型：</p>
+
+      <ul>
+        <li>满递增：堆栈向上增长，堆栈指针指向含有效数据项的最高地址。指令如LDMFA、STMFA等；</li>
+        <li>空递增：堆栈向上增长，堆栈指针指向堆栈上的第一个空位置。指令如LDMEA、STMEA等；</li>
+        <li>满递减：堆栈向下增长，堆栈指针指向内含有效数据项的最低地址。指令如LDMFD、STMFD等；</li>
+        <li>空递减：堆栈向下增长，堆栈指针向堆栈下的第一个空位置。指令如LDMED、STMED等。</li>
+      </ul>
+
+      <pre><code class="language-assembly">stmfd sp!, {r1-r7, lr}  ;将r1到r7和lr的数据压入fd栈
+</code></pre>
+
+    </blockquote>
+  </li>
+  <li>
+    <p>块拷贝寻址</p>
+
+    <blockquote>
+      <ul>
+        <li>
+          <p>IB：Increment Before Operating</p>
+        </li>
+        <li>
+          <p>IA：Increment After Operating</p>
+        </li>
+        <li>
+          <p>DB：Decrement Before Operating</p>
+        </li>
+        <li>
+          <p>DA：Decrement After Operating</p>
+        </li>
+      </ul>
+
+      <p><strong>块拷贝寻址方式</strong>使用<strong>多寄存器传送指令</strong>将数据块从存储器的某一位置拷贝到另一位置。 如：</p>
+
+      <pre><code class="language-assembly">STMIA	R0!,{R1-R7}	;将R1～R7的数据保存到存储器中。                         
+			;存储指针在保存第一个值之后增加，
+			;增长方向为向上增长。
+STMIB	R0!,{R1-R7}	;将R1～R7的数据保存到存储器中。                        
+			;存储指针在保存第一个值之前增加，
+			;增长方向为向上增长。 
+</code></pre>
+
+    </blockquote>
+  </li>
+  <li>
+    <p>相对寻址</p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>[!tip]</p>
+
+  <p>相对寻址是基址寻址的一种变通。</p>
+
+  <ul>
+    <li>由程序计数器PC提供基准地址，</li>
+    <li>指令中的地址码字段作为偏移量，</li>
+    <li>两者相加后得到的地址即为操作数的有效地址</li>
+  </ul>
+
+  <pre><code class="language-assembly">  ;例子
+  BL    SUBRl   ；调用到SUBRl子程序
+  . . .
+  SUBR1:
+  . . .
+         MOV PC,R14 ；返回
+  
+</code></pre>
+</blockquote>
+
+<h3 id="2-arm-指令集掌握常用的指令指令格式第-2-个操作数立即数寄存器寄存器移位">2. ARM 指令集,掌握常用的指令、指令格式、第 2 个操作数（立即数、寄存器、寄存器移位）</h3>
+
+<h4 id="指令格式">指令格式</h4>
+
+<div class="language-html highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nt">&lt;opcode&gt;</span> {<span class="nt">&lt;cond&gt;</span>} {S}    <span class="nt">&lt;Rd&gt;</span> ,<span class="nt">&lt;Rn&gt;</span>{,<span class="nt">&lt;operand2&gt;</span>} 
+</code></pre></div></div>
+
+<p>其中&lt;&gt;号内的项是必须的，{ }号内的项是可选的。各项的说明如下：</p>
+
+<ul>
+  <li>
+    <p>opcode：指令助记符；</p>
+  </li>
+  <li>
+    <p>cond：执行条件；</p>
+
+    <blockquote>
+      <p>[!IMPORTANT]</p>
+
+      <p>使用条件码“<strong>cond</strong>”可以实现高效的逻辑操作，提高代码效率。</p>
+
+      <ul>
+        <li>
+          <p><strong>所有的ARM指令都可以条件执行，</strong></p>
+        </li>
+        <li>
+          <p>而Thumb指令只有B（跳转）指令具有条件执行 功能。如果指令不标明条件代码，将<strong>默认为无条件（AL）执行</strong>。</p>
+        </li>
+        <li>
+          <p>指令条件码表</p>
+        </li>
+        <li>
+          <table>
+            <thead>
+              <tr>
+                <th><strong>操作码</strong></th>
+                <th><strong>条件助记符</strong></th>
+                <th><strong>标志</strong></th>
+                <th><strong>含义</strong></th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><strong>0000</strong></td>
+                <td><strong>EQ</strong></td>
+                <td><strong>Z=1</strong></td>
+                <td><strong>相等</strong></td>
+              </tr>
+              <tr>
+                <td><strong>0001</strong></td>
+                <td><strong>NE</strong></td>
+                <td><strong>Z=0</strong></td>
+                <td><strong>不相等</strong></td>
+              </tr>
+              <tr>
+                <td><strong>0010</strong></td>
+                <td><strong>CS/HS</strong></td>
+                <td><strong>C=1</strong></td>
+                <td><strong>无符号数大于或等于</strong></td>
+              </tr>
+              <tr>
+                <td><strong>0011</strong></td>
+                <td><strong>CC/LO</strong></td>
+                <td><strong>C=0</strong></td>
+                <td><strong>无符号数小于</strong></td>
+              </tr>
+              <tr>
+                <td><strong>0100</strong></td>
+                <td><strong>MI</strong></td>
+                <td><strong>N=1</strong></td>
+                <td><strong>负数</strong></td>
+              </tr>
+              <tr>
+                <td><strong>0101</strong></td>
+                <td><strong>PL</strong></td>
+                <td><strong>N=0</strong></td>
+                <td><strong>正数或零</strong></td>
+              </tr>
+              <tr>
+                <td><strong>0110</strong></td>
+                <td><strong>VS</strong></td>
+                <td><strong>V=1</strong></td>
+                <td><strong>溢出</strong></td>
+              </tr>
+              <tr>
+                <td><strong>0111</strong></td>
+                <td><strong>VC</strong></td>
+                <td><strong>V=0</strong></td>
+                <td><strong>没有溢出</strong></td>
+              </tr>
+              <tr>
+                <td><strong>1000</strong></td>
+                <td><strong>HI</strong></td>
+                <td><strong>C=1,Z=0</strong></td>
+                <td><strong>无符号数大于</strong></td>
+              </tr>
+              <tr>
+                <td><strong>1001</strong></td>
+                <td><strong>LS</strong></td>
+                <td><strong>C=0,Z=1</strong></td>
+                <td><strong>无符号数小于或等于</strong></td>
+              </tr>
+              <tr>
+                <td><strong>1010</strong></td>
+                <td><strong>GE</strong></td>
+                <td><strong>N=V</strong></td>
+                <td><strong>有符号数大于或等于</strong></td>
+              </tr>
+              <tr>
+                <td><strong>1011</strong></td>
+                <td><strong>LT</strong></td>
+                <td><strong>N!=V</strong></td>
+                <td><strong>有符号数小于</strong></td>
+              </tr>
+              <tr>
+                <td><strong>1100</strong></td>
+                <td><strong>GT</strong></td>
+                <td><strong>Z=0,N=V</strong></td>
+                <td><strong>有符号数大于</strong></td>
+              </tr>
+              <tr>
+                <td><strong>1101</strong></td>
+                <td><strong>LE</strong></td>
+                <td><strong>Z=1,N!=V</strong></td>
+                <td><strong>有符号数小于或等于</strong></td>
+              </tr>
+              <tr>
+                <td><strong>1110</strong></td>
+                <td><strong>AL</strong></td>
+                <td><strong>任何</strong></td>
+                <td><strong>无条件执行 (指令默认条件)</strong></td>
+              </tr>
+              <tr>
+                <td><strong>1111</strong></td>
+                <td><strong>NV</strong></td>
+                <td><strong>任何</strong></td>
+                <td><strong>从不执行(不要使用)</strong></td>
+              </tr>
+            </tbody>
+          </table>
+        </li>
+      </ul>
+    </blockquote>
+  </li>
+  <li>
+    <p>S：是否影响CPSR寄存器的值；</p>
+  </li>
+  <li>
+    <p>Rd：目标寄存器；</p>
+  </li>
+  <li>
+    <p>Rn：第1个操作数的寄存器；</p>
+  </li>
+  <li>
+    <p>operand2：第2个操作数；</p>
+
+    <blockquote>
+      <p>[!tip]</p>
+
+      <p>灵活地使用第2个操作数“<strong>operand2</strong>”能够提高代码效率。 
+​    operand2”有如下的形式：</p>
+
+      <ul>
+        <li>
+          <p>#immed_8r ——常数表达式；</p>
+
+          <pre><code class="language-assembly">;【例】
+
+MOV    R0，#1    	          ；R0 ←1
+AND    R1，R2，#0x0F    ；R2与0x0F，结果保存在R1
+LDR    R0，[R1]，#-4       ；读取R1地址上的存储器单元内容， 
+                                           ;赋值给R0，
+			           ;传送完成后 R1← R1-4，后变址
+</code></pre>
+        </li>
+        <li>
+          <p>Rm               ——寄存器方式；</p>
+
+          <pre><code class="language-assembly">;【例】 在寄存器方式下，操作数即为寄存器的数值。
+SUB    R1，R1，R2 ; R1-R2→R1
+LDR    R0，[R1]，-R2   ;先将R1指向内存中的数存入R0
+			      	  ; 之后，R1 ← R1- R2 
+                      ;  后变址的方式
+
+</code></pre>
+        </li>
+        <li>
+          <p>Rm, shift     ——寄存器移位方式；</p>
+
+          <blockquote>
+            <p>将寄存器的移位结果作为操作数，<strong>但Rm值保持不变</strong>，移位方法如下：</p>
+
+            <table>
+              <thead>
+                <tr>
+                  <th><strong>操作码</strong></th>
+                  <th><strong>说明</strong></th>
+                  <th><strong>操作码</strong></th>
+                  <th><strong>说明</strong></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><strong>ASR #n</strong></td>
+                  <td>算术右移n位</td>
+                  <td><strong>ROR #n</strong></td>
+                  <td>循环右移n位</td>
+                </tr>
+                <tr>
+                  <td><strong>LSL #n</strong></td>
+                  <td>逻辑左移n位</td>
+                  <td><strong>RRX</strong></td>
+                  <td>带扩展的循环右移1位</td>
+                </tr>
+                <tr>
+                  <td><strong>LSR #n</strong></td>
+                  <td>逻辑右移n位</td>
+                  <td> </td>
+                  <td> </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <ul>
+              <li>算术左移与逻辑左移是一样的！</li>
+            </ul>
+
+            <pre><code class="language-assembly">            ;寄存器偏移方式应用举例：
+ADD    R1，R1，R1，LSL #3    ；R1=R1×8
+SUB    R1，R1，R2，LSR #2    ；R1=R1-R2÷4
+</code></pre>
+
+          </blockquote>
+        </li>
+      </ul>
+    </blockquote>
+  </li>
+</ul>
+
+<pre><code class="language-assembly">;例子
+LDR    R0，[R1] ;读取R1地址上的存储器单元内容，执行条件AL           （无条件）
+BEQ    D1    　 ;分支指令，执行条件EQ，即相等则跳转到D1标号
+ADDS    R1，R1，#1  ；加法指令，R1+1 → R1，影响CPSR 
+SUBNES  R1，R1，#0x10 ；条件执行减法运算(NE)，R1 – 0x10 → R1，影响CPSR
+
+</code></pre>
+
+<h4 id="条件码常用的条件码的助记符如等于不等于大于小于等">条件码（常用的条件码的助记符，如等于，不等于，大于，小于等）</h4>
+
+<p>使用条件码“<strong>cond</strong>”可以实现高效的逻辑操作，提高代码效率。</p>
+
+<ul>
+  <li>
+    <p><strong>所有的ARM指令都可以条件执行，</strong></p>
+  </li>
+  <li>
+    <p>而Thumb指令只有B（跳转）指令具有条件执行 功能。如果指令不标明条件代码，将<strong>默认为无条件（AL）执行</strong>。</p>
+  </li>
+  <li>
+    <p>指令条件码表</p>
+  </li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th><strong>操作码</strong></th>
+      <th><strong>条件助记符</strong></th>
+      <th><strong>标志</strong></th>
+      <th><strong>含义</strong></th>
+      <th> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td> </td>
+      <td><strong>0000</strong></td>
+      <td><strong>EQ</strong></td>
+      <td><strong>Z=1</strong></td>
+      <td><strong>相等</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><strong>0001</strong></td>
+      <td><strong>NE</strong></td>
+      <td><strong>Z=0</strong></td>
+      <td><strong>不相等</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><strong>0010</strong></td>
+      <td><strong>CS/HS</strong></td>
+      <td><strong>C=1</strong></td>
+      <td><strong>无符号数大于或等于</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><strong>0011</strong></td>
+      <td><strong>CC/LO</strong></td>
+      <td><strong>C=0</strong></td>
+      <td><strong>无符号数小于</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><strong>0100</strong></td>
+      <td><strong>MI</strong></td>
+      <td><strong>N=1</strong></td>
+      <td><strong>负数</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><strong>0101</strong></td>
+      <td><strong>PL</strong></td>
+      <td><strong>N=0</strong></td>
+      <td><strong>正数或零</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><strong>0110</strong></td>
+      <td><strong>VS</strong></td>
+      <td><strong>V=1</strong></td>
+      <td><strong>溢出</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><strong>0111</strong></td>
+      <td><strong>VC</strong></td>
+      <td><strong>V=0</strong></td>
+      <td><strong>没有溢出</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><strong>1000</strong></td>
+      <td><strong>HI</strong></td>
+      <td><strong>C=1,Z=0</strong></td>
+      <td><strong>无符号数大于</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><strong>1001</strong></td>
+      <td><strong>LS</strong></td>
+      <td><strong>C=0,Z=1</strong></td>
+      <td><strong>无符号数小于或等于</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><strong>1010</strong></td>
+      <td><strong>GE</strong></td>
+      <td><strong>N=V</strong></td>
+      <td><strong>有符号数大于或等于</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><strong>1011</strong></td>
+      <td><strong>LT</strong></td>
+      <td><strong>N!=V</strong></td>
+      <td><strong>有符号数小于</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><strong>1100</strong></td>
+      <td><strong>GT</strong></td>
+      <td><strong>Z=0,N=V</strong></td>
+      <td><strong>有符号数大于</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><strong>1101</strong></td>
+      <td><strong>LE</strong></td>
+      <td><strong>Z=1,N!=V</strong></td>
+      <td><strong>有符号数小于或等于</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><strong>1110</strong></td>
+      <td><strong>AL</strong></td>
+      <td><strong>任何</strong></td>
+      <td><strong>无条件执行 (指令默认条件)</strong></td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td><strong>1111</strong></td>
+      <td><strong>NV</strong></td>
+      <td><strong>任何</strong></td>
+      <td><strong>从不执行(不要使用)</strong></td>
+    </tr>
+  </tbody>
+</table>
+
+<h4 id="单寄存器存取指令ldrstr">单寄存器存取指令（LDR,STR）</h4>
+
+<ul>
+  <li>
+    <p>ARM处理器是典型的RISC处理器，对存储器的访问只能使用<strong>加载和存储指令实现</strong>。</p>
+  </li>
+  <li>冯•诺依曼存储结构，程序空间、RAM空间及I/O映射空间<strong>统一编址</strong>，除对RAM操作以外，<strong>对外围IO、程序数据的访问均要通过加载/存储指令进行</strong>。</li>
+  <li>存储器访问指令分为<strong>单寄存器操作指令</strong>和<strong>多寄存器操作指令</strong>。</li>
+</ul>
+
+<h5 id="单寄存器操作指令"><strong>单寄存器操作指令</strong></h5>
+
+<table>
+  <thead>
+    <tr>
+      <th>助记符</th>
+      <th>说明</th>
+      <th>操作</th>
+      <th>条件码位置</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>LDR  Rd,addressing</td>
+      <td>加载字数据</td>
+      <td>Rd←[addressing]，addressing索引</td>
+      <td>LDR{cond}</td>
+    </tr>
+    <tr>
+      <td>LDRB  Rd,addressing</td>
+      <td>加载无符号字节数据</td>
+      <td>Rd←[addressing]，addressing索引</td>
+      <td>LDR{cond}B</td>
+    </tr>
+    <tr>
+      <td>LDRT  Rd,addressing</td>
+      <td>以用户模式加载字数据</td>
+      <td>Rd←[addressing]，addressing索引</td>
+      <td>LDR{cond}T</td>
+    </tr>
+    <tr>
+      <td>LDRBT Rd, addressing</td>
+      <td>以用户模式加载无符号字节数据</td>
+      <td>Rd←[addressing]，addressing索引</td>
+      <td>LDR{cond}BT</td>
+    </tr>
+    <tr>
+      <td>LDRH  Rd, addressing</td>
+      <td>加载无符号半字数据</td>
+      <td>Rd←[addressing]，addressing索引</td>
+      <td>LDR{cond}H</td>
+    </tr>
+    <tr>
+      <td>LDRSB Rd, addressing</td>
+      <td>加载有符号字节数据</td>
+      <td>Rd←[addressing]，addressing索引</td>
+      <td>LDR{cond}SB</td>
+    </tr>
+    <tr>
+      <td>LDRSH Rd, addressing</td>
+      <td>加载有符号半字数据</td>
+      <td>Rd←[addressing]，addressing索引</td>
+      <td>LDR{cond}SH</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>[!NOTE]</p>
+
+  <p>LDRSB, LDRSH加载后高位需要填充符号位！</p>
+</blockquote>
+
+<table>
+  <thead>
+    <tr>
+      <th>助记符</th>
+      <th>说明</th>
+      <th>操作</th>
+      <th>条件码位置</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>STR   Rd, addressing</td>
+      <td>存储字数据</td>
+      <td>[addressing]←Rd，  addressing索引</td>
+      <td>STR{cond}</td>
+    </tr>
+    <tr>
+      <td>STRB  Rd,addressing</td>
+      <td>存储字节数据</td>
+      <td>[addressing]←Rd，  addressing索引</td>
+      <td>STR{cond}B</td>
+    </tr>
+    <tr>
+      <td>STRT  Rd,addressing</td>
+      <td>以用户模式存储字数据</td>
+      <td>[addressing]←Rd，   addressing索引</td>
+      <td>STR{cond}T</td>
+    </tr>
+    <tr>
+      <td>STRBT  Rd,addressing</td>
+      <td>以用户模式存储字节数据</td>
+      <td>[addressing]←Rd，  addressing索引</td>
+      <td>STR{cond}BT</td>
+    </tr>
+    <tr>
+      <td>STRH  Rd,addressing</td>
+      <td>存储半字数据</td>
+      <td>[addressing]  ←Rd，  addressing索引</td>
+      <td>STR{cond}H</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>LDR/STR指令用于对内存变量的访问、内存缓冲区数据的访问、外围部件的控制操作等。若使用LDR指令加载数据到PC寄存器，则实现程序跳转功能，这样也就实现了程序跳转。</p>
+
+<blockquote>
+  <p>[!NOTE]</p>
+
+  <p><strong>说明：</strong></p>
+
+  <p>​    所有单寄存器加载/存储指令可分为“<strong>字和无符号字节加载存储指令</strong>”</p>
+
+  <p>​                                 “<strong>半字和有符号字节加载存储指令</strong>。</p>
+
+  <p><strong>LDR和STR——（1）字和无符号字节加载/存储指令</strong></p>
+
+  <p>​        LDR/STR指令寻址非常灵活，它由两部分组成，其中一部分为一个基址寄存器，可以为任一个通用寄存器；另一部分为一个地址偏移量。地址偏移量有以下3种格式：</p>
+
+  <ul>
+    <li>
+      <p><strong>立即数：</strong>立即数可以是一个无符号的数值。这个数据可以加到基址寄存器，也可以从基址寄存器中减去这个数值。</p>
+
+      <pre><code class="language-assembly">;【例】
+LDR    R1，[R0，#0x12]    ；将R0+0x12地址处的数据读出，保存到Rl中(R0的值不变)
+  
+LDR    R1，[R0，# -0x12]   ；将R0-0x12地址处的数据读出，保存到R1中(R0的值不变) 
+</code></pre>
+    </li>
+    <li>
+      <p><strong>寄存器：</strong>寄存器中的数值可以加到基址寄存器，也可以从基址寄存器中减去这个数值。</p>
+
+      <pre><code class="language-assembly">【;例】
+LDR    R1，[R0，R2]   ；将R0+R2地址处的数据读出，保存到R1中
+  
+LDR    R1，[R0，-R2] ；将R0-R2地址处的数据读出，保存到R1中
+</code></pre>
+    </li>
+    <li>
+      <p><strong>寄存器及移位常数：</strong>寄存器移位后的值可以加到基址寄存器，也可以从基址寄存器中减去这个数值。</p>
+
+      <pre><code class="language-assembly">;【例】
+LDR    R1，[R0，R2，LSL #2]	；将R0+R2×4地址处的数据读出，保存到R1中(R0、R2的值不变)
+                            
+LDR    R1，[R0，-R2，LSL #2]；将R0-R2×4地址处的数据读出，保存到R1中(R0、R2的值不变) 
+</code></pre>
+
+      <p>​</p>
+    </li>
+  </ul>
+</blockquote>
+
+<h4 id="单寄存器存取指令前变址-vs-后变址">单寄存器存取指令：前变址 vs 后变址</h4>
+
+<p>​    从寻址方式的地址计算方法分，加载/存储指令有以下3种格式：</p>
+
+<ul>
+  <li>零偏移：		   如：LDR  Rd,[Rn]</li>
+  <li>前索引偏移（前变址）：如：LDR  Rd,[Rn,#0x04]!</li>
+  <li>后索引偏移（后变址）：如：LDR  Rd,[Rn],#0x04</li>
+</ul>
+
+<p>​    根据数据传输传输的时机以及在指令执行后基址寄存器是否被更新，寄存器变址有前变址、回写前变址和后变址暗中方式。</p>
+
+<h5 id="前变址"><strong>前变址：</strong></h5>
+
+<p>​    执行指令的时候，如果先进行变址运算，后传递数据，那么这种方式就是前变址方式。如图1所示 <img src="https://img-blog.csdn.net/20160824165725555" alt="img" /></p>
+
+<p>例子：</p>
+
+<pre><code class="language-assembly">LDR R0,[R1,R2]          ;R0&lt;-((R1)+(R2))
+LDR R0,[R1,#8]          ;R0&lt;-((R1)+8)
+</code></pre>
+
+<h5 id="后变址"><strong>后变址</strong></h5>
+
+<p>与上面相反，先传输数据，后进行变址的运算的方式叫做后变址方式，从指令格式上来看，后变址指令的格式如下：</p>
+
+<pre><code class="language-assembly">LDR R0,[R1],#8                ;R0&lt;-((R1))        R1&lt;-((R1)+#8)
+</code></pre>
+
+<p>即将偏移量写在了方括号外边。后变址指令的执行过程如图2。</p>
+
+<p><img src="https://img-blog.csdn.net/20160824165835009" alt="img" /></p>
+
+<h4 id="单寄存器存取指令半字和有符号字节">单寄存器存取指令：半字和有符号字节</h4>
+
+<p>这类LDR/STR指令可加载有符号半字或字节，可加载/存储无符号半字。偏移量格式、寻址方式与加载/存储字和无符号字节指令相同。</p>
+
+<p>LDR{cond}SB Rd,<地址> ;将指定地址上的有符号字节读入Rd</地址></p>
+
+<p>LDR{cond}SH Rd,<地址> ;将指定地址上的有符号半字读入Rd</地址></p>
+
+<p>LDR{cond}H  Rd,<地址> ;将指定地址上的半字数据读入Rd</地址></p>
+
+<p>STR{cond}H  Rd,<地址> ;将Rd中的半字数据存入指定地址</地址></p>
+
+<blockquote>
+  <p>[!NOTE]</p>
+
+  <p>注意：
+1.有符号位半字/字节加载是指<strong>用符号位</strong>加载扩展到32位，
+   无符号半字加载是指用<strong>零扩展</strong>到32位；
+2.地址对齐——半字读写的指定地址必须为偶数，否则将产生不可靠的结果。</p>
+</blockquote>
+
+<p>例子</p>
+
+<pre><code class="language-assembly">;【例】
+
+LDRSB  R1，[R0，R3]  ;将R0+R3地址上的字节数据读到R1，高24位用符号位扩展
+LDRSH  R1，[R9]   ;将R9地址上的半字数据读出到R1，高16位用符号位扩展
+LDRH  R6,[R2]，#2；将R2地址上的半字数据读出到R6，高16位用零扩展，R2=R2+2，后变址方式
+STRH   R1，[R0，#2]!   ；将R1的数据保存到R0+2地址中，只存储低2字节数据，R0=R0+2，前变址方式
+
+</code></pre>
+
+<h4 id="多寄存器加载指令ldmstm">多寄存器加载指令（LDM,STM）</h4>
+
+<p>LDM和STM指令可以实现在一组寄存器和一块连续的内存单元之间传输数据。</p>
+
+<p>LDM为加载多个寄存器；</p>
+
+<p>STM为存储多个寄存器。</p>
+
+<p>允许一条指令传送16个寄存器的任何子集或所有寄存器。</p>
+
+<pre><code class="language-assembly"> ;指令格式如下： 
+LDM{cond}&lt;模式&gt;  Rn{!},reglist{^} 
+STM{cond}&lt;模式&gt;  Rn{!},reglist{^}
+</code></pre>
+
+<blockquote>
+  <p>[!tip]</p>
+
+  <p>LDM和STM的<strong>主要用途</strong>是现场保护、数据复制、常数传递等</p>
+
+  <p>注意Rn此处没有[ ]，但仍然指向内存</p>
+
+  <ul>
+    <li>
+      <p>指令格式中，寄存器Rn为基址寄存器，装有传送数据的初始地址，<strong>Rn不允许为R15</strong>。</p>
+    </li>
+    <li>
+      <p>后缀“!”表示最后的地址写回到Rn中。</p>
+    </li>
+    <li>
+      <p>寄存器列表reglist可包含多于一个寄存器或包含寄存器范围，使用“，”分开，如{R1，R2，R6-R9}，寄存器按<strong>由小到大</strong>排列。</p>
+    </li>
+    <li>
+      <p>后缀“^”不允许在用户模式或系统模式下使用。</p>
+    </li>
+  </ul>
+
+  <ol>
+    <li>
+      <p><strong>若在LDM指令且寄存器列表中包含有PC时使用”^”，那么除了正常的多寄存器传送外，将SPSR也拷贝到CPSR中，这可用于异常处理返回。</strong></p>
+    </li>
+    <li>
+      <p>使用后缀“^”进行数据传送且寄存器列表<strong>不包含PC时</strong>，加载／存储的是<strong>用户模式的寄存器</strong>，而不是当前异常模式的寄存器。</p>
+    </li>
+  </ol>
+</blockquote>
+
+<table>
+  <thead>
+    <tr>
+      <th>模式</th>
+      <th>说明</th>
+      <th>模式</th>
+      <th>说明</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>IA</td>
+      <td>每次传送后地址加4</td>
+      <td>FD</td>
+      <td>满递减堆栈</td>
+    </tr>
+    <tr>
+      <td>IB</td>
+      <td>每次传送前地址加4</td>
+      <td>ED</td>
+      <td>空递减堆栈</td>
+    </tr>
+    <tr>
+      <td>DA</td>
+      <td>每次传送后地址减4</td>
+      <td>FA</td>
+      <td>满递增堆栈</td>
+    </tr>
+    <tr>
+      <td>DB</td>
+      <td>每次传送前地址减4</td>
+      <td>EA</td>
+      <td>空递增堆栈</td>
+    </tr>
+    <tr>
+      <td>数据块传送操作</td>
+      <td> </td>
+      <td>堆栈操作</td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>[!important]</p>
+
+  <ul>
+    <li>
+      <p><strong>进行数据复制时，</strong>先设置好源数据指针和目标指针，然后使用块拷贝寻址指令LDMIA/STMIA、LDMIB/STMIB、LDMDA/STMDA、LDMDB/STMDB进行读取和存储 。</p>
+    </li>
+    <li>
+      <p><strong>进行堆栈操作操作时，</strong>要先设置堆栈指针（SP），然后使用堆栈寻址指令STMFD/LDMFD 、STMED/LDMED、STMFA/LDMFA和STMEA/LDMEA实现堆栈操作。</p>
+    </li>
+  </ul>
+</blockquote>
+
+<p>例子：</p>
+
+<pre><code class="language-assembly">;【例】
+LDMIA    R0!，{R3 - R9};加载R0指向地址上的多字数据，保存到R3~R9中，R0值更新，增量后
+STMIA    R1!，{R3 - R9};将R3～R9的数据存储到R1指向的地址上，R1值更新，增量后
+
+STMFD    SP!，{R0 - R7，LR}    ;现场保存，将R0～R7、LR入栈 从右往左压，先压LR，满递减
+LDMFD    SP!，{R0 - R7，PC}    ;恢复现场，异常处理返回 弹出从左往右，先弹出R0，满递减
+</code></pre>
+
+<h4 id="寄存器和存储器交换指令"><strong>寄存器和存储器交换指令</strong></h4>
+
+<p>​    SWP指令用于将一个内存单元(该单元地址放在寄存器Rn中)的内容读取到一个寄存器Rd中，同时将另一个寄存器Rm的内容写入到该内存单元中。
+​    指令格式如下：</p>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_28.png" alt="" /></p>
+
+<pre><code class="language-assembly">SWP{cond}{B}    Rd,Rm,[Rn]
+</code></pre>
+
+<blockquote>
+  <p>[!tip]</p>
+
+  <ul>
+    <li>
+      <p>B为可选后缀，若有B，则交换字节，否则交换32位字；</p>
+    </li>
+    <li>Rd用于保存从存储器中读入的数据；</li>
+    <li><strong>Rm的数据用于存储到存储器中</strong>，</li>
+    <li>若Rm与Rd相同，则为寄存器与存储器内容进行交换；</li>
+    <li>Rn为要进行数据交换的存储器地址，Rn不能与Rd和Rm相同。</li>
+  </ul>
+</blockquote>
+
+<p>例子：</p>
+
+<pre><code class="language-assembly">;【例】
+SWP	R1,R1,[R0]	;将R1的内容与R0指向的存储单元的内容进行交换 
+SWPB R1,R2,[R0]	;将R0指向的存储单元内的容读取一字节数据到R1中
+			;(高24位清零)，并将R2的内容写入到该内存单元中
+			;(最低字节有效) ，只写R2的最低8位给内存
+
+</code></pre>
+
+<h4 id="数据处理指令数据传送指令-mov-mvn算术逻辑运算指令-add-sub-等比较指令-cmp-cmntst-等">数据处理指令(数据传送指令 MOV, MVN,算术逻辑运算指令 ADD, SUB 等，比较指令 CMP, CMN,TST 等)</h4>
+
+<p><strong>数据处理指令大致可分为3类：</strong></p>
+
+<ol>
+  <li>数据传送指令；</li>
+  <li>算术逻辑运算指令；</li>
+  <li>比较指令。</li>
+</ol>
+
+<blockquote>
+  <p>[!warning]</p>
+
+  <ul>
+    <li>数据处理指令只能对寄存器的内容进行操作，而不能对内存中的数据进行操作。</li>
+    <li>所有ARM数据处理指令均可选择使用S后缀，并影响状态标志。</li>
+    <li>比较指令CMP、CMN、TST和TEQ不需要后缀S，它们会直接影响状态标志。</li>
+  </ul>
+</blockquote>
+
+<h5 id="数据传送指令">数据传送指令</h5>
+
+<table>
+  <thead>
+    <tr>
+      <th>助记符</th>
+      <th>说明</th>
+      <th>操作</th>
+      <th>条件码位置</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>MOV  Rd,operand2</td>
+      <td>数据传送</td>
+      <td>Rd←operand2</td>
+      <td>MOV{cond}{S}</td>
+    </tr>
+    <tr>
+      <td>MVN  Rd,operand2</td>
+      <td>数据非传送</td>
+      <td>Rd←(~operand2)</td>
+      <td>MVN{cond}{S}</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>MOV指令将立即数或寄存器传送到目标寄存器（Rd），可用于移位运算等操作。指令格式如下：</strong></p>
+
+<pre><code class="language-assembly">MOV{cond}{S}    Rd,operand2
+</code></pre>
+
+<p>例子：</p>
+
+<pre><code class="language-assembly">;MOV指令举例如下：
+MOVS  R3,R1,LSL #2    ；R3=R1&lt;&lt;2，并影响NZC标志位 
+MOV	  PC,LR		    ；PC=LR，子程序返回 
+MOV	  R4,#0x80		    ；R4 0x80
+</code></pre>
+
+<p>MVN指令将立即数或寄存器（operand2）<strong>按位取反</strong>后传送到目标寄存器（Rd），因为其具有取反功能，所以可以装载范围更广的立即数。指令格式如下：</p>
+
+<pre><code class="language-assembly">MVN{cond}{S}    Rd,operand2
+</code></pre>
+
+<pre><code class="language-assembly">;MVN指令举例如下：
+MVN	R1,#0xFF	;R1← 0xFFFFFF00 
+MVN	R1,R2		;将R2取反，结果存到R1
+MVNS  R3,R1,LSL #2   ;R3←(R1&lt;&lt;2)取反并影响NZC标志位
+</code></pre>
+<h5 id="算术运算">算术运算</h5>
+
+<table>
+  <thead>
+    <tr>
+      <th>助记符</th>
+      <th>说明</th>
+      <th>操作</th>
+      <th>条件码位置</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>ADD Rd,Rn,operand2</td>
+      <td>加法运算指令</td>
+      <td>Rd←Rn+operand2</td>
+      <td>ADD{cond}{S}</td>
+    </tr>
+    <tr>
+      <td>SUB Rd, Rn,operand2</td>
+      <td>减法运算指令</td>
+      <td>Rd←Rn-operand2</td>
+      <td>SUB{cond}{S}</td>
+    </tr>
+    <tr>
+      <td>RSB Rd, Rn, operand2</td>
+      <td>逆向减法指令</td>
+      <td>Rd←operand2-Rn</td>
+      <td>RSB{cond}{S}</td>
+    </tr>
+    <tr>
+      <td>ADC Rd, Rn,operand2</td>
+      <td>带进位加法</td>
+      <td>Rd←Rn+operand2+Carry</td>
+      <td>ADC{cond}{S}</td>
+    </tr>
+    <tr>
+      <td>SBC Rd, Rn,operand2</td>
+      <td>带进位减法指令</td>
+      <td>Rd←Rn-operand2-(NOT)Carry</td>
+      <td>SBC{cond}{S}</td>
+    </tr>
+    <tr>
+      <td>RSC Rd, Rn,operand2</td>
+      <td>带进位逆向减法指令</td>
+      <td>Rd←operand2-Rn-(NOT)Carry</td>
+      <td>RSC{cond}{S}</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>应用示例：</p>
+
+<pre><code class="language-assembly">ADDS    R1,R1,#1		;R1←R1+1，并影响标志位 
+
+ADDS    R3，R1，R2，LSL #2 ; R3←R1+R2&lt;&lt;2                                       
+
+ADDS    R3，R1，R2   ; R3←R1+R2
+
+SUBS	R0,R0,#1	      ;R0←R0-1
+
+SUB    R6，R7，#0x10       ; R6←R7-0x10
+
+RSB     R3,R1,#0xFF00	           ;R3=0xFF00-R1
+
+RSBS   R1,R2,R2,LSL #2	;R1=(R2&lt;&lt;2)-R2=R2×3 
+
+ADDS    R0,R0,R2 	;使用ADC实现64位加法
+ADC       R1,R1,R3          ;(R1、R0)＝(R1、R0)+(R3、R2)
+
+SUBS    R0,R0,R2 	;使用SBC实现64位减法
+SBC      R1,R1,R3	; (R1、R0)＝(R1、R0)-(R3、R2)
+
+RSBS   R2,R0,#0 
+RSC      R3,R1,#0  ;使用RSC指令实现求64位数值的负数
+</code></pre>
+
+<h4 id="逻辑运算指令">逻辑运算指令</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th>助记符</th>
+      <th>说明</th>
+      <th>操作</th>
+      <th>条件码位置</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>AND  Rd, Rn, operand2</td>
+      <td>逻辑与操作指令</td>
+      <td>Rd←Rn  &amp; operand2</td>
+      <td>AND{cond}{S}</td>
+    </tr>
+    <tr>
+      <td>ORR  Rd, Rn, operand2</td>
+      <td>逻辑或操作指令</td>
+      <td>Rd←Rn  | operand2</td>
+      <td>ORR{cond}{S}</td>
+    </tr>
+    <tr>
+      <td>EOR  Rd, Rn, operand2</td>
+      <td>逻辑异或操作指令</td>
+      <td>Rd←Rn  ^ operand2</td>
+      <td>EOR{cond}{S}</td>
+    </tr>
+    <tr>
+      <td>BIC  Rd, Rn, operand2</td>
+      <td>位清除指令</td>
+      <td>Rd←Rn  &amp; (~operand2)</td>
+      <td>BIC{cond}{S}</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>例子：</p>
+
+<pre><code class="language-assembly">ANDS    R0,R0,#0x01	;R0←R0&amp;0x01，取出最低位数据 
+AND       R2,R1,R3	;R2←R1&amp;R3
+ORR     R0,R0,#0x0F   ;将R0的低4位置1，其它4位不变 
+EOR  R1,R1,#0x0F	  ;将R1的低4位取反，其它位不变 
+EORS R0,R5,#0x01	   ; 将R5和0x01进行逻辑异或，
+				    ;结果保存到R0，并影响标志位 
+BIC     R1,R1,#0x0F  ;将R1的低4位清零，其它28位不变
+</code></pre>
+
+<h4 id="比较指令">比较指令</h4>
+
+<table>
+  <thead>
+    <tr>
+      <th>助记符</th>
+      <th>说明</th>
+      <th>操作</th>
+      <th>条件码位置</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>CMP  Rn, operand2</td>
+      <td>比较指令</td>
+      <td>标志N、Z、C、V  ←Rn-operand2</td>
+      <td>CMP{cond}</td>
+    </tr>
+    <tr>
+      <td>CMN  Rn, operand2</td>
+      <td>负数比较指令</td>
+      <td>标志N、Z、C、V←Rn+operand2</td>
+      <td>CMN{cond}</td>
+    </tr>
+    <tr>
+      <td>TST  Rn, operand2</td>
+      <td>位测试指令</td>
+      <td>标志N、Z、C、V←Rn  &amp; operand2</td>
+      <td>TST{cond}</td>
+    </tr>
+    <tr>
+      <td>TEQ  Rn, operand2</td>
+      <td>相等测试指令</td>
+      <td>标志N、Z、C、V←Rn  ^ operand2</td>
+      <td>TEQ{cond}</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>[!tip]</p>
+
+  <p>没有目的操作数，只用作更新条件标志位，不保存运算结果，指令后缀无需加S</p>
+
+  <p>Z:指令结果为0时Z=1,表示比较结果相等；否则Z=0;</p>
+
+  <p>C:指令有借位C=0 否则C=1，有仅为C=1，否则C=1</p>
+
+  <p><strong>注意</strong>：</p>
+
+  <ul>
+    <li>CMP指令与SUBS指令的区别在于CMP指令不保存运算结果。</li>
+    <li>CMN指令与ADDS指令的区别在于CMN指令不保存运算结果。</li>
+    <li>TST指令与ANDS指令的区别在于TST指令不保存运算结果。</li>
+    <li>TST指令通常与EQ、NE条件码配合使用，当所有测试位均为0时，EQ有效，而只要有一个测试位不为0，则NE有效。</li>
+    <li>TEQ指令与EORS指令的区别在于TEQ指令不保存运算结果。使用TEQ进行相等测试时，常与EQ、NE条件码配合使用。当两个数据相等时，EQ有效；否则NE有效。</li>
+  </ul>
+</blockquote>
+
+<p>例子</p>
+
+<pre><code class="language-assembly">CMP	R1,#10 		; R1与10比较，设置相关标志位
+CMN    R0，#1  ；R0+1，判断相加结果时候为0,若是， 则Z位置1。
+TST	R0,#0x01		; 判断R0的最低位是否为0 
+TST	R1,#0x0F		; 判断R1的低4位是否为0 
+TEQ  R0,R1    ; 比较R0与R1是否相等 (不影响V位和C位)
+</code></pre>
+
+<h4 id="乘法指令mulmla-等">乘法指令（MUL,MLA 等）</h4>
+
+<p>ARM7TDMI具有三种乘法指令，分别为：</p>
+
+<ul>
+  <li>32×32位乘法指令；</li>
+  <li>32× 32位乘加指令；</li>
+  <li>32× 32位结果为64位的乘/乘加指令。</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>助记符</th>
+      <th>说明</th>
+      <th>操作</th>
+      <th>条件码位置</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>MUL  Rd,Rm,Rs</td>
+      <td>32位乘法指令</td>
+      <td>Rd←Rm*Rs (Rd≠Rm)</td>
+      <td>MUL{cond}{S}</td>
+    </tr>
+    <tr>
+      <td>MLA  Rd,Rm,Rs,Rn</td>
+      <td>32位乘加指令</td>
+      <td>Rd←Rm*Rs+Rn (Rd≠Rm)</td>
+      <td>MLA{cond}{S}</td>
+    </tr>
+    <tr>
+      <td>UMULL RdLo,RdHi,Rm,Rs</td>
+      <td>64位无符号乘法指令</td>
+      <td>(RdHi,RdLo)  ←Rm*Rs</td>
+      <td>UMULL{cond}{S}</td>
+    </tr>
+    <tr>
+      <td>UMLAL RdLo,RdHi,Rm,Rs</td>
+      <td>64位无符号乘加指令</td>
+      <td>(RdHi,RdLo)  ←Rm*Rs+(RdHi,RdLo)</td>
+      <td>UMLAL{cond}{S}</td>
+    </tr>
+    <tr>
+      <td>SMULL RdLo,RdHi,Rm,Rs</td>
+      <td>64位有符号乘法指令</td>
+      <td>(RdHi,RdLo)  ←Rm*Rs</td>
+      <td>SMULL{cond}{S}</td>
+    </tr>
+    <tr>
+      <td>SMLAL RdLo,RdHi,Rm,Rs</td>
+      <td>64位有符号乘加指令</td>
+      <td>(RdHi,RdLo)  ←Rm*Rs+(RdHi,RdLo)</td>
+      <td>SMLAL{cond}{S}</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>[!tip]</p>
+
+  <ul>
+    <li>32位乘法指令，乘法操作的结果为32位</li>
+    <li>64位乘法指令，乘法操作的结果为64位</li>
+    <li>S决定指令的操作是否影响CPSR的N和Z位的值</li>
+  </ul>
+</blockquote>
+
+<p>应用示例</p>
+
+<pre><code class="language-assembly">MUL      R1,R2,R3     ;R1=R2×R3 
+MULS   R0,R3,R7     ;R0=R3×R7，同时影响CPSR中的N位和Z位 
+MLA     R1,R2,R3,R0		; R1=R2×R3+R0
+UMULL    R0,R1,R5,R8	; (R1、R0)=R5×R8 
+UMLAL    R0,R1,R5,R8	;(R1、R0)=R5×R8+(R1、R0)
+SMULL	R2,R3,R7,R6		; (R3、R2)=R7×R6
+SMLAL	R2,R3,R7,R6	  ; (R3、R2)=R7×R6+(R3、R2)
+</code></pre>
+
+<h4 id="分支指令bblbx">分支指令（B,BL,BX）</h4>
+
+<blockquote>
+  <p>[!tip]</p>
+
+  <p>在ARM中有两种方式可以实现程序的跳转：</p>
+
+  <ul>
+    <li>
+      <p>一种是使用分支指令直接跳转,向前或向后32MB</p>
+    </li>
+    <li>
+      <p>另一种则是直接向PC寄存器赋值实现跳转,4GB</p>
+    </li>
+  </ul>
+</blockquote>
+
+<p>分支指令有以下三种：</p>
+
+<ul>
+  <li>分支指令B；</li>
+  <li>带链接的分支指令BL；</li>
+  <li>带状态切换的分支指令BX。</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>助记符</th>
+      <th>说明</th>
+      <th>操作</th>
+      <th>条件码位置</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>B   label</td>
+      <td>分支指令</td>
+      <td>PC←label</td>
+      <td>B{cond}</td>
+    </tr>
+    <tr>
+      <td>BL   label</td>
+      <td>带链接的分支指令</td>
+      <td>LR←PC-4，PC←label</td>
+      <td>BL{cond}</td>
+    </tr>
+    <tr>
+      <td>BX   Rm</td>
+      <td>带状态切换的分支指令</td>
+      <td>PC←label，切换处理器状态</td>
+      <td>BX{cond}</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>[!important]</p>
+
+  <p>​    带链接的分支指令——<strong>BL指令适用于子程序调用</strong>，使用该指令后，<strong>下一条指令的地址被拷贝到R14(即LR) 中，</strong>然后跳转到指定地址运行程序。跳转范围限制在当前指令的±32M字节地址内。指令格式如下：</p>
+
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>BL{cond}    Label
+</code></pre></div>  </div>
+
+  <p>​    带状态切换的分支指令——BX指令，该指令可以<strong>根据跳转地址（Rm）的最低位来切换处理器状态</strong>,bit[0]=0为ARM状态，否则为Thumb状态。其跳转范围限制在当前指令的<strong>±32M</strong>字节地址内(ARM指令为字对齐，最低2位地址固定为0)。指令格式如下：</p>
+
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>BX{cond}    Rm
+</code></pre></div>  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>跳转地址Rm[0]</th>
+        <th>跳转后</th>
+        <th> </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>CPSR标志T位</td>
+        <td>处理器状态</td>
+        <td> </td>
+      </tr>
+      <tr>
+        <td>0</td>
+        <td>0</td>
+        <td>ARM</td>
+      </tr>
+      <tr>
+        <td>1</td>
+        <td>1</td>
+        <td>Thumb</td>
+      </tr>
+    </tbody>
+  </table>
+</blockquote>
+
+<p>应用示例</p>
+
+<pre><code class="language-assembly">B   	WAITA		; 跳转到WAITA标号处 
+
+ADRL   R0,ThumbFun+1  ;将Thumb程序的入口地址加1 ;存入R0（ADRL地址读取伪指令）
+BX        R0           ;跳转到R0指定的地址，并根据R0的最低位来切换处理器状态
+
+</code></pre>
+
+<h4 id="杂项指令mrsmsr">杂项指令(MRS,MSR)</h4>
+
+<p>ARM指令集中有三条指令作为杂项指令，实际上这三条指令非常重要。</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>助记符</th>
+      <th>说明</th>
+      <th>操作</th>
+      <th>条件码位置</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>SWI   immed_24</td>
+      <td><strong>软中断指令</strong></td>
+      <td><strong>产生软中断，处理器进入管理模式</strong></td>
+      <td>SWI{cond}</td>
+    </tr>
+    <tr>
+      <td>MRS  Rd,psr</td>
+      <td><strong>读状态寄存器指令</strong></td>
+      <td>Rd←psr，psr为CPSR或SPSR</td>
+      <td>MRS{cond}</td>
+    </tr>
+    <tr>
+      <td>MSR  psr_fields,  Rd/#immed_8r</td>
+      <td><strong>写状态寄存器指令</strong></td>
+      <td>psr_fields←Rd/#immed_8r，psr为  CPSR或SPSR</td>
+      <td>MSR{cond}</td>
+    </tr>
+  </tbody>
+</table>
+
+<blockquote>
+  <p>[!important]</p>
+
+  <p>​    SWI指令用于产生软中断，从而实现从<strong>用户模式变换到管理模式</strong>，并且将CPSR保存到管理模式的SPSR中，然后程序跳转到SWI异常入口。
+   在其它模式下也可使用SWI指令，处理器同样地切换到管理模式。</p>
+
+  <blockquote>
+    <p>​    在SWI异常中断处理程序中，取出SWI指令的中断立即数的步骤为：</p>
+
+    <ul>
+      <li>首先确定引起软中断的SWI指令是ARM指令还是Thumb指令，这可通过对SPSR访问得到；</li>
+      <li>然后取得该SWI指令的地址，这可通过访问LR寄存器得到；</li>
+      <li>接着读出该SWI指令，分解出立即数。</li>
+    </ul>
+  </blockquote>
+
+  <p>在ARM处理器中，<strong>只有MRS指令可以对状态寄存器CPSR和SPSR进行读操作。</strong>通过读CPSR可以了解当前处理器的工作状态。读SPSR寄存器可以了解到进入异常前的处理器状态。该指令不影响条件码</p>
+
+  <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MRS{cond}    Rd,psr
+</code></pre></div>  </div>
+
+  <p>注意：</p>
+
+  <ul>
+    <li>在ARM处理器中，只有MRS指令可以将状态寄存器CPSR或SPSR读出到通用寄存器中</li>
+    <li>MRS与MSR配合使用，实现CPSR或SPSR寄存器的读-修改-写操作，可用来进行处理器模式切换、允许／禁止IRQ/FIQ中断等设置。</li>
+    <li>另外，当进程切换或允许异常中断嵌套时，也需要使用<strong>MRS</strong>指令来读取<strong>SPSR</strong>状态值，并保存起来。</li>
+  </ul>
+
+  <p>​    在ARM处理器中，只有MSR指令可以对状态寄存器CPSR和SPSR进行写操作。与MRS配合使用，可以实现对CPSR或SPSR寄存器的读-修改-写操作，可以切换处理器模式、或者允许/禁止IRQ/FIQ中断等。</p>
+
+  <p>指定传送的区域(fields)，可以为以下字母（必须小写）的一个或者组合：</p>
+
+  <ul>
+    <li>c  控制域屏蔽字节(psr[7..0])</li>
+    <li>x  扩展域屏蔽字节(psr[15..8])</li>
+    <li>s  状态域屏蔽字节(psr[23..16])</li>
+    <li>f  标志域屏蔽字节(psr[31..24])</li>
+  </ul>
+
+</blockquote>
+
+<p>应用举例</p>
+
+<pre><code class="language-assembly">SWI    0    	         ;软中断，中断立即数为0
+SWI   0xl23456           ;软中断，中断立即数为0xl23456 
+
+
+
+MRS    R1,CPSR  ;将CPSR状态寄存器读取,保存到R1中
+MRS    R2,SPSR  ;将SPSR状态寄存器读取,保存到R2中 
+         
+;子程序：使能IRQ中断
+ENABLE_IRQ
+    MRS    R0, CPSR
+    BIC    R0, R0,#0x80
+    MSR    CPSR_c,R0
+    MOV    PC,LR    
+;1.将CPSR寄存器内容读出到R0；
+;2.修改对应于CPSR中的I控制位；
+
+;子程序：禁能IRQ中断
+DISABLE_IRQ
+    MRS    R0, CPSR
+    ORR    R0, R0,#0x80
+    MSR    CPSR_c,R0
+    MOV    PC,LR 
+;3.将修改后的值写回 CPSR寄存器的对应控制域；
+;4.返回上一层函数；
+
+</code></pre>
+
+<blockquote>
+  <p>[!CAUTION]</p>
+
+  <p><strong>说明：</strong></p>
+
+  <ul>
+    <li>
+      <p><strong>只有在特权模式下才能修改状态寄存器。</strong></p>
+    </li>
+    <li>程序中不<strong>能通过MSR指令直接修改CPSR中的T控制位来实现ARM状态／Thumb状态的切换，必须使用BX</strong>指令完成处理器状态的切换(因为BX指令属分支指令，它会打断流水线状态，实现处理器状态切换)。</li>
+    <li>MRS与MSR配合使用，实现CPSR或SPSR寄存器的读—修改—写操作，可用来进行<strong>处理器模式</strong>切换、<strong>允许／禁止IRQ/FIQ中断</strong>等设置。</li>
+  </ul>
+</blockquote>
+
+<h4 id="伪指令仅需掌握-ldr-伪指令">伪指令（仅需掌握 LDR 伪指令）</h4>
+
+<p>​        <strong>LDR伪指令用于加载32位的立即数或一个地址值到指定寄存器。</strong>在汇编编译源程序时，LDR伪指令被编译器替换成一条合适的指令。若加载的常数未超出MOV或MVN的范围，则使用MOV或MVN指令代替该LDR伪指令，否则汇编器将常量放入文字池，并使用一条程序相对偏移的LDR指令从文字池读出常量。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LDR{cond}   register,=[expr | label_expr
+</code></pre></div></div>
+
+<blockquote>
+  <p>[!caution]</p>
+
+  <p>label_expr:基于PC的地址表达式或外部表达式</p>
+
+  <p>register:加载的目标寄存器</p>
+
+  <p>注意：
+1.从指令位置到文字池的偏移量必须小于4KB；
+2.与ARM指令的LDR相比，伪指令的LDR的参数有“=”号。
+文字池（Literal pools）其实就是一个存储常量数据的地方，汇编器会使用文字池来在代码段中存储常量数据</p>
+
+  <p>MOV/MVN
+   可以直接装载一些特定范围的32位值到寄存器中，这些值包括：
+   (1) 8位常量，即0–255
+   (2) 8位常量右移偶数位
+   (3) MVN可以处理(1)(2)中值的按位取反值</p>
+
+  <p>LDR伪指令用于加载32位的立即数或一个地址值到指定寄存器。在汇编编译源程序时，LDR伪指令被编译器替换成一条合适的指令。若加载的常数未超出MOV或MVN的范围，则使用MOV或MVN指令代替该LDR伪指令，<strong>否则汇编器将常量放入文字池，并使用一条程序相对偏移的LDR指令从文字池读出常量。</strong></p>
+</blockquote>
+
+<p>应用实例</p>
+
+<pre><code class="language-assembly">LDR R2, =0xFF0             ;MOV R2, #0xFF0
+LDR R0, =0xFF000000        ;MOV R0, #0xFF000000
+LDR R1, =0xFFFFFFFE        ;MVN R1, #0x1
+
+
+;使用伪指令将程序标号InitStack的地址存入R1
+...
+LDR     R1,=InitStack
+...
+InitStack    
+MOV     R0, LR
+...
+</code></pre>
+
+<h4 id="协处理器指令不考">协处理器指令（不考）</h4>
+
+<h3 id="3-thumb-指令不考">3. Thumb 指令（不考）</h3>
+
+<h2 id="第四章-汇编程序设计">第四章 汇编程序设计</h2>
+
+<h3 id="1-伪操作的含义了解几个常用的gblagbll-和-gblslclalcll-和-lclssetasetlsets数据定义伪操作dcbdcwdcd其他常用-伪操作areaendalignextern-getmacromend">1. 伪操作的含义，了解几个常用的：GBLA、GBLL 和 GBLS，LCLA、LCLL 和 LCLS，SETA、SETL、SETS，数据定义伪操作：DCB、DCW、DCD，其他常用 伪操作（AREA,END,ALIGN，EXTERN, GET,MACRO,MEND）</h3>
+
+<p>与单片机汇编程序设计一样，在ARM汇编语言程序里，有一些特殊指令助记符，这些助记符与指令系统的真正的指令不同，<strong>没有相对应的操作码</strong>，通常称这些特殊指令助记符为伪指令，他们所完成的操作称为伪操作。</p>
+
+<p>​    伪操作在源程序中的作用是为完成汇编程序作各种准备工作的，这些伪操作<strong>仅在汇编过程中起作用</strong>，一旦汇编结束，伪操作的使命就完成。</p>
+
+<p>​    在ARM的汇编程序中，有如下几种伪指令：<strong>符号定义伪指令、数据定义伪指令、汇编控制伪指令、宏指令以及其他伪指令。</strong></p>
+
+<h4 id="符号定义伪指令">符号定义伪指令</h4>
+
+<p>​    符号定义伪指令用于定义ARM汇编语言程序中的变量、对变量赋值以及定义寄存器的别名等操作。常见的符号定义伪指令有如下几种：</p>
+
+<ul>
+  <li>用于定义全局变量的GBLA、GBLL和GBLS。</li>
+  <li>用于定义局部变量的LCLA、LCLL和LCLS。</li>
+  <li>用于对变量赋值的SETA、SETL、SETS。</li>
+  <li>为通用寄存器列表定义名称的RLIST。</li>
+  <li><del>为一个协处理器的寄存器定义名称的伪指令：CN, 0-15</del></li>
+  <li><del>为一个协处理器定义名称的伪指令：CP，0-15</del></li>
+  <li><del>为一个单精度的向量浮点数运算(VFP)寄存器定义名称的伪指令：SN，寄存器名S0-S31</del></li>
+  <li><del>为一个双精度的向量浮点数运算VFP寄存器定义名称的伪指令：DN，D0-D15</del></li>
+  <li><del>为一个FPA浮点寄存器定义名称的伪指令：FN，F0-F7</del></li>
+</ul>
+
+<ol>
+  <li><strong>GBLA GBLL GBLS</strong></li>
+</ol>
+
+<p>GBLA伪指令用于定义一个全局的数字变量，并初始化为0；
+GBLL伪指令用于定义一个全局的逻辑变量，并初始化为F（假）；
+GBLS伪指令用于定义一个全局的字符串变量，并初始化为空；</p>
+
+<ul>
+  <li>以上三条伪指令用于定义全局变量，因此在<strong>整个程序范围内变量名必须唯一</strong>。</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>语法格式：GBLA （ GBLL 或 GBLS ） 全局变量名
+</code></pre></div></div>
+
+<p>例子：</p>
+
+<pre><code class="language-assembly">GBLA	Number1；定义一个全局的数字变量，变量名为Number1
+
+Number1   SETA   0xaa	；将Number1变量赋值为0xaa
+
+GBLL	True1；定义一个全局的逻辑变量，变量名为True1
+</code></pre>
+
+<ol>
+  <li><strong>LCLA LCLL LCSL</strong></li>
+</ol>
+
+<p>LCLA伪指令用于定义一个局部的数字变量，并初始化为0；
+LCLL伪指令用于定义一个局部的逻辑变量，并初始化为F（假）；
+LCLS伪指令用于定义一个局部的字符串变量，并初始化为空；</p>
+
+<ul>
+  <li>以上三条伪指令用于声明局部变量，<strong>在其作用范围内变量名必须唯一</strong>。</li>
+</ul>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>语法格式：        LCLA （ LCLL 或 LCLS ） 局部变量名   
+</code></pre></div></div>
+
+<p>【例】</p>
+
+<pre><code class="language-assembly">LCLA	Number2	;声明一个局部的数字变量，变量名为Number2
+Number2  SETA	0xaa	;将Number2变量赋值为0xaa
+
+LCLL	Logic2		;声明一个局部的逻辑变量，变量名为Logic2
+Logic2	SETL  {TRUE}	;将Logic2变量赋值为真
+
+LCLS	String2		;定义一个局部的字符串变量，变量名为String2
+String2	SETS “Testing”	;将String2变量赋值为“Testing”
+</code></pre>
+
+<ol>
+  <li><strong>SETA SETL SETS</strong></li>
+</ol>
+
+<p>SETA伪指令用于给一个数学变量赋值;
+SETL伪指令用于给一个逻辑变量赋值;
+SETS伪指令用于给一个字符串变量赋值;</p>
+
+<ul>
+  <li>
+    <p>其中，<strong>变量名为已经定义过的全局变量或局部变量，</strong>表达式为将要赋给变量的值。</p>
+
+    <p>语法格式：        变量名 SETA （ SETL 或 SETS ） 表达式</p>
+  </li>
+</ul>
+
+<p>【例】</p>
+
+<pre><code class="language-assembly">LCLA	Number3	;声明一个局部的数字变量，变量名为Number3
+Number3 	SETA	0xaa	;将Number3变量赋值为0xaa
+LCLL	Logic3;声明一个局部的逻辑变量，变量名为Logic3
+Logic3	SETL	{TRUE};将Logic3变量赋值为真
+</code></pre>
+
+<ol>
+  <li><strong>RLIST</strong></li>
+</ol>
+
+<p>RLIST伪指令可用于对<strong>一个通用寄存器列表定义名称</strong>，使用该伪指令定义的名称可在ARM指令LDM/STM中使用。</p>
+
+<p>在LDM/STM指令中，列表中的寄存器访问次序为根据寄存器的编<strong>号由低到高</strong>，而与列表中的寄存器排列次序无关。</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>语法格式：   名称 RLIST { 寄存器列表 }  
+</code></pre></div></div>
+
+<p>【例】</p>
+
+<pre><code class="language-assembly">RegList     RLIST	 {R0-R5，R8，R10}	;将寄存器列表名称定义为RegList，可在ARM指令LDM/STM中通过该名称访问寄存器列表。
+……
+STMFD SP！，RegList	;保存寄存器列表RegList到堆栈
+</code></pre>
+
+<h4 id="数据定义伪指令">数据定义伪指令</h4>
+
+<p>​    数据定义伪操作一般用于<strong>为特定的数据分配存储单元</strong>，同时可完成已分配存储单元的初始化。常见的数据定义伪操作有如下几种：</p>
+
+<ul>
+  <li>DCB		用于分配一片连续的<strong>字节</strong>存储单元并用指定的数据初始化。</li>
+  <li>DCW（DCWU）用于分配一片连续的半字存储单元并用指定的数据初始化。</li>
+  <li>DCD（DCDU）	用于分配一片连续的<strong>字</strong>存储单元并用指定的数据初始化。</li>
+  <li>DCFD（DCFDU）用于为<strong>双精度的浮点数</strong>分配一片连续的字存储单元并用指定的数据初始化。</li>
+  <li>DCFS（DCFSU）	用于为<strong>单精度的浮点数</strong>分配一片连续的字存储单元并用指定的数据初始化。</li>
+  <li>DCQ（DCQU）	用于分配一片以8字节为单位的连续的存储单元并用指定的数据初始化。</li>
+  <li>DCDO 用于分配一段字的内存单元，将每个单元的内容初始化为该单元<strong>相对于基址寄存器的偏移量</strong></li>
+  <li>DCI 用于分配一段字的内存单元，并用单精度的浮点数据初始化，指定内存单元存放的是代码，而不是数据</li>
+  <li>SPACE	用于分配一片连续的<strong>字节</strong>存储单元，并初始化为0</li>
+  <li>MAP		用于定义一个<strong>结构化的内存表首地址</strong></li>
+  <li>FIELD	       用于定义一个<strong>结构化的内存表的数据域</strong></li>
+  <li>LTORG             用于声明一个文字池（缓冲池）</li>
+</ul>
+
+<ol>
+  <li><strong>DCB</strong></li>
+</ol>
+
+<p>DCB伪操作用于分配一片<strong>连续的字节存储单元并用伪指令</strong>中指定的表达式初始化。其中，表达式可以为0～255的数字或字符串。<strong>DCB也可用“=“代替。</strong></p>
+
+<p>语法格式</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{label} DCB expr{,expr}… 
+
+</code></pre></div></div>
+
+<p>label可选的程序标号</p>
+
+<p>【例】</p>
+
+<pre><code class="language-assembly">String	 DCB	“This is a test！”	;分配一片连续的字节存储单元并初始化。
+Parameter  DCB   0x33，0x44，0x55
+	         	;分配一片连续的字节存储单元并初始化。
+</code></pre>
+
+<p>2.<strong>DCW</strong></p>
+
+<p>DCW（或DCWU）伪操作用于分配<strong>一片连续的半字存储单元</strong>并用指定的表达式初始化。
+其中，表达式可以是程序标号或数字表达式。
+用<strong>DCW分配的存储单元是半字对齐</strong>的，而用<strong>DCWU分配的存储单元并不严格半字对齐</strong>。</p>
+
+<pre><code class="language-assembly">语法格式：{label}  DCW/DCWU  expr{,expr}…
+</code></pre>
+
+<p>label可选的程序标号</p>
+
+<p>【例】</p>
+
+<pre><code class="language-assembly">Data  DCW	0，1，2，3	；分配一片连续的半字存储
+                                                单元并初始化。
+</code></pre>
+
+<ol>
+  <li><strong>DCD 或DCDU</strong></li>
+</ol>
+
+<p>DCD（或DCDU）伪操作<strong>用于分配一片连续的字存储单元</strong>并用指定的表达式初始化。
+其中，表达式可以为程序标号或数字表达式。<strong>DCD也可用“&amp;”代替。</strong>
+用DCD分配的字存储单元是字对齐的，而用DCDU分配的字存储单元并不严格字对齐。</p>
+
+<pre><code class="language-assembly">语法格式：{label}  DCD/DCDU  expr{,expr}…
+</code></pre>
+
+<p>【例】</p>
+
+<pre><code class="language-assembly">Data 	DCD	3，4，5，6	;分配一片连续的字存储单元并初始化。
+</code></pre>
+
+<ol>
+  <li><strong>DCFD或DCFDU</strong></li>
+</ol>
+
+<p>DCFD（或DCFDU）伪操作用于为<strong>双精度的浮点数分配一片连续的字存储单元</strong>并用指定的表达式初始化。每个双精度的浮点数占据两个字单元。
+用<strong>DCFD分配的字存储单元是字对齐的</strong>，而用<strong>DCFDU分配的字存储单元并不严格字对齐</strong>。</p>
+
+<pre><code class="language-assembly">语法格式：标号 DCFD（或DCFDU） 表达式
+</code></pre>
+
+<p>【例】</p>
+
+<pre><code class="language-assembly">FData	 DCFD  2E115，-5E7	；分配一片连续的字存储单元并初始化为指定的双精度数。
+</code></pre>
+
+<ol>
+  <li><strong>DCFS 或 DCFSU</strong></li>
+</ol>
+
+<p>DCFS（或DCFSU）伪操作用于为<strong>单精度的浮点数</strong>分配一片连续的字存储单元并用伪操作中指定的表达式初始化。每个单精度的浮点数占据一个字单元。
+用<strong>DCFS</strong>分配的字存储单元是字对齐的，而用<strong>DCFSU</strong>分配的字存储单元并不严格字对齐。</p>
+
+<pre><code class="language-assembly">语法格式：标号 DCFS（或DCFSU） 表达式
+</code></pre>
+
+<p>【例】</p>
+
+<pre><code class="language-assembly">Sdata 	DCFS	1，2E5，-5E-7	；分配一片连续的字存储单元并初始化为指定的单精度数。
+</code></pre>
+
+<ol>
+  <li><strong>DCQ(或DCQU)</strong></li>
+</ol>
+
+<p>DCQ（或DCQU）伪操作用于分配一片以8个字节为单位的连续存储区域并用伪操作中指定的表达式初始化。
+<strong>分配的字数等于expr个数的2倍。</strong>
+用DCQ分配的存储单元是字对齐的，而用DCQU分配的存储单元并不严格字对齐。</p>
+
+<pre><code class="language-assembly">语法格式：标号 DCQ（或DCQU） 表达式
+</code></pre>
+
+<p>【例】</p>
+
+<pre><code class="language-assembly">Data    DCQ		100，1000	；分配一片连续的存储单元并初始化为指定的值。
+</code></pre>
+
+<ol>
+  <li><strong>DCDO</strong></li>
+</ol>
+
+<p>DCDO用于分配一段字内存单元，并将每个字单元的内容初始化为expr基于静态基址寄存器R9内容的偏移量。</p>
+
+<p>DCDO伪操作为<strong>静态基址寄存器R9的偏移量分配内存单元</strong>，该指令需要内存字对齐。</p>
+
+<pre><code class="language-assembly">语法格式：{label} DCDO expr{,expr}….
+</code></pre>
+
+<p>【例】</p>
+
+<pre><code class="language-assembly">IMPORT externsys
+Data  DCDO externsys;分配32位的字单元，其值为标号externsys相对于R9的偏移量
+</code></pre>
+
+<h4 id="汇编控制assembly-control伪操作">汇编控制（Assembly Control）伪操作</h4>
+
+<p>汇编控制伪操作用于控制汇编程序的执行流程，常用的汇编控制伪操作包括以下几条：</p>
+
+<ul>
+  <li>IF、ELSE、ENDIF
+条件汇编代码文件内的一段源代码</li>
+  <li>WHILE、WEND
+根据条件重复汇编</li>
+  <li>MACRO、MEND
+标识宏定义的开始和结束</li>
+  <li>MEXIT
+  中途跳转出宏</li>
+</ul>
+
+<ol>
+  <li><strong>IF ELSE ENDIF</strong></li>
+</ol>
+
+<p>​    IF、ELSE、ENDIF伪操作能根据条件的成立与<strong>否决定是否执行某个指令序列</strong>。当IF后面的逻辑表达式为真，则执行指令序列1，否则执行指令序列2。其中，ELSE及指令序列2可以没有，此时，当IF后面的逻辑表达式为真，则执行指令序列1，否则继续执行后面的指令。</p>
+
+<p>IF、ELSE、ENDIF伪操作可以<strong>嵌套使用</strong>。</p>
+
+<pre><code class="language-assembly">语法格式：        
+IF 逻辑表达式       
+	指令序列 1        
+{ ELSE       
+	指令序列 2        
+}
+ENDIF 
+</code></pre>
+
+<p>【例】</p>
+
+<pre><code class="language-assembly">GBLS	    Version ;定义一个全局的字符串变量，
+                                ;变量名为Version
+……
+IF	Version =“V1”
+	指令序列1
+ELSE
+	指令序列2
+ENDIF
+</code></pre>
+
+<ol>
+  <li><strong>WHILE WEND</strong></li>
+</ol>
+
+<p>WHILE、WEND伪操作能根据条件的成立与否<strong>决定是否循环执行某个指令序列</strong>。当WHILE后面的逻辑表达式为真，则执行指令序列，该指令序列执行完毕后，再判断逻辑表达式的值，若为真则继续执行，一直到逻辑表达式的值为假。WHILE、WEND伪操作可以嵌套使用。</p>
+
+<p>​    语法格式：</p>
+
+<pre><code class="language-assembly">  WHILE 逻辑表达式        	
+     指令序列        
+  WEND
+</code></pre>
+
+<p>【例】</p>
+
+<pre><code class="language-assembly">GBLA	Counter	；声明一个全局的数字变量，变量名为
+                                     Counter，作为循环计数器
+……
+WHILE	Counter &lt; 10
+	指令序列
+WEND
+</code></pre>
+
+<ol>
+  <li><strong>MACRO  MEND</strong></li>
+</ol>
+
+<p>MACRO、MEND伪操作可以将一段代码定义为一个整体，称为宏指令，然后就可以在程序中通过宏指令多次调用该段代码。</p>
+
+<pre><code class="language-assembly">MACRO   ;标志宏定义的开始
+{$label} macroname {$parameter, {$parameter}…}
+指令序列
+MEND
+</code></pre>
+
+<p>【例】</p>
+
+<pre><code class="language-arm-asm">MACRO
+CODE_1			； 宏名为CODE_1，无参数
+LDR R0，=rPDATG		； 读取PG0口的值
+LDR R1，[R0]
+ORR R1，R1，#0X01		；   CSI置位
+STR R1，[R0]
+MEND
+</code></pre>
+
+<p>​     宏定义中，宏指令可<strong>以使用一个或多个参数</strong>，当宏指令被展开时，这些参数被相应的值替换。</p>
+
+<pre><code class="language-arm-asm">MACRO		；宏定义
+CALLSubfunction  $Function，$dat1，$dat2
+                             ；宏名为CALLSubfunction，带3个参数
+IMPORT 	$Function	；声明外部子程序名
+MOV	R0，$dat1	；设置子程序参数R0=$dat1
+MOV	R1，$dat2
+BL	Function	；调用子程序
+MEND		           ；宏定义结束
+</code></pre>
+
+<ol>
+  <li><strong>MEXIT</strong></li>
+</ol>
+
+<p>MEXIT用于从宏定义中跳转出去。</p>
+
+<p>语法格式：</p>
+
+<pre><code class="language-assembly">        MEXIT         
+</code></pre>
+
+<p>如果要提前从宏体中退出，例如从一个宏内的循环体中退出，可采用MEXIT伪操作提前跳出宏体。</p>
+
+<h4 id="其他常用的伪操作">其他常用的伪操作</h4>
+
+<p>其他的一些使用较频繁的伪操作：</p>
+
+<ul>
+  <li>AREA</li>
+  <li>ALIGN</li>
+  <li>CODE16 CODE32</li>
+  <li>ENTRY</li>
+  <li>END</li>
+  <li>EQU</li>
+  <li>EXPORT（或GLOBAL）</li>
+  <li>IMPORT</li>
+  <li>EXTERN</li>
+  <li>GET（或INCLUDE）</li>
+  <li>INCBIN</li>
+</ul>
+
+<ol>
+  <li><strong>AREA</strong>
+ AREA伪操作用于<strong>定义一个代码段或数据段</strong>。ARM汇编程序设计采用分段式设计，一个ARM汇编源程序至少需要一个代码段，大的程序可以包含多个代码段和数据段。当程序太长时，也可以将程序分为多个代码段和数据段。
+ 使用AREA伪指令将程序分为多个ELF（Executable and Linkable Format）格式的段。
+ 【例】
+    <pre><code class="language-z80">AREA 	Init，CODE，READONLY
+。。。。。。。。。。。。
+指令序列        
+ ;该伪指令定义了一个代码段，段名为Init，属性为只读
+</code></pre>
+  </li>
+  <li><strong>ALIGN</strong>
+ALIGN伪操作可通过添加填充字节的方式，使当前位置满足一定<strong>的对齐</strong>方式。其中，表达式的值用于指定对齐方式，可能的取值为2的幂，如1、2、4、8、16等。默认4个字节对齐。</li>
+</ol>
+
+<p>若未指定表达式，则将当前位置对齐到下一个字的位置。偏移量也为一个数字表达式，若使用该字段，则当前位置的对齐方式为：2的表达式次幂＋偏移量。</p>
+
+<p>【例】</p>
+<pre><code class="language-z80">AREA	Init，CODE，READONLY，ALIGN＝3	;指定后面的指令为8字节对齐。
+   指令序列
+END
+</code></pre>
+
+<ol>
+  <li><strong>CODE16 CODE32</strong>
+    <ul>
+      <li>CODE16伪操作通知汇编器，其后的指令序列为16位的Thumb指令。</li>
+      <li>CODE32伪操作通知汇编器，其后的指令序列为32位的ARM指令。</li>
+      <li>CODE16和CODE32伪操作只告诉编译器后面的指令是16位或32位的类型，<strong>指令本身不能进行程序状态的切换，</strong> 如果要进行状态的切换，可以使用<strong>BX</strong>指令进行操作。
+【例】</li>
+    </ul>
+  </li>
+</ol>
+
+<pre><code class="language-assembly">AREA  Init，CODE，READONLY ；Init代码段名
+……
+CODE32  ；通知编译器其后的指令为32位的ARM指令
+LDR  R0，＝NEXT＋1  ；将跳转地址放入寄存器R0
+BX  R0  ；程序跳转到新的位置执行，并将处理器切换到Thumb工作状态
+……
+CODE16  ；通知编译器其后的指令为16位的Thumb指令
+NEXT 
+LDR  R3，＝0x3FF 
+……
+END  ；程序结束
+</code></pre>
+
+<ol>
+  <li><strong>ENTRY</strong>
+    <ul>
+      <li>ENTRY伪操作用于指定程序的入口点。</li>
+      <li>在一个完整的汇编语言程序中至少要有一个ENTRY</li>
+      <li>（也可以有多个，当有多个ENTRY时，程序的真正入口点由链接器指定），</li>
+      <li>但在一个源文件里最多只能有一个ENTRY（可以没有）。
+【例】
+```</li>
+    </ul>
+  </li>
+</ol>
+
+<p>AREA  Init，CODE，READONLY</p>
+
+<p>ENTRY  ;指定应用程序的入口点</p>
+
+<p>……</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+5. **END**
+- END伪操作用于通知汇编器已经到了源程序的**结尾**。
+- 每一个汇编源文件都需要使用一个END伪操作，指示本源程序结束。
+【例】
+``` assembly
+AREA  Init，CODE，READONLY
+……
+END  ；指定应用程序的结尾
+</code></pre></div></div>
+
+<ol>
+  <li><strong>EQU</strong>
+    <ul>
+      <li>  EQU伪操作用于为程序中的常量、标号等定义一个等效的字符名称，类似于C语言中的＃define。其中<strong>EQU可用“*”代替。</strong></li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li>名称为EQU伪操作定义的字符名称，当表达式为32位的常量时，可以指定表达式的数据类型，<strong>可以有以下三种类型：CODE16、CODE32和DATA。</strong></li>
+</ul>
+
+<blockquote>
+  <p>语法格式：    <br />
+    名称   EQU  表达式   { ，类型 } </p>
+</blockquote>
+
+<p>【例】</p>
+
+<pre><code class="language-assembly">ABCE EQU label+8           ；定义地址标号ABCD为label+8
+Test   EQU  50  ；定义标号Test的值为50
+Addr  EQU  0x55，CODE32  ；定义Addr的值为0x55，且该处为32位的ARM指令。
+</code></pre>
+
+<ol>
+  <li><strong>EXPORT或GLOBAL</strong>
+    <ul>
+      <li>EXPORT伪操作用于在程序中声明一个全局的标号，该标号可在其他的文件中引用。</li>
+      <li>EXPORT可用GLOBAL代替。</li>
+      <li>标号在程序中区分大小写。</li>
+    </ul>
+  </li>
+</ol>
+
+<p>【例】</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>AREA  Init，CODE，READONLY
+
+EXPORT  main  ；声明一个可全局引用的标号main
+
+……
+
+END
+</code></pre></div></div>
+
+<ol>
+  <li><strong>IMPORT</strong></li>
+</ol>
+
+<ul>
+  <li>IMPORT伪操作用于<strong>通知编译器要使用的标号在其他的源文件中定义，但要在当前源文件中引用</strong></li>
+  <li>而且无论当前源文件是否引用该标号，该标号均会被加入到当前源文件的符号表中。</li>
+</ul>
+
+<p>【例】</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+AREA	Init，CODE，READONLY
+IMPORT     main	；通知编译器当前文件要引用标号main，但main在其他源文件中定义
+……
+END		
+</code></pre></div></div>
+<ol>
+  <li>EXTERN
+    <ul>
+      <li>EXTERN伪操作用于通知编译器要使用的标号在其他的源文件中定义，但要在当前源文件中引用，</li>
+      <li><strong>如果当前源文件实际并未引用该标号，该标号就不会被加入到当前源文件的符号表中。</strong></li>
+      <li>注意:  <strong>该伪操作与IMPORT的区别是，IMPORT伪操作无论当前源文件是否引用该标号，该标号均会被加入到当前源文件的符号表中。</strong></li>
+    </ul>
+  </li>
+</ol>
+
+<p>【例】</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>AREA	Init，CODE，READONLY
+EXTERN   main	 ;通知编译器当前文件要引用标号main，main在其他源文件中定义，如果本文件中没有使用main，则main就不会被加入到当前源文件的符号表中。
+……
+END	 
+</code></pre></div></div>
+<ol>
+  <li><strong>GET INCLUDE</strong>
+    <ul>
+      <li>GET伪操作用于<strong>将一个源文件包含到当前的源文件中</strong>，并将被包含的源文件在<strong>当前位置</strong>进行汇编处理。</li>
+      <li>可以使用INCLUDE代替GET。使用方法与C语言中的“include”相似。</li>
+      <li><strong>GET伪指令只能用于包含源文件，</strong> 如果需要包含经过编译后的二进制目标文件，需要使用INCBIN伪指令。</li>
+    </ul>
+  </li>
+</ol>
+
+<blockquote>
+  <p>  语法格式：       GET 文件名    </p>
+</blockquote>
+
+<p>【例】</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>AREA	Init，CODE，READONLY
+GET	a1.s	；通知编译器当前源文件包含源文件a1.s
+GET	C：\a2.s；通知编译器当前源文件包含源文件C：\ a2.s
+……
+END
+</code></pre></div></div>
+<ol>
+  <li><strong>INCBIN</strong>
+    <ul>
+      <li>INCBIN伪操作用于将一个二进制目标代码文件或任意格式的数据文件包含到当前的源文件中，</li>
+      <li>被包含的文件<strong>不作任何变动</strong>地存放在当前文件中，编译器从其后开始继续处理。</li>
+    </ul>
+  </li>
+</ol>
+
+<p>【例】</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>AREA	Init，CODE，READONLY
+INCBIN	a1.dat		 ;通知编译器当前源文件包含文件a1.dat
+INCBIN 	C：\a2.txt ;通知编译器当前源文件包含文件C：\a2.txt
+INCBIN	a3.bin		 ;通知编译器当前源文件包含文件a3.bin
+……
+END
+</code></pre></div></div>
+<ol>
+  <li><strong>RN</strong></li>
+</ol>
+
+<p>RN 伪指令用于给一个寄存器定义一个别名。采用这种方式可以方便程序员记忆该寄存器的功能。其中，名称为给寄存器定义的别名，表达式为寄存器的编码。
+ 语法格式：        名称 RN 表达式    
+ 使用示例：  </p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>   Temp RN R0 ;将R0 定义一个别名Temp 
+</code></pre></div></div>
+
+<h3 id="2-汇编程序设计常用程序段子程序调研数据比较跳转分支选择循-环ppt-中的例子能看懂能自己写">2. 汇编程序设计：常用程序段(子程序调研、数据比较跳转、分支选择、循 环)、ppt 中的例子能看懂、能自己写。</h3>
+
+<p><strong>汇编语法:</strong>
+在一个项目设计中：</p>
+<ul>
+  <li>至少需要有一个汇编源文件或C程序文件，</li>
+  <li>可以有多个汇编文件或多个C程序文件，</li>
+  <li>或者C语言和汇编语言混合编程的文件。</li>
+  <li>汇编程序源文件的扩展名必须是“.s”。</li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th> </th>
+      <th> </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>源程序</td>
+      <td>文件名</td>
+    </tr>
+    <tr>
+      <td>汇编源程序</td>
+      <td>.s</td>
+    </tr>
+    <tr>
+      <td>C文件</td>
+      <td>.c</td>
+    </tr>
+    <tr>
+      <td>头文件</td>
+      <td>.h</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>1 汇编语句格式</p>
+
+<blockquote>
+  <p>ARM（Thumb）汇编语言的语句格式为：
+ {标号}	{指令或伪指令}	{；注释}</p>
+</blockquote>
+
+<p>正确的例子：</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>……
+String1		SETS	“My string1”
+Count		           RN	R0         ；给R0寄存器定义别名
+START		
+            LDR	R0，=0x12345
+			MOV 	R1，#0
+LOOP
+			MOV 	R2，#3
+……
+</code></pre></div></div>
+<p>错误的例子：</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>     START    MOV R0，#1  ；标号START没有顶头写
+ABC：  MOV  R1，#2  ；标号后不能带：
+MOV  R2，#3  ；指令不允许顶头写
+Loop    Mov    R2，#3  ；指令中大小写混合
+  B  loop  ；无法跳转到Loop去，标号大小写敏感
+</code></pre></div></div>
+
+<p> 在ARM 汇编中，符号可以代表地址、变量、数字常量。当符号代表地址时又称为标号，符号就是变量的变量名、数字常量的名称、标号，符号的命名规则如下：</p>
+
+<ul>
+  <li>符号由大、小写字母、数字以及下划线组成。</li>
+  <li>符号<strong>区分大小写</strong>，同名的大、小写符号会被编译器认为是两个不同的符号。</li>
+  <li>符号在其作用范围内必须唯一。</li>
+  <li>自定义的符号名不能与系统的保留字相同。</li>
+  <li>符号名不能与指令或伪指令同名。</li>
+</ul>
+
+<h4 id="汇编语言程序设计">汇编语言程序设计</h4>
+<p>在ARM（Thumb）汇编语言程序中，<strong>以程序段为单位组织代码</strong>。段是相对独立的指令或数据序列，具有特定的名称。段可以分为<strong>代码段和数据段</strong>，<strong>代码段</strong>的内容为执行代码，数据段存放代码运行时需要用到的数据。一个汇编程序至少应该有<strong>一个代码段</strong>，当程序较长时，可以分割为多个代码段和数据段，<strong>多个段在程序编译链接时最终形成一个可执行的映象文件。</strong></p>
+
+<p>  可执行映象文件通常由以下几部分构成</p>
+<ul>
+  <li>一个或多个代码段，代码段的属性为只读。</li>
+  <li>零个或多个<strong>包含</strong>初始化数据的数据段，数据段的属性为可读写。</li>
+  <li>个或多个<strong>不包含</strong>初始化数据的数据段，数据段的属性为可读写。</li>
+</ul>
+
+<p>链接器根据系统默认或用户设定的规则，将各个段安排在存储器中的相应位置。因此<strong>源程序中段之间的相对位置与可执行的映象文件中段的相对位置一般不会相同。</strong>
+以下是一个汇编语言源程序的基本结构：</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>AREA  Init，CODE，READONLY
+ENTRY				；程序入口点
+Start					；标号，指向LDR伪指令
+    LDR	R0，=0x3FF5000
+    MOV	R1，#0xFF
+    STR	R1，[R0]
+    LDR	R0，=0x3FF5008
+    MOV	R1，#0x01
+    STR	R1，[R0]
+……
+END
+</code></pre></div></div>
+
+<p>在汇编语言程序中，用AREA伪指令定义一个段，并说明所定义段的相关属性，本例定义一个名为Init的代码段，属性为只读。ENTRY伪指令标识程序的入口点，接下来为指令序列，<strong>程序的末尾为END伪指令，该伪指令告诉编译器源文件的结束，</strong> 每一个汇编语言程序段都必须有一条END伪指令，指示代码段的结束。</p>
+<h5 id="子程序调用">子程序调用</h5>
+<p>在ARM汇编语言程序中，子程序的调用一般是通过BL指令来实现的。在程序中，使用指令“<strong>BL	子程序名</strong>”即可完成子程序的调用。</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>AREA  Init，CODE，READONLY
+ENTRY
+Start
+	LDR		R0，=0x3FF5000
+	MOV		R1，#0xFF
+	STR		R1，[R0]
+	LDR		R0，=0x3FF5004
+	MOV		R1，#0x01
+	STR		R1，[R0]
+	BL		PRINT_TEXT
+……
+PRINT_TEXT
+……
+	  MOV		PC，LR
+……
+END
+</code></pre></div></div>
+<h5 id="宏定义及其作用">宏定义及其作用</h5>
+<ul>
+  <li>使用宏定义可以提高程序的可读性，简化程序代码和同步修改。</li>
+  <li>ARM宏定义与标准C语言的#define相似，只在源程序中进行字符的简单替代。</li>
+  <li>宏定义从MACRO伪指令开始，到MEND结束，<strong>并可以使用参数。</strong>
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>MACRO		；宏定义
+CALLSubfunction  $Function，$dat1，$dat2  ；宏名为
+        ；CALLSubfunction，带3个参数
+IMPORT 	$Function	             ；声明外部子程序名
+MOV	R0，$dat1	                           ；设置子程序参数R0=$dat1
+MOV	R1，$dat2
+BL	Function	                           ；调用子程序
+MEND		；宏定义结束
+……
+CALLSubfunction	FADD1，#3，#2	；宏调用，参数没有$
+……
+汇编处理后，宏调用将被展开，程序如下：
+……
+IMPORT	FADD1
+MOV	R0，#3
+MOV	R1，#2
+BL	FADD1
+……
+</code></pre></div>    </div>
+  </li>
+</ul>
+
+<h5 id="数据比较跳转">数据比较跳转</h5>
+<p>汇编程序可以使用CMP指令进行两个数的比较，然后根据比较结果实现程序的跳转，代码如下：</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>CMP	R5，#10		；做减法
+BEQ	BRANCH1		；如果R5为10，则跳转到BRANCH1
+……
+CMP	R1，R2
+ADDHI	R1，R1，#1	；如果R1&gt;R2，则R1=R1+1
+ADDLS	R1，R1，#2	；如果R1&lt;=R2，则R1=R1+2
+……
+ANDS	 R1，R1，#0x80	；R1=R1&amp;0x80，并设置相应的标志位
+BNE	WAIT		     ；如果R1的第7位0，则跳转到WAIT
+</code></pre></div></div>
+<h5 id="循环">循环</h5>
+<p>下面的程序代码为汇编循环程序的例子，指定了循环的次数，每循环一次进行减1操作，并判断结果是否为0，如果为0则退出循环。</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+MOV	R0，#10
+
+LOOP
+……
+SUBS	R0，R0，#1		;R0自减1
+BNE	LOOP		;10次执行完	 R0=0 NE条件不满足
+			;BNE不执行，执行下一条语句，退出循环
+……
+
+</code></pre></div></div>
+
+<h5 id="堆栈操作">堆栈操作</h5>
+<p>可以使用存储器访问指令LDM/STM实现堆栈操作，用于子程序的寄存器保护。在使用堆栈前，首先需要分配好堆栈空间，设置好寄存器R13（即堆栈指针SP），否则操作失败。</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>OUTDAT
+STMFD	SP！，{R0-R7，LR} ；寄存器入栈, 从右向左
+……					；先压LR，R7…R0
+BL	DELAY
+……
+LDMFD	SP！，{R0-R7，PC}	；寄存器出栈
+					；出栈从从左到右
+；先弹R0,最后弹出PC,PC=LR，完成子程序的返回
+</code></pre></div></div>
+<h5 id="查表操作">查表操作</h5>
+<p>查表操作是汇编程序经常使用的一种功能，代码如下：</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>……
+LDR	R3，=DISP_TAB	           ；字模表的首地址
+LDR	R2，[R3，R5，LSL #2]	；根据R5的值查表， 取出相应的值。
+……
+下面的表为0-F的字模
+DISP_TAB  DCD 0xC0，0xF9，0xA4，0x99，0x92
+	               DCD 0x82，0xF8，0x80，0x90，0x88，0x83
+	               DCD 0xC6，0xA1，0x86，0x8E，0xFF
+
+</code></pre></div></div>
+
+<h5 id="长跳转">长跳转</h5>
+<ul>
+  <li>ARM的B指令和BL指令无法进行整个内存空间范围内的跳转（仅±32MB），</li>
+  <li>但可以通过对PC寄存器的赋值实现32位地址的跳转和调用。</li>
+</ul>
+
+<p>【例】</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LDR	   PC，=JUMP_FUNC	；跳转到JUMP_FUNC处
+
+……
+JUMP_FUNC  …….	；跳转到这里
+……
+</code></pre></div></div>
+
+<h5 id="特殊寄存器定义及应用">特殊寄存器定义及应用</h5>
+<p>对ARM芯片的外设寄存器进行访问时，可以使用下面的代码对其寄存器进行定义并应用：</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+   WDTCNT	EQU	0x01D30008	；看门狗计数器寄存器定义
+	……
+	LDR	R0，=WDTCNT	；寄存器地址传给R0
+	MOV	R1，#12
+	STR	R1，[R0]   ；用十进制12设置看门狗计数器寄存器
+
+</code></pre></div></div>
+
+<h5 id="片外部件控制">片外部件控制</h5>
+
+<p>在ARM芯片的外围部件的控制器中，一般会设置“置位/复位”寄存器，这样方便地实现对控制位的操作，而不影响其他位，而其他I/O位的状态保持不变。另外，ARM存储/保存指令具有偏移功能，所以对外围部件的控制寄存器进行操作时可以使用此功能，避免了每次都加载寄存器地址的操作，代码如下：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>LDR	R0，=GPIO_BASE
+MOV	R1，#0x00
+STR	R1，[R0，#0x04] ；基地址+0x04=IOSET，将IOSET设置为0
+MOV	R1，#0x10
+STR	R1，[R0，#0x0C] ；基地址+0x0C=IOCLR，将IOCLR设置为0x10
+</code></pre></div></div>
+
+<h3 id="嵌入式c语言">嵌入式C语言</h3>
+<h4 id="1文件包含伪指令"><strong>1．文件包含伪指令</strong></h4>
+
+<p>文件包含伪指令可将头文件包含到程序中，头文件中定义的内容有符号常量，复合变量原型、用户定义的变量原型和函数的原型说明等。编译器编译预处理时，用文件包含的正文内容替换到实际程序中。</p>
+
+<p>（1）文件包含伪指令的格式</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">include</span> <span class="o">&lt;</span><span class="err">头文件名</span><span class="p">.</span><span class="n">h</span><span class="o">&gt;</span> <span class="err">  </span><span class="cm">/*标准头文件*/</span>
+
+<span class="n">include</span> <span class="s">"头文件名.h "</span> <span class="err">  </span><span class="cm">/*自定义头文件*/</span>
+</code></pre></div></div>
+<p>（2）包含文件伪指令的说明</p>
+<blockquote>
+  <p>[!TIP]</p>
+  <ul>
+    <li>常在头文件名后用.h作为扩展名，可带或不带路径。</li>
+    <li>头文件可分为<strong>标准头文件</strong>和<strong>自定义头</strong>文件。</li>
+    <li>尖括号内的头文件为标准头文件，由开发环境或系统提供。</li>
+    <li><strong>双引号</strong>内的头文件为用户自定义头文件。</li>
+    <li>搜索时，首先在当前目录中搜索，其次按环境变量include指定的目录顺序搜索。</li>
+    <li>搜索到头文件后，就将该伪指令直接用头文件内容<strong>替换</strong>。</li>
+  </ul>
+</blockquote>
+
+<h4 id="2宏定义伪指令"><strong>2．宏定义伪指令</strong></h4>
+
+<p>宏定义伪指令分为：简单宏、参数宏、条件宏、预定义宏及宏释放。</p>
+
+<p><strong>（1）简单宏</strong></p>
+
+<p>格式如下：</p>
+
+<pre><code class="language-C">#define 宏标识符  宏体
+</code></pre>
+
+<blockquote>
+  <ul>
+    <li>宏体超长时，允许使用续行符“\”进行续行，续行符和其后的换行符 \n 都不会进入宏体。</li>
+    <li>在定义宏时，应尽量避免使用C语言的关键字和预处理器的预定义宏，以免引起灾难性的后果。</li>
+    <li>在源文件中，用预处理器伪指令定义过宏标识符之后，就可用宏标识编写程序。当源文件被预处理器处理时，每遇到该宏标识符，预处理器便将宏展为宏体。</li>
+  </ul>
+</blockquote>
+
+<p><strong>（2）参数宏</strong>
+格式如下：</p>
+
+<pre><code class="language-C"># define 宏标识符（形式参数表） 宏体
+</code></pre>
+
+<p>形式参数表为逗号分割的形式参数。</p>
+
+<ul>
+  <li>宏体是由单词序列组成。宏体超长时，允许使用续行符“\”进行续行，续行符和其后的换行符 \n 都不会进入宏体。</li>
+  <li>使用参数宏时，形式参数表应换为同样个数的实参数表，这一点类似于函数的调用。参数宏与函数的区别在于参数宏的形参数表中没有类型说明符。</li>
+  <li>预处理器在处理参数宏时使用2遍宏展开。第1遍展开宏体，第2遍对展开后的宏体用实参数替换形式参数。</li>
+</ul>
+
+<p>例5.4  在Linux下ARM S3C2410X芯片的A/D转换的驱动程序的头文件s3c2410-adc.h中定义了下面三个宏。</p>
+
+<pre><code class="language-C">#define  ADC_WRITE(ch, prescale)    ((ch)&lt;&lt;16|(prescale))
+                              /*ADC通道号与预标值合成一个字*/
+#define  ADC_WRITE_GETCH(data)   (((data)&gt;&gt;16)&amp;0x7)    
+                              /*获得低三位，ADC通道号*/
+#define  ADC_WRITE_GETPRE(data)  ((data)&amp;0xff)    
+                              /*获得低八位，ADC的预定标值*/
+</code></pre>
+
+<p><strong>（3）条件宏定义</strong>
+格式如下：
+格式1：</p>
+
+<pre><code class="language-C"># ifdef  宏标识符      //若标识符已定义
+
+    # undef    宏标识符
+    # define    宏标识符    宏体
+
+# else 			//若标识符未定义
+
+    # define    宏标识符    宏体
+
+# endif
+</code></pre>
+
+<p>格式2：</p>
+<pre><code class="language-C"># ifndef       宏标识符        //若标识符未定义
+
+    # define    宏标识符    宏体
+
+# else 				//若标识符已定义
+
+    # undef    宏标识符
+    # define    宏标识符    宏体
+
+# endif
+</code></pre>
+
+<p>其中：</p>
+
+<blockquote>
+  <p>[!TIP]</p>
+
+  <ul>
+    <li>格式1是测试存在，格式2是测试不存在。</li>
+    <li>else可有，也可没有。</li>
+  </ul>
+</blockquote>
+
+<p><strong>（4）宏释放</strong>
+用于释放原先定义的宏标识符。经释放后的宏标识符可再次用于定义其他宏体。
+格式如下：</p>
+
+<pre><code class="language-C"># undef  宏标识符
+</code></pre>
+
+<p>例5.6</p>
+
+<pre><code class="language-C">#define  SIZE  512   
+…
+buf=SIZE*blks      /*宏扩展为buf=512*blks; */
+…
+#undef SIZE 
+#define SIZE   128
+…
+buf=SIZE*blks     /*宏扩展为buf=128*blks; */
+</code></pre>
+
+<h4 id="条件编译伪指令">条件编译伪指令</h4>
+
+<p>格式如下：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp"># if（条件表达式1）
+</span>    <span class="err">…</span>
+<span class="cp"># elif （条件表达式2）
+</span>    <span class="err">…</span>
+<span class="cp"># elif （条件表达式3）
+</span><span class="err">…</span>
+<span class="cp"># elif （条件表达式n）
+</span><span class="err">…</span>
+<span class="cp"># else
+</span><span class="err">…</span>
+<span class="cp"># endif		
+</span>
+</code></pre></div></div>
+
+<p>例子：</p>
+
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="cp"># if  _B0SIZE==B0SIZE_BYTE
+</span>	<span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">char</span> <span class="n">PB0SIZE</span><span class="err">；</span>
+<span class="cp"># elif  _B0SIZE==B0SIZE_SHORT
+</span>	<span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">short</span> <span class="n">PB0SIZE</span><span class="err">；</span>
+<span class="cp"># elif  _B0SIZE==B0SIZE_WORD
+</span>	<span class="k">typedef</span> <span class="kt">unsigned</span> <span class="kt">long</span> <span class="n">PB0SIZE</span><span class="err">；</span>
+<span class="cp"># endif
+</span>
+</code></pre></div></div>
+
+<h3 id="3-atpcs-规则寄存器数据栈参数传递规则">3. ATPCS 规则：寄存器、数据栈、参数传递规则</h3>
+
+<p>ATPCS(ARM-Thumb Procedure Call Standard)规则</p>
+
+<ol>
+  <li>
+    <p>寄存器的使用规则</p>
+  </li>
+  <li>
+    <p>数据栈的使用规则</p>
+  </li>
+  <li>
+    <p>参数的传递规则</p>
+  </li>
+</ol>
+
+<h4 id="1寄存器的使用规则">1．寄存器的使用规则</h4>
+
+<ul>
+  <li>子程序间通过寄存器R0~R3来传递参数，记为A1~A4(别名)。</li>
+  <li>被调用的子程序在返回前无须恢复寄存器R0~R3的内容。</li>
+  <li>子程序中使用寄存器<strong>R4~R11</strong>来保存局部变量。记为V1~V8(别名)。
+    <ul>
+      <li>如果在子程序中使用到了寄存器V1~V8中的某些寄存器，则<strong>子程序进入时必须保存这些寄存器的值，在返回前必须恢复这些寄存器的值</strong></li>
+      <li>对于子程序中没有用到的寄存器，则不必进行这些操作。在Thumb程序中，通常只能使用寄存器<strong>R4~R7</strong>来保存局部变量。</li>
+    </ul>
+  </li>
+  <li>寄存器R13用做数据栈指针，记作SP。
+    <ul>
+      <li>在子程序中寄存器R13不能用做其他用途。</li>
+      <li>寄存器SP在进入子程序时的值和退出子程序时的值必须相等。</li>
+    </ul>
+  </li>
+  <li>寄存器R14称为链接寄存器，记作LR。
+    <ul>
+      <li>它用于保存子程序的返回地址。</li>
+      <li>如果在子程序中保存了返回地址，则寄存器R14可作其他用途。</li>
+    </ul>
+  </li>
+  <li>R15是程序计数器，记作PC。不能作其他用途。</li>
+</ul>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_29.png" alt="" /></p>
+
+<h4 id="2数据栈的使用规则">2．数据栈的使用规则</h4>
+
+<p>有下面4种数据栈：</p>
+
+<ul>
+  <li>FD（Full Descending）    满递减</li>
+  <li>ED（Empty Descending）   空递减</li>
+  <li>FA（Full Ascending）     满递增</li>
+  <li>EA（Empty Ascending）    空递增</li>
+</ul>
+
+<p>ATPCS规定数据栈为<strong>FD（满递减）</strong> 类型，
+并且对数据栈的操作是8字节对齐的。
+异常中断处理程序可使用中断程序的数据栈。</p>
+
+<blockquote>
+  <ul>
+    <li><strong>数据栈指针</strong>（Stack Point）：最后一个写入栈的数据的内存地址。</li>
+    <li><strong>数据栈的基地址</strong>（Stack Base）：数据栈的最高地址。ATPSC中的数据栈是FD型，最早入栈的数据所占的内存单元是基地址的下一个内存单元。</li>
+    <li><strong>数据栈界限</strong>（Stack Limit）：数据栈中<strong>可使用的最低</strong>的内存单元地址。</li>
+    <li><strong>数据栈中的数据帧</strong>（Stack Frames）：数据栈中为子程序分配用来保存寄存器和局部变量的区域。</li>
+  </ul>
+</blockquote>
+
+<h4 id="3--参数的传递规则">3.  参数的传递规则</h4>
+<p>（1）参数个数固定的子程序参数传递规则</p>
+
+<blockquote>
+  <p>若系统含浮点运算硬件部件，浮点参数传递规则：</p>
+  <ul>
+    <li>各个浮点参数按顺序处理。</li>
+    <li><strong>为每个浮点参数分配FP寄存器。方法：满足该浮点参数需要的且编号最小的一组连续的FP寄存器。</strong>
+   第一个整数参数，通过寄存器R0～R3来传递。其他参数通过数据栈传递。</li>
+  </ul>
+</blockquote>
+
+<p>（2）参数个数可变的子程序参数传递规则</p>
+<blockquote>
+
+  <p> - 当参数不超过4个，用<strong>R0～R3</strong>传递参数，</p>
+
+  <p>   当参数超过4个时，还可以使用数据栈来传递参数。</p>
+
+  <p> - 在参数传递时，所有参数看作是存放在连续的内存字单元中的字数据。然后，依次将各字数据传递到寄存器 R0～R3中。  </p>
+
+  <p>如果参数多于4个，将剩余的字数据传送到数据栈中，<strong>入栈的顺序与参数顺序相反，即最后一个字数据先入栈。</strong></p>
+</blockquote>
+
+<p>（3）子程序结果返回规则</p>
+
+<blockquote>
+  <p> - 结果为一个32位整数，可通过寄存器<strong>R0</strong>返回；</p>
+
+  <p> - 结果为一个64位整数，可通过寄存器<strong>R0，R1</strong>返回，依次类推；</p>
+
+  <p> - 结果为一个浮点数时，可通过运算部件的寄存器<strong>F0、D0</strong>来返回；</p>
+
+  <p> - 结果为复合型的浮点数（如复数）时，可通过寄存器<strong>F0～Fn或者D0～Dn</strong>来返回。</p>
+
+  <p> - 对于位数更多的结果，需通过内存来传递，如通过数据<strong>栈</strong>来传递。</p>
+</blockquote>
+
+<h3 id="4-c-和汇编相互调用的程序能够看懂及简单的程序编写">4. C 和汇编相互调用的程序能够看懂，及简单的程序编写。</h3>
+
+<h4 id="c程序中嵌入汇编程序">C程序中嵌入汇编程序</h4>
+
+<p>2．内嵌汇编指令的特点
+（1）操作数</p>
+
+<ul>
+  <li>作为操作数的寄存器和常量可以是C/C++表达式。是char、short、int类型，而且这些表达式都是作为无符号数进行操作。</li>
+  <li>编译器将会计算这些表达式的值，并为其分配寄存器。</li>
+  <li>不是真正意义的汇编</li>
+</ul>
+
+<p>（2）物理寄存器</p>
+
+<ul>
+  <li>内嵌汇编指令中使用物理寄存器的限制：</li>
+  <li>不能直接向PC寄存器中赋值，程序的跳转只能通过B指令和BL指令实现。</li>
+  <li>在内嵌汇编指令中，不要使用过于复杂的C/C++表达式。</li>
+  <li>编译器可能会使用R12寄存器或R13寄存器存放编译的中间结果，在计算表达式值时可能会将寄存器R0到R3、R12以及R14用于子程序调用。</li>
+  <li>一般不要指定物理寄存器（会影响编译器分配寄存器）。</li>
+</ul>
+
+<p>（3）常量</p>
+
+<p>常量前的符号#可省略。若表达式前使用了符号#，则必须是一个常量。</p>
+
+<p>（4）指令展开</p>
+
+<p>如果包含常量操作数，该指令可能会被汇编器展开成几条指令。例如指令：</p>
+
+<pre><code class="language-assembly">   ADD R0，R0，#1023
+</code></pre>
+
+<p>可能会被展开成下面的指令序列：</p>
+
+<pre><code class="language-assembly">   ADD R0，R0，#1024
+   SUB R0，R0，#01
+</code></pre>
+
+<p>MUL指令会被展开成一系列加法和移位操作。</p>
+
+<p>（5）标号</p>
+
+<p>C/C++程序中的标号可被内嵌的汇编指令使用。<strong>但只有B指令可使用C/C++程序中的标号，指令BL不能使用C/C++程序中的标号。</strong></p>
+
+<p>指令B使用C/C++程序中的标号格式:</p>
+
+<p>B{cond} label</p>
+
+<p>（6）内存单元的分配</p>
+
+<p>内嵌汇编器不支持汇编语言用于内存分配的伪操作，所用的内存单元的分配都是通过C/C++程序完成的，分配的内存单元通过变量供内嵌的汇编器使用。</p>
+
+<p>（7）SWI和BL指令的使用</p>
+
+<p>内嵌SWI和BL指令中3个可选寄存器列表：</p>
+
+<ul>
+  <li>第1个寄存器列表用于存放输入的参数。</li>
+  <li>第2个寄存器列表用于存放返回的参数。</li>
+  <li>第3个寄存器列表的内容供被调用的子程序作为工作寄存器。</li>
+</ul>
+
+<p><strong>3．内嵌的汇编器与armasm的区别</strong></p>
+
+<p>在功能和使用方法上主要有以下特点：</p>
+
+<ul>
+  <li>不能写PC (MOV PC, LR)</li>
+  <li>不支持伪指令LDR Rn，=expression，但可用指令: MOV Rn，expression来代替。</li>
+  <li>除NOP外，不支持ADR、ADRL等伪指令。</li>
+  <li>指令中的C变量不要与任何物理寄存器重名</li>
+  <li>LDM/STM指令中的寄存器列表只能使用物理寄存器，不能使用C表达式</li>
+  <li>不支持指令BX/BLX</li>
+  <li>用户不用维护数据栈</li>
+  <li>不要轻易改变处理器模式。</li>
+  <li>不支持内存分配操作</li>
+</ul>
+
+<h4 id="c-语言调用汇编程序">C 语言调用汇编程序</h4>
+
+<h4 id="汇编调用-c-语言">汇编调用 C 语言</h4>
+
+<h2 id="第五章-嵌入式-linux-驱动开发">第五章 嵌入式 Linux 驱动开发</h2>
+
+<p>1) <strong>设备驱动的概念、抽象层次、分类、特点、安装方法</strong>
+2) <strong>设备驱动开发过程</strong>
+3) <strong>字符设备驱动结构，file_operations 里常用的接口函数、驱动的结构</strong>
+4) <strong>所有的函数不需要背</strong></p>
+
+<h3 id="1-设备驱动的概念抽象层次分类特点安装方法">1) 设备驱动的概念、抽象层次、分类、特点、安装方法</h3>
+
+<p>设备驱动程序介于操作系统和硬件之间，屏蔽了硬件设备的物理细节，并提供了访问各种硬件设备的统一接口。Linux内核源程序中占有60%以上。
+<img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_30.png" alt="" /></p>
+
+<p><strong>应用程序 库 内核 驱动程序之间的关系</strong>
+<img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_31.png" alt="" /></p>
+
+<h4 id="什么是驱动程序">什么是驱动程序：</h4>
+
+<ol>
+  <li><strong>作为操作系统的一部分（OS = Kernel + Device Driver）</strong>
+    - 向上为Linux系统提供访问硬件统一调用接口
+    - 向下用于控制硬件：与Arm裸机程序一样，通过读写硬件寄存器达到控制硬件的目的</li>
+  <li><strong>驱动程序的运行是被动的</strong>
+    <ul>
+      <li>驱动只是告诉内核”我在这里,我能做这些工作”：向内核注册</li>
+      <li>这些工作何时开始，取决于应用程序：应用触发驱动</li>
+    </ul>
+  </li>
+</ol>
+
+<h4 id="设备驱动分类">设备驱动分类</h4>
+
+<ol>
+  <li><strong>字符设备驱动</strong>
+ 设备以<strong>字节流</strong>方式访问（以字节为单位读写）
+ 字符设备驱动实现了<strong>open、close 、read、write</strong>等系统调用
+ 应用程序通过<strong>设备文件</strong>（如/dev/ttySAC0）访问设备
+ 字符设备文件的第一个标志是前面的“<strong>c</strong>”标志。</li>
+</ol>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ls –l /dev
+crw-rw----  1 root  uucp 4,  64 08-30 22:58 ttyS0 /*串口设备， c表示字符设备*/
+crw-rw----  1 root  uucp 3,  4 08-30 22:58 ttyS0 /* 主设备号3，此设备号4 */
+
+</code></pre></div></div>
+
+<ol>
+  <li><strong>块设备驱动</strong></li>
+</ol>
+
+<p><strong>设备上的数据以块的方式存放</strong>（如NAND Flash上的数据以页为单位）
+ 块设备驱动程序也向用户层提供open、close
+ 应用通过<strong>设备文件</strong>(如/dev/sda1)来访问设备
+块设备驱动特别之处：
+  （1）操作硬件的实现方式不一样：<strong>先将数据组织成块，再操作设备</strong>
+  （2）数据块上的数据按照一定的格式组织：<strong>存放文件系统，实现mount</strong></p>
+
+<p>例如，在系统中的块设备IDE硬盘的主设备号是3，而多个IDE硬盘及其各个分区分别赋予次设备号1、2、3……</p>
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ ls –l /dev
+brw-r-----  1 root  floppy 2,   0 08-30 22:58 fd0/*软盘设备，b表示块设备*/
+
+</code></pre></div></div>
+<ol>
+  <li><strong>网络设备驱动</strong>
+设备上的数据以<strong>不固定大小的帧</strong>输入与输出
+没有/dev上对应的设备文件，不通过open、read、write操作
+系统为网络设备访问分配<strong>唯一接口（如eth0）</strong>
+为应用层提供一套<strong>数据包传输函数访问接口（SOCKET）</strong></li>
+</ol>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_32.png" alt="" /></p>
+
+<h3 id="2-设备驱动开发过程">2) 设备驱动开发过程</h3>
+
+<ol>
+  <li>查看原理图、数据手册，<strong>了解设备的操作方法</strong></li>
+  <li>在内核中找到<strong>相近的驱动程序，以它为模板开发</strong></li>
+  <li>实现驱动程序的<strong>初始化，并向内核注册</strong></li>
+  <li>按照内核规定的<strong>驱动框架，实现相关操作函数（如open、read、write）</strong></li>
+  <li><strong>编译</strong>驱动程序<strong>到内核中</strong>，或者<strong>编译成模块并挂载（insmod）到内核</strong></li>
+</ol>
+
+<h4 id="直接编译进内核">直接编译进内核</h4>
+
+<ol>
+  <li><strong>将驱动模块源码合入内核源码</strong>
+    <ul>
+      <li>设备驱动程序应包含在<strong>drivers子目录</strong></li>
+      <li>首先确认是否存在于设备驱动程序特性相似的目录名</li>
+      <li>存在则插入相应目录，否则字符类型插入char目录，块类型插入block目录，网络类型插入net目录</li>
+    </ul>
+  </li>
+  <li><strong>修改内核编译选项文件</strong>
+    <ul>
+      <li>Linux内核支持使用内核编译选项包含到内核中的功能</li>
+      <li>make menuconfig读入这些内核编译选项文件来配置内核</li>
+      <li>2.6内核编译选项文件为KConfig</li>
+      <li>进入加入了驱动模块的目录，<strong>修改目录下的KConfig，使得加入的驱动能在配置项中显示</strong></li>
+    </ul>
+  </li>
+  <li><strong>修改内核源码中的Makefile</strong>
+    <ul>
+      <li>Makefile指定了驱动程序的编译规则，使得驱动程序能包含到内核image中</li>
+      <li>Makefile根据make menuconfig配置设定的编译条件变量，决定是要把特定源代码编译成模块还是包含到内核中，或者是清除。</li>
+      <li>进入合入了驱动模块的目录，修改改目录下的Makefile，<strong>使得合入的驱动源码能编译进内核</strong></li>
+    </ul>
+  </li>
+  <li><strong>确认合入内核的驱动在内核启动时自动运行</strong>
+    <ul>
+      <li>重新编译并启动新内核，dmesg=&gt;确认“hello world”已打印出来</li>
+      <li>带<strong>__int标志</strong>的函数被放入初始化代码段，内核会依次调用初始化代码段的</li>
+      <li>函数,并在初始化完成后释放 init 区段.</li>
+    </ul>
+  </li>
+</ol>
+
+<h4 id="编译成模块">编译成模块</h4>
+
+<ol>
+  <li>
+    <p><strong>模块加载函数（必需）</strong>
+ 安装模块时被系统自动调用的函数，通过module_init宏来指定</p>
+  </li>
+  <li>
+    <p><strong>模块卸载函数（必需）</strong>
+ 卸载模块时被系统自动调用的函数，通过module_exit宏来指定</p>
+  </li>
+</ol>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_33.png" alt="" />
+加载 insmod (insmod hello.ko)
+卸载 rmmod  (rmmod hello)
+查看 lsmod
+加载 modprobe （modprobe hello)</p>
+
+<p>modprobe 如同 insmod, 也是加载一个模块到内核。它的不同
+之处在于它会根据/lib/modules/&lt;$version&gt;/modules.dep
+来查看要加载的模块, 看它是否还依赖于其他模块，如果是，
+modprobe 会首先找到这些模块, 把它们先加载到内核。</p>
+
+<h3 id="3-字符设备驱动结构file_operations-里常用的接口函数驱动的结构">3) 字符设备驱动结构，file_operations 里常用的接口函数、驱动的结构</h3>
+
+<p>总体结构：
+<img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_34.png" alt="" />
+3、调用关系
+（1）当应用程序使用<strong>open打开某个设备（/dev的设备文件)</strong>
+  设备驱动程序<strong>file_operations结构中open成员函数被调用</strong></p>
+
+<p>（2）当应用程序使用使用<strong>read、write、ioctl等函数读写、控制设备</strong>
+ 设备驱动程序<strong>file_operations结构中read、write、ioctl等成员函数被调用</strong></p>
+
+<p>4、字符设备驱动程序目的
+	为具体硬件设备<strong>file_operations</strong>结构<strong>实现操作设备所需的成员函数</strong></p>
+
+<p>5、设备文件与驱动程序file_operations结构的对应关系
+<img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_35.png" alt="" />
+主设备号用来<strong>标识</strong>与设备文件<strong>相连</strong>的驱动程序，<strong>次编号</strong>背驱动程序来辨别操作的是那个设备
+<strong>主设备号</strong>用来反映<strong>设备类型</strong>
+<strong>次设备号</strong>用来区<strong>分同类型的设备</strong></p>
+
+<p>6、设备驱动注册 
+在驱动中init 函数中实现的。</p>
+<div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code>      <span class="c1">//老注册接口</span>
+      <span class="n">register_chrdev</span><span class="p">(</span><span class="n">DEV_MAJOR</span><span class="p">,</span> <span class="n">DEV_NAME</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">dev_ops</span><span class="p">);</span> 
+
+     <span class="c1">//2.6内核使用cdev来描述一个字符设备</span>
+     <span class="n">cdev_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">s_cdev</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">dev_ops</span><span class="p">);</span> <span class="c1">//初始化cdev		</span>
+     <span class="n">ret</span> <span class="o">=</span> <span class="n">cdev_add</span><span class="p">(</span><span class="o">&amp;</span><span class="n">s_cdev</span><span class="p">,</span> <span class="n">s_dev</span><span class="p">,</span> <span class="n">DEV_COUNT</span><span class="p">);</span> <span class="c1">//注册cdev</span>
+</code></pre></div></div>
+
+<p>注册完成后，应用程序操作设备文件时，系统就会根据
+主设备号找到内核中注册file_operations结构</p>
+
+<h4 id="驱动程序举例">驱动程序举例：</h4>
+<p>字符驱动程序框架</p>
+<ol>
+  <li>包含头文件
+ 编写字符驱动程序时需要的内核头文件</li>
+  <li>定义常量
+ 定义模块的主设备号和名称，它们将在字符设备的初始化的注册函数中使用。</li>
+  <li>函数声明
+ 声明需要使用的函数，将被注册到文件操作数据结构struct file_operations中。</li>
+  <li>文件操作数据结构的指针
+    <div class="language-c highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">static</span> <span class="k">struct</span> <span class="n">file_operations</span> <span class="n">virtual_char_fops</span><span class="o">=</span><span class="p">{</span>
+ <span class="nl">owner:</span>         <span class="n">THIS_MODULE</span><span class="p">,</span>
+ <span class="nl">llseek:</span>          <span class="n">virtual_char_llseek</span><span class="p">,</span>
+ <span class="nl">read:</span>            <span class="n">virtual_char_read</span><span class="p">,</span>
+ <span class="nl">write:</span>           <span class="n">virtual_char_write</span><span class="p">,</span>
+ <span class="nl">ioctl:</span>            <span class="n">virtual_char_ioctl</span><span class="p">,</span>
+ <span class="nl">open:</span>           <span class="n">virtual_char_open</span><span class="p">,</span>
+ <span class="nl">release:</span>        <span class="n">virtual_char_close</span><span class="p">,</span>
+<span class="p">}</span>
+</code></pre></div>    </div>
+    <p>这是驱动程序的核心部分，定义了一个静态文件操作数据结构，将数据结构中几个成员赋值为驱动程序中函数的指针</p>
+  </li>
+  <li>
+    <p>函数中的各种操作
+    - module_init()注册的函数执行设备文件的注册
+    - module_exit()注册的函数执行设备文件的卸载。
+    - open中增加引用计数；close中减少引用计数。
+    - write/read中执行定义的读写操作，内容传递主要通过缓冲区的指针buf。
+    - ioctl中执行驱动程序自定义的命令，根据cmd选择要执行的命令</p>
+  </li>
+  <li>应用程序
+linux的应用程序与驱动程序调用关系</li>
+</ol>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_36.png" alt="" />
+应用程序使用驱动程序主要有以下几个步骤:</p>
+
+<ol>
+  <li>使用open打开设备文件</li>
+  <li>在使用驱动程序的时候,根据需要调用write/read/ioctl等操作</li>
+  <li>使用close关闭设备文件</li>
+</ol>
+
+<h3 id="4-所有的函数不需要背">4) 所有的函数不需要背</h3>
+
+<h2 id="第六章-硬件系统设计">第六章 硬件系统设计</h2>
+
+<p>1) <strong>典型嵌入式硬件系统组成，主要单元及特点，如 CPU,串口，网络，串口， 看门狗，RTC 时钟，Flash，SDRAM,中断控制器</strong> 
+2) <strong>嵌入式系统硬件调试过程：从最小系统开始</strong></p>
+
+<h3 id="典型嵌入式硬件系统的组成">典型嵌入式硬件系统的组成</h3>
+
+<p><strong>典型嵌入式系统的体系结构</strong></p>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_37.png" alt="" /></p>
+
+<p><strong>典型嵌入式系统硬件组成</strong></p>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_38.png" alt="" /></p>
+
+<h3 id="硬件的选择">硬件的选择</h3>
+
+<p><strong>操作系统</strong></p>
+<ul>
+  <li>如果希望使用 WinCE 或 Linux 等操作系统，就需要选择 <strong>ARM 720 T 以上带有 MMU（Memory Management Unit：内存管理单元）功能的 ARM 芯片</strong>，如 ARM 720 T、Strong-ARM、ARM 920 T、ARM 922 T、ARM 946 T 都带有 MMU 功能，</li>
+  <li>而 <strong>ARM 7 TDMI 没有 MMU</strong>，不支持 Windows CE 和大部分的 Linux，但目前有 uClinux 等少数几种 Linux 不需要 MMU 的支持。</li>
+</ul>
+
+<h3 id="主要单元及特点">主要单元及特点</h3>
+
+<h4 id="看门狗与复位电路">看门狗与复位电路</h4>
+
+<ul>
+  <li>硬件看门狗 (WDT, WATCHDOG TIMER) 是利用了一个定时器，来监控主程序的运行</li>
+  <li>也就是说在主程序的运行过程中，CPU 要在定时时间到来之前对定时器进行复位 (喂狗)</li>
+  <li>如果出现死循环，或者说 PC 指针不能回来。那么定时时间到达后，如果 CPU 还没有产生喂狗信号给 WDT，WDT 就会输出信号使 CPU 复位。</li>
+</ul>
+
+<p>嵌入式系统中两类看门狗:</p>
+<ol>
+  <li>CPU 内部自带的看门狗：将一个芯片中的定时器来作为看门狗，通过程序的初始化，写入初值，设定溢出时间，并启动定时器。程序按时对定时器赋初值（或复位），以免其溢出。
+    <blockquote>
+      <p>  优点：可以通过程序<strong>改变溢出时间</strong>；可以随时禁用
+  缺点：需要<strong>初始化</strong>；如果程序在初始化、启动完成前跑飞或在禁用后跑飞，看门狗就无法复位系统，这样看门狗的作用就没有了，系统恢复能力降低。</p>
+    </blockquote>
+  </li>
+  <li><strong>独立</strong>的看门狗芯片：这种看门狗主要有一个用于喂狗的引脚（一般与CPU的GPIO相连）和一个复位引脚（与系统的RESET引脚相连），如果没有在一定时间内改变喂狗脚的电平，复位引脚就会改变状态复位CPU。此类看门狗一上电就开始工作，无法禁用。
+    <blockquote>
+      <p>  优点：<strong>无须配置</strong>，上电即用。无法禁用，系统必须按时喂狗，系统恢复能力高。
+  缺点：<strong>无法灵活配置溢出时间，</strong> 无法禁用，灵活性降低。</p>
+    </blockquote>
+  </li>
+</ol>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_39.png" alt="" />
+硬件看门狗与复位电路中，按键 S 1 是手动复位按键，ADM 706 TAR 芯片的<strong>第 7 脚周期性</strong>的按设定的时间间隔检查该引脚的输入信号，如果 CPU 在规定的时间内没有输入高电平（又称为喂狗），则说明程序跑飞了，ADM 706 TAR 的<strong>第 6 脚便产生一个复位信号，使 CPU 复位。</strong></p>
+
+<h5 id="看门狗定时器">看门狗定时器</h5>
+
+<ol>
+  <li>看门狗定时器<strong>控制</strong>寄存器    WT<strong>CON</strong></li>
+  <li>看门狗定时器<strong>数据</strong>寄存器     WT<strong>DAT</strong></li>
+  <li>看门狗定时器<strong>计数</strong>寄存器     WT<strong>CNT</strong></li>
+</ol>
+
+<h6 id="看门狗定时器控制寄存器">看门狗定时器控制寄存器</h6>
+<blockquote>
+  <p>——WTCON   0 x 01 D 30000   R/W  初始值 0 x 8021</p>
+
+  <p>BIT                     描述 
+[15:8]        	预分频 prescaler 值（0 to (2 ^8 -1) 
+[7:6]            保留 
+[5]               看门狗定时器的允许（启动）位
+                              	<strong>0 = Disable watchdog timer</strong> 
+                              	<strong>1 = Enable watchdog timer Clock select</strong>       <br />
+[4:3] 		   时钟除因子 (分割) 00: 1/16   01: 1/32 10: 1/64   11: 1/128 
+[2]              看门狗中断允许位
+									<strong>0 = Disable interrupt generation</strong> 
+									<strong>1 = Enable interrupt generation</strong> 
+[1]              保留<br />
+[0]              看门狗输出复位信号的允许位—–  1: 允许 0: 不允许</p>
+</blockquote>
+
+<h6 id="看门狗定时器数据寄存器">看门狗定时器数据寄存器</h6>
+<blockquote>
+  <p>——-WTDAT    0 x 01 D 30004    R/W     初始值 0 x 8000</p>
+
+  <ul>
+    <li><strong>WTDAT 规定看门狗定时器超时周期。</strong></li>
+    <li></li>
+    <li><strong>WTDAT 的内容在初始操作时，不能自动加载进定时器计数寄存器 WTCNT。</strong></li>
+    <li><strong>可是定时器计数寄存器在使用初始值 0 X 8000 第一次超时出现以后，WTDAT 的值将自 动加载进 WTCNT。</strong></li>
+  </ul>
+
+</blockquote>
+
+<h4 id="存储单元">存储单元</h4>
+
+<p><strong>嵌入式系统内存映射的示意图，显示不同的内存区域及其对应的地址范围</strong></p>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_40.png" alt="" />
+例子：
+<img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_41.png" alt="" />
+<img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_42.png" alt="" /></p>
+<ul>
+  <li>
+    <p>在程序空间 flash ROM 内（在主板上对应 2 M 字节大小的 HY 29 LV 160 器件）可以固化一段启动系统并对系统进行初始化的程序——<strong>Boot Loader 程序。</strong></p>
+  </li>
+  <li>上图中 <strong>Flash ROM 存储器映射在了系统的 bank 0</strong> 上，也就是说，系统上电时处理器即从 Flash ROM 的 <strong>0 x 00000000</strong> 地址处取得指令开始运行。
+    <ul>
+      <li>这个地址上的 <strong>Boot Loader</strong> 程序完成了时钟设置初始化、中断矢量的定义、存储器的参数设置、堆栈地址定义等工作，这些设置对于系统正常启动是非常重要的。</li>
+    </ul>
+  </li>
+  <li>由于 Flash ROM 是<strong>非易失性的存储器</strong>，因此程序就算掉电也不会丢失。
+    <ul>
+      <li>但是如果由于某个误操作覆盖了 Flash ROM 中启动程序的内容，系统就将无法正常启动，这时就需要重新将 Boot Loader 程序烧写到 Flash ROM 中</li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_43.png" alt="" /></p>
+
+<ul>
+  <li>系统的 SDRAM 器件映射在 bank 6 上，也就是 0 x 0 C 000000 地址处。</li>
+  <li>SDRAM 是<strong>易失性的可快速擦写的存储器</strong>，因此<strong>它通常作为系统的数据空间，同时也作为系统程序的运行空间</strong>，当系统上电后，程序将<strong>从 flash ROM 存储器被拷贝到 SDRAM 中运行</strong>，这样将大大提高程序的运行速度。</li>
+  <li>当然，系统掉电后，SDRAM 中的程序就消失了，下次上电时，程序将又从 flash ROM 存储器被拷贝到 SDRAM 中运行。</li>
+</ul>
+
+<h4 id="网络接口电路">网络接口电路</h4>
+
+<p>从硬件的角度看，以太网接口电路两大部分:</p>
+<ol>
+  <li><strong>MAC（Medium Access Control）控制器</strong></li>
+  <li><strong>物理层接口（Physical Layer，PHY)</strong>
+<img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_44.png" alt="" /></li>
+</ol>
+
+<h4 id="pwm-定时器">PWM 定时器</h4>
+
+<ul>
+  <li>6个16 位<strong>定时器</strong>；</li>
+  <li>3个8 位<strong>预分频器</strong></li>
+  <li>2个5位<strong>分割器</strong></li>
+  <li>1个4位分割器；</li>
+  <li>输出波形的占空比可编程控制（PWM）</li>
+  <li>自动加载模式或单触发脉冲模式；</li>
+  <li>支持外部中断源；</li>
+  <li>看门狗定时器溢出产生复位信号。</li>
+</ul>
+
+<h5 id="pwm-定时操作">PWM 定时操作</h5>
+<p>定时器0和1分享一个8位预分频器 + 一个5位分割器
+定时器2和3分享一个8位预分频器 + 一个5位分割器
+定时器4和5分享一个8位预分频器 + 一个4位分割器</p>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_45.png" alt="" /></p>
+
+<h4 id="rtc">RTC</h4>
+
+<ul>
+  <li>RTC 单元能在系统断电时, 通过备份电池来供电</li>
+  <li>RTC 能通过 ARM 的 STRB/LDRB 指令传输 8 位数据到 CPU</li>
+  <li>RTC 使用一个外部 32.768 kHz 的晶体</li>
+  <li>报警功能。</li>
+</ul>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_46.png" alt="" /></p>
+
+<h4 id="中断控制器">中断控制器</h4>
+
+<ul>
+  <li>S 3 C 44 B 0 X 的<strong>中断控制器</strong>可以接收来自 <strong>30</strong> 个中断源的请求。</li>
+  <li>中断控制器的作用，就是响应来自 FIQ 或 IRQ 的中断，并请求内核对中断进行处理。</li>
+  <li>当有多个中断<strong>同时发生</strong>的时候，中断控制器要决定首先处理哪一个中断。</li>
+</ul>
+
+<p>ARM7TDMI 有 2 种类型的中断模式：</p>
+<ol>
+  <li><strong>FIQ（快速中断请求）</strong></li>
+  <li><strong>IRQ（普通中断请求）</strong></li>
+</ol>
+
+<p>CPSR 指 ARM7TDMI 处理器的程序状态寄存器。</p>
+
+<ul>
+  <li>如果 CPSR 的 F 位被设置为 1，处理器将不接受来自中断控制器的 FIQ。</li>
+  <li>如果 CPSR 的 I 位被设置为 1，处理器将不接受来自中断控制器的 IRQ。</li>
+</ul>
+
+<p><strong>因此，为了使能中断响应机制：</strong></p>
+<ul>
+  <li><strong>CPSR 的 F 位或 I 位必须被清 0，</strong></li>
+  <li><strong>同时 INTMASK（ 中断屏蔽寄存器 ）的相应位必须被清 0。</strong></li>
+</ul>
+
+<p>在 30 个中断源中 <strong>合并后</strong>以26 个中断源信号提供给中断控制器。</p>
+
+<p>| 中断源             | 对应控制位  | 中断源        | 对应控制位  |
+| ————— | —— | ———- | —— |
+| 外部中断0           | [ 25 ] | 定时器1中断     | [ 12 ] |
+| 外部中断1           | [ 24 ] | 定时器2中断     | [ 11 ] |
+| 外部中断2           | [ 23 ] | 定时器3中断     | [ 10 ] |
+| 外部中断3           | [ 22 ] | 定时器4中断     | [ 9 ]  |
+| <strong>外部中断4/5/6/7</strong> | [ 21 ] | 定时器5中断     | [ 8 ]  |
+| RTC时间滴答中断       | [ 20 ] | UART0接收中断  | [ 7 ]  |
+| ZDMA0中断         | [ 19 ] | UART1接收中断  | [ 6 ]  |
+| ZDMA1中断         | [ 18 ] | IIC-中断     | [ 5 ]  |
+| BDMA0中断         | [ 17 ] | SIO-中断     | [ 4 ]  |
+| BDMA1中断         | [ 16 ] | UART0 发送中断 | [ 3 ]  |
+| 看门狗中断           | [ 15 ] | UART1发送中断  | [ 2 ]  |
+| <strong>UART0/1错误中断</strong> | [ 14 ] | RTC报警中断    | [ 1 ]  |
+| 定时器0中断          | [ 13 ] | ADC转换结束中断  | [ 0 ]  |
+中断优先级产生模块包含5个单元：</p>
+
+<p>•   1个主单元–（主单元管理4个辅单元和2个中断源）
+•   4个辅单元–（每个辅单元管理6个中断源）</p>
+
+<p><img src="/assets/嵌入式复习gxj.assets/嵌入式复习gxj_image_47.png" alt="" /></p>
+
+<h3 id="最小系统">最小系统</h3>
+
+<ul>
+  <li><strong>S 3 C 44 B 0 X 最小系统 + SDRAM + FLASH</strong> 电路可构成一个完全的嵌入式系统</li>
+  <li>可运行 SDRAM 中的程序，也可以运行 FLASH 中的程序</li>
+  <li>程序规模可以很大，如果将程序保存到 FLASH 中，掉电后不会丢失，因此，既可以通过 JTAG 接口调试程序，也可以将程序烧写到 FLASH，然后运行 FLASH 中的程序</li>
+  <li>在此基础上加入必要的接口及其他电路，就构成了具体的 S 3 C 44 B 0 X 应用系统</li>
+</ul>
+
+<h3 id="硬件调试">硬件调试</h3>
+
+<ul>
+  <li>尽可能的<strong>从简单到复杂</strong>，一个单元一个单元地焊接调试，以便在调试过程中遇到困难时缩小故障范围，在调试过程中，应先确定电路没有短路，才能通电调试。</li>
+  <li><strong>先从最小系统调试：</strong> S 3 C 44 B 0 X + 电源电路 + 晶振电路 + 复位电路 + JTAG 接口</li>
+  <li><strong>然后加上 SDRAM，再加上 FLASH，然后再加上其它接口</strong></li>
+  <li>
+    <p>芯片在工作时有一定的发热是正常的，但如果有芯片特别发烫，则一定有故障存在，需断电检查确认无误后方可继续通电调试。</p>
+  </li>
+  <li>调试电源电路之前，尽量少接器件，通电之前检查有无短路现象</li>
+  <li>用示波器观测，晶振的输出应为10MHz</li>
+  <li>复位电路的nRESET端在未按按钮时输出应为高电平（3.3V），按下按钮后变为低电平，按钮松开后应恢复到高电平</li>
+</ul>
+
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-04-03T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2024/04/01/%E5%B5%8C%E5%85%A5%E5%BC%8F%E7%AC%AC%E4%B8%89%E6%AC%A1%E5%AE%9E%E9%AA%8C.html">嵌入式 第三次实验 SOCKET网络编程</a></div><div class="next"><span>下篇</span><a href="/2024/04/03/%E9%AB%98%E6%80%A7%E8%83%BD%E5%AE%9E%E9%AA%8C%E4%B8%89.html">高性能 实验三 OpenMP 并行程序设计</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Gao Xingjie"><meta itemprop="url" content="/"><meta itemprop="description" content="To be a question, to be an answer."><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"><li title="给我发邮件。">
+      <a class="button button--circle mail-button" itemprop="email" href="mailto:xingjie-gao@outlook.com" target="_blank">
+        <i class="fas fa-envelope"></i>
+      </a><li title="在 Github 上关注我。">
+        <a class="button button--circle github-button" itemprop="sameAs" href="https://github.com/Kfkcome" target="_blank">
+          <div class="icon"><svg fill="#000000" width="24px" height="24px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path class="svgpath" data-index="path_0" fill="#272636" d="M0 525.2c0 223.6 143.3 413.7 343 483.5 26.9 6.8 22.8-12.4 22.8-25.4l0-88.7c-155.3 18.2-161.5-84.6-172-101.7-21.1-36-70.8-45.2-56-62.3 35.4-18.2 71.4 4.6 113.1 66.3 30.2 44.7 89.1 37.2 119 29.7 6.5-26.9 20.5-50.9 39.7-69.6C248.8 728.2 181.7 630 181.7 513.2c0-56.6 18.7-108.7 55.3-150.7-23.3-69.3 2.2-128.5 5.6-137.3 66.5-6 135.5 47.6 140.9 51.8 37.8-10.2 80.9-15.6 129.1-15.6 48.5 0 91.8 5.6 129.8 15.9 12.9-9.8 77-55.8 138.8-50.2 3.3 8.8 28.2 66.7 6.3 135 37.1 42.1 56 94.6 56 151.4 0 117-67.5 215.3-228.8 243.7 26.9 26.6 43.6 63.4 43.6 104.2l0 128.8c0.9 10.3 0 20.5 17.2 20.5C878.1 942.4 1024 750.9 1024 525.3c0-282.9-229.3-512-512-512C229.1 13.2 0 242.3 0 525.2L0 525.2z" />
+</svg>
+</div>
+        </a>
+      </li></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© Ennis's Blog 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script>
+  window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
+    var $canvas = null, $this = null, _ctx = null, _text = '';
+    $('.language-chart').each(function(){
+      $this = $(this);
+      $canvas = $('<canvas></canvas>');
+      _text = $this.text();
+      $this.text('').append($canvas);
+      _ctx = $canvas.get(0).getContext('2d');
+      (_ctx && _text) && (new Chart(_ctx, JSON.parse(_text)) && $this.attr('data-processed', true));
+    });
+  });
+</script>
+<script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};_config.TeX = { equationNumbers: { autoNumber: "all" } };MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+

@@ -1,0 +1,1594 @@
+<!DOCTYPE html><html lang="zh-Hans">
+  <head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>物联网期末复习接入技术选择 - Ennis's Blog</title>
+
+<meta name="description" content="无线选择适合的物联网接入技术需要综合考虑应用场景、带宽需求、覆盖范围、能耗、成本、安装难度和可靠性等因素。以下是WiFi接入、蓝牙、Zigbee与LR-WPAN、基于IPv6的低速无线个人区域网6LoWPAN标准、超宽带通信UWB、无线体域网WBAN与IEEE 802.15.6标准、NB-IoT和eMTC的详细介...">
+<link rel="canonical" href="http://localhost:4000/2024/06/26/%E7%89%A9%E8%81%94%E7%BD%91%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0%E6%8E%A5%E5%85%A5%E6%8A%80%E6%9C%AF%E9%80%89%E6%8B%A9.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Willing to be a question, willing to be an answer.
+" href="/">Ennis's Blog</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E7%89%A9%E8%81%94%E7%BD%91">物联网</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0">课程笔记</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 06月26日</span>
+            </li></ul></div><div class="article__header"><header><h1>物联网期末复习接入技术选择</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2024-6-26-物联网期末复习接入技术选择.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">无线选择适合的物联网接入技术需要综合考虑应用场景、带宽需求、覆盖范围、能耗、成本、安装难度和可靠性等因素。以下是WiFi接入、蓝牙、Zigbee与LR-WPAN、基于IPv6的低速无线个人区域网6LoWPAN标准、超宽带通信UWB、无线体域网WBAN与IEEE 802.15.6标准、NB-IoT和eMTC的详细介绍和选择指南。</p></div></div>
+              </div>
+            </div><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="物联网期末复习接入技术选择"><meta itemprop="author" content="Gao Xingjie"/><meta itemprop="datePublished" content="2024-06-26T00:00:00+08:00">
+    <meta itemprop="keywords" content="物联网,课程笔记"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><h2 id="无线">无线</h2>
+
+<p>选择适合的物联网接入技术需要综合考虑应用场景、带宽需求、覆盖范围、能耗、成本、安装难度和可靠性等因素。以下是WiFi接入、蓝牙、Zigbee与LR-WPAN、基于IPv6的低速无线个人区域网6LoWPAN标准、超宽带通信UWB、无线体域网WBAN与IEEE 802.15.6标准、NB-IoT和eMTC的详细介绍和选择指南。
+<!---more--></p>
+<h3 id="1-wifi接入">1. WiFi接入</h3>
+
+<h4 id="概述">概述</h4>
+<p>WiFi（Wireless Fidelity）是一种广泛使用的无线网络技术，适用于高带宽需求的场景。</p>
+
+<h4 id="优点">优点</h4>
+<ul>
+  <li><strong>高带宽</strong>：适合视频流、数据密集型应用。</li>
+  <li><strong>广泛使用</strong>：兼容性好，支持设备多。</li>
+</ul>
+
+<h4 id="缺点">缺点</h4>
+<ul>
+  <li><strong>功耗高</strong>：不适合电池供电的设备。</li>
+  <li><strong>覆盖范围有限</strong>：适用于中小范围的覆盖。</li>
+</ul>
+
+<h4 id="应用场景">应用场景</h4>
+<ul>
+  <li>智能家居</li>
+  <li>办公环境</li>
+  <li>视频监控</li>
+</ul>
+
+<h3 id="2-蓝牙">2. 蓝牙</h3>
+
+<h4 id="概述-1">概述</h4>
+<p>蓝牙是一种短距离无线通信技术，广泛用于个人设备间的通信。</p>
+
+<h4 id="优点-1">优点</h4>
+<ul>
+  <li><strong>低功耗</strong>：适用于可穿戴设备、IoT传感器。</li>
+  <li><strong>简便的配对过程</strong>：易于连接和使用。</li>
+</ul>
+
+<h4 id="缺点-1">缺点</h4>
+<ul>
+  <li><strong>短距离</strong>：适合个人区域网络。</li>
+  <li><strong>带宽有限</strong>：不适合高数据传输需求。</li>
+</ul>
+
+<h4 id="应用场景-1">应用场景</h4>
+<ul>
+  <li>可穿戴设备</li>
+  <li>无线耳机</li>
+  <li>健康监测</li>
+</ul>
+
+<h3 id="3-zigbee与lr-wpan">3. Zigbee与LR-WPAN</h3>
+
+<h4 id="概述-2">概述</h4>
+<p>Zigbee是一种低功耗、低数据速率的无线通信技术，适用于大规模的物联网设备网络。</p>
+
+<h4 id="优点-2">优点</h4>
+<ul>
+  <li><strong>低功耗</strong>：适合长时间电池供电的设备。</li>
+  <li><strong>网状网络</strong>：增强网络的覆盖范围和可靠性。</li>
+</ul>
+
+<h4 id="缺点-2">缺点</h4>
+<ul>
+  <li><strong>带宽有限</strong>：不适合高数据速率应用。</li>
+  <li><strong>复杂性</strong>：网络配置和维护相对复杂。</li>
+</ul>
+
+<h4 id="应用场景-2">应用场景</h4>
+<ul>
+  <li>智能家居自动化</li>
+  <li>工业控制</li>
+  <li>环境监测</li>
+</ul>
+
+<h3 id="4-基于ipv6的低速无线个人区域网6lowpan标准">4. 基于IPv6的低速无线个人区域网6LoWPAN标准</h3>
+
+<h4 id="概述-3">概述</h4>
+<p>6LoWPAN是一种基于IPv6的低功耗无线个人区域网络标准，适用于嵌入式设备。</p>
+
+<h4 id="优点-3">优点</h4>
+<ul>
+  <li><strong>支持IPv6</strong>：方便与互联网无缝连接。</li>
+  <li><strong>低功耗</strong>：适用于电池供电设备。</li>
+</ul>
+
+<h4 id="缺点-3">缺点</h4>
+<ul>
+  <li><strong>带宽有限</strong>：适用于低数据速率应用。</li>
+  <li><strong>复杂性</strong>：需要理解和配置IPv6网络。</li>
+</ul>
+
+<h4 id="应用场景-3">应用场景</h4>
+<ul>
+  <li>远程监控</li>
+  <li>智能城市传感器</li>
+  <li>工业自动化</li>
+</ul>
+
+<h3 id="5-超宽带通信uwbultra-wideband">5. 超宽带通信UWB（Ultra-Wideband）</h3>
+
+<h4 id="概述-4">概述</h4>
+<p>UWB是一种高带宽、低功耗的无线通信技术，适用于高精度定位和高速数据传输。</p>
+
+<h4 id="优点-4">优点</h4>
+<ul>
+  <li><strong>高带宽</strong>：适合高数据速率应用。</li>
+  <li><strong>高精度定位</strong>：用于室内定位和跟踪。</li>
+</ul>
+
+<h4 id="缺点-4">缺点</h4>
+<ul>
+  <li><strong>短距离</strong>：适合局部区域应用。</li>
+  <li><strong>复杂性</strong>：需要专用硬件和配置。</li>
+</ul>
+
+<h4 id="应用场景-4">应用场景</h4>
+<ul>
+  <li>室内定位</li>
+  <li>高速数据传输</li>
+  <li>安全系统</li>
+</ul>
+
+<h3 id="6-无线体域网wban与ieee-802156标准">6. 无线体域网WBAN与IEEE 802.15.6标准</h3>
+
+<h4 id="概述-5">概述</h4>
+<p>WBAN（Wireless Body Area Network）是一种专为人体附近无线通信设计的技术，符合IEEE 802.15.6标准。</p>
+
+<h4 id="优点-5">优点</h4>
+<ul>
+  <li><strong>低功耗</strong>：适用于医疗设备、可穿戴设备。</li>
+  <li><strong>人体安全</strong>：设计符合人体健康安全标准。</li>
+</ul>
+
+<h4 id="缺点-5">缺点</h4>
+<ul>
+  <li><strong>带宽有限</strong>：适用于低数据速率的生理数据传输。</li>
+  <li><strong>短距离</strong>：仅适用于人体附近的通信。</li>
+</ul>
+
+<h4 id="应用场景-5">应用场景</h4>
+<ul>
+  <li>医疗监测</li>
+  <li>健康管理</li>
+  <li>运动追踪</li>
+</ul>
+
+<h3 id="7-nb-iotnarrowband-iot">7. NB-IoT（Narrowband IoT）</h3>
+
+<h4 id="概述-6">概述</h4>
+<p>NB-IoT是一种基于蜂窝网络的低功耗广域网（LPWAN）技术，适用于大规模物联网部署。</p>
+
+<h4 id="优点-6">优点</h4>
+<ul>
+  <li><strong>广覆盖</strong>：适合大范围区域覆盖。</li>
+  <li><strong>低功耗</strong>：适合长时间电池供电的设备。</li>
+  <li><strong>高连接密度</strong>：支持大量设备同时连接。</li>
+</ul>
+
+<h4 id="缺点-6">缺点</h4>
+<ul>
+  <li><strong>带宽有限</strong>：适用于低数据速率应用。</li>
+  <li><strong>延迟较高</strong>：不适合需要实时响应的应用。</li>
+</ul>
+
+<h4 id="应用场景-6">应用场景</h4>
+<ul>
+  <li>智能城市</li>
+  <li>远程抄表</li>
+  <li>环境监测</li>
+</ul>
+
+<h3 id="8-emtcenhanced-machine-type-communication">8. eMTC（Enhanced Machine-Type Communication）</h3>
+
+<h4 id="概述-7">概述</h4>
+<p>eMTC是一种增强型的蜂窝物联网技术，提供更高的数据速率和更低的延迟。</p>
+
+<h4 id="优点-7">优点</h4>
+<ul>
+  <li><strong>高带宽</strong>：适合中等数据速率应用。</li>
+  <li><strong>低延迟</strong>：适合需要快速响应的应用。</li>
+  <li><strong>广覆盖</strong>：适合大范围区域覆盖。</li>
+</ul>
+
+<h4 id="缺点-7">缺点</h4>
+<ul>
+  <li><strong>功耗较高</strong>：相对于NB-IoT，功耗稍高。</li>
+  <li><strong>复杂性</strong>：需要支持蜂窝网络基础设施。</li>
+</ul>
+
+<h4 id="应用场景-7">应用场景</h4>
+<ul>
+  <li>智能交通</li>
+  <li>资产追踪</li>
+  <li>安全监控</li>
+</ul>
+
+<h3 id="选择指南">选择指南</h3>
+
+<h4 id="1-根据应用场景选择">1. 根据应用场景选择</h4>
+<ul>
+  <li><strong>智能家居</strong>：WiFi、Zigbee、6LoWPAN。</li>
+  <li><strong>可穿戴设备</strong>：蓝牙、WBAN。</li>
+  <li><strong>工业自动化</strong>：Zigbee、6LoWPAN、NB-IoT。</li>
+  <li><strong>远程监控</strong>：NB-IoT、6LoWPAN。</li>
+  <li><strong>医疗健康</strong>：WBAN、蓝牙。</li>
+  <li><strong>智能城市</strong>：NB-IoT、eMTC。</li>
+</ul>
+
+<h4 id="2-根据带宽需求选择">2. 根据带宽需求选择</h4>
+<ul>
+  <li><strong>高带宽</strong>：WiFi、UWB、eMTC。</li>
+  <li><strong>中等带宽</strong>：eMTC、WiFi。</li>
+  <li><strong>低带宽</strong>：NB-IoT、Zigbee、6LoWPAN、WBAN。</li>
+</ul>
+
+<h4 id="3-根据功耗要求选择">3. 根据功耗要求选择</h4>
+<ul>
+  <li><strong>低功耗</strong>：NB-IoT、Zigbee、6LoWPAN、WBAN。</li>
+  <li><strong>中等功耗</strong>：蓝牙、eMTC。</li>
+  <li><strong>高功耗</strong>：WiFi、UWB。</li>
+</ul>
+
+<h4 id="4-根据覆盖范围选择">4. 根据覆盖范围选择</h4>
+<ul>
+  <li><strong>短距离</strong>：蓝牙、WBAN、UWB。</li>
+  <li><strong>中距离</strong>：WiFi、Zigbee、6LoWPAN。</li>
+  <li><strong>长距离</strong>：NB-IoT、eMTC。</li>
+</ul>
+
+<h3 id="总结">总结</h3>
+
+<p>选择合适的物联网接入技术需要根据具体的应用场景、带宽需求、功耗要求和覆盖范围进行综合考虑。通过理解每种技术的优缺点和适用场景，可以更好地匹配应用需求，实现高效的物联网解决方案。</p>
+
+<p>选择适合的物联网接入技术需要考虑多个因素，包括应用场景、带宽需求、覆盖范围、成本、安装难度和可靠性等。以下是对局域网接入、电话交换网与ADSL接入技术、广播电视网与HFC接入技术、电力线接入技术的详细介绍和选择指南。</p>
+
+<h2 id="有线">有线</h2>
+
+<h3 id="1-局域网接入技术">1. 局域网接入技术</h3>
+<h4 id="概述-8">概述</h4>
+<p>局域网（LAN）接入技术通常使用以太网（Ethernet）进行数据传输，适用于需要高带宽和低延迟的本地网络连接。</p>
+
+<h4 id="优点-8">优点</h4>
+<ul>
+  <li><strong>高带宽</strong>：支持高速数据传输，适用于视频监控、工业自动化等需要高数据速率的应用。</li>
+  <li><strong>低延迟</strong>：实时性好，适合需要快速响应的应用。</li>
+  <li><strong>稳定性高</strong>：有线连接稳定性好，抗干扰能力强。</li>
+</ul>
+
+<h4 id="缺点-8">缺点</h4>
+<ul>
+  <li><strong>安装成本高</strong>：需要布线，安装和维护成本较高。</li>
+  <li><strong>覆盖范围有限</strong>：适用于小范围的本地网络。</li>
+</ul>
+
+<h4 id="应用场景-8">应用场景</h4>
+<ul>
+  <li>工业自动化</li>
+  <li>智能建筑</li>
+  <li>数据中心</li>
+  <li>视频监控</li>
+</ul>
+
+<h3 id="2-电话交换网与adsl接入技术">2. 电话交换网与ADSL接入技术</h3>
+<h4 id="概述-9">概述</h4>
+<p>ADSL（Asymmetric Digital Subscriber Line）通过传统电话线提供宽带接入，适用于现有电话网络覆盖的区域。</p>
+
+<h4 id="优点-9">优点</h4>
+<ul>
+  <li><strong>利用现有基础设施</strong>：无需重新布线，降低安装成本。</li>
+  <li><strong>较高的下行带宽</strong>：适用于大多数家庭和小型办公室的需求。</li>
+  <li><strong>同时传输语音和数据</strong>：不影响电话通话。</li>
+</ul>
+
+<h4 id="缺点-9">缺点</h4>
+<ul>
+  <li><strong>上行带宽有限</strong>：不适合需要高上传速度的应用。</li>
+  <li><strong>距离限制</strong>：距离电话交换局越远，带宽和信号质量越差。</li>
+</ul>
+
+<h4 id="应用场景-9">应用场景</h4>
+<ul>
+  <li>家庭网络</li>
+  <li>小型办公室</li>
+  <li>远程监控</li>
+</ul>
+
+<h3 id="3-广播电视网与hfc接入技术">3. 广播电视网与HFC接入技术</h3>
+<h4 id="概述-10">概述</h4>
+<p>HFC（Hybrid Fiber-Coaxial）利用光纤和同轴电缆的组合提供宽带接入，通常用于有线电视网络。</p>
+
+<h4 id="优点-10">优点</h4>
+<ul>
+  <li><strong>高带宽</strong>：支持高速互联网接入，适合大数据传输。</li>
+  <li><strong>覆盖范围广</strong>：利用现有的有线电视网络覆盖广泛区域。</li>
+  <li><strong>双向通信</strong>：支持互联网和有线电视信号的双向传输。</li>
+</ul>
+
+<h4 id="缺点-10">缺点</h4>
+<ul>
+  <li><strong>成本较高</strong>：安装和维护成本较高。</li>
+  <li><strong>信号衰减</strong>：同轴电缆在长距离传输中存在信号衰减问题。</li>
+</ul>
+
+<h4 id="应用场景-10">应用场景</h4>
+<ul>
+  <li>智能家庭</li>
+  <li>社区宽带网络</li>
+  <li>视频点播和流媒体服务</li>
+</ul>
+
+<h3 id="4-电力线接入技术">4. 电力线接入技术</h3>
+<h4 id="概述-11">概述</h4>
+<p>电力线通信（PLC）通过现有的电力线进行数据传输，适用于利用电力基础设施的场景。</p>
+
+<h4 id="优点-11">优点</h4>
+<ul>
+  <li><strong>利用现有电力线</strong>：无需额外布线，安装简便。</li>
+  <li><strong>覆盖范围广</strong>：电力线覆盖范围广，适用于较大区域。</li>
+  <li><strong>适应性强</strong>：适用于各种电力环境，特别是建筑内部。</li>
+</ul>
+
+<h4 id="缺点-11">缺点</h4>
+<ul>
+  <li><strong>干扰问题</strong>：电力线环境复杂，容易受到干扰。</li>
+  <li><strong>带宽有限</strong>：相比其他有线技术，带宽较低。</li>
+</ul>
+
+<h4 id="应用场景-11">应用场景</h4>
+<ul>
+  <li>智能电网</li>
+  <li>智能家居</li>
+  <li>工业控制</li>
+</ul>
+
+<h3 id="选择指南-1">选择指南</h3>
+
+<ol>
+  <li><strong>带宽需求</strong>
+    <ul>
+      <li>高带宽需求（如视频监控、数据中心）：优先选择局域网接入技术或HFC接入技术。</li>
+      <li>中等带宽需求（如家庭网络、远程监控）：ADSL接入技术或HFC接入技术。</li>
+      <li>低带宽需求（如智能家居控制、传感器数据传输）：电力线接入技术或ADSL接入技术。</li>
+    </ul>
+  </li>
+  <li><strong>覆盖范围</strong>
+    <ul>
+      <li>小范围（如单个建筑、工厂）：局域网接入技术。</li>
+      <li>大范围（如社区、农村地区）：HFC接入技术或电力线接入技术。</li>
+    </ul>
+  </li>
+  <li><strong>成本考虑</strong>
+    <ul>
+      <li>利用现有基础设施（如电话线、电力线）：ADSL接入技术或电力线接入技术。</li>
+      <li>可接受较高安装成本以换取高带宽和稳定性：局域网接入技术或HFC接入技术。</li>
+    </ul>
+  </li>
+  <li><strong>安装和维护</strong>
+    <ul>
+      <li>简便安装：电力线接入技术。</li>
+      <li>专业安装和维护：局域网接入技术或HFC接入技术。</li>
+    </ul>
+  </li>
+  <li><strong>应用场景</strong>
+    <ul>
+      <li>工业自动化、智能建筑：局域网接入技术。</li>
+      <li>家庭网络、智能家居：ADSL接入技术或HFC接入技术。</li>
+      <li>智能电网、广域监控：电力线接入技术。</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="结论">结论</h3>
+
+<p>根据具体的应用需求和环境条件，可以选择最适合的物联网接入技术。综合考虑带宽需求、覆盖范围、成本和安装维护等因素，可以优化物联网系统的性能和成本效益。</p>
+
+<h2 id="移动定位技术的优缺点">移动定位技术的优缺点</h2>
+
+<h3 id="移动通信定位技术">移动通信定位技术</h3>
+
+<h4 id="优点-12">优点</h4>
+
+<ul>
+  <li><strong>广覆盖</strong>：移动通信网络覆盖范围广，几乎全球可用。</li>
+  <li><strong>实时性强</strong>：定位和追踪实时性高，适合动态环境。</li>
+  <li><strong>多种选择</strong>：可以根据应用场景选择不同的定位技术，灵活性高。</li>
+</ul>
+
+<h4 id="缺点-12">缺点</h4>
+
+<ul>
+  <li><strong>定位精度受限</strong>：不同技术的定位精度存在差异，受环境因素影响较大。</li>
+  <li><strong>隐私问题</strong>：需要处理用户隐私和数据安全问题。</li>
+  <li><strong>耗电量大</strong>：部分定位技术（如GPS）耗电量较大，不适合长期使用。</li>
+</ul>
+
+<h2 id="agps系统">A—GPS系统</h2>
+
+<h4 id="优点-13">优点</h4>
+
+<ol>
+  <li><strong>快速定位</strong>：显著减少首次定位时间（TTFF），在冷启动时尤其明显。</li>
+  <li><strong>提高精度</strong>：在信号弱或受干扰的环境中（如城市峡谷、室内），A-GPS提供的辅助数据有助于提高定位精度。</li>
+  <li><strong>低功耗</strong>：缩短定位时间，减少设备功耗。</li>
+  <li><strong>增强覆盖</strong>：在传统GPS难以覆盖的区域，A-GPS通过移动网络提供辅助数据，提升定位能力。</li>
+</ol>
+
+<h4 id="缺点-13">缺点</h4>
+
+<ol>
+  <li><strong>依赖网络</strong>：需要移动通信网络支持，如果网络不可用，A-GPS功能将受限。</li>
+  <li><strong>隐私问题</strong>：通过网络传输位置信息，可能存在隐私和数据安全问题。</li>
+</ol>
+
+<h2 id="基于wifi定位技术">基于WIFI定位技术</h2>
+
+<h4 id="优点-14">优点</h4>
+
+<ul>
+  <li><strong>无需视距</strong>：WiFi信号可以穿透大多数非金属物体，适用于室内和城市环境。</li>
+  <li><strong>广泛覆盖</strong>：利用现有的WiFi基础设施，无需额外部署硬件。</li>
+  <li><strong>高精度</strong>：在室内环境中，可以达到较高的定位精度（一般在几米范围内）。</li>
+</ul>
+
+<h4 id="缺点-14">缺点</h4>
+
+<ul>
+  <li><strong>信号干扰</strong>：WiFi信号容易受到环境和其他无线设备的干扰，影响定位精度。</li>
+  <li><strong>指纹数据库构建复杂</strong>：指纹匹配法需要预先构建和维护信号指纹数据库，工作量较大。</li>
+  <li><strong>能耗较高</strong>：设备需要频繁扫描WiFi信号，耗电量较大。</li>
+</ul>
+
+<h2 id="基于rfid定位技术">基于RFID定位技术</h2>
+
+<h4 id="优点-15">优点</h4>
+
+<ol>
+  <li><strong>无需视距</strong>：RFID信号可以穿透大多数非金属物体，实现非视距通信。</li>
+  <li><strong>快速读取</strong>：可以同时读取多个标签，提高效率。</li>
+  <li><strong>低成本</strong>：标签成本较低，适合大规模应用。</li>
+  <li><strong>多功能性</strong>：不仅可以实现定位，还可以存储和传输数据。</li>
+</ol>
+
+<h4 id="缺点-15">缺点</h4>
+
+<ol>
+  <li><strong>精度受限</strong>：定位精度相对较低，受环境因素影响较大。</li>
+  <li><strong>干扰问题</strong>：容易受到金属物体和电磁干扰的影响。</li>
+  <li><strong>能耗问题</strong>：有源标签需要电池供电，使用寿命受限。</li>
+</ol>
+
+<h2 id="wsn定位技术">WSN定位技术</h2>
+
+<h4 id="优点-16">优点</h4>
+
+<ul>
+  <li><strong>无需基础设施</strong>：适用于各种环境，尤其是在缺乏基础设施的区域。</li>
+  <li><strong>自组织网络</strong>：传感器节点可以自动组建网络，灵活性高。</li>
+  <li><strong>多功能性</strong>：传感器节点不仅可以定位，还可以收集环境数据。</li>
+</ul>
+
+<h4 id="缺点-16">缺点</h4>
+
+<ul>
+  <li><strong>定位精度受限</strong>：受环境干扰、信号衰减等因素影响，定位精度不如GPS等技术。</li>
+  <li><strong>能耗较高</strong>：频繁通信和计算增加了节点的能耗。</li>
+  <li><strong>复杂性</strong>：需要复杂的算法和多节点协作，增加系统复杂性。</li>
+</ul>
+
+<h2 id="汇聚层的主要功能">汇聚层的主要功能</h2>
+
+<h4 id="1-数据收集和汇聚">1. 数据收集和汇聚</h4>
+
+<ul>
+  <li><strong>数据整合</strong>：从多个接入层设备（如传感器、网关）收集数据，并进行整合处理。</li>
+  <li><strong>协议转换</strong>：实现不同通信协议之间的转换，确保数据在不同设备和系统之间能够无缝传输。</li>
+</ul>
+
+<h4 id="2-数据预处理和过滤">2. 数据预处理和过滤</h4>
+
+<ul>
+  <li><strong>数据清洗</strong>：对收集到的数据进行清洗，去除噪声和无效数据，确保数据质量。</li>
+  <li><strong>数据过滤</strong>：根据预定义的规则或条件过滤数据，只传输有价值的信息，减少传输负荷。</li>
+  <li><strong>数据压缩</strong>：对数据进行压缩处理，减少数据传输所需的带宽。</li>
+</ul>
+
+<h4 id="3-边缘计算和分析">3. 边缘计算和分析</h4>
+
+<ul>
+  <li><strong>实时处理</strong>：在本地进行实时数据处理和分析，减少延迟，提高响应速度。</li>
+  <li><strong>事件检测</strong>：实时检测数据中的异常事件或特定模式，并触发相应的响应或警报。</li>
+  <li><strong>边缘智能</strong>：利用机器学习和人工智能算法，在本地实现智能决策和自动化控制。</li>
+</ul>
+
+<h4 id="4-数据存储和缓存">4. 数据存储和缓存</h4>
+
+<ul>
+  <li><strong>本地存储</strong>：在本地存储短期或中期的数据，以便快速访问和处理。</li>
+  <li><strong>数据缓存</strong>：缓存临时数据，减少数据传输的频率和延迟，提高系统性能。</li>
+</ul>
+
+<h4 id="5-安全管理">5. 安全管理</h4>
+
+<ul>
+  <li><strong>数据加密</strong>：对数据进行加密处理，确保数据在传输过程中的安全性。</li>
+  <li><strong>身份认证</strong>：验证接入设备的身份，确保只有授权设备能够连接和传输数据。</li>
+  <li><strong>访问控制</strong>：设置访问控制策略，确保数据和系统的安全性。</li>
+</ul>
+
+<h4 id="6-数据转发和传输">6. 数据转发和传输</h4>
+
+<ul>
+  <li><strong>数据转发</strong>：将预处理后的数据转发到核心交换层或管理服务层进行进一步处理和存储。</li>
+  <li><strong>网络优化</strong>：优化数据传输路径，确保高效、可靠的数据传输。</li>
+</ul>
+
+<h2 id="接入层的作用">接入层的作用</h2>
+
+<h4 id="1-数据收集和整合">1. 数据收集和整合</h4>
+
+<ul>
+  <li><strong>数据收集</strong>：从各种传感器和设备收集数据，整合来自不同类型设备的数据流。</li>
+  <li><strong>数据聚合</strong>：将来自多个传感器的数据汇聚到一个网关设备中，进行初步处理和整合。</li>
+</ul>
+
+<h4 id="2-数据初步处理">2. 数据初步处理</h4>
+
+<ul>
+  <li><strong>数据预处理</strong>：对数据进行初步处理，如滤波、去噪、归一化等，确保数据质量。</li>
+  <li><strong>数据压缩</strong>：对数据进行压缩，减少传输所需的带宽。</li>
+</ul>
+
+<h4 id="3-通信和协议转换">3. 通信和协议转换</h4>
+
+<ul>
+  <li><strong>多种通信技术支持</strong>：支持多种无线和有线通信技术，如Wi-Fi、蓝牙、Zigbee、LoRa、NB-IoT、Ethernet等。</li>
+  <li><strong>协议转换</strong>：实现不同通信协议之间的转换，确保不同类型设备能够互操作。</li>
+</ul>
+
+<h4 id="4-数据传输和中继">4. 数据传输和中继</h4>
+
+<ul>
+  <li><strong>数据传输</strong>：将收集和处理后的数据传输到汇聚层或远端服务器。</li>
+  <li><strong>数据中继</strong>：在大范围物联网部署中，接入层设备（如网关）可以作为中继节点，帮助扩展网络覆盖范围。</li>
+</ul>
+
+<h4 id="5-安全管理-1">5. 安全管理</h4>
+
+<ul>
+  <li><strong>数据加密</strong>：在数据传输过程中，对数据进行加密，确保数据的安全性。</li>
+  <li><strong>身份认证</strong>：验证连接设备的身份，确保只有授权设备可以接入网络。</li>
+</ul>
+
+<h4 id="6-设备管理">6. 设备管理</h4>
+
+<ul>
+  <li><strong>设备配置</strong>：管理和配置连接到接入层的传感器和设备，设置参数和运行模式。</li>
+  <li><strong>固件升级</strong>：支持远程或本地的固件升级，保持设备软件的最新和安全。</li>
+</ul>
+
+<h2 id="管理服务层的主要功能">管理服务层的主要功能</h2>
+
+<h4 id="1-设备管理">1. 设备管理</h4>
+
+<ul>
+  <li><strong>设备注册和配置</strong>：管理新设备的注册，配置设备参数和运行模式。</li>
+  <li><strong>设备监控</strong>：实时监控设备的状态和性能，检测故障和异常情况。</li>
+  <li><strong>远程维护</strong>：远程诊断和修复设备故障，减少现场维护的需求。</li>
+  <li><strong>固件升级</strong>：远程或本地进行设备固件升级，确保设备的软件保持最新和安全。</li>
+</ul>
+
+<h4 id="2-数据管理">2. 数据管理</h4>
+
+<ul>
+  <li><strong>数据存储</strong>：存储从接入层和汇聚层收集的数据，确保数据的持久性和可靠性。</li>
+  <li><strong>数据处理和分析</strong>：对数据进行清洗、整理和分析，提取有价值的信息。</li>
+  <li><strong>数据可视化</strong>：提供数据的可视化工具，如图表、仪表盘，帮助用户理解和利用数据。</li>
+  <li><strong>大数据分析</strong>：利用大数据技术对海量数据进行分析，支持预测性维护、智能决策等高级应用。</li>
+</ul>
+
+<h4 id="3-安全管理">3. 安全管理</h4>
+
+<ul>
+  <li><strong>数据加密</strong>：确保数据在存储和传输过程中的安全性，防止数据泄露和篡改。</li>
+  <li><strong>身份认证和授权</strong>：管理用户和设备的身份认证，确保只有授权用户和设备可以访问系统。</li>
+  <li><strong>入侵检测和防御</strong>：实时检测和防御网络攻击，保护系统的安全。</li>
+  <li><strong>安全策略管理</strong>：制定和实施系统安全策略，确保系统的整体安全性。</li>
+</ul>
+
+<h4 id="4-系统管理">4. 系统管理</h4>
+
+<ul>
+  <li><strong>配置管理</strong>：管理系统的配置参数，确保系统的正常运行和优化性能。</li>
+  <li><strong>日志管理</strong>：记录系统运行日志，支持故障排查和性能分析。</li>
+  <li><strong>资源管理</strong>：管理系统资源的使用，如计算资源、存储资源和网络资源，确保资源的有效利用。</li>
+  <li><strong>服务编排和调度</strong>：管理和调度系统内的各种服务，确保服务的高效运行和协调工作。</li>
+</ul>
+
+<h4 id="5-应用管理">5. 应用管理</h4>
+
+<ul>
+  <li><strong>应用部署</strong>：部署和管理物联网应用，确保应用的正常运行。</li>
+  <li><strong>应用监控</strong>：实时监控应用的性能和状态，及时发现和解决问题。</li>
+  <li><strong>应用更新</strong>：管理应用的更新和升级，确保应用的持续优化和改进。</li>
+</ul>
+
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-06-26T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2024/06/26/%E7%89%A9%E8%81%94%E7%BD%91%E6%9C%9F%E6%9C%AB%E5%A4%8D%E4%B9%A0.html">物联网期末复习</a></div><div class="next"><span>下篇</span><a href="/2024/10/10/%E5%8D%9A%E5%AE%A2%E7%9A%84%E5%BC%80%E5%A4%B4.html">博客的开头</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Gao Xingjie"><meta itemprop="url" content="/"><meta itemprop="description" content="To be a question, to be an answer."><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"><li title="给我发邮件。">
+      <a class="button button--circle mail-button" itemprop="email" href="mailto:xingjie-gao@outlook.com" target="_blank">
+        <i class="fas fa-envelope"></i>
+      </a><li title="在 Github 上关注我。">
+        <a class="button button--circle github-button" itemprop="sameAs" href="https://github.com/Kfkcome" target="_blank">
+          <div class="icon"><svg fill="#000000" width="24px" height="24px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path class="svgpath" data-index="path_0" fill="#272636" d="M0 525.2c0 223.6 143.3 413.7 343 483.5 26.9 6.8 22.8-12.4 22.8-25.4l0-88.7c-155.3 18.2-161.5-84.6-172-101.7-21.1-36-70.8-45.2-56-62.3 35.4-18.2 71.4 4.6 113.1 66.3 30.2 44.7 89.1 37.2 119 29.7 6.5-26.9 20.5-50.9 39.7-69.6C248.8 728.2 181.7 630 181.7 513.2c0-56.6 18.7-108.7 55.3-150.7-23.3-69.3 2.2-128.5 5.6-137.3 66.5-6 135.5 47.6 140.9 51.8 37.8-10.2 80.9-15.6 129.1-15.6 48.5 0 91.8 5.6 129.8 15.9 12.9-9.8 77-55.8 138.8-50.2 3.3 8.8 28.2 66.7 6.3 135 37.1 42.1 56 94.6 56 151.4 0 117-67.5 215.3-228.8 243.7 26.9 26.6 43.6 63.4 43.6 104.2l0 128.8c0.9 10.3 0 20.5 17.2 20.5C878.1 942.4 1024 750.9 1024 525.3c0-282.9-229.3-512-512-512C229.1 13.2 0 242.3 0 525.2L0 525.2z" />
+</svg>
+</div>
+        </a>
+      </li></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© Ennis's Blog 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script>
+  window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
+    var $canvas = null, $this = null, _ctx = null, _text = '';
+    $('.language-chart').each(function(){
+      $this = $(this);
+      $canvas = $('<canvas></canvas>');
+      _text = $this.text();
+      $this.text('').append($canvas);
+      _ctx = $canvas.get(0).getContext('2d');
+      (_ctx && _text) && (new Chart(_ctx, JSON.parse(_text)) && $this.attr('data-processed', true));
+    });
+  });
+</script>
+<script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};_config.TeX = { equationNumbers: { autoNumber: "all" } };MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+
