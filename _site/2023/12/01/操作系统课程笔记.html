@@ -287,7 +287,7 @@
               <a class="button button--secondary button--pill button--sm"
                 href="/archive.html?tag=%E8%AF%BE%E7%A8%8B%E7%AC%94%E8%AE%B0">课程笔记</a>
             </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2023年 12月01日</span>
-            </li><li><i class="far fa-eye"></i> <span class="js-pageview" data-page-key="">0</span> 阅读</li></ul></div><div class="article__header"><header><h1>操作系统课程笔记</h1></header><span class="split-space">&nbsp;</span>
+            </li><li><i class="far fa-eye"></i> <span class="js-pageview" data-page-key="post20">0</span> 阅读</li></ul></div><div class="article__header"><header><h1>操作系统课程笔记</h1></header><span class="split-space">&nbsp;</span>
           <a class="edit-on-github"
             title="在 Github 上修改"
             href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2023-12-1-操作系统课程笔记.md">
@@ -3089,7 +3089,97 @@ window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
     mermaid.init(undefined, '.language-mermaid');
   });
 </script>
+<script>(function() {
+  function errorHandler(error, callback) {
+    if (error) {
+      callback && callback(error);
+      throw error;
+    }
+  }
 
+  function pageview(_AV, options) {
+    var AV = _AV;
+    var appId, appKey, appClass;
+    appId = options.appId;
+    appKey = options.appKey;
+    appClass = options.appClass;
+    if (!AV.applicationId) {
+      AV.init({
+        serverURLs: 'https://avoscloud.com',
+        appId: appId,
+        appKey: appKey
+      });
+    } else {
+      console.log('LeanCloud SDK 已经初始化过了。');
+    }
+    return {
+      get: get,
+      increase: increase
+    };
+
+    function searchKey(key) {
+      var query = new AV.Query(appClass);
+      query.equalTo('key', key);
+      return query.first();
+    }
+
+    function insert(key, title) {
+      var Blog = AV.Object.extend(appClass);
+      var blog = new Blog();
+      blog.set('title', title);
+      blog.set('key', key);
+      blog.set('views', 0);
+      return blog.save();
+    }
+
+    function increment(result) {
+      result.increment('views', 1);
+      return result.save(null, {
+        fetchWhenSave: true
+      });
+    }
+
+    function get(key, callback) {
+      searchKey(key).then(function(result) {
+        if (result) {
+          callback && callback(result.attributes.views);
+        }
+      }, errorHandler);
+    }
+
+    function increase(key, title, callback) {
+      searchKey(key).then(function(result) {
+        if (result) {
+          increment(result).then(function(result) {
+            callback && callback(result.attributes.views);
+          });
+        } else {
+          insert(key, title).then(function(result) {
+            increment(result).then(function(result) {
+              callback && callback(result.attributes.views);
+            });
+          }, errorHandler);
+        }
+      }, errorHandler);
+    }
+  }
+  window.pageview = pageview;
+})();
+</script>
+  <script>
+    window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js'], function() {
+      var pageview = window.pageview(AV, {
+        appId:    'ONcOJaEzueQcEXVrHVv5dQ4F-gzGzoHsz',
+        appKey:   '0iORBozCMxniZ0spe5QY9zCO',
+        appClass: 'Test'
+      });
+      var key =   'post20';
+      var title = "操作系统课程笔记";
+      pageview.increase(key, title, function(view) {
+        $("[data-page-key='post20']").text(view);
+      });
+    });
+  </script>
     </div>
     <script>(function () {
   var $root = document.getElementsByClassName('root')[0];

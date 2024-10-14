@@ -287,7 +287,7 @@
               <a class="button button--secondary button--pill button--sm"
                 href="/archive.html?tag=%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">实验报告</a>
             </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2023年 03月21日</span>
-            </li><li><i class="far fa-eye"></i> <span class="js-pageview" data-page-key="">0</span> 阅读</li></ul></div><div class="article__header"><header><h1>EDA数字逻辑与电路实验一</h1></header><span class="split-space">&nbsp;</span>
+            </li><li><i class="far fa-eye"></i> <span class="js-pageview" data-page-key="post5">0</span> 阅读</li></ul></div><div class="article__header"><header><h1>EDA数字逻辑与电路实验一</h1></header><span class="split-space">&nbsp;</span>
           <a class="edit-on-github"
             title="在 Github 上修改"
             href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2023-3-21-EDA实验一.md">
@@ -309,8 +309,8 @@
 
 <!---more-->
 
-<style> .pdf-embed-wrap-c22e0ec9-565e-4a38-b949-b373d696f281 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-c22e0ec9-565e-4a38-b949-b373d696f281 { height: 100%; } .pdf-embed-container-c22e0ec9-565e-4a38-b949-b373d696f281 iframe { width: 100%; height: 100%; } </style>
-<div class="pdf-embed-wrap-c22e0ec9-565e-4a38-b949-b373d696f281"> <div class="pdf-embed-container-c22e0ec9-565e-4a38-b949-b373d696f281"> <iframe src="/assets/pdf/EDA数字逻辑与电路/实验一.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>
+<style> .pdf-embed-wrap-6e9e282e-9e99-43dd-ab31-54b276587171 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-6e9e282e-9e99-43dd-ab31-54b276587171 { height: 100%; } .pdf-embed-container-6e9e282e-9e99-43dd-ab31-54b276587171 iframe { width: 100%; height: 100%; } </style>
+<div class="pdf-embed-wrap-6e9e282e-9e99-43dd-ab31-54b276587171"> <div class="pdf-embed-container-6e9e282e-9e99-43dd-ab31-54b276587171"> <iframe src="/assets/pdf/EDA数字逻辑与电路/实验一.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>
 </div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2023-03-21T00:00:00+08:00"><!-- start custom article footer snippet -->
 
 <!-- end custom article footer snippet -->
@@ -996,7 +996,97 @@ window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
     mermaid.init(undefined, '.language-mermaid');
   });
 </script>
+<script>(function() {
+  function errorHandler(error, callback) {
+    if (error) {
+      callback && callback(error);
+      throw error;
+    }
+  }
 
+  function pageview(_AV, options) {
+    var AV = _AV;
+    var appId, appKey, appClass;
+    appId = options.appId;
+    appKey = options.appKey;
+    appClass = options.appClass;
+    if (!AV.applicationId) {
+      AV.init({
+        serverURLs: 'https://avoscloud.com',
+        appId: appId,
+        appKey: appKey
+      });
+    } else {
+      console.log('LeanCloud SDK 已经初始化过了。');
+    }
+    return {
+      get: get,
+      increase: increase
+    };
+
+    function searchKey(key) {
+      var query = new AV.Query(appClass);
+      query.equalTo('key', key);
+      return query.first();
+    }
+
+    function insert(key, title) {
+      var Blog = AV.Object.extend(appClass);
+      var blog = new Blog();
+      blog.set('title', title);
+      blog.set('key', key);
+      blog.set('views', 0);
+      return blog.save();
+    }
+
+    function increment(result) {
+      result.increment('views', 1);
+      return result.save(null, {
+        fetchWhenSave: true
+      });
+    }
+
+    function get(key, callback) {
+      searchKey(key).then(function(result) {
+        if (result) {
+          callback && callback(result.attributes.views);
+        }
+      }, errorHandler);
+    }
+
+    function increase(key, title, callback) {
+      searchKey(key).then(function(result) {
+        if (result) {
+          increment(result).then(function(result) {
+            callback && callback(result.attributes.views);
+          });
+        } else {
+          insert(key, title).then(function(result) {
+            increment(result).then(function(result) {
+              callback && callback(result.attributes.views);
+            });
+          }, errorHandler);
+        }
+      }, errorHandler);
+    }
+  }
+  window.pageview = pageview;
+})();
+</script>
+  <script>
+    window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js'], function() {
+      var pageview = window.pageview(AV, {
+        appId:    'ONcOJaEzueQcEXVrHVv5dQ4F-gzGzoHsz',
+        appKey:   '0iORBozCMxniZ0spe5QY9zCO',
+        appClass: 'Test'
+      });
+      var key =   'post5';
+      var title = "EDA数字逻辑与电路实验一";
+      pageview.increase(key, title, function(view) {
+        $("[data-page-key='post5']").text(view);
+      });
+    });
+  </script>
     </div>
     <script>(function () {
   var $root = document.getElementsByClassName('root')[0];

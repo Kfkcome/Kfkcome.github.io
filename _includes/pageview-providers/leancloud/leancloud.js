@@ -12,11 +12,15 @@
     appId = options.appId;
     appKey = options.appKey;
     appClass = options.appClass;
-    AV.init({
-      serverURLs: 'https://avoscloud.com',
-      appId: appId,
-      appKey: appKey
-    });
+    if (!AV.applicationId) {
+      AV.init({
+        serverURLs: 'https://avoscloud.com',
+        appId: appId,
+        appKey: appKey
+      });
+    } else {
+      console.log('LeanCloud SDK 已经初始化过了。');
+    }
     return {
       get: get,
       increase: increase
