@@ -74,12 +74,18 @@ html,
 
 .page__sidebar {
   z-index: map-get($z-indexes, sidebar);
-  display: block;
+  display: flex;
+  flex-direction: column; /* 垂直方向排列 */
+  // justify-content: center; /* 垂直方向居中 */
+  align-items: center; /* 水平方向居中 */
   width: 80%;
   max-width: map-get($layout, sidebar-width);
-  height: 100%;
+  height: calc(100% - map-get($layout, header-height)); /* 减去顶栏的高度 */
+  margin-top: map-get($layout, header-height); /* 设置顶栏的高度 */
+
   background-color: $background-color;
-  @include split-line(right);
+  border-left: none;
+  // @include split-line(right);
   @include transition(transform map-get($animation, duration));
   @include overflow(auto);
   .sidebar-toc {

@@ -1,3 +1,4 @@
+@charset "UTF-8";
 figure.highlight::before {
   color: #7285b7 !important;
   background-color: #002451 !important;
@@ -267,6 +268,32 @@ pre.lineno {
   color: #ffc58f;
 }
 
+/* paragraph indention */
+/* system typefaces */
+/* sans serif typefaces */
+/* serif typefaces */
+/* type scale */
+/*
+  Colors
+  ========================================================================== */
+/* brands */
+/* links */
+/*
+  Breakpoints
+  ========================================================================== */
+/*
+$small                      : 400px;
+$medium                     : 500px;
+$medium-wide                : 550px;
+$large                      : 1200px;
+$x-large                    : 1800px;
+*/
+/*
+  Grid
+  ========================================================================== */
+/*
+  Other
+  ========================================================================== */
 /* stylelint-disable at-rule-name-space-after, at-rule-semicolon-space-before  */
 .clearfix::after {
   display: table;
@@ -1520,7 +1547,7 @@ table,
 
 input, textarea, select, button {
   font: 400 1rem/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-  color: rgba(0, 0, 0, 0.85);
+  color: #494e52;
 }
 
 h1,
@@ -1565,7 +1592,7 @@ h3 {
 
 h4 {
   font-size: 1.2rem;
-  color: rgba(0, 0, 0, 0.85);
+  color: #494e52;
 }
 @media (max-width: 499px) {
   h4 {
@@ -1575,7 +1602,7 @@ h4 {
 
 h5 {
   font-size: 1rem;
-  color: rgba(0, 0, 0, 0.85);
+  color: #494e52;
 }
 @media (max-width: 499px) {
   h5 {
@@ -2928,7 +2955,7 @@ input:focus {
 ul.toc {
   display: block;
   margin: 0;
-  color: rgba(0, 0, 0, 0.85);
+  color: #494e52;
   list-style-type: none;
 }
 ul.toc > li {
@@ -3003,7 +3030,7 @@ ul.toc .toc-h5 a:visited,
 ul.toc .toc-h6 a,
 ul.toc .toc-h6 a:link,
 ul.toc .toc-h6 a:visited {
-  color: rgba(0, 0, 0, 0.85);
+  color: #494e52;
 }
 .root[data-is-touch=false] ul.toc .toc-h1 a:hover,
 .root[data-is-touch=false] ul.toc .toc-h2 a:hover,
@@ -3037,7 +3064,7 @@ ul.toc .toc-h5 a.disabled,
 ul.toc .toc-h5 a:disabled,
 ul.toc .toc-h6 a.disabled,
 ul.toc .toc-h6 a:disabled {
-  color: rgba(0, 0, 0, 0.2) !important;
+  color: rgba(73, 78, 82, 0.2) !important;
 }
 ul.toc .toc-h1.active a,
 ul.toc .toc-h2.active a,
@@ -3307,7 +3334,7 @@ ul.toc--navigator .toc-h4 a:disabled {
   color: rgba(0, 0, 0, 0.4) !important;
 }
 ul.toc--navigator .toc-h1 {
-  color: rgba(0, 0, 0, 0.85);
+  color: #494e52;
 }
 ul.toc--navigator .toc-h1, ul.toc--navigator .toc-h1 a {
   font-size: 1rem;
@@ -3461,7 +3488,7 @@ a > .item__header.disabled, a > .item__header:disabled, a.item__header.disabled,
   margin-top: 1rem;
 }
 .item__description h1, .item__description h2, .item__description h3, .item__description .article__content h1, .item__description .article__content h2, .item__description .article__content h3 {
-  color: rgba(0, 0, 0, 0.85);
+  color: #494e52;
 }
 .item__description h1, .item__description h2, .item__description .article__content h1, .item__description .article__content h2 {
   padding: 0;
@@ -4284,7 +4311,7 @@ a > .item__header.disabled, a > .item__header:disabled, a.item__header.disabled,
   text-decoration: none;
 }
 .article__content h1 > .anchor, .article__content h1 > .anchor:link, .article__content h1 > .anchor:visited, .article__content h2 > .anchor, .article__content h2 > .anchor:link, .article__content h2 > .anchor:visited, .article__content h3 > .anchor, .article__content h3 > .anchor:link, .article__content h3 > .anchor:visited, .article__content h4 > .anchor, .article__content h4 > .anchor:link, .article__content h4 > .anchor:visited, .article__content h5 > .anchor, .article__content h5 > .anchor:link, .article__content h5 > .anchor:visited, .article__content h6 > .anchor, .article__content h6 > .anchor:link, .article__content h6 > .anchor:visited {
-  color: #cccccc;
+  color: #f2f3f3;
 }
 .root[data-is-touch=false] .article__content h1 > .anchor:hover, .root[data-is-touch=false] .article__content h2 > .anchor:hover, .root[data-is-touch=false] .article__content h3 > .anchor:hover, .root[data-is-touch=false] .article__content h4 > .anchor:hover, .root[data-is-touch=false] .article__content h5 > .anchor:hover, .root[data-is-touch=false] .article__content h6 > .anchor:hover {
   color: #0366d6;
@@ -4293,7 +4320,7 @@ a > .item__header.disabled, a > .item__header:disabled, a.item__header.disabled,
   color: #02428b;
 }
 .article__content h1 > .anchor.disabled, .article__content h1 > .anchor:disabled, .article__content h2 > .anchor.disabled, .article__content h2 > .anchor:disabled, .article__content h3 > .anchor.disabled, .article__content h3 > .anchor:disabled, .article__content h4 > .anchor.disabled, .article__content h4 > .anchor:disabled, .article__content h5 > .anchor.disabled, .article__content h5 > .anchor:disabled, .article__content h6 > .anchor.disabled, .article__content h6 > .anchor:disabled {
-  color: rgba(204, 204, 204, 0.2) !important;
+  color: rgba(242, 243, 243, 0.2) !important;
 }
 .article__content h1 > .anchor > i, .article__content h2 > .anchor > i, .article__content h3 > .anchor > i, .article__content h4 > .anchor > i, .article__content h5 > .anchor > i, .article__content h6 > .anchor > i {
   font-size: 0.85rem;
@@ -4323,7 +4350,7 @@ a > .item__header.disabled, a > .item__header:disabled, a.item__header.disabled,
   padding-left: 1rem;
   font-size: 0.85rem;
   color: rgba(0, 0, 0, 0.5);
-  border: 0 solid #cccccc;
+  border: 0 solid #f2f3f3;
   border-left-width: 4px;
 }
 .article__content blockquote p {
@@ -4524,7 +4551,7 @@ a > .item__header.disabled, a > .item__header:disabled, a.item__header.disabled,
   text-decoration: none;
 }
 .article__license a, .article__license a:link, .article__license a:visited, .article__subscribe a, .article__subscribe a:link, .article__subscribe a:visited {
-  color: rgba(0, 0, 0, 0.85);
+  color: #494e52;
 }
 .root[data-is-touch=false] .article__license a:hover, .root[data-is-touch=false] .article__subscribe a:hover {
   color: #0366d6;
@@ -4533,7 +4560,7 @@ a > .item__header.disabled, a > .item__header:disabled, a.item__header.disabled,
   color: #02428b;
 }
 .article__license a.disabled, .article__license a:disabled, .article__subscribe a.disabled, .article__subscribe a:disabled {
-  color: rgba(0, 0, 0, 0.2) !important;
+  color: rgba(73, 78, 82, 0.2) !important;
 }
 
 .article__license {
@@ -4600,36 +4627,36 @@ a > .item__header.disabled, a > .item__header:disabled, a.item__header.disabled,
 }
 .author-links > ul > li > .facebook-button, .author-links > ul > li > .facebook-button:link, .author-links > ul > li > .facebook-button:visited {
   color: #fff;
-  background-color: #4267b2;
+  background-color: #3b5998;
 }
 .author-links > ul > li > .facebook-button svg path, .author-links > ul > li > .facebook-button:link svg path, .author-links > ul > li > .facebook-button:visited svg path {
   fill: #fff;
 }
 .root[data-is-touch=false] .author-links > ul > li > .facebook-button:hover {
   color: #fff;
-  background-color: #2f497e;
+  background-color: #273b65;
 }
 .root[data-is-touch=false] .author-links > ul > li > .facebook-button:hover svg path {
   fill: #fff;
 }
 .root[data-is-touch] .author-links > ul > li > .facebook-button.active, .root[data-is-touch] .author-links > ul > li > .facebook-button:active {
   color: #fff;
-  background-color: #1a2946;
+  background-color: #121b2d;
 }
 .root[data-is-touch] .author-links > ul > li > .facebook-button.active svg path, .root[data-is-touch] .author-links > ul > li > .facebook-button:active svg path {
   fill: #fff;
 }
 .root[data-is-touch] .author-links > ul > li > .facebook-button.focus {
   color: default;
-  background-color: #2f497e;
-  box-shadow: 0 0 0 2px rgba(47, 73, 126, 0.4);
+  background-color: #273b65;
+  box-shadow: 0 0 0 2px rgba(39, 59, 101, 0.4);
 }
 .root[data-is-touch] .author-links > ul > li > .facebook-button.focus svg path {
   fill: default;
 }
 .author-links > ul > li > .facebook-button.disabled, .author-links > ul > li > .facebook-button:disabled {
   color: rgba(255, 255, 255, 0.2) !important;
-  background-color: #4267b2 !important;
+  background-color: #3b5998 !important;
 }
 .author-links > ul > li > .facebook-button.disabled svg path, .author-links > ul > li > .facebook-button:disabled svg path {
   fill: rgba(255, 255, 255, 0.2) !important;
@@ -4644,36 +4671,36 @@ a > .item__header.disabled, a > .item__header:disabled, a.item__header.disabled,
 }
 .author-links > ul > li > .twitter-button, .author-links > ul > li > .twitter-button:link, .author-links > ul > li > .twitter-button:visited {
   color: #fff;
-  background-color: #1da1f2;
+  background-color: #55acee;
 }
 .author-links > ul > li > .twitter-button svg path, .author-links > ul > li > .twitter-button:link svg path, .author-links > ul > li > .twitter-button:visited svg path {
   fill: #fff;
 }
 .root[data-is-touch=false] .author-links > ul > li > .twitter-button:hover {
   color: #fff;
-  background-color: #0b79bd;
+  background-color: #178ce5;
 }
 .root[data-is-touch=false] .author-links > ul > li > .twitter-button:hover svg path {
   fill: #fff;
 }
 .root[data-is-touch] .author-links > ul > li > .twitter-button.active, .root[data-is-touch] .author-links > ul > li > .twitter-button:active {
   color: #fff;
-  background-color: #074b74;
+  background-color: #10619f;
 }
 .root[data-is-touch] .author-links > ul > li > .twitter-button.active svg path, .root[data-is-touch] .author-links > ul > li > .twitter-button:active svg path {
   fill: #fff;
 }
 .root[data-is-touch] .author-links > ul > li > .twitter-button.focus {
   color: default;
-  background-color: #0b79bd;
-  box-shadow: 0 0 0 2px rgba(11, 121, 189, 0.4);
+  background-color: #178ce5;
+  box-shadow: 0 0 0 2px rgba(23, 140, 229, 0.4);
 }
 .root[data-is-touch] .author-links > ul > li > .twitter-button.focus svg path {
   fill: default;
 }
 .author-links > ul > li > .twitter-button.disabled, .author-links > ul > li > .twitter-button:disabled {
   color: rgba(255, 255, 255, 0.2) !important;
-  background-color: #1da1f2 !important;
+  background-color: #55acee !important;
 }
 .author-links > ul > li > .twitter-button.disabled svg path, .author-links > ul > li > .twitter-button:disabled svg path {
   fill: rgba(255, 255, 255, 0.2) !important;
@@ -4732,36 +4759,36 @@ a > .item__header.disabled, a > .item__header:disabled, a.item__header.disabled,
 }
 .author-links > ul > li > .googlepluse-button, .author-links > ul > li > .googlepluse-button:link, .author-links > ul > li > .googlepluse-button:visited {
   color: #fff;
-  background-color: #ea4335;
+  background-color: #dd4b39;
 }
 .author-links > ul > li > .googlepluse-button svg path, .author-links > ul > li > .googlepluse-button:link svg path, .author-links > ul > li > .googlepluse-button:visited svg path {
   fill: #fff;
 }
 .root[data-is-touch=false] .author-links > ul > li > .googlepluse-button:hover {
   color: #fff;
-  background-color: #c32214;
+  background-color: #b02e1e;
 }
 .root[data-is-touch=false] .author-links > ul > li > .googlepluse-button:hover svg path {
   fill: #fff;
 }
 .root[data-is-touch] .author-links > ul > li > .googlepluse-button.active, .root[data-is-touch] .author-links > ul > li > .googlepluse-button:active {
   color: #fff;
-  background-color: #7e160d;
+  background-color: #6f1d13;
 }
 .root[data-is-touch] .author-links > ul > li > .googlepluse-button.active svg path, .root[data-is-touch] .author-links > ul > li > .googlepluse-button:active svg path {
   fill: #fff;
 }
 .root[data-is-touch] .author-links > ul > li > .googlepluse-button.focus {
   color: default;
-  background-color: #c32214;
-  box-shadow: 0 0 0 2px rgba(195, 34, 20, 0.4);
+  background-color: #b02e1e;
+  box-shadow: 0 0 0 2px rgba(176, 46, 30, 0.4);
 }
 .root[data-is-touch] .author-links > ul > li > .googlepluse-button.focus svg path {
   fill: default;
 }
 .author-links > ul > li > .googlepluse-button.disabled, .author-links > ul > li > .googlepluse-button:disabled {
   color: rgba(255, 255, 255, 0.2) !important;
-  background-color: #ea4335 !important;
+  background-color: #dd4b39 !important;
 }
 .author-links > ul > li > .googlepluse-button.disabled svg path, .author-links > ul > li > .googlepluse-button:disabled svg path {
   fill: rgba(255, 255, 255, 0.2) !important;
@@ -4952,36 +4979,36 @@ a > .item__header.disabled, a > .item__header:disabled, a.item__header.disabled,
 }
 .author-links > ul > li > .linkedin-button, .author-links > ul > li > .linkedin-button:link, .author-links > ul > li > .linkedin-button:visited {
   color: #fff;
-  background-color: #1074af;
+  background-color: #007bb6;
 }
 .author-links > ul > li > .linkedin-button svg path, .author-links > ul > li > .linkedin-button:link svg path, .author-links > ul > li > .linkedin-button:visited svg path {
   fill: #fff;
 }
 .root[data-is-touch=false] .author-links > ul > li > .linkedin-button:hover {
   color: #fff;
-  background-color: #0a496e;
+  background-color: #004b6f;
 }
 .root[data-is-touch=false] .author-links > ul > li > .linkedin-button:hover svg path {
   fill: #fff;
 }
 .root[data-is-touch] .author-links > ul > li > .linkedin-button.active, .root[data-is-touch] .author-links > ul > li > .linkedin-button:active {
   color: #fff;
-  background-color: #041a27;
+  background-color: #001722;
 }
 .root[data-is-touch] .author-links > ul > li > .linkedin-button.active svg path, .root[data-is-touch] .author-links > ul > li > .linkedin-button:active svg path {
   fill: #fff;
 }
 .root[data-is-touch] .author-links > ul > li > .linkedin-button.focus {
   color: default;
-  background-color: #0a496e;
-  box-shadow: 0 0 0 2px rgba(10, 73, 110, 0.4);
+  background-color: #004b6f;
+  box-shadow: 0 0 0 2px rgba(0, 75, 111, 0.4);
 }
 .root[data-is-touch] .author-links > ul > li > .linkedin-button.focus svg path {
   fill: default;
 }
 .author-links > ul > li > .linkedin-button.disabled, .author-links > ul > li > .linkedin-button:disabled {
   color: rgba(255, 255, 255, 0.2) !important;
-  background-color: #1074af !important;
+  background-color: #007bb6 !important;
 }
 .author-links > ul > li > .linkedin-button.disabled svg path, .author-links > ul > li > .linkedin-button:disabled svg path {
   fill: rgba(255, 255, 255, 0.2) !important;
@@ -4996,36 +5023,36 @@ a > .item__header.disabled, a > .item__header:disabled, a.item__header.disabled,
 }
 .author-links > ul > li > .github-button, .author-links > ul > li > .github-button:link, .author-links > ul > li > .github-button:visited {
   color: #fff;
-  background-color: #000;
+  background-color: #171516;
 }
 .author-links > ul > li > .github-button svg path, .author-links > ul > li > .github-button:link svg path, .author-links > ul > li > .github-button:visited svg path {
   fill: #fff;
 }
 .root[data-is-touch=false] .author-links > ul > li > .github-button:hover {
   color: #fff;
-  background-color: #2e2e2e;
+  background-color: #474144;
 }
 .root[data-is-touch=false] .author-links > ul > li > .github-button:hover svg path {
   fill: #fff;
 }
 .root[data-is-touch] .author-links > ul > li > .github-button.active, .root[data-is-touch] .author-links > ul > li > .github-button:active {
   color: #fff;
-  background-color: #575757;
+  background-color: #72686d;
 }
 .root[data-is-touch] .author-links > ul > li > .github-button.active svg path, .root[data-is-touch] .author-links > ul > li > .github-button:active svg path {
   fill: #fff;
 }
 .root[data-is-touch] .author-links > ul > li > .github-button.focus {
   color: default;
-  background-color: #2e2e2e;
-  box-shadow: 0 0 0 2px rgba(46, 46, 46, 0.4);
+  background-color: #474144;
+  box-shadow: 0 0 0 2px rgba(71, 65, 68, 0.4);
 }
 .root[data-is-touch] .author-links > ul > li > .github-button.focus svg path {
   fill: default;
 }
 .author-links > ul > li > .github-button.disabled, .author-links > ul > li > .github-button:disabled {
   color: rgba(255, 255, 255, 0.4) !important;
-  background-color: #000 !important;
+  background-color: #171516 !important;
 }
 .author-links > ul > li > .github-button.disabled svg path, .author-links > ul > li > .github-button:disabled svg path {
   fill: rgba(255, 255, 255, 0.4) !important;
@@ -5113,7 +5140,7 @@ a > .item__header.disabled, a > .item__header:disabled, a.item__header.disabled,
   text-decoration: none;
 }
 .author-profile__name a, .author-profile__name a:link, .author-profile__name a:visited {
-  color: rgba(0, 0, 0, 0.85);
+  color: #494e52;
 }
 .root[data-is-touch=false] .author-profile__name a:hover {
   color: #0366d6;
@@ -5122,7 +5149,7 @@ a > .item__header.disabled, a > .item__header:disabled, a.item__header.disabled,
   color: #02428b;
 }
 .author-profile__name a.disabled, .author-profile__name a:disabled {
-  color: rgba(0, 0, 0, 0.2) !important;
+  color: rgba(73, 78, 82, 0.2) !important;
 }
 
 .author-profile__links {
@@ -5419,16 +5446,16 @@ a > .item__header.disabled, a > .item__header:disabled, a.item__header.disabled,
   padding: 0 2rem;
   margin: 0;
   line-height: 1 !important;
-  color: rgba(0, 0, 0, 0.85);
+  color: #494e52;
   background-color: transparent;
-  border: 2px solid #cccccc;
+  border: 2px solid #f2f3f3;
   border-radius: 6rem;
   -webkit-appearance: none; /* fix iOS don't display box-shadow properly */
   -webkit-transition: box-shadow 0.4s ease-in-out;
   transition: box-shadow 0.4s ease-in-out;
 }
 .root[data-is-touch] .search-box > input.focus {
-  box-shadow: 0 0 0 2px rgba(204, 204, 204, 0.4);
+  box-shadow: 0 0 0 2px rgba(242, 243, 243, 0.4);
 }
 .search--light .search-box > input {
   color: rgba(0, 0, 0, 0.85);
@@ -5468,16 +5495,16 @@ a > .item__header.disabled, a > .item__header:disabled, a.item__header.disabled,
   text-decoration: none;
 }
 .search-box > .search-box__icon-clear > a, .search-box > .search-box__icon-clear > a:link, .search-box > .search-box__icon-clear > a:visited {
-  color: rgba(0, 0, 0, 0.85);
+  color: #494e52;
 }
 .root[data-is-touch=false] .search-box > .search-box__icon-clear > a:hover {
-  color: rgba(46, 46, 46, 0.85);
+  color: #272a2c;
 }
 .root[data-is-touch] .search-box > .search-box__icon-clear > a.active, .root[data-is-touch] .search-box > .search-box__icon-clear > a:active {
-  color: rgba(87, 87, 87, 0.85);
+  color: #030404;
 }
 .search-box > .search-box__icon-clear > a.disabled, .search-box > .search-box__icon-clear > a:disabled {
-  color: rgba(0, 0, 0, 0.4) !important;
+  color: rgba(73, 78, 82, 0.2) !important;
 }
 .search--light .search-box > .search-box__icon-clear > a {
   -webkit-transition: all 0.2s ease-in-out;
@@ -5591,11 +5618,11 @@ a > .item__header.disabled, a > .item__header:disabled, a.item__header.disabled,
   transition: all 0.2s ease-in-out;
 }
 .search-result__item a, .search-result__item a:link, .search-result__item a:visited {
-  color: rgba(0, 0, 0, 0.85);
+  color: #494e52;
   background-color: transparent;
 }
 .search-result__item a svg path, .search-result__item a:link svg path, .search-result__item a:visited svg path {
-  fill: rgba(0, 0, 0, 0.85);
+  fill: #494e52;
 }
 .root[data-is-touch=false] .search-result__item a:hover {
   color: #0366d6;
@@ -5620,11 +5647,11 @@ a > .item__header.disabled, a > .item__header:disabled, a.item__header.disabled,
   fill: default;
 }
 .search-result__item a.disabled, .search-result__item a:disabled {
-  color: rgba(0, 0, 0, 0.2) !important;
+  color: rgba(73, 78, 82, 0.2) !important;
   background-color: transparent !important;
 }
 .search-result__item a.disabled svg path, .search-result__item a:disabled svg path {
-  fill: rgba(0, 0, 0, 0.2) !important;
+  fill: rgba(73, 78, 82, 0.2) !important;
 }
 .search--light .search-result__item a {
   -webkit-transition: all 0.2s ease-in-out;
@@ -5862,7 +5889,7 @@ html,
 
 .page__main {
   height: 100%;
-  color: rgba(0, 0, 0, 0.85);
+  color: #494e52;
 }
 .page__main .col-aside {
   display: none;
@@ -5928,13 +5955,15 @@ html,
 
 .page__sidebar {
   z-index: 998;
-  display: block;
+  display: flex;
+  flex-direction: column; /* 垂直方向排列 */
+  align-items: center; /* 水平方向居中 */
   width: 80%;
   max-width: 250px;
-  height: 100%;
+  height: calc(100% - 5rem); /* 减去顶栏的高度 */
+  margin-top: 5rem; /* 设置顶栏的高度 */
   background-color: #fff;
-  border: 0 solid #e6e6e6;
-  border-right-width: 1px;
+  border-left: none;
   -webkit-transition: transform 0.4s;
   transition: transform 0.4s;
   overflow: auto;
@@ -6105,7 +6134,7 @@ html,
   text-decoration: none;
 }
 .article__section-navigator > .previous > a, .article__section-navigator > .previous > a:link, .article__section-navigator > .previous > a:visited, .article__section-navigator > .next > a, .article__section-navigator > .next > a:link, .article__section-navigator > .next > a:visited {
-  color: rgba(0, 0, 0, 0.85);
+  color: #494e52;
 }
 .root[data-is-touch=false] .article__section-navigator > .previous > a:hover, .root[data-is-touch=false] .article__section-navigator > .next > a:hover {
   color: #0366d6;
@@ -6114,7 +6143,7 @@ html,
   color: #02428b;
 }
 .article__section-navigator > .previous > a.disabled, .article__section-navigator > .previous > a:disabled, .article__section-navigator > .next > a.disabled, .article__section-navigator > .next > a:disabled {
-  color: rgba(0, 0, 0, 0.2) !important;
+  color: rgba(73, 78, 82, 0.2) !important;
 }
 .article__section-navigator > .previous {
   float: left;
@@ -6192,6 +6221,181 @@ html,
 }
 .layout--404 .sign p {
   font-size: 1.8rem;
+}
+
+.sidebar {
+  -webkit-transform: translate3d(0, 0, 0);
+  transform: translate3d(0, 0, 0);
+  margin-bottom: 1em;
+}
+.sidebar::after {
+  display: table;
+  clear: both;
+  content: "";
+}
+.sidebar h2, .sidebar h3, .sidebar h4, .sidebar h5, .sidebar h6 {
+  margin-bottom: 0;
+  font-family: "Trebuchet MS", Helvetica, sans-serif;
+}
+.sidebar h3, .sidebar h4 {
+  font-size: 1em;
+}
+.sidebar p, .sidebar li {
+  list-style-type: none; /* 去除列表样式 */
+  margin: 5px 0; /* 设置列表项的间距 */
+  font-family: "Trebuchet MS", Helvetica, sans-serif;
+  font-size: 1em;
+  line-height: 1.5;
+}
+.sidebar img {
+  width: 100%;
+}
+
+.sidebar__right {
+  margin-bottom: 1em;
+}
+
+/*
+    Author profile and links
+    ========================================================================== */
+.profile_box {
+  padding: 20px;
+  background-color: #f1f8ff;
+  display: flex;
+  justify-content: center; /* 垂直方向居中 */
+  flex-direction: column; /* 垂直排列元素 */
+  align-items: center; /* 垂直居中对齐 */
+  text-align: center; /* 使文字居中对齐 */
+}
+
+.author__avatar {
+  display: table-cell;
+  vertical-align: top;
+  width: 75px;
+}
+.author__avatar img {
+  max-width: 150px; /* 限制头像宽度 */
+  border-radius: 50%; /* 圆形头像 */
+  margin-bottom: 10px; /* 与下方文字的间距 */
+}
+
+.author__content {
+  display: table-cell;
+  vertical-align: top;
+  padding-left: 10px;
+  min-width: 120px;
+  line-height: 1.5;
+}
+
+.author__urls li {
+  list-style-type: none; /* 去除列表样式 */
+  margin: 5px 0; /* 设置列表项的间距 */
+}
+
+.author__name {
+  margin: 0;
+  font-size: 1.2em;
+  font-weight: bold;
+  margin: 0; /* 去除默认外边距 */
+}
+
+.sidebar .author__name .author__bio {
+  margin: 0;
+  font-size: 1em;
+  margin: 5px 0; /* 设置与上下元素的间距 */
+}
+.sidebar .author__name .author__urls-wrapper {
+  position: relative;
+  display: table-cell;
+  vertical-align: middle;
+  font-family: "Trebuchet MS", Helvetica, sans-serif;
+  z-index: 10;
+  position: relative;
+  margin-left: auto;
+  cursor: pointer;
+}
+.sidebar .author__name .author__urls-wrapper li:last-child a {
+  margin-bottom: 0;
+}
+.sidebar .author__name .author__urls-wrapper button {
+  margin-bottom: 0;
+  width: 120px;
+  padding: 0.5em;
+}
+.sidebar .author__name .author__urls {
+  display: flex;
+  flex-direction: column; /* 垂直排列 */
+  align-items: center; /* 水平方向居中 */
+  margin-top: 15px; /* 与作者信息之间的间距 */
+  position: absolute;
+  right: 0;
+  margin-top: 15px;
+  padding: 10px;
+  list-style-type: none;
+  border: 1px solid #f2f3f3;
+  border-radius: 4px;
+  background: #fff;
+  z-index: -1;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+  cursor: default;
+}
+.sidebar .author__name .author__urls:before {
+  display: block;
+  content: "";
+  position: absolute;
+  top: -11px;
+  left: calc(50% - 10px);
+  width: 0;
+  border-style: solid;
+  border-width: 0 10px 10px;
+  border-color: #f2f3f3 transparent;
+  z-index: 0;
+}
+.sidebar .author__name .author__urls:after {
+  display: block;
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: calc(50% - 10px);
+  width: 0;
+  border-style: solid;
+  border-width: 0 10px 10px;
+  border-color: #fff transparent;
+  z-index: 1;
+}
+.sidebar .author__name .author__urls li {
+  list-style-type: none; /* 去除列表样式 */
+  margin: 5px 0; /* 设置列表项的间距 */
+  white-space: nowrap;
+}
+.sidebar .author__name .author__urls a {
+  text-decoration: none;
+  display: block;
+  margin-bottom: 5px;
+  padding-right: 5px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  color: #007bff; /* 设置链接颜色 */
+  font-size: 1em;
+  text-decoration: none;
+}
+.sidebar .author__name .author__urls a:hover {
+  text-decoration: underline;
+}
+.sidebar .author__name .author__urls_sm {
+  padding: 0.25em;
+  font-size: 1.75em;
+  display: flex;
+  justify-content: center; /* 水平方向居中 */
+  gap: 10px; /* 链接之间的间距 */
+  margin-top: 10px; /* 与上方元素的间距 */
+}
+.sidebar .author__name .author__urls_sm a {
+  color: inherit;
+  text-decoration: none;
+}
+.sidebar .author__name .author__urls_sm a:hover {
+  text-decoration: underline;
 }
 
 /* start custom scss snippet */

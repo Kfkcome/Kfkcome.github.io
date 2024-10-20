@@ -24,35 +24,42 @@ titles:
   fr-LU   : *FR
   # @end locale config
 key: page-about
-mode: immersive
+mode: normal
+show_title: true
 header:
-  theme: dark
-article_header:
-  type: cover
   theme: ocean
-  # background_color: '#203028'
-  image:
+aside:
+  toc: true
+sidebar:
+  nav: layouts
+# article_header:
+#   type: cover
+#   theme: ocean
+#   # background_color: '#203028'
+#   image:
     # gradient: 'linear-gradient(135deg, rgba(34, 139, 87 , .4), rgba(139, 34, 139, .4))'
-    src: /assets/images/cover3.jpg
+    # src: /assets/images/cover3.jpg
 ---
-<style>
+<!-- <style>
   .page__header .header__brand path {
     fill: rgba(255, 255, 255, .95);
   }
-</style>
+</style> -->
 Welcome to my blog! 🌏 🌍 🌎
 
-My Name is Gao Xingjie, I am a computer science and technology student at NEU.
+My Name is Gao Xingjie.I am a zero-year master’s student in the Department of Computer Science and Technology at Northeastern University.
 
 ## Skills (Updating) | 技能（更新中）
+
 - Python, Java, C++
 - Springboot
 - Mathemamtical Modeling 
 
 ## About me | 关于我
-热爱计算机，喜欢捣鼓电脑，目前要做NLP领域，持续学习中…………
 
-## 相关链接
+热爱计算机，喜欢捣鼓电脑，目前要学习NLP相关知识，持续学习中，博客持续更新中…………
+
+## Relative links | 相关链接
 
 - [About This Blog](/blog/20s15/10/14/about-this-blog.html)
 - [TeXt Theme](https://github.com/kitian616/jekyll-TeXt-theme) [![GitHub stars](https://img.shields.io/github/stars/kitian616/jekyll-TeXt-theme.svg?style=social&label=Stars)]()
