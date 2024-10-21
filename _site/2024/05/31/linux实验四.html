@@ -10,10 +10,10 @@
 		
 	</script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>linux实验四 基于 Select 函数的并行文件服务器实现 - Xingjie Gao's Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>linux实验四 基于 Select 函数的并行文件服务器实现 - Ennis's Blog</title>
 
 <meta name="description" content="linux实验四 基于 Select 函数的并行文件服务器实现">
-<link rel="canonical" href="http://localhost:4000/2024/05/31/linux%E5%AE%9E%E9%AA%8C%E5%9B%9B.html"><link rel="alternate" type="application/rss+xml" title="Xingjie Gao's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+<link rel="canonical" href="http://localhost:4000/2024/05/31/linux%E5%AE%9E%E9%AA%8C%E5%9B%9B.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
 
 <meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
 
@@ -276,7 +276,7 @@
 	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
 </svg>
 <a title="Willing to be a question, willing to be an answer.
-" href="/">Xingjie Gao's Blog</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+" href="/">Ennis's Blog</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
         <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
       </nav></div>
   </header>
@@ -308,8 +308,8 @@
 <div class="article__content" itemprop="articleBody"><h2 id="linux实验四-基于-select-函数的并行文件服务器实现">linux实验四 基于 Select 函数的并行文件服务器实现</h2>
 
 <!---more-->
-<style> .pdf-embed-wrap-bfde72c2-f090-4007-8bba-17984d7cd300 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-bfde72c2-f090-4007-8bba-17984d7cd300 { height: 100%; } .pdf-embed-container-bfde72c2-f090-4007-8bba-17984d7cd300 iframe { width: 100%; height: 100%; } </style>
-<div class="pdf-embed-wrap-bfde72c2-f090-4007-8bba-17984d7cd300"> <div class="pdf-embed-container-bfde72c2-f090-4007-8bba-17984d7cd300"> <iframe src="/assets/pdf/linux/实验四.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>
+<style> .pdf-embed-wrap-fe011eb7-fb72-40f1-a0f4-7124bb115272 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-fe011eb7-fb72-40f1-a0f4-7124bb115272 { height: 100%; } .pdf-embed-container-fe011eb7-fb72-40f1-a0f4-7124bb115272 iframe { width: 100%; height: 100%; } </style>
+<div class="pdf-embed-wrap-fe011eb7-fb72-40f1-a0f4-7124bb115272"> <div class="pdf-embed-container-fe011eb7-fb72-40f1-a0f4-7124bb115272"> <iframe src="/assets/pdf/linux/实验四.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>
 </div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-05-31T00:00:00+08:00"><!-- start custom article footer snippet -->
 
 <!-- end custom article footer snippet -->
@@ -381,7 +381,7 @@
 </div>
 </div>
     </div><div class="site-info mt-2">
-      <div>© Xingjie Gao's Blog 2021,
+      <div>© Ennis's Blog 2021,
         Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
         title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
       </div>
