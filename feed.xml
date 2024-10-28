@@ -1,5 +1,487 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2024-10-21T20:24:49+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
-</subtitle><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><entry><title type="html">StructRAG 论文精读</title><link href="http://localhost:4000/2024/10/21/StructRAG-Boosting-Knowledge-Intensive-Reasoning-of-LLMs-via-Inference-time-Hybrid-Information-Structurization-%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB.html" rel="alternate" type="text/html" title="StructRAG 论文精读" /><published>2024-10-21T00:00:00+08:00</published><updated>2024-10-21T00:00:00+08:00</updated><id>http://localhost:4000/2024/10/21/StructRAG%20Boosting%20Knowledge%20Intensive%20Reasoning%20of%20LLMs%20via%20Inference-time%20Hybrid%20Information%20Structurization%20%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB</id><content type="html" xml:base="http://localhost:4000/2024/10/21/StructRAG-Boosting-Knowledge-Intensive-Reasoning-of-LLMs-via-Inference-time-Hybrid-Information-Structurization-%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB.html"><![CDATA[<h1 id="structrag-boosting-knowledge-intensive-reasoning-of-llms-via-inference-time-hybrid-information-structurization-论文精读">StructRAG: Boosting Knowledge Intensive Reasoning of LLMs via Inference-time Hybrid Information Structurization 论文精读</h1>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2024-10-28T14:38:54+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
+</subtitle><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><entry><title type="html">WebCPM 论文精读</title><link href="http://localhost:4000/2024/10/28/WEBCPM-Interactive-Web-Search%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html" rel="alternate" type="text/html" title="WebCPM 论文精读" /><published>2024-10-28T00:00:00+08:00</published><updated>2024-10-28T00:00:00+08:00</updated><id>http://localhost:4000/2024/10/28/WEBCPM%20Interactive%20Web%20Search%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0</id><content type="html" xml:base="http://localhost:4000/2024/10/28/WEBCPM-Interactive-Web-Search%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html"><![CDATA[<h1 id="webcpm-interactive-web-search-for-chinese-long-form-question-answering-论文笔记">WEBCPM: Interactive Web Search for Chinese Long-form Question Answering 论文笔记</h1>
+
+<p><!---more--></p>
+
+<blockquote>
+  <p>论文来源：老师发的</p>
+
+</blockquote>
+
+<h2 id="摘要">摘要</h2>
+
+<h3 id="背景"><strong>背景：</strong></h3>
+
+<ul>
+  <li>长格式问题回答（LFQA）：用详细的段落长度的回答来回答复杂的开放性问题。
+    <ul>
+      <li>LFQA的事实范式需要两个步骤：信息检索，搜索相关支持事实，信息综合，将这些事实整合成连贯的答案。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="工作"><strong>工作：</strong></h3>
+
+<ul>
+  <li>我们介绍了WebCPM，这是第一个中文LFQA数据集。
+    <ul>
+      <li>WebCPM的一个独特特点是，它的信息检索基于实时交互式网络搜索，与搜索引擎进行互动。</li>
+      <li>数据来源：在WebGPT的基础上，我们开发了一个网络搜索界面。我们招募注释员使用我们的界面进行相关信息的搜索，然后回答问题。同时，我们会记录注释员的网络搜索行为。总共，我们收集了5500个高质量的问题-回答对，以及15372条支持性事实和125954个网络搜索操作。</li>
+    </ul>
+  </li>
+  <li>
+    <p>我们对预训练语言模型进行微调，以模仿人类行为进行网络搜索，并生成基于收集到的事实的答案。</p>
+
+    <p>结果：我们的LFQA流程是基于这些经过微调的模型构建的，在我们的数据集和DuReader（He等人，2018）中的案例分别在32.5%和47.5%的情况下生成的答案不比人类编写的答案差。</p>
+  </li>
+</ul>
+
+<h2 id="引言">引言</h2>
+
+<h3 id="lfqa">LFQA：</h3>
+
+<ul>
+  <li>长篇问题回答（LFQA）（Fan等，2019）的目标是用详细的段落长度回答复杂的开放式问题。</li>
+  <li>当前的LFQA解决方案通常遵循检索-综合范式，包括两个核心要素：信息检索和信息综合。</li>
+  <li>前者搜索外部知识源（例如网络）以获取各种相关支持事实，后者将收集到的事实整合到一致的答案中。</li>
+</ul>
+
+<p>缺点：传统LFQA范式的一个缺陷是通常倾向于使用非交互式检索方法，即使用原问题作为查询来检索一大堆未筛选的信息。</p>
+
+<p>改进：人类能够通过与搜索引擎实时互动进行交互式网络搜索。</p>
+
+<ul>
+  <li>对于复杂问题，人类往往会将其分解成多个子问题，并按顺序提问。通过识别和浏览相关信息，人类可以改善对主题的理解，并通过提出后续问题或相关术语来完善他们的搜索。</li>
+  <li>这一迭代过程能够扩大他们的搜索范围并提升他们的搜索结果。<strong>总的来说，交互式网络搜索不仅提供了多样的信息来源，而且反映了人类解答问题的认知过程，从而提高了可解释性。</strong></li>
+</ul>
+
+<h3 id="webgpt">WebGPT</h3>
+
+<p>关于交互式网络搜索大模型的研究WebGPT：</p>
+
+<ul>
+  <li>优点：在实验中，WebGPT展现出了优异的LFQA能力，甚至超过了人类专家。</li>
+  <li>问题：尽管其性能令人印象深刻，但WebGPT对于社区仍然是个谜。这是因为WebGPT的界面、数据集和训练模型并不公开，其核心设计元素的内部运作仍然不透明。这些因素使得社区很难理解LFQA互动网络搜索的挑战，并继续探索这一研究领域。</li>
+</ul>
+
+<h3 id="所做的工作">所做的工作</h3>
+
+<ol>
+  <li>
+    <p>构建了一个接口</p>
+
+    <p>用户可以执行预定义的操作来进行多轮搜索和浏览。当在网页上找到相关信息时，他们可以将其记录为支持事实。同时，他们的网络浏览行为将被记录下来。收集到足够的信息后，用户可以完成网络搜索并基于所收集的事实回答问题。</p>
+  </li>
+  <li>
+    <p>构建数据集WebCPM</p>
+
+    <p>基于界面，我们选择中文作为测试平台，并构建WebCPM，重点关注具有中文预训练模型的交互式Web搜索。WebCPM是第一个涉及交互式网络搜索的公共QA数据集，也是针对中文LFQA的第一个数据集。WebCPM包含5,500个问答对，以及15,372个支持事实和125,954个网络搜索操作。表1总结了WebCPM与相关QA数据集之间的差异。在现有的中文QA数据集中，WebCPM具有最长的问题、支持事实和答案，显示出问题的复杂性和答案的丰富性。</p>
+  </li>
+</ol>
+
+<p><img src="/assets/posts_assets/WEBCPM%20Interactive%20Web%20Search%20for%20Chinese%20Long-form%20Question%20Answering%20%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.assets/image-20241023162941047.png" alt="image-20241023162941047" /></p>
+
+<ol>
+  <li>构建模型，提出模型架构
+    <ol>
+      <li>一个搜索模型，模拟人类网络搜索行为进行信息检索。具体来说，搜索模型包括三个模块，在我们的界面上执行一系列预定义的操作：动作预测模块、搜索查询生成模块和支持事实提取模块；</li>
+      <li>一个综合模型，根据收集到的事实生成连贯的答案。</li>
+    </ol>
+  </li>
+</ol>
+
+<h4 id="结果">结果</h4>
+
+<p>选择了8个代表性的预训练语言模型（PLMs），参数规模高达10B，并评估它们在交互式网络搜索和信息合成方面的能力。</p>
+
+<ul>
+  <li>人类评估显示，我们的管道在测试集上的答案生成比人类差的情况占32.5％。当应用于问题的答案标注长度超过400个汉字的DuReader（He等，2018）时，我们的管道在47.5％的情况下生成比黄金标注答案更好的答案，表现出令人满意的超出分布的泛化性能。</li>
+  <li>我们还展示了我们的搜索模型超越了传统的非交互检索方法。</li>
+</ul>
+
+<p>最后，我们分析了我们的框架的核心设计元素以及我们的模型获得的类人行为的贡献。我们希望这些资源可以作为其他研究主题的试验平台，比如行为克隆（Bain和Sammut，1995）和工具学习（Qin等，2023）。</p>
+
+<h2 id="相关工作">相关工作</h2>
+
+<h3 id="信息检索">信息检索</h3>
+
+<ul>
+  <li>
+    <p>以往的工作通常借助本地存储库（例如，维基百科）。最近，利用整个网络作为知识源的兴趣激增</p>
+  </li>
+  <li>
+    <p>如何将检索到的事实结构化为LFQA中合理且细致的答案仍然未被深入探索。</p>
+
+    <p>一些研究了人类如何构建复杂答案，通过研究长篇答案的功能结构（徐等，2022年）或探索如何在答案中组织举例（王等，2022年）; 其他人重新考虑了LFQA的现有评估标准（Krishna等，2021年）。</p>
+  </li>
+</ul>
+
+<h3 id="与webgpt的比较">与WebGPT的比较</h3>
+
+<p>我们在很大程度上遵循了WebGPT，并提出了改进的设计元素（详细内容见附录E），包括</p>
+
+<ul>
+  <li>接口：我们修改了WebGPT定义的动作，使其更易于模型学习和更用户友好；</li>
+  <li>框架：我们将网络搜索分解为3个子任务，并实现了一个模块化的搜索模型。我们还探讨了如何教导合成模型忽略无关的事实（§6.3）并生成新内容（附录F.1）；</li>
+  <li>评估和分析：除了按照WebGPT评估整个流水线（§6.2）之外，我们还评估了每个单独的模块（§6.1和§6.3）。这种细粒度的评估有助于我们更好地了解我们框架的核心设计元素和模型学习的人类行为所做出的贡献。</li>
+</ul>
+
+<h3 id="工具学习">工具学习</h3>
+
+<p>PLM具有有希望的工具操作能力，即工具学习（Qin等，2023年）。</p>
+
+<p>PLM可以在复杂的交互环境中做出顺序决策，例如在机器人任务规划（Huang等，2022a; Ahn等，2022; Huang等，2022b）、搜索引擎操作（Nakano等，2021）、在电子商务网站上购物（Yao等，2022）等方面。</p>
+
+<p>通过利用预训练期间学到的丰富世界知识，PLM能执行扎根行动与真实世界进行互动。</p>
+
+<p>我们期望我们的基准能够成为未来在这一领域进行探索的试验田。</p>
+
+<h2 id="web-search">Web Search</h2>
+
+<p>我们搭建了一个纯文本界面，用于记录人类在长篇问题中收集相关信息时的网络搜索行为。我们的界面由Bing搜索API支持，支持如图1所示的10种主流网络搜索操作。当执行某个操作时，我们的界面会响应窗口的变化。</p>
+
+<ul>
+  <li>
+    <p>当执行搜索操作时，界面进入搜索模式（图1），显示了Bing针对特定查询<query>推荐的链接。</query></p>
+  </li>
+  <li>
+    <p>每个链接由标题和特定网页的简要快照组成。</p>
+  </li>
+  <li>
+    <p>每个窗口一次显示三个链接，可以通过执行向下滚动操作访问更多链接。</p>
+  </li>
+  <li>
+    <p>当在当前窗口中找到第i个链接与相关时，用户可以执行加载页面 <i> 操作（i ∈ {1, 2, 3}）。</i></p>
+  </li>
+  <li>
+    <p>界面将进入浏览模式（见附录的图6）并呈现从第<i>个网页的HTML中清除的文本。</i></p>
+
+    <p>窗口中用户一次可以查看的内容限制在500个中文字符，可以使用滚动操作访问更多内容。用户可以利用引用操作提取当前窗口中的连续句子作为支持事实。</p>
+  </li>
+  <li>
+    <p>为了提取跨两个窗口的文字，合并操作旨在将最后两个事实合并为一个事实（更多细节见附录A.2）。我们还为用户显示所有已提取的支持事实。</p>
+  </li>
+  <li>
+    <p>浏览第i页后，用户可以使用“返回”动作返回到先前的搜索模式，以访问其他链接。同时</p>
+  </li>
+</ul>
+
+<h2 id="数据收集">数据收集</h2>
+
+<p>我们雇用了来自不同领域，有搜索引擎操作经验的23名注释员。我们要求他们首先利用我们的界面搜索相关信息，然后撰写细致的答案来回答长篇问题。为了质量控制，我们招募了8名熟悉QA研究领域的专家作为质量检查员。</p>
+
+<h3 id="问题构建">问题构建</h3>
+
+<ul>
+  <li>从头开始创作新的长篇问题而没有任何参考是事倍功半的，因此我们转向公共问答论坛作为问题的来源。</li>
+  <li>我们请批注者参考一个名为Reddit的英文问答论坛上的问题，并创造用中文书写的新问题。</li>
+</ul>
+
+<p>结果：通过这种方式创作的问题通常需要多轮搜索和浏览来收集足够的信息。</p>
+
+<h3 id="交互式网络搜索">交互式网络搜索</h3>
+
+<ul>
+  <li>
+    <p>给定一个问题，我们要求标注者使用我们的界面从可信的来源搜索准确和相关的信息。这个过程可能涉及多次向必应发送精炼的查询，以及探索他们认为相关的各种网页。</p>
+
+    <p>我们要求标注者在提取信息之前仔细判断信息的事实准确性。</p>
+  </li>
+  <li>
+    <p>搜索过程直到收集到足够的支持性事实为止。</p>
+  </li>
+  <li>
+    <p>在我们创建的问题中，26.2%是无法回答的，最终被丢弃，因为标注者找不到足够有用的信息。</p>
+  </li>
+</ul>
+
+<h3 id="答案标注">答案标注</h3>
+
+<p>在收集到足够的支持性事实后，标注员将根据他们收集到的信息编写自包含的答案。</p>
+
+<p>我们为他们提供答案标注的指导，包括写与问题相关且内容丰富的答案，保持逻辑一致性、清晰度和连贯性，并以公正的方式提供观点。</p>
+
+<h3 id="质量控制">质量控制</h3>
+
+<p>每个带注释的实例在被选入最终数据集之前都要经过质量检查员的检查和批准。</p>
+
+<ul>
+  <li>首先，检查员会手动检查在接口上记录的操作序列，并丢弃质量低劣的序列（例如，在提出的查询中存在明显的行政错误的序列）。</li>
+  <li>其次，他们会仔细检查收集到的支持事实。如果这些事实明显不足以回答问题，与问题无关或事实错误，相应的操作序列将被放弃。</li>
+  <li>以上流程会删除25%的收集实例。</li>
+  <li>对于剩下的实例，检查员会仔细检查其注释答案。如果答案与上述要求相矛盾，检查员会将其退回给注释员，并指出哪个要求没有得到满足。注释员可能会多次修改答案，直到修改后的答案符合标准为止。</li>
+</ul>
+
+<h3 id="数据统计">数据统计</h3>
+
+<p>最终，我们收集了5,500个实例，每个实例以(question,网页搜索行为,支持事实,答案)的元组格式记载，并记录每个动作执行的观察结果。</p>
+
+<p>我们在图2中提供了一个示例，其中我们呈现以下内容：原始问题、简化的动作序列、收集到的支持事实和标注的答案。</p>
+
+<p>我们将数据集划分为{4,700,400,400}个训练、开发和测试集。</p>
+
+<p>平均而言，每个问题需要执行22.9个动作，发送2.5个查询，并加载3.3个网页。每个动作的详细比例见附录的图7。</p>
+
+<h2 id="模型结构">模型结构</h2>
+
+<h3 id="搜索模型">搜索模型</h3>
+
+<p>我们将网络搜索分为3个子任务：动作预测，搜索查询生成和支持事实提取。</p>
+
+<blockquote>
+  <p>每个任务都被构造为文本到文本格式，我们使用生成式PLM训练3个单独的模块。</p>
+</blockquote>
+
+<p>如果该模块预测搜索或引用，则调用其他两个模块生成查询内容或支持事实。每个模块执行的推理都受到条件的限制。</p>
+
+<p>每个模块都是根据当前状态$S_t$进行条件推断。</p>
+
+<blockquote>
+  <p>S_t 的内容</p>
+
+  <ul>
+    <li>$Q_0$ 原始问题，$Q_t$当前查询问题 原始问题，$Q_t$当前查询</li>
+    <li>$A_t = {a_1,\dots a_{t-1} }$过去动作序列</li>
+    <li>窗口Wt−1和Wt中显示的上一个和当前内容，</li>
+    <li>
+      <table>
+        <tbody>
+          <tr>
+            <td>当前支持事实Ft = {f1, …, f</td>
+            <td>Ft</td>
+            <td>}，</td>
+          </tr>
+        </tbody>
+      </table>
+    </li>
+    <li>剩余动作的数量</li>
+  </ul>
+</blockquote>
+
+<p>执行了一个动作，St的组成部分将会更新。</p>
+
+<blockquote>
+  <p>W可以是搜索模式中的三个链接，也可以是浏览模式中的具体页面内容。我们只保留窗口中显示的最近两个观察值（Wt−1和Wt），而不是连接所有过去的观察值，因为后者可能会超过大型语言模型的输入长度限制。</p>
+</blockquote>
+
+<h4 id="动作预测模块">动作预测模块</h4>
+
+<p>本模块预测下一步执行的操作。</p>
+
+<p>由于总共有10种可能的操作，因此动作预测可以看作是一个10类别的分类任务。</p>
+
+<p>以搜索操作为例，将{x1, …, xN}表示为动作名称“搜索”的令牌化序列，其中x∗表示特定的令牌。搜索操作的概率可以分解如下：这个公式描述了在给定当前状态 $ S_t $的情况下，“Search”动作的整体概率是如何计算的。公式分解了生成“Search”标记序列的概率，具体解释如下：</p>
+
+<p>\(\mathcal{P}(\text{Search} \mid S_t) = \mathcal{P}(x_1 \mid S_t) \times \prod_{i=2}^{N} \mathcal{P}(x_i \mid S_t, x_1, ..., x_{i-1})\)
+公式分解</p>
+
+<ol>
+  <li>
+\[\mathcal{P}(x_1 \mid S_t)\]
+    <ul>
+      <li>这个部分表示在当前状态 $ S_t $下，第一个标记 $ x_1 $出现的概率。</li>
+      <li>它是生成序列的起点。</li>
+    </ul>
+  </li>
+  <li>
+\[\prod_{i=2}^{N} \mathcal{P}(x_i \mid S_t, x_1, ..., x_{i-1})\]
+    <ul>
+      <li>这里的乘积符号 \(\prod\) 表示从第2个标记 \(x_2\) 一直到第 $ N $个标记的条件概率的连乘积。</li>
+      <li>每一个 \(\mathcal{P}(x_i \mid S_t, x_1, ..., x_{i-1})\) 表示在当前状态 \(S_t\)以及之前生成的所有标记 \(x_1, ..., x_{i-1}\)给定的情况下，第 i个标记 $x_i$出现的概率。</li>
+      <li>这个部分反映了生成整个序列的过程是一步步进行的，后续的标记生成依赖于之前已经生成的标记。</li>
+    </ul>
+  </li>
+</ol>
+
+<p>这个公式描述的是如何在当前状态下逐步生成一个完整的“Search”动作名称的标记序列，并且最终的“Search”动作概率是由所有标记的条件概率相乘得到的。</p>
+
+<p>在推断过程中，我们选择具有最高概率的操作来在界面上执行。</p>
+
+<blockquote>
+  <p>如何将分类任务变成了生成任务？</p>
+</blockquote>
+
+<h4 id="查询问题模块">查询问题模块</h4>
+
+<p>根据St生成query</p>
+
+<h4 id="事实提取模块">事实提取模块</h4>
+
+<table>
+  <tbody>
+    <tr>
+      <td>在 <strong>Supporting Fact Extraction</strong> 模块中，假设当前处于浏览模式，内容窗口 $ \mathcal{W}<em>t $包含了一系列词 $ {w_1, …, w</em>{</td>
+      <td>\mathcal{W}_t</td>
+      <td>}}$。目标是从 $ \mathcal{W}_t$ 中提取一个支持事实 $ f = {w_i, …, w_j} $，其中 $ 1 \leq i \leq j \leq</td>
+      <td>\mathcal{W}_t</td>
+      <td>$。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>模块的关键点</p>
+
+<ol>
+  <li>
+    <p><strong>问题</strong>：一个简单的方案是逐步生成 $ f $的所有标记，但这种自回归的方式在实践中推理速度较慢。</p>
+  </li>
+  <li>
+    <p><strong>替代方案</strong>：为了提高效率，该模块仅生成 $ f $的起始和末尾几个标记（记作 $ N_f $），并在给定状态 $ S_t $下最大化概率：
+\(\mathcal{P}([\text{s}], w_i, ..., w_{i+N_f-1}, [\text{e}], w_{j-N_f+1}, ..., w_j \mid S_t)\)</p>
+  </li>
+</ol>
+
+<p>其中，$ [\text{s}] $和 $ [\text{e}] $分别表示支持事实的起始和结束标记。</p>
+
+<p>具体步骤</p>
+
+<ul>
+  <li>在推理过程中，当起始和结束标记被解码后，通过文本匹配可以定位到所需的序列。</li>
+  <li>如果起始或结束标记出现在 $ \mathcal{W}_t $的多个位置，该模块会提取最长的序列。</li>
+  <li>增大 $ N_f $可以减少这种多位置问题的频率。</li>
+  <li>如果需要从 $ \mathcal{W}_t $中提取不连续的片段，则可以连续执行多个 <strong>Quote</strong> 动作。</li>
+</ul>
+
+<h3 id="综合模型">综合模型</h3>
+
+<p>信息综合任务学习将一系列支持事实组织成连贯的答案。</p>
+
+<h4 id="训练">训练</h4>
+
+<p>训练有素的搜索模型偶尔会收集无关的噪音，这会影响生成答案的质量。</p>
+
+<p>为了解决这个问题，我们通过引入噪音来破坏综合模型的训练数据中收集到的事实。</p>
+
+<p>具体而言，给定一系列人类提取的事实{f1，…，fN}，我们随机从其他训练实例中选择几个不相关的事实{f1’，…，f’N’}。在随机排列所有事实后，我们将它们连接起来作为最终输入。</p>
+
+<p>在训练过程中，模型被优化为在受损的支持事实条件下生成人工注释的答案，</p>
+
+<p>即最大化</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>$P(Answer</td>
+      <td>Q0, f1, …, fN, f1′, …, f′N′)$。</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>由于注释的答案不包含f∗′的信息，模型学习忽略无关的事实，仅关注生成过程中的重要信息。</p>
+
+<h2 id="实验">实验</h2>
+
+<h3 id="模块单独评估">模块单独评估</h3>
+
+<h4 id="t5">T5</h4>
+
+<ul>
+  <li>$mT5_{BASE}$，mC4</li>
+  <li>$mT0<em>{BASE}$,  fine tunes  $mT5</em>{BASE}$ on diverse downstream tasks.</li>
+  <li>$Mengzi-T5_{BASE}$ : a 220M model pre-trained on 300G internet corpora.</li>
+</ul>
+
+<h4 id="bart">BART</h4>
+
+<ul>
+  <li>$mBart_{LARGE}$ : a 680M model pre-trained on monolingual corporaa of mutiple languages.</li>
+  <li>$C-BART_{LARGE}$: a 406M model pre-trained on 200G web texts</li>
+</ul>
+
+<h4 id="cpm">CPM</h4>
+
+<ul>
+  <li>$CPM_{2.6B}$</li>
+  <li>$CPM_{7B}$</li>
+  <li>$CPM_{10B}$</li>
+</ul>
+
+<h4 id="评估指标">评估指标</h4>
+
+<p>对于评估指标，我们将动作预测视为一个包含10个类别的分类任务，并选择Micro-F1和Macro-F1作为指标。</p>
+
+<p>我们将另外三个任务视为文本生成，并计算生成序列和参考答案的Rouge-L</p>
+
+<h4 id="结果-1">结果</h4>
+
+<p><img src="/assets/posts_assets/WEBCPM%20Interactive%20Web%20Search%20for%20Chinese%20Long-form%20Question%20Answering%20%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.assets/image-20241024201517303.png" alt="image-20241024201517303" /></p>
+
+<ol>
+  <li>mT0BASE在动作预测、查询生成和支持事实提取方面优于mT5BASE，但在信息综合方面表现较差。我们推测这是因为mT0BASE在多任务微调过程中更加注重与前三个任务相关的语言技能增强，而信息综合能力可能已经减弱。此外，尽管参数较少，孟子- T5BASE在所有任务上表现良好；</li>
+  <li>总体而言，mBARTLARGE和C-BARTLARGE的性能都不及其他所有PLM，只是mBARTLARGE在信息综合方面表现出色；</li>
+  <li>比较CPM2.6B，CPM7B和CPM10B的结果，我们发现随着模型大小的增加，性能总体上得到了改善。根据缩放定律（Kaplan et al。，2020），较大的PLM具有更强的理解和生成能力，并能实现更好的下游性能。</li>
+</ol>
+
+<h3 id="整体评估">整体评估</h3>
+
+<h4 id="参考">参考</h4>
+
+<p>对于WebCPM的每个测试问题，我们将注释的答案与我们综合模型生成的3种类型的答案进行比较。</p>
+
+<p>具体来说，这3种类型的答案在支持事实的来源上有所不同，包括</p>
+
+<ol>
+  <li>
+    <p>我们的搜索模型收集的事实，</p>
+  </li>
+  <li>
+    <p>真实人类收集的事实</p>
+  </li>
+  <li>
+    <p>使用常用的非交互式网络搜索方法收集的事实。</p>
+
+    <p>我们直接将原问题输入到必应中，提取所有检索链接中的段落，并使用TF-IDF对它们进行排名。然后我们将排名靠前的前k个段落连接在一起，直到总字数超过3072个令牌</p>
+  </li>
+</ol>
+
+<h4 id="评估方法">评估方法</h4>
+
+<p>我们邀请8名注释者根据人类偏好手动比较不同的答案。给定一个问题和一对答案，我们要求他们进行整体评估，并根据多种因素，包括整体有用性、连贯性和与问题的相关性，决定他们更喜欢哪个答案。</p>
+
+<p>由于所有三种检索方法使用相同的搜索引擎，它们收集的事实有时具有很高的重叠性，导致类似的答案。因此，如果两个答案质量相当，我们允许注释者将两个答案标记为等效。</p>
+
+<h4 id="结果-2">结果</h4>
+
+<p><img src="/assets/posts_assets/WEBCPM%20Interactive%20Web%20Search%20for%20Chinese%20Long-form%20Question%20Answering%20%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.assets/image-20241024211212289.png" alt="image-20241024211212289" /></p>
+
+<ul>
+  <li>我们从图4(a)的结果中得出以下结论：(1)纯粹通过我们的流程获得的答案在19.0%+13.5% = 32.5%的时间内被认为是首选或可比的。这一结果暗示着我们的流程在将来的努力中有充分的提升机会，这在附录G中进行了讨论。</li>
+  <li>将我们的合成模型应用于人工收集的事实时，性能增长至16.0%+29.5% = 45.5%的优先级或等同级，这是由于收集到的事实质量的提高。</li>
+  <li>通过非交互式搜索收集到的事实的性能略差（7.5%+18% = 25.5%）于我们的搜索模型。我们的搜索模型优于非交互式搜索的原因可能是：
+    <ul>
+      <li>(a)我们的模型多次向Bing发送不同的查询，以便检索更丰富的信息，</li>
+      <li>(b)它决定一个网页是否包含重要信息的能力很关键，这要比TF-IDF效果更好。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>接下来，我们将我们的管道（搜索模型和合成模型）应用于来自DuReader的2个中文QA数据集，即知道和搜索。尽管DuReader不是专门为LFQA设计的，但它包含各种类型的问题，我们随机抽取了400个测试问题，这些问题的注释答案超过400个中文字符。</p>
+
+<p>对于这些问题，我们请标注员将我们的管道生成的答案与DuReader的黄金注释进行比较。从图4（b）中的结果可以看出，我们的管道在搜索和知道上有44.0%和51.0%的时间比注释优秀（平均为47.5%），显示出令人满意的分布外泛化性能。</p>
+
+<p>同一个管道在我们的数据集上超过的人工书面答案少于DuReader也反映了我们注释答案的高质量。请注意，等价比例为0％，因为这两个答案基于完全不同的支持事实，很容易确定哪一个更好。</p>
+
+<h3 id="其他分析">其他分析</h3>
+
+<h4 id="消融分析1">消融分析1</h4>
+
+<p>我们评估了通过引入无关事实来破坏综合模型的训练数据是否可以提高其忽略噪声事实的能力。我们训练一个基准模型，没有破坏训练数据，并保持其他设置与我们的模型相同。对于每个测试问题，我们将搜索模型收集的支持事实馈送给两个综合模型，并生成两个答案。评估员将评估哪个答案更相关于原始问题（允许选取等效选项）。</p>
+
+<p>根据图4（c），通过破坏训练数据，我们的模型的性能比基准模型更好的情况占43.7％，而更差的情况占18.0％。这表明我们的方法确实增强了模型忽略嘈杂信息的能力，使生成的答案与原问题更相关。在附录F.1中，我们进一步探讨了另一种灵活平衡生成新内容和复制支持事实的破坏方法的使用。</p>
+
+<h4 id="消融分析2">消融分析2</h4>
+
+<p><img src="/assets/posts_assets/WEBCPM%20Interactive%20Web%20Search%20for%20Chinese%20Long-form%20Question%20Answering%20%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.assets/image-20241024215714230.png" alt="image-20241024215714230" /></p>
+
+<p>St组件的影响。我们对St的几个组件进行了消融研究，以检验它们对搜索模型的每个模块是如何做出贡献的。这是通过修改每个模块的训练和评估数据来实现的。对于动作预测和支持事实提取，我们移除以下内容之一：已有的收集事实Ft，上一个窗口Wt−1中显示的内容，或者过去的动作At−1。对于查询生成，我们从St中移除以下内容：已有的收集事实Ft，已经搜索过的查询，或者以前浏览过的链接的标题。最后两个项目的信息都包含在At−1中。具体来说，对于过去的动作Search / Load Page，At−1不仅包括动作名称，还记录了具体搜索的查询 / 加载的页面的标题。</p>
+
+<p>结果列在表3中，从中我们观察到：</p>
+
+<ul>
+  <li>(1)对于动作预测，移除Ft或Wt−1只会导致最小的性能变化，而移除At−1会导致显著的性能下降。这表明过去的动作对于动作预测来说是关键因素；</li>
+  <li>(2)对于支持事实提取，只有移除Ft会显著地影响性能(-5.1)。这表明，与人类一致，该模块考虑了已提取的信息来决定下一步提取哪些信息；</li>
+  <li>(3)对于查询生成，移除At−1中的已搜索查询或已访问链接的标题会造成很大的负面影响(-2.5)，这意味着该模块可能已经学会根据已搜索和新观察到的信息来生成查询。此特性是类人的，因为人类也考虑了信息，以避免发送重复的查询，并就已访问链接进行后续问题的提问。</li>
+</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><summary type="html"><![CDATA[WEBCPM: Interactive Web Search for Chinese Long-form Question Answering 论文笔记]]></summary></entry><entry><title type="html">StructRAG 论文精读</title><link href="http://localhost:4000/2024/10/21/StructRAG-Boosting-Knowledge-Intensive-Reasoning-of-LLMs-via-Inference-time-Hybrid-Information-Structurization-%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB.html" rel="alternate" type="text/html" title="StructRAG 论文精读" /><published>2024-10-21T00:00:00+08:00</published><updated>2024-10-21T00:00:00+08:00</updated><id>http://localhost:4000/2024/10/21/StructRAG%20Boosting%20Knowledge%20Intensive%20Reasoning%20of%20LLMs%20via%20Inference-time%20Hybrid%20Information%20Structurization%20%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB</id><content type="html" xml:base="http://localhost:4000/2024/10/21/StructRAG-Boosting-Knowledge-Intensive-Reasoning-of-LLMs-via-Inference-time-Hybrid-Information-Structurization-%E8%AE%BA%E6%96%87%E7%B2%BE%E8%AF%BB.html"><![CDATA[<h1 id="structrag-boosting-knowledge-intensive-reasoning-of-llms-via-inference-time-hybrid-information-structurization-论文精读">StructRAG: Boosting Knowledge Intensive Reasoning of LLMs via Inference-time Hybrid Information Structurization 论文精读</h1>
 
 <!---more-->
 
@@ -5943,13 +6425,9 @@ $t_w$和$t_l$分别是选择的结构类型和被拒绝的结构类型。合成�
 <p>这次实验不仅让我提升了技术能力，更让我体会到了从挑战中获得成长的喜悦。实验过程中的每一个小细节，都让我对编译原理有了更深入的理解。尽管实验过程充满挑战，但最终的成功让我感到无比的满足和自豪。感谢这次实验，让我在编程的道路上迈出了重要的一步，未来我将继续努力，不断提升自己的技能，迎接更多的挑战。</p>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="编译原理" /><category term="实验报告" /><summary type="html"><![CDATA[]]></summary></entry><entry><title type="html">linux实验二 线程应用编程</title><link href="http://localhost:4000/2024/05/31/linux%E5%AE%9E%E9%AA%8C%E4%BA%8C.html" rel="alternate" type="text/html" title="linux实验二 线程应用编程" /><published>2024-05-31T00:00:00+08:00</published><updated>2024-05-31T00:00:00+08:00</updated><id>http://localhost:4000/2024/05/31/linux%E5%AE%9E%E9%AA%8C%E4%BA%8C</id><content type="html" xml:base="http://localhost:4000/2024/05/31/linux%E5%AE%9E%E9%AA%8C%E4%BA%8C.html"><![CDATA[<h2 id="linux实验二-线程应用编程">linux实验二 线程应用编程</h2>
 
 <!---more-->
-<style> .pdf-embed-wrap-d07a9ced-4f9b-4d50-84a7-7e67d9ee1fba { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-d07a9ced-4f9b-4d50-84a7-7e67d9ee1fba { height: 100%; } .pdf-embed-container-d07a9ced-4f9b-4d50-84a7-7e67d9ee1fba iframe { width: 100%; height: 100%; } </style>
-<div class="pdf-embed-wrap-d07a9ced-4f9b-4d50-84a7-7e67d9ee1fba"> <div class="pdf-embed-container-d07a9ced-4f9b-4d50-84a7-7e67d9ee1fba"> <iframe src="/assets/pdf/linux/实验二.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="linux" /><category term="实验报告" /><summary type="html"><![CDATA[linux实验二 线程应用编程]]></summary></entry><entry><title type="html">linux实验三 基于共享内存的读者和写者问题程序设计</title><link href="http://localhost:4000/2024/05/31/linux%E5%AE%9E%E9%AA%8C%E4%B8%89.html" rel="alternate" type="text/html" title="linux实验三 基于共享内存的读者和写者问题程序设计" /><published>2024-05-31T00:00:00+08:00</published><updated>2024-05-31T00:00:00+08:00</updated><id>http://localhost:4000/2024/05/31/linux%E5%AE%9E%E9%AA%8C%E4%B8%89</id><content type="html" xml:base="http://localhost:4000/2024/05/31/linux%E5%AE%9E%E9%AA%8C%E4%B8%89.html"><![CDATA[<h2 id="linux实验三-基于共享内存的读者和写者问题程序设计">linux实验三 基于共享内存的读者和写者问题程序设计</h2>
+<style> .pdf-embed-wrap-bec5f3e2-6abe-48c6-a079-d8b5add45230 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-bec5f3e2-6abe-48c6-a079-d8b5add45230 { height: 100%; } .pdf-embed-container-bec5f3e2-6abe-48c6-a079-d8b5add45230 iframe { width: 100%; height: 100%; } </style>
+<div class="pdf-embed-wrap-bec5f3e2-6abe-48c6-a079-d8b5add45230"> <div class="pdf-embed-container-bec5f3e2-6abe-48c6-a079-d8b5add45230"> <iframe src="/assets/pdf/linux/实验二.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="linux" /><category term="实验报告" /><summary type="html"><![CDATA[linux实验二 线程应用编程]]></summary></entry><entry><title type="html">linux实验三 基于共享内存的读者和写者问题程序设计</title><link href="http://localhost:4000/2024/05/31/linux%E5%AE%9E%E9%AA%8C%E4%B8%89.html" rel="alternate" type="text/html" title="linux实验三 基于共享内存的读者和写者问题程序设计" /><published>2024-05-31T00:00:00+08:00</published><updated>2024-05-31T00:00:00+08:00</updated><id>http://localhost:4000/2024/05/31/linux%E5%AE%9E%E9%AA%8C%E4%B8%89</id><content type="html" xml:base="http://localhost:4000/2024/05/31/linux%E5%AE%9E%E9%AA%8C%E4%B8%89.html"><![CDATA[<h2 id="linux实验三-基于共享内存的读者和写者问题程序设计">linux实验三 基于共享内存的读者和写者问题程序设计</h2>
 
 <!---more-->
-<style> .pdf-embed-wrap-9c4fc0a9-958d-4757-9370-7353a57d75a1 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-9c4fc0a9-958d-4757-9370-7353a57d75a1 { height: 100%; } .pdf-embed-container-9c4fc0a9-958d-4757-9370-7353a57d75a1 iframe { width: 100%; height: 100%; } </style>
-<div class="pdf-embed-wrap-9c4fc0a9-958d-4757-9370-7353a57d75a1"> <div class="pdf-embed-container-9c4fc0a9-958d-4757-9370-7353a57d75a1"> <iframe src="/assets/pdf/linux/实验三.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="linux" /><category term="实验报告" /><summary type="html"><![CDATA[linux实验三 基于共享内存的读者和写者问题程序设计]]></summary></entry><entry><title type="html">linux实验一 文件 I/O 程序设计</title><link href="http://localhost:4000/2024/05/31/linux%E5%AE%9E%E9%AA%8C%E4%B8%80.html" rel="alternate" type="text/html" title="linux实验一 文件 I/O 程序设计" /><published>2024-05-31T00:00:00+08:00</published><updated>2024-05-31T00:00:00+08:00</updated><id>http://localhost:4000/2024/05/31/linux%E5%AE%9E%E9%AA%8C%E4%B8%80</id><content type="html" xml:base="http://localhost:4000/2024/05/31/linux%E5%AE%9E%E9%AA%8C%E4%B8%80.html"><![CDATA[<h2 id="linux实验一-文件-io-程序设计">linux实验一 文件 I/O 程序设计</h2>
-
-<!---more-->
-<style> .pdf-embed-wrap-467682a8-4097-44b7-8ce7-79eee53aa454 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-467682a8-4097-44b7-8ce7-79eee53aa454 { height: 100%; } .pdf-embed-container-467682a8-4097-44b7-8ce7-79eee53aa454 iframe { width: 100%; height: 100%; } </style>
-<div class="pdf-embed-wrap-467682a8-4097-44b7-8ce7-79eee53aa454"> <div class="pdf-embed-container-467682a8-4097-44b7-8ce7-79eee53aa454"> <iframe src="/assets/pdf/linux/实验一.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="linux" /><category term="实验报告" /><summary type="html"><![CDATA[linux实验一 文件 I/O 程序设计]]></summary></entry></feed>
+<style> .pdf-embed-wrap-0ec111f8-048c-4616-ac7b-819d44fc3197 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-0ec111f8-048c-4616-ac7b-819d44fc3197 { height: 100%; } .pdf-embed-container-0ec111f8-048c-4616-ac7b-819d44fc3197 iframe { width: 100%; height: 100%; } </style>
+<div class="pdf-embed-wrap-0ec111f8-048c-4616-ac7b-819d44fc3197"> <div class="pdf-embed-container-0ec111f8-048c-4616-ac7b-819d44fc3197"> <iframe src="/assets/pdf/linux/实验三.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="linux" /><category term="实验报告" /><summary type="html"><![CDATA[linux实验三 基于共享内存的读者和写者问题程序设计]]></summary></entry></feed>
