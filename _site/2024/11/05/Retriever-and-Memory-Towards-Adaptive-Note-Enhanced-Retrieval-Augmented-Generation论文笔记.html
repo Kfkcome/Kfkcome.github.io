@@ -1,0 +1,1804 @@
+<!DOCTYPE html><html lang="zh-Hans">
+  <head><!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-LVD2CPW3EW"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'G-LVD2CPW3EW');
+		
+	</script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>Adaptive Note RAG 论文笔记 - Ennis's Blog</title>
+
+<meta name="description" content="Retriever-and-Memory: Towards Adaptive  Note-Enhanced Retrieval-Augmented Generation论文笔记">
+<link rel="canonical" href="http://localhost:4000/2024/11/05/Retriever-and-Memory-Towards-Adaptive-Note-Enhanced-Retrieval-Augmented-Generation%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Willing to be a question, willing to be an answer.
+" href="/">Ennis's Blog</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=nlp">nlp</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86">自然语言处理</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0">论文笔记</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 11月05日</span>
+            </li><li><i class="far fa-eye"></i> <span class="js-pageview" data-page-key="post65">0</span> 阅读</li></ul></div><div class="article__header"><header><h1>Adaptive Note RAG 论文笔记</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2024-11-5-Retriever-and-Memory Towards Adaptive  Note-Enhanced Retrieval-Augmented Generation论文笔记.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">Retriever-and-Memory: Towards Adaptive  Note-Enhanced Retrieval-Augmented Generation论文笔记</p></div></div>
+              </div>
+            </div><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="Adaptive Note RAG 论文笔记"><meta itemprop="author" content="Xingjie Gao"/><meta itemprop="datePublished" content="2024-11-05T00:00:00+08:00">
+    <meta itemprop="keywords" content="nlp,自然语言处理,论文笔记"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><h1 id="retriever-and-memory-towards-adaptive--note-enhanced-retrieval-augmented-generation论文笔记">Retriever-and-Memory: Towards Adaptive  Note-Enhanced Retrieval-Augmented Generation论文笔记</h1>
+
+<!---more-->
+
+<blockquote>
+  <p>论文来源：师兄给的</p>
+
+  <p>问题：</p>
+</blockquote>
+
+<h2 id="不懂的知识">不懂的知识</h2>
+
+<h3 id="long-form-qa--multi-hop-qa--open-qa">long-form QA / multi-hop QA / open QA</h3>
+
+<p>Multi-hop QA、Long-form QA 和 OpenQA 是问答系统中的三种不同类型，各自有不同的关注点和特点，但在实际应用中，它们可以彼此融合或互补。以下是它们之间的关系及对比：</p>
+
+<ol>
+  <li>
+    <p><strong>OpenQA</strong>：</p>
+
+    <ul>
+      <li><strong>定义</strong>：OpenQA 是开放领域问答系统，旨在回答任何主题的自然语言问题，通常依赖于大型知识库或非结构化文本（如网页和维基百科）进行信息检索。</li>
+      <li><strong>核心特点</strong>：在不限定领域的前提下，OpenQA系统能够从大量数据中搜索、抽取和生成答案。其主要挑战在于从庞大的数据源中找到准确、相关的信息。</li>
+      <li><strong>任务目标</strong>：快速准确地回答广泛、开放的问题，通常是简短、事实性的回答，但也可以是较长的内容。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Multi-hop QA</strong>：</p>
+
+    <ul>
+      <li><strong>定义</strong>：Multi-hop QA 是一种专注于多步推理的问答任务，需要从多个信息片段中获取和连接线索来得到答案。</li>
+      <li><strong>核心特点</strong>：在信息整合和推理链条构建方面具有挑战性，因为要在多个文本或逻辑链条之间进行连接。尽管信息可能在不同的文本片段中分散，但系统需要整合它们来形成最终答案。</li>
+      <li><strong>任务目标</strong>：通过多个步骤的推理来回答问题，适用于需要多层逻辑或因果关系的问题，通常生成简短且确定的答案。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>Long-form QA</strong>：</p>
+
+    <ul>
+      <li><strong>定义</strong>：Long-form QA 关注生成详细、解释性的回答，尤其适用于需要背景、分析或综合性回答的问题。</li>
+      <li><strong>核心特点</strong>：强调生成连贯的长篇内容，回答需要深入的解释和背景信息，而不仅仅是单一的事实答案。系统需要具备较强的文本生成能力，以确保回答的内容丰富性和逻辑连贯性。</li>
+      <li><strong>任务目标</strong>：提供深度的回答，回答内容类似一篇小文章，适合用户寻求综合性、解释性或教育性答案的场景。</li>
+    </ul>
+  </li>
+</ol>
+
+<p>三者的对比与关系</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>特点</th>
+      <th><strong>OpenQA</strong></th>
+      <th><strong>Multi-hop QA</strong></th>
+      <th><strong>Long-form QA</strong></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>目标</strong></td>
+      <td>回答开放领域问题</td>
+      <td>通过多步推理找到准确答案</td>
+      <td>生成详细解释和背景的回答</td>
+    </tr>
+    <tr>
+      <td><strong>关注点</strong></td>
+      <td>信息检索与相关性</td>
+      <td>多步逻辑推理和信息整合</td>
+      <td>深度生成与连贯性</td>
+    </tr>
+    <tr>
+      <td><strong>答案类型</strong></td>
+      <td>简短或事实性答案</td>
+      <td>简短但需要多步推理的答案</td>
+      <td>连贯的长篇内容</td>
+    </tr>
+    <tr>
+      <td><strong>关系</strong></td>
+      <td>可结合 Multi-hop QA 或 Long-form QA 实现开放领域中的多步推理或长篇回答</td>
+      <td>可以在 OpenQA 系统中实现多步推理</td>
+      <td>可用于 OpenQA 系统中生成解释性答案</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>整合方式</strong>：
+在复杂问答系统中，这三者可以结合使用。例如：</p>
+
+<ul>
+  <li><strong>OpenQA + Multi-hop QA</strong>：在开放领域中使用多步推理来找到答案，例如跨文档推理问题。</li>
+  <li><strong>OpenQA + Long-form QA</strong>：在开放领域中生成解释性或背景丰富的长篇回答，例如百科式回答。</li>
+</ul>
+
+<p><strong>总结</strong>：</p>
+
+<ul>
+  <li><strong>OpenQA</strong> 关注领域广泛的问题。</li>
+  <li><strong>Multi-hop QA</strong> 关注多步信息推理。</li>
+  <li><strong>Long-form QA</strong> 关注详细、解释性的回答。</li>
+</ul>
+
+<h3 id="llm基本任务">LLM基本任务</h3>
+
+<table>
+  <thead>
+    <tr>
+      <th>任务</th>
+      <th>英文名称</th>
+      <th>简写</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>问答</td>
+      <td>Question Answering</td>
+      <td>QA</td>
+    </tr>
+    <tr>
+      <td>文本生成</td>
+      <td>Text Generation</td>
+      <td>TG</td>
+    </tr>
+    <tr>
+      <td>文本总结</td>
+      <td>Text Summarization</td>
+      <td>TS</td>
+    </tr>
+    <tr>
+      <td>语言翻译</td>
+      <td>Machine Translation</td>
+      <td>MT</td>
+    </tr>
+    <tr>
+      <td>文本分类</td>
+      <td>Text Classification</td>
+      <td>TC</td>
+    </tr>
+    <tr>
+      <td>实体识别</td>
+      <td>Named Entity Recognition</td>
+      <td>NER</td>
+    </tr>
+    <tr>
+      <td>文本改写与纠错</td>
+      <td>Text Rewriting and Error Correction</td>
+      <td>TREC</td>
+    </tr>
+    <tr>
+      <td>对话生成</td>
+      <td>Dialogue Generation</td>
+      <td>DG</td>
+    </tr>
+    <tr>
+      <td>代码生成和分析</td>
+      <td>Code Generation and Analysis</td>
+      <td>CGA</td>
+    </tr>
+    <tr>
+      <td>知识提取</td>
+      <td>Knowledge Extraction</td>
+      <td>KE</td>
+    </tr>
+    <tr>
+      <td>个性化推荐</td>
+      <td>Personalized Recommendation</td>
+      <td>PR</td>
+    </tr>
+    <tr>
+      <td>文本推理</td>
+      <td>Textual Inference</td>
+      <td>TI</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2 id="摘要">摘要</h2>
+
+<blockquote>
+  <p>除了QA任务还有哪些？</p>
+</blockquote>
+
+<h3 id="当前的rag">当前的RAG</h3>
+
+<p>RAG：检索增强生成（RAG）通过引入外部知识，缓解大型语言模型（LLMs）在开放域问答任务（OpenQA）中产生的事实错误和虚构输出问题。</p>
+
+<p>现有的RAG方法使用LLMs来预测检索时机，<strong>所以RAG的现有问题</strong>：</p>
+
+<ul>
+  <li>直接使用检索到的信息进行生成而不考虑检索时机是否准确反映实际信息需求</li>
+  <li>也没有足够考虑先前检索到的知识</li>
+  <li>后果：<strong>这可能导致信息收集和交互不足，产生质量低下的答案。</strong></li>
+</ul>
+
+<h3 id="解决办法">解决办法</h3>
+
+<p><strong>Adaptive Note-Enhance RAG（Adaptive-Note）</strong>,用于复杂的QA任务</p>
+
+<ul>
+  <li>迭代信息收集器</li>
+  <li>自适应记忆审阅器</li>
+  <li>任务导向生成器</li>
+</ul>
+
+<p>新的范式：<strong>Retriever-and-Memory</strong></p>
+
+<p>具体：</p>
+
+<ol>
+  <li>给出了一个总体的的方法观点来解决知识增长的问题
+    <ol>
+      <li>以note的形式迭代收集新信息</li>
+      <li>并将其更新到现有的最佳知识结构中，</li>
+      <li>目的：从而增强高质量的知识互动。</li>
+    </ol>
+  </li>
+  <li>给出了一种基于注释的自适应停止探索策略，以决定“检索什么以及何时停止”，
+    <ol>
+      <li>目的：以鼓励充分的知识探索。</li>
+    </ol>
+  </li>
+</ol>
+
+<h3 id="结果实验">结果&amp;实验</h3>
+
+<p>我们在五个复杂的QA数据集上进行了大量实验，结果表明我们的方法及其组件的优越性和有效性。</p>
+
+<h2 id="引言">引言</h2>
+
+<h3 id="rag当前的问题">RAG当前的问题</h3>
+
+<ul>
+  <li>LLM遇到幻觉和事实性错误，用RAG解决</li>
+  <li>RAG：这是一种利用外部非参数化知识资源来帮助LLMs推动其固有参数知识边界的有前途的技术</li>
+  <li>当前的RAG范式：Retriever-and-Reader</li>
+  <li>当前RAG的缺点：<strong>无法收集足够的信息来完成long-form QA和 multi-hop QA 这些复杂的QA</strong>
+    <ul>
+      <li>原因：</li>
+      <li>mutil-hop QA：通常涉及广泛或深入的信息检索需求，这些需求可能没有明确反映在初始查询中，或者在单次检索尝试中很容易实现。
+        <ul>
+          <li>例子：在多跳QA中，要回答“丹麦足球联盟所属组织的首字母缩写是什么？”，我们必须首先搜索首字母缩写“FIFA”，然后搜索“FIFA”代表什么。</li>
+        </ul>
+      </li>
+      <li>long-form QA ：处理<strong>含糊查询</strong>需要探讨各个相关方面并深入细节，生成全面和长格式的答案。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="当前的解决办法">当前的解决办法</h3>
+
+<p>ARAG：为了解决“何时检索以及检索什么内容”的问题，试图通过灵活的知识捕获机制来提升回答质量。</p>
+
+<p>缺点：</p>
+
+<ol>
+  <li><strong>逐步生成问题</strong>：每次检索都会立即生成一个输出，这会导致每个输出段仅反映当前检索到的有限知识，而忽略了跨不同检索步骤的信息整合和交互。</li>
+  <li><strong>检索时机的预测偏差</strong>：ARAG利用LLM预测检索的时机，但由于LLM的内部认知与实际检索需求的差异，可能会错过关键的检索时机，导致知识收集不充分。</li>
+</ol>
+
+<h3 id="作者的解决办法">作者的解决办法</h3>
+
+<p>针对这种复杂的QA问题</p>
+
+<p>提出了基于新范式<strong>Retriever-Memory</strong>的模型<strong>Adaptive Note-Enhance RAG（Adaptive-Note）</strong></p>
+
+<h4 id="模型介绍">模型介绍</h4>
+
+<p>模型由两部分组成：<strong>Iterative Information Collector (IIC)</strong>、 <strong>Adaptive Memory Reviewer (AMR)</strong></p>
+
+<p>作用：自适应地从一个成长的视角收集信息，并灵活地将新知识与所有已收集的知识整合，实现良好的性能。</p>
+
+<h5 id="iic模块">IIC模块</h5>
+
+<blockquote>
+  <p>note 是哪种形式呢？</p>
+
+  <p>知识结构是如何被优化的？</p>
+
+  <p>IIC是怎么确保最大化调整与原始查询相关的所有细节？</p>
+
+  <p>新note是如何被加入原本note中的？</p>
+</blockquote>
+
+<ol>
+  <li><strong>知识整合问题</strong>：为解决不同检索步骤间信息交互不足的问题，IIC引入了“笔记（note）”作为知识的存储载体，而不是在每次检索后立即生成结果。</li>
+  <li><strong>最大化搜索：</strong>IIC不是在检索后立即生成结果，而是最大化调整与原始查询相关的所有细节，并将它们存储在笔记中。</li>
+  <li><strong>动态更新</strong>：每当有新的检索信息，IIC会将其以文本形式适应性地添加到已有的笔记中，以保证知识结构的连续性和优化。（知识结构会被持续更新和优化，整合之前所有检索步骤中有效的信息，使得最终的知识结构更全面、更准确。）</li>
+</ol>
+
+<p>总之，这段描述了IIC如何通过笔记存储和持续优化的方式，使得各检索步骤之间的信息能够有效整合，避免了因即时生成输出而导致的知识片面性。</p>
+
+<h5 id="amr模块">AMR模块</h5>
+
+<blockquote>
+  <p>疑问一：<strong>和主动检索有什么区别呢？</strong></p>
+
+  <p>论文中的 <strong>note-based stop-exploration strategy（基于笔记的停止探索策略）</strong> 和 <strong>active retrieval（主动检索）</strong> 的区别在于知识收集的方式和控制检索过程的策略：</p>
+
+  <ol>
+    <li>
+      <p><strong>检索触发方式</strong>：</p>
+
+      <ul>
+        <li><strong>Active Retrieval</strong>：模型在回答过程中动态地判断是否需要额外检索，依据的是当前回答生成的反馈或置信度来决定是否触发新的检索。</li>
+        <li><strong>Note-based Stop-Exploration</strong>：则是基于一个“笔记”作为知识的存储和整合载体。在检索过程中，所有获得的有用信息都会被存储到笔记中，并逐步整合和优化。当模型发现笔记中已有的知识结构已经足够完善时，就会触发停止条件，从而不再继续检索。</li>
+      </ul>
+    </li>
+    <li>
+      <p><strong>停止机制</strong>：</p>
+
+      <ul>
+        <li><strong>Active Retrieval</strong> 关注的是在生成过程中的动态需求，检索可能是分阶段触发的，不一定有明确的停止点，因此容易受到时机偏差（timing bias）的影响。</li>
+        <li><strong>Note-based Stop-Exploration</strong> 使用一个“笔记”来不断积累和评估知识的完整性，只有在知识增长不足或达到特定条件时才停止检索。这种方法可以有效规避时机偏差，确保所有检索的知识都得到充分整合，停止条件更明确和系统化。</li>
+      </ul>
+    </li>
+    <li>
+      <p><strong>使用目的</strong>：</p>
+
+      <ul>
+        <li><strong>Active Retrieval</strong> 更适合用于逐步生成答案时需要特定信息的情况。</li>
+        <li><strong>Note-based Stop-Exploration</strong> 则更适合在复杂问题中进行广泛信息整合和更新，以确保所有相关知识都完整且无冗余地存储在笔记中，用于提供高质量、全面的回答。</li>
+      </ul>
+    </li>
+  </ol>
+
+  <p>总结来说，active retrieval 是一种动态的、基于反馈的检索触发机制，而 note-based stop-exploration 是一种通过笔记积累和评估来确定停止检索的策略，更侧重于避免检索过度并确保知识整合的全面性。</p>
+
+  <p>疑问二：<strong>the timing bias of active retrieval predictions是什么意思？</strong></p>
+
+  <p>模型在回答过程中会主动判断何时需要检索额外信息，但由于模型对检索需求的预测可能不准确，可能会导致以下两种情况：</p>
+
+  <ol>
+    <li><strong>过早或过晚检索</strong>：模型可能在不需要时启动检索，或在需要时却未能及时检索，导致检索结果的时机与实际信息需求不匹配。</li>
+    <li><strong>知识缺失</strong>：错过关键检索时机会造成知识收集不充分，影响最终回答的质量。</li>
+  </ol>
+
+</blockquote>
+
+<p>用自适应基于note的停止搜索策略（note-base stop-exploration strategy）替换不确定的主动检索</p>
+
+<p>具体：</p>
+
+<ol>
+  <li>它确定最佳笔记作为最佳记忆，并用它来决定“什么时候检索以及何时停止”</li>
+  <li>我们的自适应策略允许首先进行贪婪勘探。如果在特定时刻，笔记不再获得知识增益，则信息收集停止。</li>
+</ol>
+
+<p>好处：这种策略有效地避免了主动检索预测的时机偏见，并确保持续的知识增益</p>
+
+<h3 id="实验结果">实验&amp;结果</h3>
+
+<blockquote>
+  <p>零样本就可，无需少样本训练是怎么实现的？</p>
+</blockquote>
+
+<h4 id="实验">实验</h4>
+
+<p>我们在五个复杂的QA数据集上进行了大量实验，涉及总体性能比较、定量消融研究和参数分析。结果突出了Adaptive-Note的优越性、有效性和普适性，同时确认了核心组件的有效性。</p>
+
+<h4 id="贡献">贡献</h4>
+
+<ol>
+  <li><strong>模型：</strong>我们探索了LLMs处理复杂QA任务的能力，并首次提出了一种基于新范式（Retrieverand-Memory）的称为Adaptive-Note的方法。大量实验结果表明，Adaptive-Note在五个复杂QA数据集上显著超越现有方法，改进达到了8.8%。</li>
+  <li><strong>策略：</strong>我们引入了一种基于笔记的自适应知识探索策略，通过知识增长的视角加强。因此，Adaptive-Note可以持续收集相关知识并自适应地记忆最优知识，产生高质量答案。</li>
+  <li><strong>设计实现：</strong>我们将Adaptive-Note设计为一种通用且即插即用的方法，可以轻松适应任何现有的LLMs而无需额外训练，而且它可以在仅仅零样本设置下取得出色的性能，而无需使用精心设计的少样本示例。</li>
+</ol>
+
+<h2 id="相关工作">相关工作</h2>
+
+<h3 id="openqa">OpenQA</h3>
+
+<p>开放域问答（OpenQA）。开放域问答（OpenQA）（Voorhees 1999）旨在利用大规模和非结构化信息以自然语言形式回答与领域无关的问题（Zhu et al. 2021）。</p>
+
+<p>现代开放QA任务的方法通常遵循Retriever和Reader范式（Chen et al. 2017; Das et al. 2019; Wang et al. 2024）。</p>
+
+<h4 id="retriever">Retriever</h4>
+
+<p>“Retriever”负责根据给定的问题检索相关文档，主流方法包括：</p>
+
+<ol>
+  <li>基于稀疏向量的检索，如TFIDF和BM25；</li>
+  <li>最近开发的基于密集向量的检索，如DPR（Karpukhin等人，2020）和Contriever（Izacard等人，2022）。</li>
+</ol>
+
+<h4 id="reader">Reader</h4>
+
+<p>Reader致力于理解检索到的段落，然后推断出正确答案。</p>
+
+<p>过去几年，Reader广泛采用了Fine-tuned预训练模型，建立在基于transformer的体系结构之上。</p>
+
+<p>最近，<strong>LLMs涌现的能力-无需微调</strong>，<strong>基于提示的上下文学习</strong>（ICL）（Brown等人，2020）。这使得LLMs仅仅通过提供少量演示样本便能在OpenQA任务中取得极具竞争力的表现。</p>
+
+<p>我们的工作主要集中在利用LLMs解决OpenQA任务，并提出了一种新颖有效的范式，即Retriever-and-Memory。</p>
+
+<h3 id="rag">RAG</h3>
+
+<p>这段内容讨论了<strong>检索增强生成（RAG）</strong>技术的演变及其在复杂问答任务中的应用和挑战，并引入了<strong>自适应检索增强生成（ARAG）</strong>概念作为改进。具体解释如下：</p>
+
+<ol>
+  <li><strong>传统RAG方法及其局限</strong>：
+    <ul>
+      <li>传统的RAG方法基于“检索器-阅读器”结构，检索器（Retriever）从外部知识库中检索到与问题相关的段落，然后将这些段落输入到语言模型（LLM）中生成答案。</li>
+      <li>早期的方法是单次检索（single-time RAG），即一次性检索所需的段落并直接生成答案。但在复杂的问答任务（如multi-hop QA和long-form QA）中，单次检索往往不足以获取完整的信息，导致回答内容不充分。</li>
+    </ul>
+  </li>
+  <li><strong>多次检索（multi-time RAG）方法的尝试和问题</strong>：
+    <ul>
+      <li>为了解决单次检索信息不足的问题，一些方法（如Trivedi et al. 2023；Borgeaud et al. 2022）在生成过程中尝试多次检索，即在生成答案时连续检索新的信息。</li>
+      <li>但是，多次检索可能导致模型不加区分地持续获取信息，这样如果某个检索步骤引入了错误或不相关的信息，会导致低质量的回答。</li>
+    </ul>
+  </li>
+  <li><strong>自适应RAG（ARAG）方法的提出</strong>：
+    <ul>
+      <li>为了解决上述问题，提出了自适应RAG（ARAG）方法。ARAG方法通过不同的反馈机制自动决定“何时检索、检索什么”，以更加精准地满足问题的知识需求。</li>
+      <li>目前主流的ARAG方法包括<strong>Flare</strong>（Jiang et al. 2023）和<strong>Self-RAG</strong>（Asai et al. 2024）。例如，Flare方法在生成过程中，如果检测到低置信度的词汇（即不确定的词），则会触发检索；但这种置信度判断可能无法完全反映实际检索需求。Self-RAG方法则通过自反性（self-reflective）的标记来判断是否需要检索及评估检索内容的质量，但这对LLM生成的自反性输出准确性要求较高。</li>
+    </ul>
+  </li>
+  <li><strong>本文提出的解决办法</strong>：
+    <ul>
+      <li>由于上述ARAG方法在时机判断上的局限性，作者的目标是从“知识增长”的角度建立一个更高效、稳定的自适应RAG框架，以更加合理地控制检索过程，提高回答质量。</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="方法">方法</h2>
+
+<blockquote>
+
+  <p>最佳记忆是什么意思？Mopt</p>
+
+  <p>AMR怎么触发的终止条件？</p>
+</blockquote>
+
+<p>模型分为三部分：一个迭代信息收集器，一个自适应记忆审阅者和一个面向任务的生成器。</p>
+
+<h3 id="总体工作流程">总体工作流程</h3>
+
+<h4 id="初始化阶段">初始化阶段</h4>
+
+<ol>
+  <li>输入问题q，然后在IIC中进行检索，得到前k个段落p</li>
+  <li>然后k个段落输入到LLm中生成一个初始note$N_0$</li>
+  <li>$N_0$作为初始记忆$M_0$，视为$M_{opt}$</li>
+</ol>
+
+<h4 id="迭代阶段">迭代阶段</h4>
+
+<ol>
+  <li>利用当前的$M_{opt}$和原始查询q生成第t步时的新查询$q_t$</li>
+  <li>然后检索新的相关文章$p_t^i \in P_t$ 然后作为现在当前的状态$N_t$</li>
+  <li>然后AMR 对$N_t$和$M_{opt}$进行多维度评估得到一个二进制结果
+    <ol>
+      <li>如果为true表示$N_t$应该替换记忆的内容</li>
+      <li>反之就不用</li>
+    </ol>
+  </li>
+  <li>直到AMR触发迭代的终止条件。</li>
+</ol>
+
+<h4 id="最终阶段">最终阶段</h4>
+
+<p>使用面向任务的生成器，用$M_{opt}$作为上下文输入，通过LLM zero-shot 上下文学习（ICL）输出最终答案$a\in A$</p>
+
+<h3 id="模块1iic模块">模块1：IIC模块</h3>
+
+<p><img src="/assets/posts_assets/Retriever-and-Memory%20Towards%20Adaptive%20%20Note-Enhanced%20Retrieval-Augmented%20Generation%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.assets/image-20241102171606149.png" alt="image-20241102171606149" /></p>
+
+<h4 id="阶段一note初始化">阶段一：Note初始化</h4>
+
+<ol>
+  <li>
+    <p>将q作为输入给BM25得到k个文章 $P_0$</p>
+  </li>
+  <li>
+    <p>然后用LLM生成note $N_0$并且作为$M_0$直接赋给$M_{opt}$,将被用作后续迭代信息收集阶段的输入</p>
+
+    <p><strong>(作者没有对笔记的具体格式或特定信息方面施加限制，并且使用的是zero-shot的LLM)</strong>
+\(N_{0}=\mathrm{LLM}(prompt_{init}(q,P_{0}))
+\\N_{0}=M_{0}\rightarrow M_{opt}\)</p>
+  </li>
+</ol>
+
+<h4 id="阶段二迭代的信息检索">阶段二：迭代的信息检索</h4>
+
+<p>我们利用最佳记忆来预测下一个查询。</p>
+
+<blockquote>
+  <p>基于现有信息准确预测下一个高质量查询对有效探索语料库未知语义空间至关重要。</p>
+
+  <p>类似于人类行为，我们根据当前的最佳理解提出新问题。</p>
+
+  <p>这些promt都是什么？</p>
+
+  <p>怎么判断Nt相对于Mopt是否具有新的或额外的非冗余信息</p>
+</blockquote>
+
+<p>输入：原始查询q，$M_{opt}$ 和已经问过的问题列表（防止重复问）</p>
+
+<p>生成下一步的query
+\(q_{t}=\mathrm{LLM}(prompt_{q}(q,M_{opt},Q_{ask})),q_{t}\notin Q_{ask}\\Q_{ask}=\{q_{1},q_{2},\ldots,q_{t-1}\}\)
+$prompt_q$表示用于产生下一个检索的提示模板。已提问的查询列表$Q_{ask}$包含所有先前生成的查询。</p>
+
+<h4 id="阶段三更新note阶段">阶段三：更新note阶段</h4>
+
+<p>目标：利用新的查询来探索语料库中潜在的与查询相关的语义子空间，并将新检索到的段落无缝地整合到现有知识中。</p>
+
+<h5 id="怎么设定prompt">怎么设定prompt？</h5>
+
+<p><strong>无固定模式</strong>：与笔记初始化阶段类似，在整合新知识时，不会预定义特定的模式（如简单地附加或插入信息），以避免限制大语言模型（LLM）的多样性和灵活性。这意味着新信息的整合过程是开放的，可以根据实际需求灵活调整。</p>
+
+<p><strong>信息增长的视角</strong>：该方法的核心在于如何有效促进信息的增长，而不是强制遵循固定的结构。这种灵活性允许模型在处理复杂信息时，能够收集、提炼和更新知识，而无需严格的格式限制。</p>
+
+<h5 id="流程">流程</h5>
+
+<ol>
+  <li>我们首先使用新查询$q_t$检索k个新段$P_t$。</li>
+  <li>接下来，我们将q、$Pt$和$M_{opt}$输入到LLM中，采用zero-shot上下文学习（ICL），最终生成更新的笔$N_t$。</li>
+</ol>
+
+\[N_{t}=\mathrm{LLM}(prompt_{update}(q,P_{t},M_{opt}))\]
+
+<p>$prompt_{update}(·)$表示用于更新笔记的提示模板，在三个关键方面为LLM提供多维指导：</p>
+
+<ol>
+  <li>忠实性。所收集的信息应符合检索文档的风格，尽可能地使用原始摘录；</li>
+  <li>有效性。所收集的信息应有助于解决原始查询；</li>
+  <li>可扩展性。所收集的信息不应已包含在内存中；换句话说，只需添加新的语义内容。我们还提供了信息增长的观点来描述这一更新过程，即基于现有的$M_{opt}$知识收集新信息，生成更新的$Nt$。</li>
+</ol>
+
+\[N_t=M_{opt}\cup\left(\bigcup_{i=1}^{k}p_{t}^{i}\right)\]
+
+<p>这里，$M_{opt}$是通过逐步更新得出的，逐渐比较和选择最高质量的笔记作为记忆，而不是依赖于一次性的比较。</p>
+
+<h3 id="模块2amr模块">模块2：AMR模块</h3>
+
+<p>自适应记忆审核者专注于两个关键问题：“$M_{opt}$是什么”和“何时停止检索”。</p>
+
+<h4 id="m_opt是什么样子的">$M_{opt}$是什么样子的</h4>
+
+<p>我们指导LLM仔细审查在笔记更新阶段生成的更新笔记$N_t$的内容和最佳记忆$M_{opt}$的内容，然后比较它们的内容质量。</p>
+
+<p>如果$N_t$的质量高于$M_{opt}$，则$N_t$将替换原始记忆内容成为最新的最佳记忆。</p>
+
+<p>否则，$M_{opt}$的内容保持不变。
+\(f_{c}(N_{t},M_{opt})=\begin{cases}\mathrm{True},&amp;\mathrm{if~}N_{t}\mathrm{~is~better~than~}M_{opt}\\\mathrm{False},&amp;\mathrm{if~}M_{opt}\mathrm{~is~better~than~}N_{t}\end{cases}\\ \\
+N_{t}\to M_{opt}, \mathrm{if} f_{c}(N_{t},M_{opt})=\mathrm{True}\)
+其中，$f_c(.)$ 表示内容质量比较函数，→ 表示“存储在”。</p>
+
+<ol>
+  <li>
+    <p>首先判断Nt相对于Mopt是否具有新的或额外的非冗余信息。</p>
+  </li>
+  <li>
+    <p>此外，为了进行多维度比较，我们在$f_c(.)$的prompt中使用zero-shot 设置制定质量比较的评价标准。</p>
+
+    <p>评价标准包括：</p>
+
+    <ol>
+      <li>内容是否包含与问题直接相关的关键信息</li>
+      <li>内容是否具有多个方面</li>
+      <li>内容是否包含充分的细节</li>
+      <li>内容是否足够实用。</li>
+    </ol>
+  </li>
+</ol>
+
+<h4 id="什么时候停">什么时候停?</h4>
+
+<p>我们建立了三个停止条件来自适应地控制笔记更新，从而间接控制信息收集。</p>
+
+<h5 id="三种停止条件">三种停止条件：</h5>
+
+<p>条件 1：信息更新质量不佳</p>
+
+<ul>
+  <li><strong>描述</strong>：如果更新后的笔记质量未能超过当前最佳记忆 $M_{\text{opt}} $的质量，则视为一次无效的信息收集。</li>
+  <li><strong>无效更新计数（IU）</strong>：设定一个无效更新计数阈值 $ T_{\text{IU}} $，即允许的最大无效信息收集轮数。如果无效更新次数达到此阈值，则停止迭代。</li>
+</ul>
+
+<p>条件 2：信息收集步数过多</p>
+
+<ul>
+  <li><strong>描述</strong>：某些查询可能涉及大量细节性信息（“长尾知识”），这些信息在多次迭代后会不断增加到笔记中。然而，这些细节可能对回答原始问题并无帮助。</li>
+  <li><strong>收集迭代计数（CI）</strong>：设定一个最大信息收集步数阈值 $ T_{\text{CI}} $，即允许的最大信息收集步骤数。如果迭代步数达到此阈值，则停止迭代。</li>
+</ul>
+
+<p>条件 3：检索的段落数过多</p>
+
+<ul>
+  <li><strong>描述</strong>：如果检索的段落数持续增加，但信息对回答原始问题没有显著帮助，也会导致信息冗余。</li>
+  <li><strong>检索段落计数（RP）</strong>：设定一个最大去重检索段落数阈值 $ T_{\text{RP}} $，即最多允许去重后的段落数。如果检索的段落数达到此阈值，则停止迭代。</li>
+</ul>
+
+<h5 id="停止机制">停止机制：</h5>
+
+<ul>
+  <li>这三个阈值（$ T_{\text{IU}} $、$ T_{\text{CI}} $ 和 $ T_{\text{RP}} $）作为迭代停止条件。如果满足其中任一条件，即会触发终止机制，停止信息收集和更新过程。</li>
+</ul>
+
+\[\langle\mathbf{Stop}\rangle=\mathbf{1}\left\{IU\geq T_{IU}\vee CI\geq T_{CI}\vee RP\geq T_{RP}\right\}\]
+
+<ul>
+  <li>停止符号⟨Stop⟩是一个布尔值，表示是否停止迭代过程。符号≥表示满足任何触发条件都会返回1。</li>
+</ul>
+
+<h3 id="模块3面向任务的生成器">模块3：面向任务的生成器</h3>
+
+<p>任务导向型生成器读取最佳内存$M_{opt}$，并输出原始查询q的答案α。</p>
+
+<p>由于不同QA任务的输出风格（例如长或短的生成），我们将prompt定制为任务导向型。</p>
+
+<blockquote>
+  <p>例如，多跳QA任务需要简短精确的输出，通常只有几个词，而我们内存中的知识则呈现为长文本。因此，我们指导LLM仅输出关键答案，不包括多余的词语。相比之下，对于长篇QA任务，我们指导响应风格而非严格的限制。</p>
+</blockquote>
+
+\[\alpha=\mathrm{LLM}(prompt_{g}(q,M_{opt}))\]
+
+<p>$prompt_g(·) $代表任务导向生成器的promt模板集合</p>
+
+<h2 id="实验-1">实验</h2>
+
+<h3 id="数据集和评估指标">数据集和评估指标</h3>
+
+<ul>
+  <li>
+    <p><strong>Multi-hop QA任务</strong>：选择了三个具有挑战性的英语数据集进行评估，即 HotpotQA、2WikiMultiHopQA（2WikiMQA）和 MuSiQue。每个数据集使用了Trivedi等（2023）发布的一个包含500个随机选择样本的子集。评估指标包括F1分数（F1）和精确匹配（EM），用于衡量答案的准确性和完整性。</p>
+  </li>
+  <li>
+    <p><strong>Long-form QA任务</strong>：选择了一个英语数据集ASQA和一个中文数据集CRUD。ASQA数据集使用ALCE（Gao等，2023）重新编译的948个查询，并使用其官方的评估指标，即字符串精确匹配（str-em）和字符串命中率（str-hit）。对于CRUD数据集，只使用其QA任务的数据集（包含单文档和多文档QA样本），并采用CRUD提出的RAGQuestEval评估指标，包括问题级别的召回率（Q-R）、标记级别的F1（T-F1）、召回率（T-R）和精确率（T-P）。</p>
+  </li>
+</ul>
+
+<h3 id="基线模型和llms">基线模型和LLMs</h3>
+
+<ul>
+  <li>比较了三种基线模型：
+    <ol>
+      <li><strong>No Retrieval (NoR)</strong>：直接将查询输入到LLM中生成答案，不进行任何检索过程。</li>
+      <li><strong>Single-time RAG (STRAG)</strong>：一次性检索知识用于回答原始查询。</li>
+      <li><strong>Adaptive RAG (ARAG)</strong>：采用自适应的前向探索策略，逐步检索知识以提升答案质量。</li>
+    </ol>
+  </li>
+  <li>使用GPT-3.5作为NoR的内置LLM。对于STRAG，选择了Vanilla RAG、Chain-of-note、Self-refine和Self-rerank作为对比模型。ARAG中包含FLARE、Self-RAG和ReAct三种方法进行比较。具体实现方面，Self-RAG和ReAct使用了Langchain框架。此外，还进行了多种LLM的实验，包括GPT-3.5-turbo-0125、Qwen2-7b和Llama3-8b，默认情况下使用GPT-3.5作为模型。</li>
+</ul>
+
+<h3 id="检索器和语料库">检索器和语料库</h3>
+
+<ul>
+  <li>为了确保所有基线模型之间的公平比较，在每个数据集中对检索器和语料库进行了统一设置。</li>
+  <li>对于所有Multi-hop数据集，使用BM25作为检索器（通过Elasticsearch实现），语料库为Trivedi等（2023）发布的数据集对应语料。</li>
+  <li>对于ASQA，使用密集检索器GTR-XXL，并使用ALCE提供的语料库（基于2018年12月20日的Wikipedia快照，分割为100词的段落）。</li>
+  <li>对于CRUD，使用了包含80000个中文新闻文档的语料库，遵循CRUD的检索配置（块大小为512，top-k为2）。除CRUD外，其他数据集的默认top-k为5。</li>
+</ul>
+
+<h3 id="提示的设置">提示的设置</h3>
+
+<ul>
+  <li>实验方法在零-shot的设置下进行所有LLM推理。由于不同数据集需要不同的输出格式，因此为每个数据集设计了相应的提示（prompt）。为确保所有方法在同一数据集上的公平性，统一了生成时的提示。</li>
+  <li>对于三个具有相似输出格式的Multi-hop QA数据集，设计了相同的提示，引导LLM基于给定内容直接生成答案，减少不必要的词语。对于ASQA和CRUD，遵循作者提供的提示配置，去掉了ALCE的引用输出功能和CRUD的few-shot设置。</li>
+</ul>
+
+<h3 id="自适应过程的设置">自适应过程的设置</h3>
+
+<ul>
+  <li>在自适应过程中，为了在较低预算内达到最佳效果，将检索段落数量（RP）限制为15。默认情况下，收集器迭代计数（CI）和无效更新计数（IU）分别设置为3和1。</li>
+</ul>
+
+<h2 id="结果与分析">结果与分析</h2>
+
+<p><img src="/assets/posts_assets/Retriever-and-Memory%20Towards%20Adaptive%20%20Note-Enhanced%20Retrieval-Augmented%20Generation%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.assets/image-20241102233616465.png" alt="image-20241102233616465" /></p>
+
+<h3 id="1-主要结果">1. <strong>主要结果</strong></h3>
+<ul>
+  <li><strong>与单次检索RAG方法的比较</strong>：使用GPT-3.5作为所有方法的内置LLM，实验结果显示，所提出的方法显著优于单次检索方法。特别是在2WikiMQA数据集上，相比Vanilla RAG，性能提升达12.2%。这是因为单次检索方法依赖于单次检索的质量，而Adaptive-Note方法则可以在语料库中自适应地探索更多知识，提升答案质量。</li>
+  <li><strong>与其他自适应RAG方法的比较</strong>：与FLARE、Self-RAG和ReAct等自适应RAG方法相比，Adaptive-Note在多跳QA和长篇QA任务上持续取得最高表现。这是因为Adaptive-Note方法采用了贪婪的信息收集策略，充分整合每个检索到的段落，避免了忽略关键知识的问题。</li>
+</ul>
+
+<h3 id="2-不同llm上的表现">2. <strong>不同LLM上的表现</strong></h3>
+<ul>
+  <li>为验证方法的通用性，作者在GPT-3.5、Qwen2-7b和Llama3-8b上进行了实验，结果表明Adaptive-Note在所有模型上均显著优于Vanilla RAG，验证了方法的鲁棒性和通用性。</li>
+</ul>
+
+<h3 id="3-公平top-k下的深入比较">3. <strong>公平top-k下的深入比较</strong></h3>
+
+<p>Vanilla RAG 在公平的 top-k 设置下的整体性能。</p>
+
+<p><img src="/assets/posts_assets/Retriever-and-Memory%20Towards%20Adaptive%20%20Note-Enhanced%20Retrieval-Augmented%20Generation%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.assets/image-20241104150516311.png" alt="image-20241104150516311" /></p>
+
+<p>由于自适应RAG方法（如Adaptive-Note）在检索过程中会进行多次、动态的检索，可能最终获取的信息量比一次性检索的RAG（如Vanilla RAG）要多，直接比较两者的检索结果会存在不公平性。因此，为了进行公平比较，作者引入了“公平top-k”的概念。</p>
+
+<ul>
+  <li>为了在相同top-k设置下进行更公平的性能比较，作者计算了自适应检索步骤中去重后的平均检索段落数量作为“公平top-k”。结果显示，在所有数据集上，Adaptive-Note在公平top-k设置下的表现仍然优于Vanilla RAG。</li>
+</ul>
+
+<h3 id="4-消融实验">4. <strong>消融实验</strong></h3>
+<ul>
+  <li><strong>迭代信息收集器（IIC）的有效性</strong>：实验表明，仅使用IIC模块就能提升性能，尤其在多跳QA任务中效果更明显，因为该模块能生成基于前序知识的新查询，有助于多跳推理。</li>
+  <li><strong>自适应记忆审查器（AMR）的有效性</strong>：与不使用AMR模块相比，加入AMR可以进一步提高性能，因为AMR模块能够在高质量笔记生成后提前停止检索，减少不相关噪音。</li>
+</ul>
+
+<h3 id="5-参数分析">5. <strong>参数分析</strong></h3>
+<ul>
+  <li><strong>CI和IU的影响</strong>：在固定IU为1的情况下，CI增加时，多跳QA数据集的性能提升；对于长篇QA任务，CI=2已能达到最佳性能。</li>
+  <li><strong>top-k的影响</strong>：在不同top-k设置下，Adaptive-Note始终优于Vanilla RAG，验证了其在不同检索段落数量下的稳定性。</li>
+</ul>
+
+<p>总结来说，Adaptive-Note在复杂QA任务中展现了显著的性能优势和良好的通用性，通过有效的信息收集和整合策略，提升了答案的准确性和覆盖度。</p>
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-11-05T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2024/10/28/WEBCPM-Interactive-Web-Search%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html">WebCPM 论文精读</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"><div id="vcomments"></div><script>
+  window.Lazyload.js(['//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js', 'https://unpkg.com/valine/dist/Valine.min.js'], function() {
+    var _config = {
+      el: '#vcomments',
+      appId:  'ONcOJaEzueQcEXVrHVv5dQ4F-gzGzoHsz',
+      appKey: '0iORBozCMxniZ0spe5QY9zCO',
+      verify: true,
+    };_config.lang = 'en';new Valine(_config);
+  });
+</script></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xingjie Gao"><meta itemprop="url" content="/"><meta itemprop="description" content="To be a question, to be an answer."><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"><li title="给我发邮件。">
+      <a class="button button--circle mail-button" itemprop="email" href="mailto:xingjie-gao@outlook.com" target="_blank">
+        <i class="fas fa-envelope"></i>
+      </a><li title="在 Github 上关注我。">
+        <a class="button button--circle github-button" itemprop="sameAs" href="https://github.com/Kfkcome" target="_blank">
+          <div class="icon"><svg fill="#000000" width="24px" height="24px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path class="svgpath" data-index="path_0" fill="#272636" d="M0 525.2c0 223.6 143.3 413.7 343 483.5 26.9 6.8 22.8-12.4 22.8-25.4l0-88.7c-155.3 18.2-161.5-84.6-172-101.7-21.1-36-70.8-45.2-56-62.3 35.4-18.2 71.4 4.6 113.1 66.3 30.2 44.7 89.1 37.2 119 29.7 6.5-26.9 20.5-50.9 39.7-69.6C248.8 728.2 181.7 630 181.7 513.2c0-56.6 18.7-108.7 55.3-150.7-23.3-69.3 2.2-128.5 5.6-137.3 66.5-6 135.5 47.6 140.9 51.8 37.8-10.2 80.9-15.6 129.1-15.6 48.5 0 91.8 5.6 129.8 15.9 12.9-9.8 77-55.8 138.8-50.2 3.3 8.8 28.2 66.7 6.3 135 37.1 42.1 56 94.6 56 151.4 0 117-67.5 215.3-228.8 243.7 26.9 26.6 43.6 63.4 43.6 104.2l0 128.8c0.9 10.3 0 20.5 17.2 20.5C878.1 942.4 1024 750.9 1024 525.3c0-282.9-229.3-512-512-512C229.1 13.2 0 242.3 0 525.2L0 525.2z" />
+</svg>
+</div>
+        </a>
+      </li></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© Ennis's Blog 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script>
+  window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
+    var $canvas = null, $this = null, _ctx = null, _text = '';
+    $('.language-chart').each(function(){
+      $this = $(this);
+      $canvas = $('<canvas></canvas>');
+      _text = $this.text();
+      $this.text('').append($canvas);
+      _ctx = $canvas.get(0).getContext('2d');
+      (_ctx && _text) && (new Chart(_ctx, JSON.parse(_text)) && $this.attr('data-processed', true));
+    });
+  });
+</script>
+<script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};_config.TeX = { equationNumbers: { autoNumber: "all" } };MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+<script>(function() {
+  function errorHandler(error, callback) {
+    if (error) {
+      callback && callback(error);
+      throw error;
+    }
+  }
+
+  function pageview(_AV, options) {
+    var AV = _AV;
+    var appId, appKey, appClass;
+    appId = options.appId;
+    appKey = options.appKey;
+    appClass = options.appClass;
+    if (!AV.applicationId) {
+      AV.init({
+        serverURLs: 'https://avoscloud.com',
+        appId: appId,
+        appKey: appKey
+      });
+    } else {
+      console.log('LeanCloud SDK 已经初始化过了。');
+    }
+    return {
+      get: get,
+      increase: increase
+    };
+
+    function searchKey(key) {
+      var query = new AV.Query(appClass);
+      query.equalTo('key', key);
+      return query.first();
+    }
+
+    function insert(key, title) {
+      var Blog = AV.Object.extend(appClass);
+      var blog = new Blog();
+      blog.set('title', title);
+      blog.set('key', key);
+      blog.set('views', 0);
+      return blog.save();
+    }
+
+    function increment(result) {
+      result.increment('views', 1);
+      return result.save(null, {
+        fetchWhenSave: true
+      });
+    }
+
+    function get(key, callback) {
+      searchKey(key).then(function(result) {
+        if (result) {
+          callback && callback(result.attributes.views);
+        }
+      }, errorHandler);
+    }
+
+    function increase(key, title, callback) {
+      searchKey(key).then(function(result) {
+        if (result) {
+          increment(result).then(function(result) {
+            callback && callback(result.attributes.views);
+          });
+        } else {
+          insert(key, title).then(function(result) {
+            increment(result).then(function(result) {
+              callback && callback(result.attributes.views);
+            });
+          }, errorHandler);
+        }
+      }, errorHandler);
+    }
+  }
+  window.pageview = pageview;
+})();
+</script>
+  <script>
+    window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js'], function() {
+      var pageview = window.pageview(AV, {
+        appId:    'ONcOJaEzueQcEXVrHVv5dQ4F-gzGzoHsz',
+        appKey:   '0iORBozCMxniZ0spe5QY9zCO',
+        appClass: 'Test'
+      });
+      var key =   'post65';
+      var title = "Adaptive Note RAG 论文笔记";
+      pageview.increase(key, title, function(view) {
+        $("[data-page-key='post65']").text(view);
+      });
+    });
+  </script>
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+
