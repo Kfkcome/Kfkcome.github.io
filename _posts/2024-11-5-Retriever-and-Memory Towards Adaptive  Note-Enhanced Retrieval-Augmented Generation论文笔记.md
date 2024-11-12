@@ -4,15 +4,15 @@ title: Adaptive Note RAG 论文笔记
 key: post65
 mode: immersive
 tags:
- - nlp
- - 自然语言处理
- - 论文笔记
+  - nlp
+  - 自然语言处理
+  - 论文笔记
 header:
   theme: ocean
 article_header:
   type: overlay
   theme: ocean
-  background_color: '#f1f8ff'
+  background_color: "#f1f8ff"
   background_image: false
 excerpt_separator: <!---more-->
 ---

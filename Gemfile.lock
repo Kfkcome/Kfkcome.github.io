@@ -29,6 +29,7 @@ GEM
     colorator (1.1.0)
     concurrent-ruby (1.3.4)
     connection_pool (2.4.1)
+    csv (3.3.0)
     drb (2.2.1)
     em-websocket (0.5.3)
       eventmachine (>= 0.12.9)
@@ -112,6 +113,7 @@ GEM
       racc (~> 1.4)
     nokogiri (1.16.7-x86_64-linux)
       racc (~> 1.4)
+    ostruct (0.6.1)
     pathutil (0.16.2)
       forwardable-extended (~> 2.6)
     public_suffix (6.0.1)
@@ -171,8 +173,10 @@ PLATFORMS
 
 DEPENDENCIES
   bundler
+  csv
   jekyll-pdf-embed
   jekyll-text-theme!
+  ostruct
   rake (~> 10.0)
 
 BUNDLED WITH

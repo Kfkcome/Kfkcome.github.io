@@ -4,17 +4,18 @@ title: StructRAG 论文精读
 key: post63
 mode: immersive
 tags:
- - nlp
- - 自然语言处理
- - 论文笔记
+  - nlp
+  - 自然语言处理
+  - 论文笔记
 header:
   theme: ocean
 article_header:
   type: overlay
   theme: ocean
-  background_color: '#f1f8ff'
+  background_color: "#f1f8ff"
   background_image: false
 excerpt_separator: <!---more-->
+mathjax_autoNumber: "false"
 ---
 
 # StructRAG: Boosting Knowledge Intensive Reasoning of LLMs via Inference-time Hybrid Information Structurization 论文精读
@@ -29,6 +30,11 @@ excerpt_separator: <!---more-->
 > 遇到的问题：
 >
 > 
+
+
+$$
+\sum test_{i=1}^{n}i
+$$
 
 ## 背景知识
 
@@ -324,9 +330,11 @@ $$
 4. 最后，基于LLM的评委比较这些模拟解决方案来解决任务，生成关于结构类型的偏好对。
 
 结果：每个构建的数据条目包括一个问题，文档的核心内容，选择的结构类型和拒绝的结构类型
+
 $$
 D_{synthenic}= \{q^{(k)},C^{(k)},t_w^{(k)},t_l^{k}\}^N_{k=1}
 $$
+
 $t_w$和$t_l$分别是选择的结构类型和被拒绝的结构类型。合成偏好对包括英语和中文数据，以提高普适性。
 
 ### 偏好训练
@@ -337,6 +345,7 @@ $t_w$和$t_l$分别是选择的结构类型和被拒绝的结构类型。合成�
 $$
 \mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\mathbb{E}_{(q, C, t_w, t_l) \sim D_{\text{synthetic}}} \left[ \log \sigma \left( \beta \log \frac{\pi_\theta(t_w \mid q, C)}{\pi_{\text{ref}}(t_w \mid q, C)} - \beta \log \frac{\pi_\theta(t_l \mid q, C)}{\pi_{\text{ref}}(t_l \mid q, C)} \right) \right]
 $$
+
 πθ和πref分别是目标策略和参考策略，β是超参数。
 
 如后分析，这种偏好训练使模型能够区分各种类型的知识以及它们对于特定任务的适用性，从而实现更好的性能，相较于零样本和少样本设置。
