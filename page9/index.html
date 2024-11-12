@@ -10,10 +10,10 @@
 		
 	</script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>高性能 大作业 基于 CUDA 实现二维卷积 - Ennis's Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>高星杰的博客 - Ennis's Blog</title>
 
-<meta name="description" content="高性能 大作业 基于 CUDA 实现二维卷积">
-<link rel="canonical" href="http://localhost:4000/2024/05/14/%E9%AB%98%E6%80%A7%E8%83%BD%E5%A4%A7%E4%BD%9C%E4%B8%9A.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+<meta name="description" content="Xingjie Gao's Blog | 高星杰的博客">
+<link rel="canonical" href="http://localhost:4000/page9/"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
 
 <meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
 
@@ -263,9 +263,9 @@
 </head>
   <body>
     <div class="root" data-is-touch="false">
-      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport has-aside cell cell--auto">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport cell cell--auto">
 
-      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header header--dark"><div class="main">
       <div class="header__title">
         <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 width="24px" height="24px" viewBox="0 0 24 24">
@@ -280,76 +280,59 @@
         <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
       </nav></div>
   </header>
-</div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
-              <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E9%AB%98%E6%80%A7%E8%83%BD">高性能</a>
-            </li><li>
-              <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">实验报告</a>
-            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 05月14日</span>
-            </li><li><i class="far fa-eye"></i> <span class="js-pageview" data-page-key="post52">0</span> 阅读</li></ul></div><div class="article__header"><header><h1>高性能 大作业 基于 CUDA 实现二维卷积</h1></header><span class="split-space">&nbsp;</span>
-          <a class="edit-on-github"
-            title="在 Github 上修改"
-            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2024-5-14-高性能大作业.md">
-            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">高性能 大作业 基于 CUDA 实现二维卷积</p></div></div>
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero hero--dark overlay" style="background-image:linear-gradient(135deg, rgba(34, 139, 87 , .4), rgba(139, 34, 139, .4)),url(/assets/images/cover3.jpg);background-color:#203028;"><div class="hero__content"><div class ="main"><header style="display:none;"><h1>高星杰的博客</h1></header><p class="overlay__excerpt">Xingjie Gao's Blog | 高星杰的博客</p></div></div>
               </div>
             </div><div class ="main"><div class="grid grid--reverse">
 
-              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
-</aside></div>
+              <div class="col-aside d-print-none js-col-aside"></div>
 
               <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
 
 <!-- end custom main top snippet -->
-<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="高性能 大作业 基于 CUDA 实现二维卷积"><meta itemprop="author" content="Xingjie Gao"/><meta itemprop="datePublished" content="2024-05-14T00:00:00+08:00">
-    <meta itemprop="keywords" content="高性能,实验报告"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+<article itemscope itemtype="http://schema.org/WebPage"><meta itemprop="headline" content="高星杰的博客"><meta itemprop="author" content="Xingjie Gao"/><div class="js-article-content"><div class="layout--articles"><div class="article-list items items--divided"><article class="item" itemscope itemtype="http://schema.org/BlogPosting"><div class="item__content">
+          <header><a href="/2023/03/21/EDA%E5%AE%9E%E9%AA%8C%E4%B8%80.html"><h2 itemprop="headline" class="item__header">EDA数字逻辑与电路实验一</h2></a></header>
+          <div class="item__description"><div class="article__content" itemprop="description articleBody"><h2 id="eda数字逻辑与电路实验一-quartusii-软件和de2-115-开发板使用入门实验">EDA数字逻辑与电路实验一 QuartusII 软件和DE2-115 开发板使用入门实验</h2>
 
-<!-- end custom article top snippet -->
-<div class="article__content" itemprop="articleBody"><h2 id="高性能-大作业-基于-cuda-实现二维卷积">高性能 大作业 基于 CUDA 实现二维卷积</h2>
+</div><p><a href="/2023/03/21/EDA%E5%AE%9E%E9%AA%8C%E4%B8%80.html">阅读更多</a></p></div><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=EDA%E6%95%B0%E5%AD%97%E9%80%BB%E8%BE%91%E4%B8%8E%E7%94%B5%E8%B7%AF">EDA数字逻辑与电路</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">实验报告</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2023年 03月21日</span>
+            </li><li><i class="far fa-eye"></i> <span class="js-pageview" data-page-key="post5">0</span> 阅读</li></ul></div><meta itemprop="author" content="Xingjie Gao"/><meta itemprop="datePublished" content="2023-03-21T00:00:00+08:00">
+    <meta itemprop="keywords" content="EDA数字逻辑与电路,实验报告"></div>
+      </article></div>
+</div><div class="layout--home"><div class="pagination"><p>共计 65 篇文章，9 页。</p>
+    <div class="pagination__menu">
+      <ul class="menu menu--nowrap"><li><a class="button button--secondary button--circle" href="/page8">
+            <i class="fas fa-angle-left"></i>
+          </a></li><li>
+              <a class="button button--secondary button--circle" href="/"><span>1</span></a>
+            </li><li><span class="pagination__omit"><i class="fas fa-ellipsis-h"></i></span></li><li>
+                  <a class="button button--secondary button--circle" href="/page6"><span>6</span></a>
+                </li><li>
+                  <a class="button button--secondary button--circle" href="/page7"><span>7</span></a>
+                </li><li>
+                  <a class="button button--secondary button--circle" href="/page8"><span>8</span></a>
+                </li><li>
+              <div class="button button--primary button--circle focus"><span>9</span></div>
+            </li><li><div class="button button--secondary button--circle disabled">
+            <i class="fas fa-angle-right"></i>
+          </div></li></ul>
+    </div>
+  </div></div>
+<script>/*(function () {
 
-<!---more-->
-<style> .pdf-embed-wrap-86daf916-3d55-4936-838a-40b950589de9 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-86daf916-3d55-4936-838a-40b950589de9 { height: 100%; } .pdf-embed-container-86daf916-3d55-4936-838a-40b950589de9 iframe { width: 100%; height: 100%; } </style>
-<div class="pdf-embed-wrap-86daf916-3d55-4936-838a-40b950589de9"> <div class="pdf-embed-container-86daf916-3d55-4936-838a-40b950589de9"> <iframe src="/assets/pdf/高性能/高性能大作业.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>
-</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-05-14T00:00:00+08:00"><!-- start custom article footer snippet -->
-
-<!-- end custom article footer snippet -->
-<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
-</div><div class="article__license"><div class="license">
-    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
-      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
-        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
-      </a>
-    </p>
-  </div></div></footer>
-<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2024/05/04/%E7%89%A9%E8%81%94%E7%BD%91%E5%AE%9E%E9%AA%8C%E4%B8%80.html">物联网实验一 WSN-Zigbee 通信实验</a></div><div class="next"><span>下篇</span><a href="/2024/05/25/%E7%89%A9%E8%81%94%E7%BD%91%E5%AE%9E%E9%AA%8C%E4%BA%8C.html">物联网实验二 WSN-LoRa 通信实验</a></div></div></div>
-
-</div>
-
-<script>(function() {
-  var SOURCES = window.TEXT_VARIABLES.sources;
-  window.Lazyload.js(SOURCES.jquery, function() {
-    $(function() {
-      var $this ,$scroll;
-      var $articleContent = $('.js-article-content');
-      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
-      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
-      $scroll = $(scroll);
-
-      $articleContent.find('.highlight').each(function() {
-        $this = $(this);
-        $this.attr('data-lang', $this.find('code').attr('data-lang'));
-      });
-      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
-        $this = $(this);
-        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
-      });
-      $articleContent.on('click', '.anchor', function() {
-        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
-      });
-    });
-  });
-})();
+})();*/
 </script>
+
+<style>
+  .page__header .header__brand path {
+    fill: rgba(255, 255, 255, .95);
+  }
+</style>
+
 </div><section class="page__comments d-print-none"><div id="vcomments"></div><script>
   window.Lazyload.js(['//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js', 'https://unpkg.com/valine/dist/Valine.min.js'], function() {
     var _config = {
@@ -907,68 +890,6 @@ window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
 
 })();*/
 </script><script>
-  /* toc must before affix, since affix need to konw toc' height. */(function() {
-  var SOURCES = window.TEXT_VARIABLES.sources;
-  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
-  window.Lazyload.js(SOURCES.jquery, function() {
-    var $window = $(window);
-    var $articleContent = $('.js-article-content');
-    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
-    var toc;
-    var tocDisabled = false;
-    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
-    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
-
-    function disabled() {
-      return $col2.css('display') === 'none' || !hasToc;
-    }
-
-    tocDisabled = disabled();
-
-    toc = $tocRoot.toc({
-      selectors: TOC_SELECTOR,
-      container: $articleContent,
-      scrollTarget: hasSidebar ? '.js-page-main' : null,
-      scroller: hasSidebar ? '.js-page-main' : null,
-      disabled: tocDisabled
-    });
-
-    $window.on('resize', window.throttle(function() {
-      tocDisabled = disabled();
-      toc && toc.setOptions({
-        disabled: tocDisabled
-      });
-    }, 100));
-
-  });
-})();
-(function() {
-  var SOURCES = window.TEXT_VARIABLES.sources;
-  window.Lazyload.js(SOURCES.jquery, function() {
-    var $window = $(window), $pageFooter = $('.js-page-footer');
-    var $pageAside = $('.js-page-aside');
-    var affix;
-    var tocDisabled = false;
-    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
-
-    affix = $pageAside.affix({
-      offsetBottom: $pageFooter.outerHeight(),
-      scrollTarget: hasSidebar ? '.js-page-main' : null,
-      scroller: hasSidebar ? '.js-page-main' : null,
-      scroll: hasSidebar ? $('.js-page-main').children() : null,
-      disabled: tocDisabled
-    });
-
-    $window.on('resize', window.throttle(function() {
-      affix && affix.setOptions({
-        disabled: tocDisabled
-      });
-    }, 100));
-
-    window.pageAsideAffix = affix;
-  });
-})();
-</script><script>
   window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
     var $canvas = null, $this = null, _ctx = null, _text = '';
     $('.language-chart').each(function(){
@@ -1079,10 +1000,12 @@ window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
         appKey:   '0iORBozCMxniZ0spe5QY9zCO',
         appClass: 'Test'
       });
-      var key =   'post52';
-      var title = "高性能 大作业 基于 CUDA 实现二维卷积";
-      pageview.increase(key, title, function(view) {
-        $("[data-page-key='post52']").text(view);
+      $('.js-pageview').each(function() {
+        var $this = $(this);
+        var key = $this.attr('data-page-key');
+        pageview.get(key, function(view) {
+          $this.attr('itemprop', 'userInteractionCount').attr('content', view).text(view);
+        });
       });
     });
   </script>
