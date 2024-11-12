@@ -12,7 +12,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>MiniMind训练记录（第一次完整训LLM记录） - Ennis's Blog</title>
 
-<meta name="description" content="MiniMind训练记录记录一下第一次训LLM，包括pretrain、SFT……，并把遇到的问题记录下来  SFT和instruction fine-tuing的关系？Tokenizer      算法：BPE        训练方式：无监督训练        训练流程：                  读取数...">
+<meta name="description" content="MiniMind训练记录记录一下第一次训LLM，包括pretrain、SFT……，并把遇到的问题记录下来">
 <link rel="canonical" href="/2024/11/12/MiniMind%E8%AE%AD%E7%BB%83%E8%AE%B0%E5%BD%95-%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E8%AE%ADLLM%E8%AE%B0%E5%BD%95-%E8%AE%AD%E7%BB%83%E4%B8%ADing.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
 
 <meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
@@ -294,7 +294,7 @@
           <a class="edit-on-github"
             title="在 Github 上修改"
             href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2024-11-12-MiniMind训练记录（第一次完整训LLM记录）— 训练中ing.md">
-            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">MiniMind训练记录记录一下第一次训LLM，包括pretrain、SFT……，并把遇到的问题记录下来  SFT和instruction fine-tuing的关系？Tokenizer      算法：BPE        训练方式：无监督训练        训练流程：                  读取数据                    定义special token    ...</p></div></div>
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">MiniMind训练记录记录一下第一次训LLM，包括pretrain、SFT……，并把遇到的问题记录下来</p></div></div>
               </div>
             </div><div class ="main"><div class="grid grid--reverse">
 
@@ -312,11 +312,13 @@
 
 <p>记录一下第一次训LLM，包括pretrain、SFT……，并把遇到的问题记录下来</p>
 
+<!---more-->
+
 <blockquote>
   <p>SFT和instruction fine-tuing的关系？</p>
 </blockquote>
 
-<p><img src="assets/posts_assets/Pasted%20image%2020241112190607.png" alt="" /></p>
+<p><img src="/assets/posts_assets/Pasted%20image%2020241112190607.png" alt="" /></p>
 <h2 id="tokenizer">Tokenizer</h2>
 
 <ul>
@@ -352,119 +354,137 @@
 <p><img src="assets/posts_assets/截屏2024-11-11%2016.03.56.png" alt="" /></p>
 
 <ul>
-  <li>核心代码：
-```python</li>
+  <li>核心代码：</li>
 </ul>
 
-<p>    # 初始化tokenizer<br />
-    tokenizer = Tokenizer(models.BPE())<br />
-    tokenizer.pre_tokenizer = pre_tokenizers.ByteLevel(add_prefix_space=False)<br />
- ​<br />
-    # 定义特殊token<br />
-    special_tokens = [“<unk>", "<s>", "</s>"]  
- ​  
-    # 设置训练器并添加特殊token  
-    trainer = trainers.BpeTrainer(  
-        vocab_size=6400,  
-        special_tokens=special_tokens,  # 确保这三个token被包含  
-        show_progress=True,  
-        initial_alphabet=pre_tokenizers.ByteLevel.alphabet()  
-   )  
- ​  
-    # 读取文本数据  
-    texts = read_texts_from_jsonl(data_path)  
- ​  
-    # 训练tokenizer  
-    tokenizer.train_from_iterator(texts, trainer=trainer)  
- ​  
-    # 设置解码器  
-    tokenizer.decoder = decoders.ByteLevel()  
- ​  
-    # 检查特殊token的索引  
-    assert tokenizer.token_to_id("<unk>") == 0  
-    assert tokenizer.token_to_id("<s>") == 1  
-    assert tokenizer.token_to_id("</s>") == 2  
-      
-    # 保存tokenizer  
-    tokenizer_dir = "./model/minimind_tokenizer"  
-    os.makedirs(tokenizer_dir, exist_ok=True)  
-    tokenizer.save(os.path.join(tokenizer_dir, "tokenizer.json"))  
-    tokenizer.model.save("./model/minimind_tokenizer")</unk></unk></p>
-<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
-### BEP算法的原理
-
-字节对编码（Byte-Pair Encoding, BPE）是一种常用的分词算法，广泛用于自然语言处理任务中。BPE最初是一种数据压缩算法，但它在语言模型中被重新应用，特别是在处理不定长词汇的分词任务时具有很好的效果。BPE的主要思想是通过合并频率较高的字符对或词对，逐步构建词汇表，使得模型能够处理词汇中的不同词素或子词单元。以下是BPE算法的工作原理和步骤：
-
-#### BPE算法的核心思想
-
-BPE的核心思想是通过迭代地合并频率最高的字符或子词对，将文本分割成词根或子词单元，这样可以在一个较小的词汇表中实现更好的覆盖率，尤其在低频词或新词的处理上表现优异。这对于自然语言模型（如GPT、BERT）非常重要，因为这类模型往往需要一个有限的词汇表来处理大量的文本数据。
-
-#### BPE算法的步骤
-
-1. **初始化：字符分解** 将所有词汇分解成单独的字符。比如，"apple"会被分解成`a p p l e`。在这个初始阶段，每个字符都被视为一个独立的词素。
-    
-2. **统计字符对频率** 在分解后的词汇表中统计每一对连续字符的出现频率。例如，如果 "ap" 和 "pp" 在词汇表中出现频率最高，那么它们的频率就会被记录下来。
-    
-3. **合并最高频率的字符对** 找出频率最高的字符对，并将其合并成一个新的符号。例如，如果 "p p" 出现最多，则将其替换为一个新的子词 "pp"，使得 "apple" 变成 `a pp l e`。
-    
-4. **更新词汇表** 在整个词汇表中替换合并的字符对，同时更新词汇表，记录新的子词。然后，重复统计频率、合并字符对、更新词汇表的过程。
-    
-5. **重复合并过程** 上述过程会不断重复，直到词汇表的大小达到预先定义的上限或没有高频字符对可以合并。经过多次迭代，词汇表会逐渐从单字符组成的子词单元扩展为更长的词或词根单元。
-    
-
-#### BPE算法的优点
-
-- **减少词汇表大小**：通过将词汇分解成子词，BPE可以大幅缩减模型词汇表的大小，从而减少存储空间并提升计算效率。
-    
-- **处理未登录词**：BPE的子词分解方式可以有效处理未登录词，即不在训练词汇表中的词。即便是全新词汇，也可以通过子词单元组合被模型理解。
-    
-- **通用性强**：BPE适用于多种语言，在处理词形变化丰富的语言（如德语、芬兰语等）时尤其有效，因为其分解后的子词能涵盖词根、前缀和后缀等不同形式。
-    
-
-#### 示例
-
-假设我们有一个简单的词汇表，包含了以下词汇：`low`, `lowest`, `newer`, `wider`。通过BPE分词过程，这些词可以被逐步拆分和合并。例如：
-
-1. 初始状态下，所有词被拆解为单个字符：`l o w`, `l o w e s t`, `n e w e r`, `w i d e r`。
-    
-2. 假设在此状态下，`l o`和`w i`出现频率较高，那么BPE会先将`l o`和`w i`合并。
-    
-3. 经过多次合并，词汇表最终可能包括较长的子词，如`low`，`wid`和`est`等。
-    
-
-## Pre-train
-
-- 训练方式：无监督
-- 数据：![](assets/posts_assets/截屏2024-11-11%2016.05.31.png)
-- 训练过程：
-```python
-	for step, (X, Y, loss_mask) in enumerate(train_loader):  
-		X = X.to(args.device)  
-		Y = Y.to(args.device)  
-		loss_mask = loss_mask.to(args.device)  
- ​  
-		lr = get_lr(epoch * iter_per_epoch + step, args.epochs * iter_per_epoch)  
-		for param_group in optimizer.param_groups:  
-			param_group["lr"] = lr  
- ​  
-		with ctx:  
-			out = model(X, Y)  
-			loss = out.last_loss / args.accumulation_steps  
-			loss_mask = loss_mask.view(-1)  
-			loss = torch.sum(loss * loss_mask) / loss_mask.sum()  
- ​  
-		scaler.scale(loss).backward()  
- ​  
-		if (step + 1) % args.accumulation_steps == 0:  
-			scaler.unscale_(optimizer)  
-			torch.nn.utils.clip_grad_norm_(model.parameters(), args.grad_clip)  
- ​  
-			scaler.step(optimizer)  
-			scaler.update()  
-​            optimizer.zero_grad(set_to_none=True)               
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>
+<span class="err">    </span><span class="c1"># 初始化tokenizer  
+</span><span class="err">  </span> <span class="err"> </span><span class="n">tokenizer</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="nc">Tokenizer</span><span class="p">(</span><span class="n">models</span><span class="p">.</span><span class="nc">BPE</span><span class="p">())</span>  
+<span class="err">  </span> <span class="err"> </span><span class="n">tokenizer</span><span class="p">.</span><span class="n">pre_tokenizer</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="n">pre_tokenizers</span><span class="p">.</span><span class="nc">ByteLevel</span><span class="p">(</span><span class="n">add_prefix_space</span><span class="o">=</span><span class="bp">False</span><span class="p">)</span>  
+<span class="err"> ​</span>  
+<span class="err">  </span> <span class="err"> </span><span class="c1"># 定义特殊token  
+</span><span class="err">  </span> <span class="err"> </span><span class="n">special_tokens</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="p">[</span><span class="sh">"</span><span class="s">&lt;unk&gt;</span><span class="sh">"</span><span class="p">,</span><span class="err"> </span><span class="sh">"</span><span class="s">&lt;s&gt;</span><span class="sh">"</span><span class="p">,</span><span class="err"> </span><span class="sh">"</span><span class="s">&lt;/s&gt;</span><span class="sh">"</span><span class="p">]</span>  
+<span class="err"> ​</span>  
+<span class="err">  </span> <span class="err"> </span><span class="c1"># 设置训练器并添加特殊token  
+</span><span class="err">  </span> <span class="err"> </span><span class="n">trainer</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="n">trainers</span><span class="p">.</span><span class="nc">BpeTrainer</span><span class="p">(</span>  
+<span class="err">  </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span><span class="n">vocab_size</span><span class="o">=</span><span class="mi">6400</span><span class="p">,</span>  
+<span class="err">  </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span><span class="n">special_tokens</span><span class="o">=</span><span class="n">special_tokens</span><span class="p">,</span> <span class="err"> </span><span class="c1"># 确保这三个token被包含  
+</span><span class="err">  </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span><span class="n">show_progress</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span>  
+<span class="err">  </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span><span class="n">initial_alphabet</span><span class="o">=</span><span class="n">pre_tokenizers</span><span class="p">.</span><span class="n">ByteLevel</span><span class="p">.</span><span class="nf">alphabet</span><span class="p">()</span>  
+<span class="err">  </span> <span class="p">)</span>  
+<span class="err"> ​</span>  
+<span class="err">  </span> <span class="err"> </span><span class="c1"># 读取文本数据  
+</span><span class="err">  </span> <span class="err"> </span><span class="n">texts</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="nf">read_texts_from_jsonl</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span>  
+<span class="err"> ​</span>  
+<span class="err">  </span> <span class="err"> </span><span class="c1"># 训练tokenizer  
+</span><span class="err">  </span> <span class="err"> </span><span class="n">tokenizer</span><span class="p">.</span><span class="nf">train_from_iterator</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span><span class="err"> </span><span class="n">trainer</span><span class="o">=</span><span class="n">trainer</span><span class="p">)</span>  
+<span class="err"> ​</span>  
+<span class="err">  </span> <span class="err"> </span><span class="c1"># 设置解码器  
+</span><span class="err">  </span> <span class="err"> </span><span class="n">tokenizer</span><span class="p">.</span><span class="n">decoder</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="n">decoders</span><span class="p">.</span><span class="nc">ByteLevel</span><span class="p">()</span>  
+<span class="err"> ​</span>  
+<span class="err">  </span> <span class="err"> </span><span class="c1"># 检查特殊token的索引  
+</span><span class="err">  </span> <span class="err"> </span><span class="k">assert</span><span class="err"> </span><span class="n">tokenizer</span><span class="p">.</span><span class="nf">token_to_id</span><span class="p">(</span><span class="sh">"</span><span class="s">&lt;unk&gt;</span><span class="sh">"</span><span class="p">)</span><span class="err"> </span><span class="o">==</span><span class="err"> </span><span class="mi">0</span>  
+<span class="err">  </span> <span class="err"> </span><span class="k">assert</span><span class="err"> </span><span class="n">tokenizer</span><span class="p">.</span><span class="nf">token_to_id</span><span class="p">(</span><span class="sh">"</span><span class="s">&lt;s&gt;</span><span class="sh">"</span><span class="p">)</span><span class="err"> </span><span class="o">==</span><span class="err"> </span><span class="mi">1</span>  
+<span class="err">  </span> <span class="err"> </span><span class="k">assert</span><span class="err"> </span><span class="n">tokenizer</span><span class="p">.</span><span class="nf">token_to_id</span><span class="p">(</span><span class="sh">"</span><span class="s">&lt;/s&gt;</span><span class="sh">"</span><span class="p">)</span><span class="err"> </span><span class="o">==</span><span class="err"> </span><span class="mi">2</span>  
+<span class="err">  </span> <span class="err"> </span>  
+<span class="err">  </span> <span class="err"> </span><span class="c1"># 保存tokenizer  
+</span><span class="err">  </span> <span class="err"> </span><span class="n">tokenizer_dir</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="sh">"</span><span class="s">./model/minimind_tokenizer</span><span class="sh">"</span>  
+<span class="err">  </span> <span class="err"> </span><span class="n">os</span><span class="p">.</span><span class="nf">makedirs</span><span class="p">(</span><span class="n">tokenizer_dir</span><span class="p">,</span><span class="err"> </span><span class="n">exist_ok</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>  
+<span class="err">  </span> <span class="err"> </span><span class="n">tokenizer</span><span class="p">.</span><span class="nf">save</span><span class="p">(</span><span class="n">os</span><span class="p">.</span><span class="n">path</span><span class="p">.</span><span class="nf">join</span><span class="p">(</span><span class="n">tokenizer_dir</span><span class="p">,</span><span class="err"> </span><span class="sh">"</span><span class="s">tokenizer.json</span><span class="sh">"</span><span class="p">))</span>  
+<span class="err">  </span> <span class="err"> </span><span class="n">tokenizer</span><span class="p">.</span><span class="n">model</span><span class="p">.</span><span class="nf">save</span><span class="p">(</span><span class="sh">"</span><span class="s">./model/minimind_tokenizer</span><span class="sh">"</span><span class="p">)</span>
 </code></pre></div></div>
+
+<h3 id="bep算法的原理">BEP算法的原理</h3>
+
+<p>字节对编码（Byte-Pair Encoding, BPE）是一种常用的分词算法，广泛用于自然语言处理任务中。BPE最初是一种数据压缩算法，但它在语言模型中被重新应用，特别是在处理不定长词汇的分词任务时具有很好的效果。BPE的主要思想是通过合并频率较高的字符对或词对，逐步构建词汇表，使得模型能够处理词汇中的不同词素或子词单元。以下是BPE算法的工作原理和步骤：</p>
+
+<h4 id="bpe算法的核心思想">BPE算法的核心思想</h4>
+
+<p>BPE的核心思想是通过迭代地合并频率最高的字符或子词对，将文本分割成词根或子词单元，这样可以在一个较小的词汇表中实现更好的覆盖率，尤其在低频词或新词的处理上表现优异。这对于自然语言模型（如GPT、BERT）非常重要，因为这类模型往往需要一个有限的词汇表来处理大量的文本数据。</p>
+
+<h4 id="bpe算法的步骤">BPE算法的步骤</h4>
+
+<ol>
+  <li>
+    <p><strong>初始化：字符分解</strong> 将所有词汇分解成单独的字符。比如，”apple”会被分解成<code class="language-plaintext highlighter-rouge">a p p l e</code>。在这个初始阶段，每个字符都被视为一个独立的词素。</p>
+  </li>
+  <li>
+    <p><strong>统计字符对频率</strong> 在分解后的词汇表中统计每一对连续字符的出现频率。例如，如果 “ap” 和 “pp” 在词汇表中出现频率最高，那么它们的频率就会被记录下来。</p>
+  </li>
+  <li>
+    <p><strong>合并最高频率的字符对</strong> 找出频率最高的字符对，并将其合并成一个新的符号。例如，如果 “p p” 出现最多，则将其替换为一个新的子词 “pp”，使得 “apple” 变成 <code class="language-plaintext highlighter-rouge">a pp l e</code>。</p>
+  </li>
+  <li>
+    <p><strong>更新词汇表</strong> 在整个词汇表中替换合并的字符对，同时更新词汇表，记录新的子词。然后，重复统计频率、合并字符对、更新词汇表的过程。</p>
+  </li>
+  <li>
+    <p><strong>重复合并过程</strong> 上述过程会不断重复，直到词汇表的大小达到预先定义的上限或没有高频字符对可以合并。经过多次迭代，词汇表会逐渐从单字符组成的子词单元扩展为更长的词或词根单元。</p>
+  </li>
+</ol>
+
+<h4 id="bpe算法的优点">BPE算法的优点</h4>
+
 <ul>
-  <li>训练结果<img src="assets/posts_assets/image-20241111185411264.png" alt="" /></li>
+  <li>
+    <p><strong>减少词汇表大小</strong>：通过将词汇分解成子词，BPE可以大幅缩减模型词汇表的大小，从而减少存储空间并提升计算效率。</p>
+  </li>
+  <li>
+    <p><strong>处理未登录词</strong>：BPE的子词分解方式可以有效处理未登录词，即不在训练词汇表中的词。即便是全新词汇，也可以通过子词单元组合被模型理解。</p>
+  </li>
+  <li>
+    <p><strong>通用性强</strong>：BPE适用于多种语言，在处理词形变化丰富的语言（如德语、芬兰语等）时尤其有效，因为其分解后的子词能涵盖词根、前缀和后缀等不同形式。</p>
+  </li>
+</ul>
+
+<h4 id="示例">示例</h4>
+
+<p>假设我们有一个简单的词汇表，包含了以下词汇：<code class="language-plaintext highlighter-rouge">low</code>, <code class="language-plaintext highlighter-rouge">lowest</code>, <code class="language-plaintext highlighter-rouge">newer</code>, <code class="language-plaintext highlighter-rouge">wider</code>。通过BPE分词过程，这些词可以被逐步拆分和合并。例如：</p>
+
+<ol>
+  <li>
+    <p>初始状态下，所有词被拆解为单个字符：<code class="language-plaintext highlighter-rouge">l o w</code>, <code class="language-plaintext highlighter-rouge">l o w e s t</code>, <code class="language-plaintext highlighter-rouge">n e w e r</code>, <code class="language-plaintext highlighter-rouge">w i d e r</code>。</p>
+  </li>
+  <li>
+    <p>假设在此状态下，<code class="language-plaintext highlighter-rouge">l o</code>和<code class="language-plaintext highlighter-rouge">w i</code>出现频率较高，那么BPE会先将<code class="language-plaintext highlighter-rouge">l o</code>和<code class="language-plaintext highlighter-rouge">w i</code>合并。</p>
+  </li>
+  <li>
+    <p>经过多次合并，词汇表最终可能包括较长的子词，如<code class="language-plaintext highlighter-rouge">low</code>，<code class="language-plaintext highlighter-rouge">wid</code>和<code class="language-plaintext highlighter-rouge">est</code>等。</p>
+  </li>
+</ol>
+
+<h2 id="pre-train">Pre-train</h2>
+
+<ul>
+  <li>训练方式：无监督</li>
+  <li>数据：<img src="/assets/posts_assets/截屏2024-11-11%2016.05.31.png" alt="" /></li>
+  <li>训练过程：
+    <div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  <span class="k">for</span><span class="err"> </span><span class="n">step</span><span class="p">,</span> <span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="err"> </span><span class="n">Y</span><span class="p">,</span><span class="err"> </span><span class="n">loss_mask</span><span class="p">)</span><span class="err"> </span><span class="ow">in</span><span class="err"> </span><span class="nf">enumerate</span><span class="p">(</span><span class="n">train_loader</span><span class="p">):</span>  
+      <span class="n">X</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="n">X</span><span class="p">.</span><span class="nf">to</span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">device</span><span class="p">)</span>  
+      <span class="n">Y</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="n">Y</span><span class="p">.</span><span class="nf">to</span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">device</span><span class="p">)</span>  
+      <span class="n">loss_mask</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="n">loss_mask</span><span class="p">.</span><span class="nf">to</span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">device</span><span class="p">)</span>  
+ <span class="err">​</span>  
+      <span class="n">lr</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="nf">get_lr</span><span class="p">(</span><span class="n">epoch</span><span class="err"> </span><span class="o">*</span><span class="err"> </span><span class="n">iter_per_epoch</span><span class="err"> </span><span class="o">+</span><span class="err"> </span><span class="n">step</span><span class="p">,</span><span class="err"> </span><span class="n">args</span><span class="p">.</span><span class="n">epochs</span><span class="err"> </span><span class="o">*</span><span class="err"> </span><span class="n">iter_per_epoch</span><span class="p">)</span>  
+      <span class="k">for</span><span class="err"> </span><span class="n">param_group</span><span class="err"> </span><span class="ow">in</span><span class="err"> </span><span class="n">optimizer</span><span class="p">.</span><span class="n">param_groups</span><span class="p">:</span>  
+          <span class="n">param_group</span><span class="p">[</span><span class="sh">"</span><span class="s">lr</span><span class="sh">"</span><span class="p">]</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="n">lr</span>  
+ <span class="err">​</span>  
+      <span class="k">with</span><span class="err"> </span><span class="n">ctx</span><span class="p">:</span>  
+          <span class="n">out</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="nf">model</span><span class="p">(</span><span class="n">X</span><span class="p">,</span><span class="err"> </span><span class="n">Y</span><span class="p">)</span>  
+          <span class="n">loss</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="n">out</span><span class="p">.</span><span class="n">last_loss</span><span class="err"> </span><span class="o">/</span><span class="err"> </span><span class="n">args</span><span class="p">.</span><span class="n">accumulation_steps</span>  
+          <span class="n">loss_mask</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="n">loss_mask</span><span class="p">.</span><span class="nf">view</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">)</span>  
+          <span class="n">loss</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="n">torch</span><span class="p">.</span><span class="nf">sum</span><span class="p">(</span><span class="n">loss</span><span class="err"> </span><span class="o">*</span><span class="err"> </span><span class="n">loss_mask</span><span class="p">)</span><span class="err"> </span><span class="o">/</span><span class="err"> </span><span class="n">loss_mask</span><span class="p">.</span><span class="nf">sum</span><span class="p">()</span>  
+ <span class="err">​</span>  
+      <span class="n">scaler</span><span class="p">.</span><span class="nf">scale</span><span class="p">(</span><span class="n">loss</span><span class="p">).</span><span class="nf">backward</span><span class="p">()</span>  
+ <span class="err">​</span>  
+      <span class="k">if</span><span class="err"> </span><span class="p">(</span><span class="n">step</span><span class="err"> </span><span class="o">+</span><span class="err"> </span><span class="mi">1</span><span class="p">)</span><span class="err"> </span><span class="o">%</span><span class="err"> </span><span class="n">args</span><span class="p">.</span><span class="n">accumulation_steps</span><span class="err"> </span><span class="o">==</span><span class="err"> </span><span class="mi">0</span><span class="p">:</span>  
+          <span class="n">scaler</span><span class="p">.</span><span class="nf">unscale_</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span>  
+          <span class="n">torch</span><span class="p">.</span><span class="n">nn</span><span class="p">.</span><span class="n">utils</span><span class="p">.</span><span class="nf">clip_grad_norm_</span><span class="p">(</span><span class="n">model</span><span class="p">.</span><span class="nf">parameters</span><span class="p">(),</span><span class="err"> </span><span class="n">args</span><span class="p">.</span><span class="n">grad_clip</span><span class="p">)</span>  
+ <span class="err">​</span>  
+          <span class="n">scaler</span><span class="p">.</span><span class="nf">step</span><span class="p">(</span><span class="n">optimizer</span><span class="p">)</span>  
+          <span class="n">scaler</span><span class="p">.</span><span class="nf">update</span><span class="p">()</span>  
+<span class="err">​</span>      <span class="err">  </span> <span class="err"> </span> <span class="err"> </span><span class="n">optimizer</span><span class="p">.</span><span class="nf">zero_grad</span><span class="p">(</span><span class="n">set_to_none</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>    <span class="err">  </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> <span class="err"> </span> 
+</code></pre></div>    </div>
+  </li>
+  <li>训练结果<img src="/assets/posts_assets/image-20241111185411264.png" alt="" /></li>
 </ul>
 
 <h3 id="loss-计算">Loss 计算</h3>
@@ -497,7 +517,7 @@ BPE的核心思想是通过迭代地合并频率最高的字符或子词对，�
 
 <p>在分类问题中，交叉熵损失会对每个样本计算一次，整个数据集的损失是所有样本的平均值。</p>
 
-<h4 id="示例">示例</h4>
+<h4 id="示例-1">示例</h4>
 
 <p>假设我们有一个分类任务，需要将样本分为三类 ( C = 3 )，类别分别为 0、1 和 2。</p>
 
@@ -590,9 +610,9 @@ BPE的核心思想是通过迭代地合并频率最高的字符或子词对，�
     <p>训练方式：有监督</p>
   </li>
   <li>
-    <p>数据：<img src="assets/posts_assets/截屏2024-11-11%2018.40.45.png" alt="" /></p>
+    <p>数据：<img src="/assets/posts_assets/截屏2024-11-11%2018.40.45.png" alt="" /></p>
 
-    <p><img src="assets/posts_assets/截屏2024-11-11%2018.41.12%201.png" alt="" /></p>
+    <p><img src="/assets/posts_assets/截屏2024-11-11%2018.41.12%201.png" alt="" /></p>
   </li>
   <li>
     <p>训练过程：与pre-train 相同</p>
@@ -601,7 +621,7 @@ BPE的核心思想是通过迭代地合并频率最高的字符或子词对，�
     <p>核心代码: 与pre-train 相同</p>
   </li>
   <li>
-    <p>训练结果：<img src="assets/posts_assets/QQ_1731323261996%201.png" alt="" /></p>
+    <p>训练结果：<img src="/assets/posts_assets/QQ_1731323261996%201.png" alt="" /></p>
   </li>
 </ul>
 
@@ -642,6 +662,7 @@ host:1,2,3</p>
 <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="sh">"</span><span class="s">NCCL_P2P_LEVEL</span><span class="sh">"</span><span class="p">]</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="sh">"</span><span class="s">NVL</span><span class="sh">"</span>
 </code></pre></div></div>
 
+\[\sum test\]
 </div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-11-12T00:00:00+08:00"><!-- start custom article footer snippet -->
 
 <!-- end custom article footer snippet -->
