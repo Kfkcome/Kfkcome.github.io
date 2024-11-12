@@ -10,7 +10,7 @@
 		
 	</script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>Minimind训练记录（第一次完整训llm记录）— 训练中ing - Ennis's Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>MiniMind训练记录（第一次完整训LLM记录） - Ennis's Blog</title>
 
 <meta name="description" content="MiniMind训练记录记录一下第一次训LLM，包括pretrain、SFT……，并把遇到的问题记录下来  SFT和instruction fine-tuing的关系？Tokenizer      算法：BPE        训练方式：无监督训练        训练流程：                  读取数...">
 <link rel="canonical" href="/2024/11/12/MiniMind%E8%AE%AD%E7%BB%83%E8%AE%B0%E5%BD%95-%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E8%AE%ADLLM%E8%AE%B0%E5%BD%95-%E8%AE%AD%E7%BB%83%E4%B8%ADing.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
@@ -263,7 +263,7 @@
 </head>
   <body>
     <div class="root" data-is-touch="false">
-      <div class="layout--page js-page-root"><div class="page__main js-page-main page__viewport has-aside cell cell--auto">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport has-aside cell cell--auto">
 
       <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
       <div class="header__title">
@@ -280,7 +280,23 @@
         <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
       </nav></div>
   </header>
-</div><div class="page__content"><div class ="main"><div class="grid grid--reverse">
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=nlp">nlp</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86">自然语言处理</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0">论文笔记</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 11月12日</span>
+            </li><li><i class="far fa-eye"></i> <span class="js-pageview" data-page-key="post67">0</span> 阅读</li></ul></div><div class="article__header"><header><h1>MiniMind训练记录（第一次完整训LLM记录）</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2024-11-12-MiniMind训练记录（第一次完整训LLM记录）— 训练中ing.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">MiniMind训练记录记录一下第一次训LLM，包括pretrain、SFT……，并把遇到的问题记录下来  SFT和instruction fine-tuing的关系？Tokenizer      算法：BPE        训练方式：无监督训练        训练流程：                  读取数据                    定义special token    ...</p></div></div>
+              </div>
+            </div><div class ="main"><div class="grid grid--reverse">
 
               <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
 </aside></div>
@@ -288,12 +304,8 @@
               <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
 
 <!-- end custom main top snippet -->
-<article itemscope itemtype="http://schema.org/Article"><div class="article__header"><header><h1>Minimind训练记录（第一次完整训llm记录）— 训练中ing</h1></header><span class="split-space">&nbsp;</span>
-          <a class="edit-on-github"
-            title="在 Github 上修改"
-            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2024-11-12-MiniMind训练记录（第一次完整训LLM记录）— 训练中ing.md">
-            <i class="far fa-edit"></i></a></div><meta itemprop="headline" content="Minimind训练记录（第一次完整训llm记录）— 训练中ing"><div class="article__info clearfix"><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 11月12日</span>
-            </li><li><i class="far fa-eye"></i> <span class="js-pageview" data-page-key="">0</span> 阅读</li></ul></div><meta itemprop="author" content="Xingjie Gao"/><meta itemprop="datePublished" content="2024-11-12T00:00:00+08:00"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="MiniMind训练记录（第一次完整训LLM记录）"><meta itemprop="author" content="Xingjie Gao"/><meta itemprop="datePublished" content="2024-11-12T00:00:00+08:00">
+    <meta itemprop="keywords" content="nlp,自然语言处理,论文笔记"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
 
 <!-- end custom article top snippet -->
 <div class="article__content" itemprop="articleBody"><h1 id="minimind训练记录">MiniMind训练记录</h1>
@@ -1315,7 +1327,97 @@ window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
     mermaid.init(undefined, '.language-mermaid');
   });
 </script>
+<script>(function() {
+  function errorHandler(error, callback) {
+    if (error) {
+      callback && callback(error);
+      throw error;
+    }
+  }
 
+  function pageview(_AV, options) {
+    var AV = _AV;
+    var appId, appKey, appClass;
+    appId = options.appId;
+    appKey = options.appKey;
+    appClass = options.appClass;
+    if (!AV.applicationId) {
+      AV.init({
+        serverURLs: 'https://avoscloud.com',
+        appId: appId,
+        appKey: appKey
+      });
+    } else {
+      console.log('LeanCloud SDK 已经初始化过了。');
+    }
+    return {
+      get: get,
+      increase: increase
+    };
+
+    function searchKey(key) {
+      var query = new AV.Query(appClass);
+      query.equalTo('key', key);
+      return query.first();
+    }
+
+    function insert(key, title) {
+      var Blog = AV.Object.extend(appClass);
+      var blog = new Blog();
+      blog.set('title', title);
+      blog.set('key', key);
+      blog.set('views', 0);
+      return blog.save();
+    }
+
+    function increment(result) {
+      result.increment('views', 1);
+      return result.save(null, {
+        fetchWhenSave: true
+      });
+    }
+
+    function get(key, callback) {
+      searchKey(key).then(function(result) {
+        if (result) {
+          callback && callback(result.attributes.views);
+        }
+      }, errorHandler);
+    }
+
+    function increase(key, title, callback) {
+      searchKey(key).then(function(result) {
+        if (result) {
+          increment(result).then(function(result) {
+            callback && callback(result.attributes.views);
+          });
+        } else {
+          insert(key, title).then(function(result) {
+            increment(result).then(function(result) {
+              callback && callback(result.attributes.views);
+            });
+          }, errorHandler);
+        }
+      }, errorHandler);
+    }
+  }
+  window.pageview = pageview;
+})();
+</script>
+  <script>
+    window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js'], function() {
+      var pageview = window.pageview(AV, {
+        appId:    'ONcOJaEzueQcEXVrHVv5dQ4F-gzGzoHsz',
+        appKey:   '0iORBozCMxniZ0spe5QY9zCO',
+        appClass: 'Test'
+      });
+      var key =   'post67';
+      var title = "MiniMind训练记录（第一次完整训LLM记录）";
+      pageview.increase(key, title, function(view) {
+        $("[data-page-key='post67']").text(view);
+      });
+    });
+  </script>
     </div>
     <script>(function () {
   var $root = document.getElementsByClassName('root')[0];
