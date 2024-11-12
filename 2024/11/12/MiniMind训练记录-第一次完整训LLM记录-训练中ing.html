@@ -245,7 +245,7 @@
           css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
         },
         valine: 'https://unpkg.com/valine/dist/Valine.min.js',
-        mathjax: 'https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML',
+        mathjax: '/assets/MathJax/MathJax.js?config=TeX-MML-AM_CHTML',
         mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
       },
       site: {
@@ -511,7 +511,7 @@
     <p>( y_i ) 是实际的类别分布（通常是 one-hot 编码，只有一个位置为 1，其余为 0）。</p>
   </li>
   <li>
-    <p>( \hat{y}_i ) 是模型输出的预测概率（经过 softmax 层后得到的概率分布）。</p>
+    <p>$\hat{y}_i$ 是模型输出的预测概率（经过 softmax 层后得到的概率分布）。</p>
   </li>
 </ul>
 
@@ -528,7 +528,7 @@
     <p>真实类别为类别 2（即标签为 ([0, 0, 1])）。</p>
   </li>
   <li>
-    <p>模型输出的概率分布为 (\hat{y} = [0.2, 0.3, 0.5])。</p>
+    <p>模型输出的概率分布为 $\hat{y} = [0.2, 0.3, 0.5]$。</p>
   </li>
 </ul>
 
@@ -543,10 +543,13 @@
   </li>
   <li>
     <p><strong>代入交叉熵公式</strong>：
- \(L = -\sum_{i=1}^{C} y_i \log(\hat{y}_i)\)
- 将真实标签 ( y = [0, 0, 1] ) 和预测概率 (\hat{y} = [0.2, 0.3, 0.5]) 代入，只有类别 2 的位置 ( y_3 = 1 ) 时才会有贡献，得到：
- \(L = -[0 \cdot \log(0.2) + 0 \cdot \log(0.3) + 1 \cdot \log(0.5)]\)
- 简化为：</p>
+ \(L = -\sum_{i=1}^{C} y_i \log(\hat{y}_i)\)</p>
+
+    <p>将真实标签 ( y = [0, 0, 1] ) 和预测概率 $hat{y} = [0.2, 0.3, 0.5]$ 代入，只有类别 2 的位置 $y_3 = 1$ 时才会有贡献，得到：</p>
+
+\[L = -[0 \cdot \log(0.2) + 0 \cdot \log(0.3) + 1 \cdot \log(0.5)]\]
+
+    <p>简化为：</p>
 
 \[L = -\log(0.5)\]
   </li>
@@ -1339,7 +1342,7 @@ window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
 		inlineMath: [['$','$'], ['\\(','\\)']]
 	}};_config.TeX = { equationNumbers: { autoNumber: "all" } };MathJax.Hub.Config(_config);
 </script>
-<script type="text/javascript" src="https://cdn.bootcss.com/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script type="text/javascript" src="/assets/MathJax/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
 <script>
   window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
     mermaid.initialize({

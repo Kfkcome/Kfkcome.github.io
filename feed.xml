@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2024-11-12T20:14:32+08:00</updated><id>/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2024-11-13T00:06:30+08:00</updated><id>/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
 </subtitle><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><entry><title type="html">RAG-DDR论文笔记</title><link href="/2024/11/12/RAG-DDR%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0-%E9%98%85%E8%AF%BBing.html" rel="alternate" type="text/html" title="RAG-DDR论文笔记" /><published>2024-11-12T00:00:00+08:00</published><updated>2024-11-12T00:00:00+08:00</updated><id>/2024/11/12/RAG-DDR%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E9%98%85%E8%AF%BBing</id><content type="html" xml:base="/2024/11/12/RAG-DDR%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0-%E9%98%85%E8%AF%BBing.html"><![CDATA[<h1 id="rag-ddr-optimizing-retrieval-augmented--generation-using-differentiable-data-rewards-论文笔记">RAG-DDR: OPTIMIZING RETRIEVAL-AUGMENTED  GENERATION USING DIFFERENTIABLE DATA REWARDS 论文笔记</h1>
 
 <!---more-->
@@ -272,7 +272,7 @@
     <p>( y_i ) 是实际的类别分布（通常是 one-hot 编码，只有一个位置为 1，其余为 0）。</p>
   </li>
   <li>
-    <p>( \hat{y}_i ) 是模型输出的预测概率（经过 softmax 层后得到的概率分布）。</p>
+    <p>$\hat{y}_i$ 是模型输出的预测概率（经过 softmax 层后得到的概率分布）。</p>
   </li>
 </ul>
 
@@ -289,7 +289,7 @@
     <p>真实类别为类别 2（即标签为 ([0, 0, 1])）。</p>
   </li>
   <li>
-    <p>模型输出的概率分布为 (\hat{y} = [0.2, 0.3, 0.5])。</p>
+    <p>模型输出的概率分布为 $\hat{y} = [0.2, 0.3, 0.5]$。</p>
   </li>
 </ul>
 
@@ -304,10 +304,13 @@
   </li>
   <li>
     <p><strong>代入交叉熵公式</strong>：
- \(L = -\sum_{i=1}^{C} y_i \log(\hat{y}_i)\)
- 将真实标签 ( y = [0, 0, 1] ) 和预测概率 (\hat{y} = [0.2, 0.3, 0.5]) 代入，只有类别 2 的位置 ( y_3 = 1 ) 时才会有贡献，得到：
- \(L = -[0 \cdot \log(0.2) + 0 \cdot \log(0.3) + 1 \cdot \log(0.5)]\)
- 简化为：</p>
+ \(L = -\sum_{i=1}^{C} y_i \log(\hat{y}_i)\)</p>
+
+    <p>将真实标签 ( y = [0, 0, 1] ) 和预测概率 $hat{y} = [0.2, 0.3, 0.5]$ 代入，只有类别 2 的位置 $y_3 = 1$ 时才会有贡献，得到：</p>
+
+\[L = -[0 \cdot \log(0.2) + 0 \cdot \log(0.3) + 1 \cdot \log(0.5)]\]
+
+    <p>简化为：</p>
 
 \[L = -\log(0.5)\]
   </li>
@@ -2005,16 +2008,19 @@ a = U_{infer}(q, \hat{Q}, \hat{K}_t)\)</p>
   <li>最后，基于LLM的评委比较这些模拟解决方案来解决任务，生成关于结构类型的偏好对。</li>
 </ol>
 
-<p>结果：每个构建的数据条目包括一个问题，文档的核心内容，选择的结构类型和拒绝的结构类型
-\(D_{synthenic}= \{q^{(k)},C^{(k)},t_w^{(k)},t_l^{k}\}^N_{k=1}\)
-$t_w$和$t_l$分别是选择的结构类型和被拒绝的结构类型。合成偏好对包括英语和中文数据，以提高普适性。</p>
+<p>结果：每个构建的数据条目包括一个问题，文档的核心内容，选择的结构类型和拒绝的结构类型</p>
+
+\[D_{synthenic}= \{q^{(k)},C^{(k)},t_w^{(k)},t_l^{k}\}^N_{k=1}\]
+
+<p>$t_w$和$t_l$分别是选择的结构类型和被拒绝的结构类型。合成偏好对包括英语和中文数据，以提高普适性。</p>
 
 <h3 id="偏好训练">偏好训练</h3>
 
 <p>这个公式是关于<strong>DPO (Direct Preference Optimization)</strong> 的损失函数，通常用于训练强化学习中的策略模型。该损失函数的目标是使模型更符合用户偏好。</p>
 
-<p>\(\mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\mathbb{E}_{(q, C, t_w, t_l) \sim D_{\text{synthetic}}} \left[ \log \sigma \left( \beta \log \frac{\pi_\theta(t_w \mid q, C)}{\pi_{\text{ref}}(t_w \mid q, C)} - \beta \log \frac{\pi_\theta(t_l \mid q, C)}{\pi_{\text{ref}}(t_l \mid q, C)} \right) \right]\)
-πθ和πref分别是目标策略和参考策略，β是超参数。</p>
+\[\mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\mathbb{E}_{(q, C, t_w, t_l) \sim D_{\text{synthetic}}} \left[ \log \sigma \left( \beta \log \frac{\pi_\theta(t_w \mid q, C)}{\pi_{\text{ref}}(t_w \mid q, C)} - \beta \log \frac{\pi_\theta(t_l \mid q, C)}{\pi_{\text{ref}}(t_l \mid q, C)} \right) \right]\]
+
+<p>πθ和πref分别是目标策略和参考策略，β是超参数。</p>
 
 <p>如后分析，这种偏好训练使模型能够区分各种类型的知识以及它们对于特定任务的适用性，从而实现更好的性能，相较于零样本和少样本设置。</p>
 
