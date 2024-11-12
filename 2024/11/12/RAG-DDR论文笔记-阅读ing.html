@@ -12,8 +12,8 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>RAG-DDR论文笔记 - Ennis's Blog</title>
 
-<meta name="description" content="RAG-DDR论文笔记">
-<link rel="canonical" href="http://localhost:4000/2024/11/12/RAG-DDR%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+<meta name="description" content="RAG-DDR: OPTIMIZING RETRIEVAL-AUGMENTED  GENERATION USING DIFFERENTIABLE DATA REWARDS 论文笔记">
+<link rel="canonical" href="/2024/11/12/RAG-DDR%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0-%E9%98%85%E8%AF%BBing.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
 
 <meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
 
@@ -293,8 +293,8 @@
             </li><li><i class="far fa-eye"></i> <span class="js-pageview" data-page-key="post66">0</span> 阅读</li></ul></div><div class="article__header"><header><h1>RAG-DDR论文笔记</h1></header><span class="split-space">&nbsp;</span>
           <a class="edit-on-github"
             title="在 Github 上修改"
-            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2024-11-12-RAG-DDR论文笔记.md">
-            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">RAG-DDR论文笔记</p></div></div>
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2024-11-12-RAG-DDR论文笔记—阅读ing.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">RAG-DDR: OPTIMIZING RETRIEVAL-AUGMENTED  GENERATION USING DIFFERENTIABLE DATA REWARDS 论文笔记</p></div></div>
               </div>
             </div><div class ="main"><div class="grid grid--reverse">
 
@@ -308,7 +308,7 @@
     <meta itemprop="keywords" content="nlp,自然语言处理,论文笔记"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
 
 <!-- end custom article top snippet -->
-<div class="article__content" itemprop="articleBody"><h1 id="rag-ddr论文笔记">RAG-DDR论文笔记</h1>
+<div class="article__content" itemprop="articleBody"><h1 id="rag-ddr-optimizing-retrieval-augmented--generation-using-differentiable-data-rewards-论文笔记">RAG-DDR: OPTIMIZING RETRIEVAL-AUGMENTED  GENERATION USING DIFFERENTIABLE DATA REWARDS 论文笔记</h1>
 
 <!---more-->
 
@@ -370,9 +370,15 @@
 
 <h2 id="引言">引言</h2>
 
-<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nb">echo</span> <span class="s2">"Hello World!"</span>
-<span class="nb">ls</span> <span class="nt">-la</span>
-</code></pre></div></div>
+<h3 id="llm现状">LLM现状</h3>
+
+<ol>
+  <li>LLM 的广泛应用</li>
+  <li>优势：LLM 由于幻觉问题，通常会产生错误的响应，因此采用了检索增强生成（RAG）来增强 LLMs 的能力</li>
+  <li>问题：<strong>检索知识和参数化存储之间的冲突通常会误导 LLMs，挑战 RAG 系统的有效性</strong></li>
+</ol>
+
+<h3 id="rag-现状">RAG 现状</h3>
 
 </div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-11-12T00:00:00+08:00"><!-- start custom article footer snippet -->
 
