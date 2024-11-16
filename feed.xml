@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2024-11-13T00:06:30+08:00</updated><id>/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2024-11-16T10:52:12+08:00</updated><id>/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
 </subtitle><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><entry><title type="html">RAG-DDR论文笔记</title><link href="/2024/11/12/RAG-DDR%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0-%E9%98%85%E8%AF%BBing.html" rel="alternate" type="text/html" title="RAG-DDR论文笔记" /><published>2024-11-12T00:00:00+08:00</published><updated>2024-11-12T00:00:00+08:00</updated><id>/2024/11/12/RAG-DDR%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E9%98%85%E8%AF%BBing</id><content type="html" xml:base="/2024/11/12/RAG-DDR%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0-%E9%98%85%E8%AF%BBing.html"><![CDATA[<h1 id="rag-ddr-optimizing-retrieval-augmented--generation-using-differentiable-data-rewards-论文笔记">RAG-DDR: OPTIMIZING RETRIEVAL-AUGMENTED  GENERATION USING DIFFERENTIABLE DATA REWARDS 论文笔记</h1>
 
 <!---more-->
@@ -33,6 +33,121 @@
 
 <p>DDR 方法通过奖励机制，使得系统能够在训练过程中调整检索和生成模块的数据偏好，逐渐对齐它们的需求。通过这种数据偏好对齐，检索模块可以更有针对性地提供生成模块需要的核心信息，而生成模块也能够更有效地利用这些检索内容，从而提升系统整体的生成效果。</p>
 
+<h3 id="dpo-和-sft-有什么本质的区别">DPO 和 SFT 有什么本质的区别?</h3>
+
+<h3 id="对比学习是什么这里的对比学习和经典的有什么区别与联系">对比学习是什么？这里的对比学习和经典的有什么区别与联系</h3>
+
+<h4 id="you">You:</h4>
+
+<p>对比学习不是要最大化正对（来自同一样本的实例）之间的一致性，并最小化负对（来自不同样本的实例）之间的一致性吗？这里不是吗？</p>
+
+<h4 id="chatgpt">ChatGPT:</h4>
+
+<p>你提到的对比学习方法确实是在许多情况下的典型用法，即最大化“正对”（positive pairs）的相似性（通常来自同一样本的不同实例）并最小化“负对”（negative pairs）的相似性（来自不同样本的实例）。这种方式常用于无监督或自监督学习，例如图像表示学习，目标是让来自同一个实例的变体（如不同的图像增强）更相似，而来自不同实例的变体更不相似。</p>
+
+<p>然而，在DDR（Differentiable Data Reward）方法中，所采用的对比学习方式稍有不同。这里的目标不是简单地比较不同样本的相似性，而是对比<strong>同一输入下不同生成输出的质量</strong>。这种“对比”方式更符合排序学习或“对比奖励学习”（contrastive reward learning）的框架，而不完全是传统的对比学习范式。具体来说：</p>
+
+<ol>
+  <li>
+    <p><strong>同一输入的不同输出</strong>：在DDR中，对于给定的输入样本 x ，生成模型 V_t 会产生多个输出。这些输出中包括质量较高的输出（正样本， $\tilde{y}_t^+$ ）和质量较低的输出（负样本， $\tilde{y}_t^-$ ）。目标是让生成模型更倾向于生成质量更高的输出，而不是简单地增加同一输入样本的不同实例的一致性。</p>
+  </li>
+  <li>
+    <p><strong>奖励差值作为对比标准</strong>：在这里，正样本和负样本的定义是基于奖励值，而不是基于是否属于同一实例。正样本 $\tilde{y}_t^+$ 是指生成质量较高的输出，而负样本 $\tilde{y}_t^-$ 是指生成质量较低的输出。因此，DDR中的对比学习本质上是对比<strong>同一输入的不同生成输出的奖励</strong>，而不是对比不同样本的实例。</p>
+  </li>
+  <li>
+    <p><strong>目标是优化输出质量而非实例一致性</strong>：传统对比学习的目的是让模型学会在实例级别上的一致性，而DDR的目标是让生成系统学会优先选择高质量的输出。因此，这里的对比学习实际上是将同一输入的输出按质量排序，确保高奖励的输出更有可能被生成。这个过程可以被理解为一种奖励驱动的对比学习，但目标是优化输出质量而不是实例相似性。</p>
+  </li>
+</ol>
+
+<h5 id="总结">总结</h5>
+
+<p>虽然DDR的损失函数也有“对比”结构，但它与传统对比学习不同，主要关注的是在同一输入下的<strong>输出质量对比</strong>。DDR使用的对比损失是为了优化生成模型，使其更倾向于生成高奖励的输出，而不是仅仅在实例层面上对不同样本进行区分。</p>
+
+<h4 id="you-1">You:</h4>
+
+<p>这里对比学习的核心思想是什么？</p>
+
+<h4 id="chatgpt-1">ChatGPT:</h4>
+
+<p>在DDR（Differentiable Data Reward）方法中，对比学习的核心思想是<strong>基于奖励信号对同一输入的不同输出进行排序，使得模型更倾向于生成高质量（高奖励）的输出</strong>。具体来说，这种对比学习的核心思想包括以下几点：</p>
+
+<ol>
+  <li>
+    <p><strong>区分高质量输出和低质量输出</strong>：对于每一个输入样本 x ，生成模型 V_t 会生成多个候选输出，这些输出的质量可能不同。通过奖励机制，DDR对每个输出的质量进行评分，其中高质量输出（正样本， $\tilde{y}_t^+$ )和低质量输出（负样本， $\tilde{y}_t^-$ )被区分开来。DDR的目标是让模型能够识别并倾向于生成质量更高的输出。</p>
+  </li>
+  <li>
+    <p><strong>通过对比损失优化生成策略</strong>：DDR利用对比损失来优化生成模型的输出选择策略。具体地，通过比较正样本和负样本的奖励差值，DDR最大化生成模型在生成高奖励输出时的概率。这种对比损失使得模型更倾向于生成正样本，并减少生成负样本的概率。</p>
+  </li>
+  <li>
+    <p><strong>以相对质量为优化目标，而非绝对奖励</strong>：DDR不直接优化绝对的奖励值，而是通过奖励差值来进行对比优化。这种方式的好处是，模型学习的是生成高质量输出的相对偏好，而不依赖于奖励的绝对值大小。只要正样本的奖励高于负样本，模型就会倾向于生成正样本。这种相对质量的优化目标增强了模型的鲁棒性和泛化性。</p>
+  </li>
+  <li>
+    <p><strong>对比学习的排序机制</strong>：DDR通过排序机制来指导模型的学习。具体来说，对于同一输入样本，模型生成的输出被分为高奖励和低奖励的类别，模型的目标是“排序”这些输出，使得高奖励的输出排在前面。这种排序学习的机制可以帮助模型学习到哪些输出更符合优质标准，从而更好地满足生成任务的需求。</p>
+  </li>
+</ol>
+
+<h5 id="总结-1">总结</h5>
+
+<p>DDR中的对比学习核心思想是<strong>利用奖励信号对输出进行排序优化</strong>，使得模型能够根据输出质量的差异更好地进行选择。通过最大化高奖励输出的概率，DDR能够逐步提高模型生成高质量输出的能力，从而优化整个生成系统的表现。这种基于奖励差异的对比学习方式，使得DDR不仅关注输出的质量排序，还可以动态调整生成策略，以实现更优的生成效果。</p>
+
+<h4 id="you-2">You:</h4>
+
+<p>和之前的对比学习有什么共通之处</p>
+
+<h4 id="chatgpt-2">ChatGPT:</h4>
+
+<p>DDR中的对比学习虽然在应用方式上不同，但它与传统的对比学习方法仍然具有一些共通之处，主要体现在<strong>相对差异的优化</strong>和<strong>结构化的学习信号</strong>两个方面：</p>
+
+<h5 id="1-相对差异的优化">1. <strong>相对差异的优化</strong></h5>
+
+<ul>
+  <li>
+    <p><strong>共通之处</strong>：传统对比学习和DDR的核心思想都围绕“相对差异”展开。传统对比学习的目标是拉近相似样本（正对）并拉远不相似样本（负对），即最大化正对的相似性、最小化负对的相似性。DDR中的对比学习也是如此：它希望最大化正样本（高质量输出）的概率、最小化负样本（低质量输出）的概率。这种优化方式在两个任务中都依赖于“对比”来定义学习目标，而不是直接依赖单独的数据点。</p>
+  </li>
+  <li>
+    <p><strong>重要性</strong>：这种基于差异的优化让模型能够在无明确标签的情况下学会区分样本的优劣，适合无监督和弱监督任务，也更有助于泛化，因为模型学到的是相对偏好，而不是绝对标准。</p>
+  </li>
+</ul>
+
+<h5 id="2-结构化的学习信号">2. <strong>结构化的学习信号</strong></h5>
+
+<ul>
+  <li>
+    <p><strong>共通之处</strong>：无论是传统对比学习还是DDR，模型都是通过结构化的对比信号进行学习的。传统对比学习使用“正对”和“负对”来提供学习信号，使模型学习到哪些样本更相似，哪些更不相似。DDR同样提供了一个结构化的学习信号，即高质量输出（正样本）和低质量输出（负样本）的奖励差异。模型通过这种信号学会偏向于生成高质量的输出，而抑制低质量输出的概率。</p>
+  </li>
+  <li>
+    <p><strong>重要性</strong>：结构化的信号提供了一个明确的优化目标，使模型在训练过程中可以更有效地获得反馈。这种反馈不仅帮助模型学会区分正负样本，还能在优化过程中不断提升表现。</p>
+  </li>
+</ul>
+
+<h5 id="3-对比损失的使用">3. <strong>对比损失的使用</strong></h5>
+
+<ul>
+  <li>
+    <p><strong>共通之处</strong>：两者都使用了对比损失函数来实现优化。传统对比学习通常采用基于相似度的对比损失（如对比损失函数或Triplet Loss），而DDR中使用了基于奖励差异的对比损失。DDR通过奖励差异构建对比损失，确保高质量输出的生成概率更高。这种对比损失的使用让模型在每个训练步骤中有了明确的优化方向。</p>
+  </li>
+  <li>
+    <p><strong>重要性</strong>：对比损失让模型可以学习到更细粒度的区分能力，而不仅仅是简单地提高生成概率或回归奖励值。这使得模型在不同质量的输出之间具备排序能力，从而提高生成任务的质量。</p>
+  </li>
+</ul>
+
+<h5 id="4-梯度驱动的优化">4. <strong>梯度驱动的优化</strong></h5>
+
+<ul>
+  <li>
+    <p><strong>共通之处</strong>：两种方法的优化都是基于梯度驱动的。传统对比学习通过反向传播更新模型参数，使正对的距离更近、负对的距离更远。DDR也是通过反向传播，让高质量输出的生成概率在优化过程中得到提升，而低质量输出的概率降低。梯度驱动的优化可以在训练过程中逐步调整模型参数，直至收敛。</p>
+  </li>
+  <li>
+    <p><strong>重要性</strong>：梯度驱动的优化方式让模型能够在大规模数据上高效地进行学习，并在训练结束时收敛到一个稳定的生成策略，保证输出的高质量。</p>
+  </li>
+</ul>
+
+<h5 id="总结-2">总结</h5>
+
+<p>传统对比学习与DDR中的对比学习的共通之处在于<strong>对相对差异的强调</strong>、<strong>结构化学习信号的利用</strong>、<strong>对比损失的使用</strong>和<strong>梯度驱动的优化</strong>。两者都通过对比正负样本的不同，以实现特定任务的学习目标，尽管应用场景不同，但它们都旨在通过对比来提升模型对目标的区分能力。这些共通之处是对比学习方法的核心思想，无论在传统应用中还是在奖励驱动的生成优化中，都能为模型提供有效的学习信号和优化路径。</p>
+
+<h3 id="zero-shot-model-是什么">Zero-shot Model 是什么</h3>
+
 <h2 id="摘要">摘要</h2>
 
 <blockquote>
@@ -51,7 +166,7 @@
   <li>DDR 采用一种回滚方法，让每个代理对响应进行采样并加入一些细微变化（扰动），然后通过这些响应对整体系统性能的影响来评估其质量。该奖励信号促使代理生成更有助于提升系统最终输出质量的响应。</li>
 </ol>
 
-<h2 id="实验结果">实验结果</h2>
+<h3 id="实验结果">实验结果</h3>
 
 <ol>
   <li>DDR方法在性能上明显优于SFT方法，特别是对于更依赖于检索知识的参数较小规模的LLMs。</li>
@@ -69,7 +184,491 @@
   <li>问题：<strong>检索知识和参数化存储之间的冲突通常会误导 LLMs，挑战 RAG 系统的有效性</strong></li>
 </ol>
 
-<h3 id="rag-现状">RAG 现状</h3>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><summary type="html"><![CDATA[RAG-DDR: OPTIMIZING RETRIEVAL-AUGMENTED GENERATION USING DIFFERENTIABLE DATA REWARDS 论文笔记]]></summary></entry><entry><title type="html">MiniMind训练记录（第一次完整训LLM记录）</title><link href="/2024/11/12/MiniMind%E8%AE%AD%E7%BB%83%E8%AE%B0%E5%BD%95-%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E8%AE%ADLLM%E8%AE%B0%E5%BD%95-%E8%AE%AD%E7%BB%83%E4%B8%ADing.html" rel="alternate" type="text/html" title="MiniMind训练记录（第一次完整训LLM记录）" /><published>2024-11-12T00:00:00+08:00</published><updated>2024-11-12T00:00:00+08:00</updated><id>/2024/11/12/MiniMind%E8%AE%AD%E7%BB%83%E8%AE%B0%E5%BD%95%EF%BC%88%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E8%AE%ADLLM%E8%AE%B0%E5%BD%95%EF%BC%89%E2%80%94%20%E8%AE%AD%E7%BB%83%E4%B8%ADing</id><content type="html" xml:base="/2024/11/12/MiniMind%E8%AE%AD%E7%BB%83%E8%AE%B0%E5%BD%95-%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E8%AE%ADLLM%E8%AE%B0%E5%BD%95-%E8%AE%AD%E7%BB%83%E4%B8%ADing.html"><![CDATA[<h1 id="minimind训练记录">MiniMind训练记录</h1>
+<h3 id="rag-现状">RAG 现状</h3>
+
+<p>研究方向一：</p>
+
+<ol>
+  <li>研究方向：训练各种 agent 提高检索的准确性</li>
+  <li>例子：查询重构，重新排序候选文档、总结检索文档、执行额外的检索步骤</li>
+  <li>训练方法：EM、构建指令微调数据集然后 SFT</li>
+  <li>缺点：这些基于 SFT 的方法通常会训练 LLM 过度拟合训练信号，并面临灾难性遗忘问题</li>
+</ol>
+
+<p>研究方向二：</p>
+
+<ol>
+  <li>研究方向：优化这些 RAG 模块，调整它们的数据偏好（检索器+生成器）</li>
+  <li>例子：这些系统只训练检索器，以提供更准确的文件以满足生成器的数据偏好，通过对检索到的知识进行优化，调整检索器和生成器之间的数据偏好是改进 RAG 模型效果的一种直接方法。</li>
+  <li>缺点：生成器仍然面临知识冲突，使得 LLMs 在生成过程中没有有效地利用检索到的知识（Xie 等，2024）。</li>
+  <li>解决：因此，在训练过程中利用整个系统的奖励来优化每个 RAG 模块对于构建更加定制化的 RAG 系统是至关重要的。</li>
+</ol>
+
+<h3 id="本文工作ddr-方法">本文工作：DDR 方法</h3>
+
+<ol>
+  <li>作用：使 DPO 方法在 RAG 系统中可以端到端地训练</li>
+  <li>内容：DDR 使用一个滚动方法（Kocsis 和 Szepesv 2006 年）来收集每个代理的整个系统的奖励，并根据奖励优化代理。</li>
+  <li>具体流程：
+    <ol>
+      <li>构建了一个典型的 RAG 系统：
+        <ol>
+          <li>知识细化模块，用于选择检索到的文档，</li>
+          <li>基于查询和精炼知识生成响应的模块。</li>
+        </ol>
+      </li>
+      <li>使用 DDR 优化 RAG
+        <ul>
+          <li>训练中：使用整个 RAG 系统的奖励，优化生成和知识细化模块，以使数据偏好在两个代理之间对齐。</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+</ol>
+
+<h3 id="实验结果-1">实验结果</h3>
+
+<ul>
+  <li>可微分数据奖励（DDR）胜过所有基线模型，在一系列知识密集型任务中实现了对先前方法（Lin 等人，2023 年）的显著改进。</li>
+  <li>RAG-DDR 模型的有效性主要源自生成模块，该模块受到了来自 RAG 系统的奖励的优化。</li>
+  <li>减轻了知识冲突：DDR 优化生成模块更有效地捕获了从检索的文档中获得的重要信息，并减轻了外部知识和参数式记忆之间的知识冲突。</li>
+  <li>鲁棒性：即使在响应生成过程中加入了额外的嘈杂文档，DDR 优化的 RAG 系统的有效性也可以得到推广。</li>
+</ul>
+
+<h2 id="相关工作">相关工作</h2>
+
+<ul>
+  <li>RAG 缺点是会检索到噪声</li>
+  <li>原因：LLMs的参数知识与外部知识之间的知识冲突</li>
+  <li>当前的研究方向：
+    <ul>
+      <li>专注于构建模块化的RAG管道，以提高检索文档的质量</li>
+      <li>训练LLMs学习如何按需检索和利用知识，通过自我反思</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="optimizing-rag-方法">Optimizing RAG 方法</h3>
+
+<ul>
+  <li>并采用端到端的训练方法</li>
+  <li>将检索决策视为潜变量，然后迭代优化检索器和生成器以适应黄金答案。</li>
+</ul>
+
+<h3 id="优化-llm-的方法">优化 LLM 的方法</h3>
+
+<ul>
+  <li>通过设计无监督预训练方法，使 LLM 具备上下文去噪能力，以教会 LLM 从检索的上下文中提炼信息。</li>
+  <li>具体：构建了一个监督训练数据集，然后通过指令调整优化检索器和 LLM。</li>
+  <li>缺点：然而，这些训练方法专注于训练 LLM 以适应训练信号，并在指令调整期间面临灾难性遗忘的问题（模型在适应新任务的过程中会遗忘之前学到的信息）</li>
+</ul>
+
+<h3 id="强化学习的方法">强化学习的方法</h3>
+
+<ul>
+  <li>Agent Q 集成了蒙特卡罗树搜索（MCTS）和 DPO，使得代理可以从成功和失败的轨迹中学习，从而提高其在复杂推理任务中的表现（Putta et al., 2024）。</li>
+  <li>STEP-DPO 进一步考虑将复杂任务的每个推理步骤优化作为偏好学习的基本单元，从而增强 LLM 的长链推理能力（Lai et al., 2024）。</li>
+</ul>
+
+<p>缺点：</p>
+
+<ul>
+  <li>虽然这些模型主要针对优化单个代理以提高每一步的响应准确性，但它们并没有关注多代理系统中数据对齐的有效性。</li>
+</ul>
+
+<p>本文的方法：</p>
+
+<p>与使用 SFT 方法进行 RAG 优化（Lin et al., 2023）不同，本文侧重于使用 DPO 方法，以避免训练信号过拟合，并在不同代理之间对齐数据偏好，这与上述基于 RL 的优化方法有所不同。</p>
+
+<h2 id="ddr-方法--使用-ddr-的-rag-系统">DDR 方法 &amp; 使用 DDR 的 RAG 系统</h2>
+
+<h3 id="ddr-方法介绍">DDR 方法介绍</h3>
+
+<p>在 RAG 系统中，$V = {V_1, \dots , V_t, \dots, V_T}$，代理之间交换和传递数据。</p>
+
+<p>为了优化这个系统:</p>
+
+<ol>
+  <li>首先在代理之间前向传播数据，然后评估 RAG 系统的性能。</li>
+  <li>接着，我们向后传播奖励，以细化每个代理的数据偏好。</li>
+</ol>
+
+<h4 id="前向传播">前向传播</h4>
+
+\[x\leadsto V_{1}\ldots V_{t}\xrightarrow{y_{t}}V_{t+1}\ldots V_{T-1}\xrightarrow{y_{T-1}}V_{T}\leadsto y_{T},\]
+
+<ul>
+  <li>代理 $V_t$ 从代理 $V_{t−1}$ 接收数据，同时将数据传递给代理 $V_{t+1}$</li>
+  <li>代理系统 V 的性能可以通过计算代理系统 V 的最终输出 $V_T$ 的质量评分 $S_{(yT)}$ 来评估。</li>
+</ul>
+
+<h4 id="反向传播">反向传播</h4>
+
+\[\tilde{y}_{t}\leadsto V_{t+1}\xrightarrow{y_{t+1}}V_{t+2}\cdots V_{T-1}\xrightarrow{y_{T-1}}V_{T}\leadsto y_{T},\quad r(x,\tilde{y}_{t})=S(y_{T}).\]
+
+<ul>
+  <li>思路：我们首先指示 $V_t$ 采样多个输出 $\tilde{y}<em>{t}$，这些输出对代理系统进行了某些扰动。然后我们通过一次回滚过程计算奖励  $r(x,\tilde{y}</em>{t})$</li>
+  <li>具体：我们将代理 $V_{t+1:T}$ 视为评估模型，将 $\tilde{y}<em>t$ 输入到该子系统 $V</em>{t+1:T}$ 中，并计算生成输出 $y_T$ 的评估得分 S (yT)</li>
+</ul>
+
+<p>然后定义正样本胜出的概率为两个样本奖励的差值：</p>
+
+\[P(\tilde{y}_{t}^{+}&gt;\tilde{y}_{t}^{-}|x)=\sigma(r(x,\tilde{y}_{t}^{+})-r(x,\tilde{y}_{t}^{-}))\]
+
+<p>损失函数定义：</p>
+
+<p>\(\huge 
+\mathcal{L}(V_{t};V_{t}^{\mathrm{ref}})=-\mathbb{E}_{(x,\bar{y}_{t}^{+},\bar{y}_{t}^{-})\sim\mathcal{D}}[\log\sigma(\beta\log\frac{V_{t}(\tilde{y}_{t}^{+}\mid x)}{V_{t}^{\mathrm{ref}}(\tilde{y}_{t}^{+}\mid x)}-\beta\log\frac{V_{t}(\tilde{y}_{t}^{-}\mid x)}{V_{t}^{\mathrm{ref}}(\tilde{y}_{t}^{-}\mid x)})]\)</p>
+<h4 id="为什么引入参考模型呢">为什么引入参考模型呢？</h4>
+
+<p>在 DDR 的优化过程中，引入参考模型 $V_t^{\text{ref}}$ 是一种有效的策略，目的是为当前的生成模型 $V_t$ 提供一个<strong>稳定的基准</strong>。参考模型的作用可以从以下几个方面来理解：</p>
+
+<ol>
+  <li>
+    <p><strong>稳定性和优化参考</strong></p>
+
+    <ul>
+      <li>引入参考模型可以提供一种<strong>相对稳定的优化基准</strong>，帮助生成模型 $V_t$ 不断改进而不偏离目标。由于生成模型 $V_t$ 在训练过程中会不断更新参数，如果没有一个固定的基准，模型可能会在优化过程中变得不稳定或出现“漂移”现象（即逐渐偏离优化目标）。</li>
+      <li>通过与参考模型的对比，生成模型可以有一个“对比对象”，从而获得清晰的改进方向。这种相对优化（relative optimization）可以避免模型因参数调整而产生的震荡，让训练更加平滑。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>鼓励生成更优质的输出</strong></p>
+
+    <ul>
+      <li>参考模型 $V_t^{\text{ref}}$ 通常是训练初期的模型版本或之前训练好的模型版本。相比于完全随机的初始模型，参考模型通常已经有一定的生成能力。通过对比当前模型与参考模型的输出概率，DDR 的损失函数可以确保当前模型始终朝着“比参考模型更优质”的方向优化。</li>
+      <li>换句话说，参考模型的引入让生成模型必须“超越”参考模型，以便获得更高的奖励，从而逐渐提升生成质量。这种机制鼓励模型在每一轮迭代中生成更高质量的输出，而不是简单地维持现有的生成水平。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>降低奖励信号的噪声影响</strong></p>
+
+    <ul>
+      <li>直接基于生成输出的奖励信号进行优化可能会引入较大的噪声，特别是在生成任务中的奖励信号波动较大的情况下。通过将生成模型的输出与参考模型的输出进行对比，DDR 的损失函数实际上引入了<strong>相对奖励</strong>，即两者之间的奖励差值。</li>
+      <li>这种相对奖励（relative reward）减少了绝对奖励的波动带来的影响。因为即使绝对奖励值有波动，只要参考模型与生成模型的输出之间有相对差异，DDR 的损失函数仍能指导模型朝正确的方向优化。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>实现对比学习的对比目标</strong></p>
+
+    <ul>
+      <li>在 DDR 的对比损失中，参考模型 $V_t^{\text{ref}}$ 是对比学习的“负对比对象”。通过将生成模型与参考模型的输出进行对比，损失函数可以计算两者之间的奖励差值，并优化生成模型，使其更倾向于生成高奖励的输出。这种对比机制帮助生成模型更好地学习“高质量”输出的特征。</li>
+      <li>参考模型提供了一个固定的负样本，使得对比学习有了稳定的参照点。生成模型通过不断与参考模型对比，学习如何生成比参考模型更好的输出，进而实现对比学习的目标。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>防止模型退化</strong></p>
+
+    <ul>
+      <li>在生成任务中，如果模型只是单纯地优化奖励信号，有时可能会发生“退化”现象，例如模型可能会陷入生成简单或低质量输出的局部最优。引入参考模型可以起到一个“门槛”作用，确保生成模型的输出质量不会退化到参考模型之下，避免训练过程中的质量下降。</li>
+      <li>通过对比生成模型和参考模型的输出概率，损失函数可以确保生成模型始终保持甚至超越参考模型的性能，从而防止模型性能的退化。</li>
+    </ul>
+  </li>
+</ol>
+
+<p>总结</p>
+
+<p>参考模型 $V_t^{\text{ref}}$ 的引入为 DDR 中的生成模型提供了一个稳定的优化基准，使得生成模型在训练过程中更加稳定，并且可以持续改进。参考模型的对比目标确保生成模型的输出质量逐步提升，同时减少了奖励信号噪声对优化的影响，防止模型退化。</p>
+
+<h3 id="使用-ddr-优化的-rag-系统">使用 DDR 优化的 RAG 系统</h3>
+
+<p><img src="/assets/posts_assets/Pasted%20image%2020241115145914.png" alt="" /></p>
+
+<h4 id="模型结构">模型结构</h4>
+
+<ol>
+  <li>给定查询 q 和一组检索到的文档 $D = {d_1, . . . , d_n}$，</li>
+  <li>通过使用知识精炼模块 ($V_{KR}$) 来过滤不相关的文档</li>
+  <li>生成模块 ($V_{Gen}$) 来产生响应</li>
+</ol>
+
+<p>用数学表示：</p>
+
+\[\{q,D\}\leadsto V_{\mathrm{KR}}\xrightarrow{\{q,\tilde{D}\}}V_{\mathrm{Gen}}\leadsto y_{\mathrm{Gen}},\]
+
+<ul>
+  <li>其中 D ̃ ⊆ D，VKR 生成选择操作以过滤出 D 中的噪声文档，以构建 D ̃。</li>
+  <li>VGen 根据查询 q 和过滤后的文档 D ̃ 生成答案。如所示。</li>
+</ul>
+
+<h4 id="使用-ddr-训练-v_kr">使用 DDR 训练 $V_{KR}$</h4>
+
+<p>模块的功能：将查询 q 和文档 $d_i$ 输入到 $V_{KR}$，并请求它生成动作 $y^i_{KR} \in {“YES”, “NO”}$，这表明文档 $d_i$ 是否被保留（$y^i_{KR} = “YES”$）或被丢弃（$y^i_{KR} = “NO”$）</p>
+
+<p>数学表示：</p>
+
+\[y_{\mathrm{KR}}^{i}=\mathrm{LLM}(\mathrm{Instruct}_{\mathrm{KR}},d_{i}\oplus q),\]
+
+<p>模块的目标：</p>
+
+<p>当文档 $d_i$ 与 query 无关时，最大化无关的概率</p>
+
+\[P(y_{\mathrm{KR}}^{j} =\mathrm{“NO”}&gt;y_{\mathrm{KR}}^{j}=\mathrm{“YES”}|q,d_{j})\]
+
+<p>当文档 $d_i$ 与 query 有关时，最大化有关的概率</p>
+
+\[P(y_{\mathrm{KR}}^{j} =\mathrm{“YES”}&gt;y_{\mathrm{KR}}^{j}=\mathrm{“NO”}|q,d_{j})\]
+
+<h4 id="用-ddr-训练-v_gen">用 DDR 训练 $V_{Gen}$</h4>
+
+<p>生成模块可以通过两种不同的模式来生成回答：</p>
+
+<h5 id="模式-1基于精炼文档集合和查询生成回答">模式 1：基于精炼文档集合和查询生成回答</h5>
+
+<p>在这个模式下，生成模块会使用精炼后的文档集合和查询的拼接作为输入，通过一个大语言模型（LLM）和生成指令 $\text{Instruct}_{Gen}$ 来生成回答。公式如下：</p>
+
+\[\tilde{y}_{Gen} \sim \text{LLM}(\text{Instruct}_{Gen}, d_1 \oplus d_2 \oplus \cdots \oplus d_k \oplus q)\]
+
+<p>其中，符号 $\oplus$ 表示拼接操作。拼接后的输入包含所有精炼后的文档和查询，这样模型可以在生成回答时综合考虑所有相关信息。</p>
+
+<ul>
+  <li><strong>优点</strong>：这种方式可以充分利用精炼后的文档集合，为回答提供更丰富的上下文，有助于模型生成更详细和准确的回答。</li>
+  <li><strong>潜在缺点</strong>：如果精炼文档集合中包含一些误导性的信息（即使经过筛选可能仍然存在少量不相关信息），则生成的回答可能会受到影响。</li>
+</ul>
+
+<h5 id="模式-2仅基于查询生成回答">模式 2：仅基于查询生成回答</h5>
+
+<p>在这个模式下，生成模块只使用查询 $q$ 作为输入，而不使用精炼文档集合。这种方式有时被用来避免精炼文档集合中的噪声或误导性信息。公式如下：</p>
+
+\[\tilde{y}_{Gen} \sim \text{LLM}(\text{Instruct}_{Gen}, q)\]
+
+<p>通过只使用查询生成回答，模型可以减少来自精炼文档集合的潜在干扰，直接基于自身的知识库或语言模型的生成能力来回答问题。</p>
+
+<ul>
+  <li><strong>优点</strong>：这种方式避免了文档集合中可能存在的噪声影响，对于简单或模型已有知识库覆盖的问题，可能产生更直接的回答。</li>
+  <li><strong>潜在缺点</strong>：若查询涉及复杂问题或需要更详细的上下文信息，单纯使用查询生成的回答可能不够准确或不够全面。</li>
+</ul>
+
+<h5 id="模块优化目标">模块优化目标</h5>
+
+<p>生成模块的优化目标是<strong>生成高质量的回答</strong>，即在给定的输入（精炼文档集合和/或查询）下，生成的回答能够获得最高的质量得分 $S (\tilde{y}_{Gen})$。</p>
+
+<ul>
+  <li><strong>正样本和负样本</strong>：在训练过程中，生成的回答会根据评价得分被标记为正样本（高质量回答）或负样本（低质量回答）。高质量回答（得分较高）被标记为正样本 $\tilde{y}<em>{Gen}^+$，低质量回答（得分较低）被标记为负样本 $\tilde{y}</em>{Gen}^-$。</li>
+  <li><strong>优化策略</strong>：生成模块的优化目标是<strong>最大化生成正样本的概率</strong>，从而使模型更倾向于生成高质量的回答。这可以通过对比学习的方式来实现，即提高正样本的生成概率、降低负样本的生成概率。具体来说，生成模块通过最大化以下条件概率来优化生成过程：
+\(P (\tilde{y}_{Gen}^+ | q, d_1, \ldots, d_k) &gt; P (\tilde{y}_{Gen}^- | q, d_1, \ldots, d_k)\)</li>
+</ul>
+
+<p>这种优化策略确保了模型在生成回答时，能够充分利用上下文信息和相关文档，从而生成更优质的答案。</p>
+
+<h2 id="实验">实验</h2>
+
+<h3 id="数据集">数据集</h3>
+
+<ul>
+  <li>统一使用 BGE-large 检索文档</li>
+  <li>训练：我们收集了覆盖两个任务的十个数据集，开放领域问答和推理。具体而言，我们在实验中随机抽取了 32,805 个样本用于训练集，2,000 个样本用于开发集。</li>
+  <li>评估：知识密集型任务进行评估，包括开放领域问答、多跳问答、槽填充和对话任务
+    <ul>
+      <li>开放领域问答：NQ、MARCO QA、TriviaQA</li>
+      <li>多跳任务：HotpotQA、Wikipedia of Wizard (WoW)</li>
+      <li>此外，我们还采用 T-REx (Elsahar et al., 2018) 来测量模型的一跳事实查找能力。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="评估标准">评估标准</h3>
+
+<ul>
+  <li>我们分别使用 Rouge-L 和 F 1 作为 MARCO QA 任务和 WoW 任务的评估指标</li>
+  <li>对于其他任务，我们使用准确率。</li>
+</ul>
+
+<h3 id="baseline">Baseline</h3>
+
+<p>在我们的实验中，我们将 DDR 与五种基线模型进行比较，包括零样本模型和监督微调模型。</p>
+
+<p>这段文字和表格展示了在不同 RAG（Retrieval-Augmented Generation）模型上进行的一系列实验结果，评估了不同模型在多项任务上的性能，包括开放域问答（Open-Domain QA）、多跳问答（Multi-Hop QA）、填槽任务（Slot Filling）和对话任务（Dialogue）。</p>
+
+<h4 id="实验设置">实验设置</h4>
+
+<ol>
+  <li><strong>模型与模块的选择</strong>：
+    <ul>
+      <li>实验中使用了不同规模的大语言模型（LLM）来执行知识精炼和生成任务，具体包括 Llama 3-8 B 和 MiniCPM-2.4 B。</li>
+      <li>Llama 3-8 B 作为知识精炼模块使用，MiniCPM-2.4 B 则作为生成模块。</li>
+    </ul>
+  </li>
+  <li><strong>对比方法</strong>：
+    <ul>
+      <li>实验分为几种不同的方法来对比评估：
+        <ul>
+          <li><strong>LLM w/o RAG</strong>：直接使用大语言模型（LLM）回答问题，而不使用任何检索增强（RAG）。</li>
+          <li><strong>Vanilla RAG (2023)</strong>：标准的 RAG 方法，利用检索到的上下文信息并结合 LLM 生成答案。</li>
+          <li><strong>REPLUG (2023)</strong>：一种替代的 RAG 方法，利用来自不同段落的概率加权输出进行集成。</li>
+          <li><strong>RA-DIT (2023)</strong>：一种结合了上下文学习和 RAG 的方法，使用检索到的段落作为生成上下文。</li>
+          <li><strong>RAG-DDR (w/ 1-Round)</strong>：使用 DDR 方法训练的 RAG 模型，进行了一轮优化。</li>
+          <li><strong>RAG-DDR (w/ 2-Round)</strong>：使用 DDR 方法训练的 RAG 模型，进行了两轮优化。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<h4 id="实验结果与分析">实验结果与分析</h4>
+
+<ol>
+  <li><strong>表格数据解读</strong>：
+    <ul>
+      <li>表格展示了不同方法在各项任务上的表现，按任务类型进行组织，包括：
+        <ul>
+          <li><strong>开放域问答（NQ, TriviaQA, MARCO QA）</strong></li>
+          <li><strong>多跳问答（HotpotQA）</strong></li>
+          <li><strong>填槽任务（T-REx）</strong></li>
+          <li><strong>对话任务（WoW）</strong></li>
+        </ul>
+      </li>
+      <li>每个任务下给出了不同模型的得分，得分越高表示模型在该任务上的表现越好。</li>
+      <li>表格中以粗体突出显示了每个任务上表现最好的方法，第二好的方法用斜体显示。</li>
+    </ul>
+  </li>
+  <li><strong>结果观察</strong>：
+    <ul>
+      <li>使用 DDR 优化的 RAG 模型（RAG-DDR）在大多数任务中都达到了最佳或次佳的结果，特别是在进行了两轮优化的 RAG-DDR (w/ 2-Round) 上表现尤为出色。</li>
+      <li>例如，在 Llama 3-8 B 模型的设置下，RAG-DDR (w/ 2-Round) 在几乎所有任务（包括 NQ、TriviaQA、MARCO QA、HotpotQA、T-REx 等）上都表现最优，显示了 DDR 在提高生成质量上的显著优势。</li>
+      <li>RAG-DDR (w/ 2-Round) 的性能优于其他对比方法，如 Vanilla RAG、REPLUG 和 RA-DIT，说明多轮优化有助于进一步提升模型的回答质量。</li>
+    </ul>
+  </li>
+  <li><strong>实验方法细节</strong>：
+    <ul>
+      <li>研究者将大语言模型视为黑箱，设计了三种基线方法（LLM w/o RAG、Vanilla RAG、REPLUG）进行对比。</li>
+      <li><strong>LLM w/o RAG</strong>：直接将查询输入 LLM，以便模型依靠其记忆的知识生成回答。</li>
+      <li><strong>Vanilla RAG</strong>：基于上下文学习的方法，利用检索的段落作为上下文，引导生成回答。</li>
+      <li><strong>REPLUG</strong>：结合来自不同段落的概率输出进行集成。</li>
+      <li><strong>RA-DIT</strong>：不微调生成模型，而是使用检索段落作为上下文。</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="实验细节">实验细节</h3>
+
+<p>这段文字提供了实验的<strong>实现细节</strong>，说明了用于构建生成模块和知识精炼模块的模型、参数设置以及训练方法。以下是详细的解释：</p>
+
+<h4 id="模型选择">模型选择</h4>
+
+<ol>
+  <li><strong>生成模块</strong>：
+    <ul>
+      <li>生成模块使用了 MiniCPM-2.4 B-sft（Hu et al., 2024）和 Llama 3-8 B-Instruct（Touvron et al., 2023）作为基础模型。这些模型用于从输入（包括查询和相关文档）生成最终的回答。</li>
+    </ul>
+  </li>
+  <li><strong>知识精炼模块</strong>：
+    <ul>
+      <li>知识精炼模块则使用了 Llama 3-8 B-Instruct（Touvron et al., 2023）来筛选和精炼检索到的文档，以确保生成模块得到的是相关且高质量的信息。</li>
+    </ul>
+  </li>
+</ol>
+
+<h4 id="训练过程与参数设置">训练过程与参数设置</h4>
+
+<ol>
+  <li><strong>奖励计算与优化</strong>：
+    <ul>
+      <li>在使用 DDR 训练 RAG 模型时，研究者使用了<strong>自动化评价指标</strong>（如 Rouge-L 和 Accuracy）来计算奖励值。这些指标帮助模型评估生成回答的质量，以便指导优化。</li>
+      <li>参数 <strong>$\beta$</strong> 设置为 0.1。这个参数在损失函数中用于平衡正样本与负样本的对比关系。</li>
+    </ul>
+  </li>
+  <li><strong>学习率与训练轮数</strong>：
+    <ul>
+      <li>学习率被设置为 <strong>5 e-5</strong>，即 0.00005。这是一个较小的学习率，有助于模型稳定训练，避免参数更新过快导致不稳定。</li>
+      <li>每个模型训练 <strong>一个 epoch</strong>，即遍历一次整个训练数据集。这表明实验使用了相对较少的训练轮次。</li>
+    </ul>
+  </li>
+  <li><strong>生成模块中的外部知识</strong>：
+    <ul>
+      <li>在生成模块中，模型会使用 5 个检索到的文档作为外部知识，用于增强生成过程。这些文档由知识精炼模块筛选出来，帮助生成模块更准确地回答问题。</li>
+    </ul>
+  </li>
+  <li><strong>高效训练的优化方法</strong>：
+    <ul>
+      <li>为了提升训练效率，研究者采用了 <strong>LoRA（Low-Rank Adaptation）</strong> 方法（Hu et al., 2022）。LoRA 是一种轻量化的训练方法，通过对模型参数的低秩分解来降低计算成本，从而加速训练。LoRA 在这里用于优化知识精炼模块和生成模块，使得训练过程更加高效。</li>
+    </ul>
+  </li>
+</ol>
+
+<h4 id="总结-3">总结</h4>
+
+<ul>
+  <li>实验中使用了 MiniCPM-2.4 B 和 Llama 3-8 B 作为生成和知识精炼模块的模型基础。</li>
+  <li>使用了 Rouge-L 和 Accuracy 等指标来计算奖励，学习率为 5 e-5，每个模型训练 1 个 epoch。</li>
+  <li>生成模块通过 5 个检索到的文档来增强生成质量，使用 LoRA 方法来提升训练效率。</li>
+  <li>这些设置和方法共同作用，使得模型可以在计算资源可控的情况下高效完成训练，并生成高质量的回答。</li>
+</ul>
+
+<h2 id="结果分析">结果分析</h2>
+
+<p>第 5 部分<strong>EVALUATION RESULTS（评估结果）</strong>详细讨论了使用 DDR 训练的 RAG 模型在不同任务中的表现，并分析了其优缺点。以下是该部分内容的详细解释：</p>
+
+<h3 id="51-overall-performance整体性能">5.1 Overall Performance（整体性能）</h3>
+
+<p>在这一小节中，研究者比较了多种 RAG 模型在开放域问答、多跳问答、填槽和对话任务上的整体表现。通过对比不同方法的实验结果，得出以下结论：</p>
+
+<ul>
+  <li><strong>性能比较</strong>：DDR 优化的 RAG 模型（特别是多轮优化的版本）在多个任务上表现优于传统 RAG 方法、REPLUG 和 RA-DIT 方法。</li>
+  <li><strong>结果分析</strong>：在大部分任务中，RAG-DDR 显著提高了生成的回答质量，表明 DDR 可以有效提升 RAG 模型的性能，使其更好地回答复杂的知识密集型问题。</li>
+</ul>
+
+<p>这表明通过 DDR 优化的模型可以更准确地理解和生成回答，有助于提升任务完成质量。</p>
+
+<h3 id="52-ablation-study消融研究">5.2 Ablation Study（消融研究）</h3>
+
+<p>消融研究用于分析 DDR 模型的各个组成部分对模型整体性能的贡献。在本实验中，研究者逐一去除或改变 DDR 模型的不同组件，观察对性能的影响：</p>
+
+<ul>
+  <li><strong>主要组件的影响</strong>：研究者通过逐步去除知识精炼模块、生成模块等组件，观察性能的变化，以验证这些模块对整体效果的贡献。</li>
+  <li><strong>实验结果</strong>：结果表明，知识精炼模块和生成模块的加入显著提升了模型的整体性能，尤其是在需要多步推理和上下文理解的复杂任务上。</li>
+</ul>
+
+<p>消融研究表明，DDR 的每个组件在模型性能提升中都发挥了关键作用，缺少任何一个模块都会导致性能的显著下降。</p>
+
+<h3 id="53-analysis-on-the-generation-module-in-rag-ddr生成模块分析">5.3 Analysis on the Generation Module in RAG-DDR（生成模块分析）</h3>
+
+<p>这一部分对生成模块进行了深入分析，重点关注生成模块在不同任务中的表现，以及多轮优化对生成质量的影响：</p>
+
+<ul>
+  <li><strong>不同轮次的生成质量</strong>：对比一轮优化和两轮优化的生成模块的表现，发现两轮优化后的生成模块在生成质量上有显著提升，尤其是在复杂任务中，第二轮优化进一步增强了模型的回答准确性。</li>
+  <li><strong>生成模块的任务适应性</strong>：分析表明，生成模块在复杂的知识密集型任务上表现优异，而在简单任务上与其他方法的差距相对较小。</li>
+</ul>
+
+<p>这说明在复杂任务中，多轮优化能够让生成模块更好地适应和利用精炼后的知识，从而提升回答质量。</p>
+
+<h3 id="54-effectiveness-of-rag-ddr-to-use-external-knowledgerag-ddr-对外部知识的使用效果">5.4 Effectiveness of RAG-DDR to Use External Knowledge（RAG-DDR 对外部知识的使用效果）</h3>
+
+<p>这一部分探讨了 RAG-DDR 模型利用外部知识的能力，通过实验分析其在知识检索和回答生成中的表现：</p>
+
+<ul>
+  <li><strong>知识检索与整合能力</strong>：RAG-DDR 在外部知识的检索和整合方面表现优于基线方法，特别是在需要跨多个知识点或需要从多个文档中提取信息的任务上，DDR 显著提高了模型对外部知识的利用效率。</li>
+  <li><strong>与基线方法的对比</strong>：RAG-DDR 在使用外部知识生成回答时，比直接使用 LLM 或传统 RAG 方法更为准确。通过知识精炼模块的筛选，模型得以聚焦于与问题更相关的信息，从而提升回答质量。</li>
+</ul>
+
+<p>这一分析表明，DDR 优化的 RAG 模型能够更有效地利用外部知识，提升模型的知识覆盖范围和回答准确性。</p>
+
+<h3 id="55-case-studies案例研究">5.5 Case Studies（案例研究）</h3>
+
+<p>案例研究展示了 RAG-DDR 模型在实际应用中的具体表现，通过示例分析模型在不同任务中的生成结果：</p>
+
+<ul>
+  <li><strong>示例分析</strong>：研究者选取了多个任务中的生成结果进行分析，包括开放域问答、多跳问答、对话等。通过对比不同方法的生成结果，展示了 DDR 在复杂任务中的优势。</li>
+  <li><strong>错误分析</strong>：研究者还分析了 RAG-DDR 模型在某些情况下生成不准确回答的原因，例如可能因为知识不完整或检索到的信息不够准确。这些错误为模型的进一步改进提供了方向。</li>
+</ul>
+
+<p>案例研究表明，RAG-DDR 模型在大多数情况下生成了准确且详细的回答，但在少数情况下可能仍有改进空间。</p>
+
+<h3 id="总结-4">总结</h3>
+
+<ul>
+  <li><strong>DDR 显著提升 RAG 模型性能</strong>：多项实验结果表明，DDR 在多个任务上显著提升了 RAG 模型的生成质量，尤其是在复杂的知识密集型任务上。</li>
+  <li><strong>模块和优化的有效性</strong>：知识精炼模块和多轮优化的生成模块是 DDR 成功的关键因素。</li>
+  <li><strong>外部知识的高效利用</strong>：DDR 能够更有效地利用外部知识，提高了模型在知识检索和回答生成中的表现。</li>
+</ul>
+
+<h2 id="个人思考">个人思考</h2>
+
+<ol>
+  <li>有没有一种方法可以使 LLM 学习新的，而旧的知识不变呢？或者说学习其他的知识，而原本不相关的知识不变</li>
+  <li>好多论文的过程，基本都是自己设计一个 loss 然后训练，最后效果比较好，能不能其他方向呢？</li>
+  <li></li>
+</ol>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><summary type="html"><![CDATA[RAG-DDR: OPTIMIZING RETRIEVAL-AUGMENTED GENERATION USING DIFFERENTIABLE DATA REWARDS 论文笔记]]></summary></entry><entry><title type="html">MiniMind训练记录（第一次完整训LLM记录）</title><link href="/2024/11/12/MiniMind%E8%AE%AD%E7%BB%83%E8%AE%B0%E5%BD%95-%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E8%AE%ADLLM%E8%AE%B0%E5%BD%95-%E8%AE%AD%E7%BB%83%E4%B8%ADing.html" rel="alternate" type="text/html" title="MiniMind训练记录（第一次完整训LLM记录）" /><published>2024-11-12T00:00:00+08:00</published><updated>2024-11-12T00:00:00+08:00</updated><id>/2024/11/12/MiniMind%E8%AE%AD%E7%BB%83%E8%AE%B0%E5%BD%95%EF%BC%88%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E8%AE%ADLLM%E8%AE%B0%E5%BD%95%EF%BC%89%E2%80%94%20%E8%AE%AD%E7%BB%83%E4%B8%ADing</id><content type="html" xml:base="/2024/11/12/MiniMind%E8%AE%AD%E7%BB%83%E8%AE%B0%E5%BD%95-%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E8%AE%ADLLM%E8%AE%B0%E5%BD%95-%E8%AE%AD%E7%BB%83%E4%B8%ADing.html"><![CDATA[<h1 id="minimind训练记录">MiniMind训练记录</h1>
 
 <p>记录一下第一次训LLM，包括pretrain、SFT……，并把遇到的问题记录下来</p>
 
@@ -80,6 +679,19 @@
 </blockquote>
 
 <p><img src="/assets/posts_assets/Pasted%20image%2020241112190607.png" alt="" /></p>
+
+<h2 id="训练结果">训练结果</h2>
+
+<h3 id="pre-train">Pre-Train</h3>
+
+<p><img src="/assets/posts_assets/image-20241111185411264.png" alt="" /></p>
+
+<h3 id="sft">SFT</h3>
+
+<p><img src="/assets/posts_assets/W&amp;B%20Chart%202024_11_14%2009_41_28.png" alt="" /></p>
+
+<p><img src="assets/posts_assets/Pasted%20image%2020241114200359.png" alt="" /></p>
+
 <h2 id="tokenizer">Tokenizer</h2>
 
 <ul>
@@ -112,7 +724,7 @@
   </li>
 </ul>
 
-<p><img src="assets/posts_assets/截屏2024-11-11%2016.03.56.png" alt="" /></p>
+<p><img src="/assets/posts_assets/截屏2024-11-11%2016.03.56.png" alt="" /></p>
 
 <ul>
   <li>核心代码：</li>
@@ -213,7 +825,7 @@
   </li>
 </ol>
 
-<h2 id="pre-train">Pre-train</h2>
+<h2 id="pre-train-1">Pre-train</h2>
 
 <ul>
   <li>训练方式：无监督</li>
@@ -363,7 +975,7 @@
 
 <h3 id="反放缩和裁剪"><strong>反放缩和裁剪?</strong></h3>
 
-<h2 id="sft">SFT</h2>
+<h2 id="sft-1">SFT</h2>
 
 <p>（Full SFT Instruction fine tuning？）</p>
 
@@ -385,7 +997,7 @@
     <p>核心代码: 与pre-train 相同</p>
   </li>
   <li>
-    <p>训练结果：<img src="/assets/posts_assets/QQ_1731323261996%201.png" alt="" /></p>
+    <p>训练结果：<img src="assets/posts_assets/截屏2024-11-14%2014.10.22.png" alt="" /></p>
   </li>
 </ul>
 
@@ -426,7 +1038,7 @@ host:1,2,3</p>
 <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="sh">"</span><span class="s">NCCL_P2P_LEVEL</span><span class="sh">"</span><span class="p">]</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="sh">"</span><span class="s">NVL</span><span class="sh">"</span>
 </code></pre></div></div>
 
-\[\sum test\]]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><summary type="html"><![CDATA[MiniMind训练记录 记录一下第一次训LLM，包括pretrain、SFT……，并把遇到的问题记录下来]]></summary></entry><entry><title type="html">Adaptive Note RAG 论文笔记</title><link href="/2024/11/05/Retriever-and-Memory-Towards-Adaptive-Note-Enhanced-Retrieval-Augmented-Generation%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html" rel="alternate" type="text/html" title="Adaptive Note RAG 论文笔记" /><published>2024-11-05T00:00:00+08:00</published><updated>2024-11-05T00:00:00+08:00</updated><id>/2024/11/05/Retriever-and-Memory%20Towards%20Adaptive%20%20Note-Enhanced%20Retrieval-Augmented%20Generation%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0</id><content type="html" xml:base="/2024/11/05/Retriever-and-Memory-Towards-Adaptive-Note-Enhanced-Retrieval-Augmented-Generation%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html"><![CDATA[<h1 id="retriever-and-memory-towards-adaptive--note-enhanced-retrieval-augmented-generation论文笔记">Retriever-and-Memory: Towards Adaptive  Note-Enhanced Retrieval-Augmented Generation论文笔记</h1>
+<p>使用</p>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><summary type="html"><![CDATA[MiniMind训练记录 记录一下第一次训LLM，包括pretrain、SFT……，并把遇到的问题记录下来]]></summary></entry><entry><title type="html">Adaptive Note RAG 论文笔记</title><link href="/2024/11/05/Retriever-and-Memory-Towards-Adaptive-Note-Enhanced-Retrieval-Augmented-Generation%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html" rel="alternate" type="text/html" title="Adaptive Note RAG 论文笔记" /><published>2024-11-05T00:00:00+08:00</published><updated>2024-11-05T00:00:00+08:00</updated><id>/2024/11/05/Retriever-and-Memory%20Towards%20Adaptive%20%20Note-Enhanced%20Retrieval-Augmented%20Generation%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0</id><content type="html" xml:base="/2024/11/05/Retriever-and-Memory-Towards-Adaptive-Note-Enhanced-Retrieval-Augmented-Generation%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html"><![CDATA[<h1 id="retriever-and-memory-towards-adaptive--note-enhanced-retrieval-augmented-generation论文笔记">Retriever-and-Memory: Towards Adaptive  Note-Enhanced Retrieval-Augmented Generation论文笔记</h1>
 
 <!---more-->
 

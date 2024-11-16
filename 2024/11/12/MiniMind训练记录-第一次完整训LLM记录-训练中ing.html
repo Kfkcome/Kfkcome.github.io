@@ -293,7 +293,7 @@
             </li><li><i class="far fa-eye"></i> <span class="js-pageview" data-page-key="post67">0</span> 阅读</li></ul></div><div class="article__header"><header><h1>MiniMind训练记录（第一次完整训LLM记录）</h1></header><span class="split-space">&nbsp;</span>
           <a class="edit-on-github"
             title="在 Github 上修改"
-            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/2024-11-12-MiniMind训练记录（第一次完整训LLM记录）— 训练中ing.md">
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/记录/2024-11-12-MiniMind训练记录（第一次完整训LLM记录）— 训练中ing.md">
             <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">MiniMind训练记录记录一下第一次训LLM，包括pretrain、SFT……，并把遇到的问题记录下来</p></div></div>
               </div>
             </div><div class ="main"><div class="grid grid--reverse">
@@ -319,6 +319,19 @@
 </blockquote>
 
 <p><img src="/assets/posts_assets/Pasted%20image%2020241112190607.png" alt="" /></p>
+
+<h2 id="训练结果">训练结果</h2>
+
+<h3 id="pre-train">Pre-Train</h3>
+
+<p><img src="/assets/posts_assets/image-20241111185411264.png" alt="" /></p>
+
+<h3 id="sft">SFT</h3>
+
+<p><img src="/assets/posts_assets/W&amp;B%20Chart%202024_11_14%2009_41_28.png" alt="" /></p>
+
+<p><img src="assets/posts_assets/Pasted%20image%2020241114200359.png" alt="" /></p>
+
 <h2 id="tokenizer">Tokenizer</h2>
 
 <ul>
@@ -351,7 +364,7 @@
   </li>
 </ul>
 
-<p><img src="assets/posts_assets/截屏2024-11-11%2016.03.56.png" alt="" /></p>
+<p><img src="/assets/posts_assets/截屏2024-11-11%2016.03.56.png" alt="" /></p>
 
 <ul>
   <li>核心代码：</li>
@@ -452,7 +465,7 @@
   </li>
 </ol>
 
-<h2 id="pre-train">Pre-train</h2>
+<h2 id="pre-train-1">Pre-train</h2>
 
 <ul>
   <li>训练方式：无监督</li>
@@ -602,7 +615,7 @@
 
 <h3 id="反放缩和裁剪"><strong>反放缩和裁剪?</strong></h3>
 
-<h2 id="sft">SFT</h2>
+<h2 id="sft-1">SFT</h2>
 
 <p>（Full SFT Instruction fine tuning？）</p>
 
@@ -624,7 +637,7 @@
     <p>核心代码: 与pre-train 相同</p>
   </li>
   <li>
-    <p>训练结果：<img src="/assets/posts_assets/QQ_1731323261996%201.png" alt="" /></p>
+    <p>训练结果：<img src="assets/posts_assets/截屏2024-11-14%2014.10.22.png" alt="" /></p>
   </li>
 </ul>
 
@@ -665,7 +678,7 @@ host:1,2,3</p>
 <span class="n">os</span><span class="p">.</span><span class="n">environ</span><span class="p">[</span><span class="sh">"</span><span class="s">NCCL_P2P_LEVEL</span><span class="sh">"</span><span class="p">]</span><span class="err"> </span><span class="o">=</span><span class="err"> </span><span class="sh">"</span><span class="s">NVL</span><span class="sh">"</span>
 </code></pre></div></div>
 
-\[\sum test\]
+<p>使用</p>
 </div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-11-12T00:00:00+08:00"><!-- start custom article footer snippet -->
 
 <!-- end custom article footer snippet -->
