@@ -10,10 +10,10 @@
 		
 	</script><meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>高性能 实验四 CUDA 并行程序设计 - Ennis's Blog</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>Tool Learning with Foundation Models 论文笔记 - Ennis's Blog</title>
 
-<meta name="description" content="高性能 实验四 CUDA 并行程序设计">
-<link rel="canonical" href="/2024/04/10/%E9%AB%98%E6%80%A7%E8%83%BD%E5%AE%9E%E9%AA%8C%E5%9B%9B.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+<meta name="description" content="Tool Learning with Foundation Models 论文笔记">
+<link rel="canonical" href="/2024/11/18/Tool-Learning-with-Foundation-Models-%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
 
 <meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
 
@@ -282,16 +282,19 @@
   </header>
 </div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
               <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E9%AB%98%E6%80%A7%E8%83%BD">高性能</a>
+                href="/archive.html?tag=nlp">nlp</a>
             </li><li>
               <a class="button button--secondary button--pill button--sm"
-                href="/archive.html?tag=%E5%AE%9E%E9%AA%8C%E6%8A%A5%E5%91%8A">实验报告</a>
-            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 04月10日</span>
-            </li><li><i class="far fa-eye"></i> <span class="js-pageview" data-page-key="post47">0</span> 阅读</li></ul></div><div class="article__header"><header><h1>高性能 实验四 CUDA 并行程序设计</h1></header><span class="split-space">&nbsp;</span>
+                href="/archive.html?tag=%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86">自然语言处理</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0">论文笔记</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 11月18日</span>
+            </li><li><i class="far fa-eye"></i> <span class="js-pageview" data-page-key="post69">0</span> 阅读</li></ul></div><div class="article__header"><header><h1>Tool Learning with Foundation Models 论文笔记</h1></header><span class="split-space">&nbsp;</span>
           <a class="edit-on-github"
             title="在 Github 上修改"
-            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/本科期间/2024-4-10-高性能实验四.md">
-            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">高性能 实验四 CUDA 并行程序设计</p></div></div>
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/论文笔记/2024-11-18-Tool Learning with Foundation Models 论文笔记.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">Tool Learning with Foundation Models 论文笔记</p></div></div>
               </div>
             </div><div class ="main"><div class="grid grid--reverse">
 
@@ -301,16 +304,13 @@
               <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
 
 <!-- end custom main top snippet -->
-<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="高性能 实验四 CUDA 并行程序设计"><meta itemprop="author" content="Xingjie Gao"/><meta itemprop="datePublished" content="2024-04-10T00:00:00+08:00">
-    <meta itemprop="keywords" content="高性能,实验报告"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="Tool Learning with Foundation Models 论文笔记"><meta itemprop="author" content="Xingjie Gao"/><meta itemprop="datePublished" content="2024-11-18T00:00:00+08:00">
+    <meta itemprop="keywords" content="nlp,自然语言处理,论文笔记"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
 
 <!-- end custom article top snippet -->
-<div class="article__content" itemprop="articleBody"><h2 id="高性能-实验四-cuda-并行程序设计">高性能 实验四 CUDA 并行程序设计</h2>
+<div class="article__content" itemprop="articleBody"><h1 id="tool-learning-with-foundation-models-论文笔记">Tool Learning with Foundation Models 论文笔记</h1>
 
-<!---more-->
-<style> .pdf-embed-wrap-76351597-6087-4dc2-b893-0bf38f8b5d73 { display: flex; flex-direction: column; width: 100%; height: 650px; } .pdf-embed-container-76351597-6087-4dc2-b893-0bf38f8b5d73 { height: 100%; } .pdf-embed-container-76351597-6087-4dc2-b893-0bf38f8b5d73 iframe { width: 100%; height: 100%; } </style>
-<div class="pdf-embed-wrap-76351597-6087-4dc2-b893-0bf38f8b5d73"> <div class="pdf-embed-container-76351597-6087-4dc2-b893-0bf38f8b5d73"> <iframe src="/assets/pdf/高性能/第四次实验报告.pdf" frameborder="0" allowfullscreen=""></iframe> </div> </div>
-</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-04-10T00:00:00+08:00"><!-- start custom article footer snippet -->
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-11-18T00:00:00+08:00"><!-- start custom article footer snippet -->
 
 <!-- end custom article footer snippet -->
 <div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
@@ -321,7 +321,7 @@
       </a>
     </p>
   </div></div></footer>
-<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2024/04/03/%E9%AB%98%E6%80%A7%E8%83%BD%E5%AE%9E%E9%AA%8C%E4%B8%89.html">高性能 实验三 OpenMP 并行程序设计</a></div><div class="next"><span>下篇</span><a href="/2024/04/11/%E7%BC%96%E8%AF%91%E5%8E%9F%E7%90%86-%E7%AC%AC%E4%BA%8C%E6%AC%A1%E5%AE%9E%E9%AA%8C-%E8%87%AA%E4%B8%8A%E8%80%8C%E4%B8%8B%E8%AF%AD%E6%B3%95%E5%88%86%E6%9E%90.html">编译原理 第二次实验 自上而下语法分析</a></div></div></div>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2024/11/18/DPO%E8%AE%BA%E6%96%87%E5%AD%A6%E4%B9%A0.html">DPO论文学习</a></div></div></div>
 
 </div>
 
@@ -1079,10 +1079,10 @@ window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
         appKey:   '0iORBozCMxniZ0spe5QY9zCO',
         appClass: 'Test'
       });
-      var key =   'post47';
-      var title = "高性能 实验四 CUDA 并行程序设计";
+      var key =   'post69';
+      var title = "Tool Learning with Foundation Models 论文笔记";
       pageview.increase(key, title, function(view) {
-        $("[data-page-key='post47']").text(view);
+        $("[data-page-key='post69']").text(view);
       });
     });
   </script>

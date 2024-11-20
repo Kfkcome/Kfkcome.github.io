@@ -1,5 +1,1054 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2024-11-16T10:52:12+08:00</updated><id>/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
-</subtitle><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><entry><title type="html">RAG-DDR论文笔记</title><link href="/2024/11/12/RAG-DDR%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0-%E9%98%85%E8%AF%BBing.html" rel="alternate" type="text/html" title="RAG-DDR论文笔记" /><published>2024-11-12T00:00:00+08:00</published><updated>2024-11-12T00:00:00+08:00</updated><id>/2024/11/12/RAG-DDR%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E9%98%85%E8%AF%BBing</id><content type="html" xml:base="/2024/11/12/RAG-DDR%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0-%E9%98%85%E8%AF%BBing.html"><![CDATA[<h1 id="rag-ddr-optimizing-retrieval-augmented--generation-using-differentiable-data-rewards-论文笔记">RAG-DDR: OPTIMIZING RETRIEVAL-AUGMENTED  GENERATION USING DIFFERENTIABLE DATA REWARDS 论文笔记</h1>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2024-11-20T13:34:46+08:00</updated><id>/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
+</subtitle><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><entry><title type="html">Tool Learning with Foundation Models 论文笔记</title><link href="/2024/11/18/Tool-Learning-with-Foundation-Models-%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html" rel="alternate" type="text/html" title="Tool Learning with Foundation Models 论文笔记" /><published>2024-11-18T00:00:00+08:00</published><updated>2024-11-18T00:00:00+08:00</updated><id>/2024/11/18/Tool%20Learning%20with%20Foundation%20Models%20%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0</id><content type="html" xml:base="/2024/11/18/Tool-Learning-with-Foundation-Models-%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html"><![CDATA[<h1 id="tool-learning-with-foundation-models-论文笔记">Tool Learning with Foundation Models 论文笔记</h1>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><summary type="html"><![CDATA[Tool Learning with Foundation Models 论文笔记]]></summary></entry><entry><title type="html">DPO论文学习</title><link href="/2024/11/18/DPO%E8%AE%BA%E6%96%87%E5%AD%A6%E4%B9%A0.html" rel="alternate" type="text/html" title="DPO论文学习" /><published>2024-11-18T00:00:00+08:00</published><updated>2024-11-18T00:00:00+08:00</updated><id>/2024/11/18/DPO%E8%AE%BA%E6%96%87%E5%AD%A6%E4%B9%A0</id><content type="html" xml:base="/2024/11/18/DPO%E8%AE%BA%E6%96%87%E5%AD%A6%E4%B9%A0.html"><![CDATA[<h1 id="dpo-论文学习">DPO 论文学习</h1>
+
+<!---more-->
+
+<h2 id="不懂的问题">不懂的问题</h2>
+
+<h3 id="偏好学习的单位是什么也是-token还是以-response">偏好学习的单位是什么？也是 token？还是以 response？</h3>
+
+<h3 id="为什么人类偏好学习需要强化学习">为什么人类偏好学习需要强化学习</h3>
+
+<p>对于一个 response 的偏好程度打分，不是模型的输出（模型输出的是对人类偏好的response（word tokens）），因为由于模型输出和打分不是一种类型的数据，所以我们无法将 LLM 的输出与标签对比算出 loss， 也就不能反向传播更新），所以就不能用常规的监督学习来训练模型</p>
+
+<p><strong>DPO 的缺点是需要大量有标注单独信息，而 RLHF 只需要小部分的</strong></p>
+
+<h3 id="什么是策略">什么是策略？</h3>
+
+<p>在本文的环境中：策略就是模型生成概率空间，即生成的文本的概率分布。</p>
+
+<p>策略训练（policy train）就是训练 LLM 的策略的过程，使其生成的文本更符合人类的偏好。</p>
+
+<p>一般的策略训练的过程</p>
+
+<ol>
+  <li>
+    <p><strong>确定目标</strong>：首先需要定义目标，这通常是通过一个<strong>损失函数</strong>来表示的。在传统的强化学习中，这个目标是最大化奖励。</p>
+  </li>
+  <li>
+    <p><strong>优化过程</strong>：通过某种优化算法（如梯度下降、Proximal Policy Optimization（PPO）等），不断调整模型的参数，改变策略，使得策略能够在特定任务中表现得更好。例如，语言模型的策略可以通过优化语言生成的质量来训练。</p>
+  </li>
+  <li>
+    <p><strong>策略调整</strong>：在训练过程中，模型会不断根据新的数据或环境反馈调整策略，以提高其执行任务的能力。</p>
+  </li>
+</ol>
+
+<h3 id="什么是奖励函数">什么是奖励函数？</h3>
+
+<p><strong>奖励函数</strong>：在强化学习和偏好学习中，奖励函数通常用于量化一个动作或响应的质量。在传统的 RLHF（从人类反馈中进行强化学习）方法中，奖励函数是由人类偏好数据训练出来的，它用来评估语言模型输出与人类偏好的一致性。</p>
+
+<p>然而，在 DPO 方法中，作者没有显式地定义和训练一个独立的奖励函数，而是通过将偏好数据直接映射到策略（即语言模型）的优化中，从而隐含地使用奖励函数。</p>
+
+<blockquote>
+  <p>这里的奖励函数可以理解为偏好数据对某个输出的偏好程度，反映了人类更倾向于选择哪些输出</p>
+</blockquote>
+
+<h3 id="什么是-kl-散度">什么是 KL 散度？</h3>
+
+<p><strong>KL 散度</strong>（<strong>Kullback-Leibler Divergence</strong>）是一种用于衡量两个概率分布之间差异的度量。它通常用于比较一个真实分布（或参考分布）和一个估计分布（或预测分布）之间的差异。</p>
+
+<p>KL 散度的公式为：</p>
+
+\[D_{KL}(P || Q) = \sum_{x} P (x) \log \frac{P (x)}{Q (x)}\]
+
+<p>或在连续情况下：</p>
+
+\[D_{KL}(P || Q) = \int p (x) \log \frac{p (x)}{q (x)} \, dx\]
+
+<p>其中：</p>
+<ul>
+  <li>$P (x)$ 是真实的概率分布（或参考分布），表示“正确”或期望的分布。</li>
+  <li>$Q (x)$ 是估计的概率分布，表示模型输出的分布。</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$D_{KL}(P</td>
+          <td> </td>
+          <td>Q)$ 衡量了分布 $P$ 相对于 $Q$ 的<strong>信息损失</strong>，或者说是从 $Q$ 生成 $P$ 时的效率损失。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<h4 id="kl-散度的含义">KL 散度的含义：</h4>
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td><strong>非对称性</strong>：KL 散度是非对称的，即 $D_{KL}(P</td>
+          <td> </td>
+          <td>Q) \neq D_{KL}(Q</td>
+          <td> </td>
+          <td>P)$，这意味着它不是一个真正的“距离”，而是一个<strong>信息量</strong>度量。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><strong>度量差异</strong>：KL 散度的值越大，说明两个分布之间的差异越大。KL 散度为零时，说明两个分布是完全相同的（即 $P = Q$）。</li>
+  <li><strong>信息量</strong>：KL 散度表示使用分布 $Q$ 来表示分布 $P$ 时所失去的信息量。如果我们使用 $Q$ 来描述真实分布 $P$，那么我们需要多少额外的信息来弥补这个差距。</li>
+</ul>
+
+<h4 id="在机器学习中的应用">在机器学习中的应用：</h4>
+<ol>
+  <li>
+    <p><strong>在强化学习中</strong>：KL 散度通常用于控制策略优化过程中的“平稳性”或“稳定性”。例如，在<strong>Proximal Policy Optimization (PPO)</strong> 算法中，KL 散度用作约束，防止优化过程中新的策略与旧的策略偏差过大，从而保证训练过程的稳定性。</p>
+  </li>
+  <li>
+    <p><strong>在生成模型中</strong>：KL 散度常用于衡量生成模型（如变分自编码器 VAE）学习的分布与真实数据分布之间的差异。最小化 KL 散度有助于生成的样本更接近真实数据分布。</p>
+  </li>
+  <li>
+    <p><strong>在模型优化中</strong>：KL 散度也常用于<strong>对抗训练</strong>等场景，作为衡量两个模型输出概率分布差异的一种方式。</p>
+  </li>
+</ol>
+
+<h4 id="总结">总结：</h4>
+<p>KL 散度是一个衡量概率分布之间差异的工具，它通过计算一个分布生成另一个分布时的“信息损失”来工作。在强化学习、生成模型以及其他机器学习领域，KL 散度是优化过程中的一个重要工具，尤其用于控制训练过程中的分布变化。</p>
+
+<h3 id="dpo-的变量变换思想">DPO 的变量变换思想</h3>
+
+<blockquote>
+  <p>我理解这里变量变换思想就是：
+ 假设 A=B=C
+ 原本的过程就是使用 A—&gt;B—&gt;C
+ 而 DPO 的变量变换思想就是直接使用 A—&gt;C</p>
+</blockquote>
+
+<p>在<strong>DPO</strong>算法中，<strong>变量变换</strong>是一个数学技巧，它允许我们跳过显式构建奖励模型的过程，直接通过人类偏好数据优化策略。为了更好地理解这个概念，下面我将举一个简单的例子来解释“变量变换”的含义。</p>
+
+<h4 id="举例假设我们有一个简单的分类问题">举例：假设我们有一个简单的分类问题</h4>
+
+<p>假设我们正在训练一个模型来生成文本，并且我们收集了大量的人类偏好数据，这些数据表明在两个不同的模型输出之间，人类更喜欢哪一个。</p>
+
+<ul>
+  <li><strong>模型输出 A</strong>和<strong>模型输出 B</strong>是两个候选答案。</li>
+  <li><strong>人类偏好数据</strong>告诉我们，<strong>A 更好</strong>，因此我们可以把人类偏好表示为“喜欢 A、不喜欢 B”。</li>
+</ul>
+
+<p>在传统的强化学习方法中，我们可能会这样做：</p>
+<ol>
+  <li><strong>构建奖励模型</strong>：首先需要定义一个奖励函数，比如给<strong>A</strong>一个高奖励，给<strong>B</strong>一个低奖励。</li>
+  <li>然后使用强化学习（如 PPO）来优化策略，使得模型生成的答案更倾向于 A，因为 A 得到了更高的奖励。</li>
+</ol>
+
+<h4 id="变量变换的作用">变量变换的作用</h4>
+
+<p>但是，<strong>DPO</strong>采用了<strong>变量变换</strong>的方式，避免了需要显式构建奖励模型和奖励值的问题，直接通过人类的偏好数据来优化模型。</p>
+
+<p>假设我们已经知道，人类给出的是一个简单的<strong>偏好排序</strong>，也就是说，模型输出 A 被偏好于 B。DPO 的<strong>变量变换</strong>过程可以被理解为：</p>
+
+<ol>
+  <li>
+    <p><strong>换一个视角</strong>：我们不再直接优化奖励值，而是通过将奖励值变换成策略本身来进行优化。具体来说，我们定义一个新的<strong>损失函数</strong>，这个损失函数表示我们希望生成更倾向于人类偏好的答案（即 A）的策略。</p>
+
+    <ul>
+      <li><strong>变量变换</strong>的步骤：通过数学变换（例如：<strong>对数变换</strong>），我们可以把偏好损失函数定义为一个关于策略的函数，而不需要显式地训练奖励模型。换句话说，我们直接用人类给出的“喜欢”或“不喜欢”作为优化目标，调整模型的生成策略，使得模型生成 A 的概率更高。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>直接优化策略</strong>：通过这种变换，我们可以用<strong>二元交叉熵</strong>这样的简单目标函数来优化策略，即最大化模型生成 A 的概率，同时最小化生成 B 的概率。</p>
+  </li>
+</ol>
+
+<h4 id="数学背景">数学背景：</h4>
+<ul>
+  <li>
+    <p>如果我们不进行变量变换，奖励模型可能会让我们使用以下目标：
+\(\text{maximize} \quad \mathbb{E}[R (\text{output})]\)
+其中 $R (\text{output})$ 是奖励函数。</p>
+  </li>
+  <li>
+    <p>但是通过<strong>变量变换</strong>，我们可以将这个目标变成：
+\(\text{maximize} \quad \log \left ( \frac{P (\text{preferred response})}{P (\text{dispreferred response})} \right)\)
+这实际上是优化模型策略的一个等价目标，而不需要定义一个显式的奖励函数。</p>
+  </li>
+</ul>
+
+<h4 id="总结-1">总结：</h4>
+<p>在<strong>DPO</strong>中，<strong>变量变换</strong>指的是将优化目标从奖励模型转变为直接优化策略的函数。通过这种变换，我们避免了构建奖励模型的复杂过程，直接通过人类偏好数据优化语言模型的策略。</p>
+
+<h3 id="dpo-和-bradley-terry-的异同">DPO 和 Bradley-Terry 的异同</h3>
+
+<blockquote>
+  <p>Bradley-Terry 模型是一种用于衡量人类偏好数据的一致性的统计模型，它可以用来评估两个或多个选项之间的相对偏好。
+它通过给每个物品分配一个质量值，预测不同物品之间的偏好概率</p>
+
+</blockquote>
+
+<p>DPO 和 Bradley-Terry 都是理论模型，而不是真实的训练出来模型。是可以通过数学公式计算出来的。</p>
+
+<p>DPO 直接用人类偏好数据来优化模型，而 Bradley-Terry 模型是用来评估人类相对偏好的</p>
+
+<h2 id="摘要">摘要</h2>
+
+<h3 id="当前背景">当前背景</h3>
+
+<ol>
+  <li>LLM 的行为很难被精准控制，因为进行了无监督的预训练</li>
+  <li>想要控制 LLM 的办法：
+    <ul>
+      <li>RLHF：通过收集人类标签来评估模型生成结果的相对质量，并对无监督LM进行微调以符合这些偏好，通常需要通过来自人类反馈的强化学习（RLHF）</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="作者的工作">作者的工作</h3>
+
+<ol>
+  <li>DPO：我们利用<strong>奖励函数与最优策略之间的映射</strong>，表明这个受限的奖励最大化问题可以通过一次单独的策略训练精确优化，实际上解决了人类偏好数据上的分类问题（二分类：喜欢、不喜欢）。</li>
+</ol>
+
+<h3 id="实验结果">实验结果</h3>
+
+<ol>
+  <li>DPO可以将语言模型微调到与人类偏好相符，且效果与现有方法相当或更好。</li>
+  <li>使用DPO进行微调超越了RLHF控制生成内容情感的能力，并在摘要和单轮对话中提高了响应质量，同时实现和训练起来大大更简单。</li>
+</ol>
+
+<h2 id="引言">引言</h2>
+
+<h3 id="1-问题">1. 问题：</h3>
+<p>从模型非常广泛的知识和能力中选择所期望的响应和行为对于构建安全、高性能和可控的人工智能系统至关重要</p>
+
+<p>例子：</p>
+
+<blockquote>
+  <p>我们可能希望我们的语言模型意识到50%的人相信的一个常见误解，但我们肯定不希望模型声称这个误解在50%的查询中是真实的！</p>
+</blockquote>
+
+<h3 id="2-现在一般的解决方法">2. 现在一般的解决方法：</h3>
+
+<ol>
+  <li>有监督微调：直接给 LLM 高质量的数据</li>
+  <li>通过 RLHF 进行微调（缺点：复杂、计算成本高）</li>
+</ol>
+
+<h3 id="3-作者的解决办法dpo">3. 作者的解决办法：DPO</h3>
+
+<ol>
+  <li><strong>DPO 算法的基本思路</strong>：
+    <ul>
+      <li><strong>目标</strong>：DPO 的目标与现有的 RLHF 方法类似，都是<strong>奖励最大化</strong>，并且包含了一个<strong>KL 散度约束</strong>，即优化过程中不仅要最大化奖励，还要确保生成的回答不会偏离原始模型过多。</li>
+      <li><strong>细节</strong>：DPO 通过<strong>增加偏好响应的对数概率</strong>来优化模型，使得模型生成“更喜欢”的回答，同时引入了<strong>动态的权重</strong>，防止模型因过度偏向某些回答而发生退化。传统方法中的概率比值目标可能导致模型不稳定，而 DPO 通过引入这些权重来避免这种问题。</li>
+    </ul>
+  </li>
+  <li><strong>与现有方法的区别</strong>：
+    <ul>
+      <li>DPO 使用一个<strong>理论偏好模型</strong>（如<strong>Bradley-Terry 模型</strong>），用来衡量给定的奖励函数与人类偏好数据的一致性。现有方法（RLHF）依赖偏好模型来定义一个“偏好损失”函数，训练奖励模型，再用这个奖励模型来优化语言模型（策略）。</li>
+      <li>而 DPO 则通过<strong>变量变换</strong>，将这个“偏好损失”函数直接定义为语言模型策略的函数。也就是说，DPO 不需要显式地学习奖励函数，而是直接通过人类偏好的数据来优化模型。</li>
+    </ul>
+  </li>
+  <li><strong>DPO 的训练过程</strong>：
+    <ul>
+      <li>给定一组人类对语言模型响应的偏好数据，DPO 通过一个<strong>简单的二元交叉熵目标</strong>（binary cross entropy）来优化模型，而不需要在训练过程中进行策略采样或显式学习奖励函数。</li>
+    </ul>
+  </li>
+  <li><strong>实验结果</strong>：
+    <ul>
+      <li>实验表明，DPO 至少与现有方法（如基于 PPO 的 RLHF 方法）一样有效，在任务如情感调节、文本摘要和对话生成等方面，使用最多 6 B 参数的语言模型，DPO 的表现与现有方法相当，甚至在某些情况下更好。</li>
+    </ul>
+  </li>
+</ol>
+
+<p><strong>DPO 是一个简单且不依赖强化学习的算法，</strong> 它直接通过人类偏好数据优化语言模型，从而避免了复杂的奖励建模和强化学习过程。DPO 在多个任务中与传统方法相比同样有效，且实现简单，易于训练。</p>
+
+<h2 id="相关工作">相关工作</h2>
+
+<h3 id="llm-对齐的发展">LLM 对齐的发展</h3>
+
+<ol>
+  <li>无监督的 LLM 可以在 zero-shot 和 few-shot 的情况下完成一些任务，但是不如指令微调后的 LLM</li>
+  <li>指令微调可以显著提高 LLM在下游任务上的表现和与用户意图的对齐，但是需要专家示范的数据</li>
+  <li>收集对响应质量的相对人类判断往往更为容易，因此随后的研究使用人类偏好的数据集对大语言模型进行了微调，
+ 结果：提高了翻译、摘要、讲故事和遵循指令的能力。
+ 一般过程：
+    <ol>
+      <li>优化神经网络的奖励函数，以便与偏好模型下的偏好数据集兼容，如 Bradley-Terry 模型[5]，</li>
+      <li>然后使用强化学习算法（通常是 REINFORCE 、近端策略优化（PPO；）或变体）微调语言模型，以最大化给定的奖励。</li>
+    </ol>
+  </li>
+  <li>其他研究：
+    <ol>
+      <li>利用经过人类反馈微调的 LLMs 来生成针对安全性或无害性等特定属性的额外合成偏好数据，仅使用人类提供的文本评估作为 LLM 注释的弱监督</li>
+    </ol>
+  </li>
+</ol>
+
+<h3 id="总结-2">总结：</h3>
+
+<p>总共有两个方向：</p>
+
+<ol>
+  <li>一个是关于使用强化学习训练语言模型以实现多种目标的研究工作</li>
+  <li>另一个是关于从人类偏好中学习的一般方法的研究工作</li>
+</ol>
+
+<p>本文：</p>
+
+<ol>
+  <li>尽管使用相对人类偏好的方法具有吸引力，但使用强化学习对大型语言模型进行微调仍然是一个主要的实际挑战；</li>
+  <li>本项工作提供了一种在没有强化学习的情况下优化相对偏好的理论上合理的方法。</li>
+</ol>
+
+<h3 id="偏好学习不在-nlp-中的">偏好学习（不在 NLP 中的）</h3>
+
+<h4 id="情境对决赌博机-contextual-dueling-bandits">情境对决赌博机 (Contextual Dueling Bandits)</h4>
+
+<p>首先，使用偏好或动作排名而非奖励的情境赌博机学习被称为情境对决赌博机（Contextual Dueling Bandit，CDB）。在没有绝对奖励的情况下，CDB 的理论分析用<strong>冯·诺伊曼胜者（von Neumann winner）</strong> 的概念取代了最优策略。</p>
+
+<blockquote>
+  <p>冯·诺伊曼胜者是指其对任何其他策略的预期胜率至少为 50%的策略。</p>
+
+  <p>通常，在有明确奖励的环境中，我们可以定义一个最优策略，它能最大化预期奖励。</p>
+
+  <p>然而，在CDB中，没有绝对的奖励信号，只有策略之间的偏好或胜率信息。因此，冯·诺伊曼胜者被定义为：对于任何其他策略，其预期胜率至少为50%的策略。也就是说，这个策略在与任何其他策略对比时，至少不会输，可能会赢。这一概念适用于无法直接量化奖励的情况下，用相对胜率来评估策略的优劣。</p>
+</blockquote>
+
+<p>然而，在 CDB 的设置中，偏好标签是在线获得的；而在从人类偏好中学习时，我们通常从一批离线的、带有偏好标注的动作对中学习。</p>
+
+<p>类似地，<strong>基于偏好的强化学习（Preference-based RL，PbRL）</strong> 从由未知的“评分”函数生成的二元偏好中学习，而不是直接从奖励中学习。已有多种 PbRL 算法，包括可以重用离线偏好数据的方法，但通常需要先显式估计潜在的评分函数（即奖励模型），然后再对其进行优化。</p>
+
+<p>与这些方法不同，作者提出了一种单阶段的策略学习方法，可以直接优化策略以满足偏好，而无需先估计奖励模型。</p>
+
+<h2 id="预备知识">预备知识</h2>
+
+<p>RLHF 的 pipeline</p>
+
+<p>1) supervised fine-tuning (SFT); 
+2) preference sampling and reward learning
+3) RL optimization.</p>
+
+<h3 id="sft">SFT</h3>
+
+<p>RLHF 通常通过对预训练语言模型进行微调，以监督学习的方式在高质量数据上进行，针对感兴趣的下游任务（对话、摘要等），以获得模型 $\pi ^{SFT}$。</p>
+
+<h3 id="奖励模型阶段">奖励模型阶段</h3>
+
+<ol>
+  <li><strong>奖励建模的基本任务</strong>：
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>在奖励建模阶段，模型（SFT 模型，指的是预先监督微调的模型 $\pi^{\text{SFT}}(y</td>
+              <td>x)$）接收一个输入提示 $x$，并生成一组候选答案对 $(y_1, y_2)$。</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>这些候选答案对会交给人类标注者进行评估，标注者会基于偏好选择其中一个答案。例如，人类可能更喜欢答案 $y_w$ 而不是 $y_l$。</li>
+      <li>$y_w$ 表示人类标注中“偏好”的答案，而 $y_l$ 表示“不偏好”的答案。</li>
+    </ul>
+  </li>
+</ol>
+
+<hr />
+
+<ol>
+  <li><strong>引入奖励模型</strong>：
+    <ul>
+      <li>假设人类偏好的分布是由一个<strong>潜在奖励模型</strong> $r^*(y, x)$ 生成的。</li>
+      <li><strong>奖励模型 $r^*(y, x)$</strong>：它是一个无法直接获取的函数，用于衡量在特定输入 $x$ 下，答案 $y$ 的质量或偏好。</li>
+    </ul>
+  </li>
+</ol>
+
+<hr />
+
+<ol>
+  <li>如何使用奖励模型对偏好建模：
+    <ul>
+      <li>文中指出，Bradley-Terry 模型是用于偏好建模的常见方法之一。该模型假设：
+\(P^*(y_1 \succ y_2 \mid x) = \frac{\exp (r^*(x, y_1))}{\exp (r^*(x, y_1)) + \exp (r^*(x, y_2))}.\)</li>
+      <li>这个公式描述了答案 $y_1$ 相比 $y_2$ 被人类偏好的概率。概率值由各自的奖励值 $r^*(x, y)$ 决定，奖励值越高的答案更有可能被选择。</li>
+    </ul>
+  </li>
+</ol>
+
+<blockquote>
+  <p>[!TIP] 
+为什么公式是这样的：</p>
+  <ol>
+    <li>想要 $r(x,y)$ 打分越高越偏向于 $y$，所以使用了指数函数</li>
+    <li>分母是为了归一化，使得概率和为 1，使其成为一个有效的概率分布</li>
+    <li>当两数差异较大是，使用指数函数会扩大差异，使得概率更加明显</li>
+    <li>也可换一种理解方式，这个公式可以从 sigmod 简化而来，</li>
+    <li>而为什么使用 sigmod 呢？因为我们可以用模型推导出的偏好与不偏好的差值来判断是否偏好，如果是偏好的分数大于不偏好的分数，所以为正值，正值越大 sigmod 的函数值越接近 1，反之越接近 0，所以使用 sigmod 函数来表示偏好。</li>
+  </ol>
+</blockquote>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />由偏好公式推到这个损失函数  [priority:: highest]  [created:: 2024-11-18]  [scheduled:: 2024-11-18]  [completion:: 2024-11-19]</li>
+</ul>
+
+<hr />
+
+<ol>
+  <li>如何训练奖励模型 $D$：
+    <ul>
+      <li>数据集：</li>
+    </ul>
+    <ul>
+      <li>作者假设可以访问一个静态的偏好数据集 $D = {(x^{(i)}, y_w^{(i)}, y_l^{(i)})}$，其中包含输入 $x^{(i)}$ 及其对应的偏好答案对。</li>
+      <li>目标是通过这些数据学习一个<strong>参数化的奖励模型</strong> $r_\phi (x, y)$，该模型的参数 $\phi$ 可以通过最大似然估计（MLE）优化。
+     - <strong>将问题建模为二分类任务</strong>：</li>
+      <li>偏好学习的任务被建模为一个<strong>二元分类问题</strong>，目的是预测在一对答案中哪一个更符合人类的偏好。</li>
+      <li>负对数似然损失（Negative Log-Likelihood Loss）定义如下：
+\(\mathcal{L}_R (r_\phi, D) = - \mathbb{E}_{(x, y_w, y_l) \sim D} \left[ \log \sigma (r_\phi (x, y_w) - r_\phi (x, y_l)) \right].\)</li>
+      <li>$\sigma$ 是 sigmod 函数，用来二分类，表示 $\sigma (z) = \frac{1}{1 + \exp (-z)}$。</li>
+    </ul>
+  </li>
+</ol>
+
+<blockquote>
+  <p>[!NOTE] 损失函数推导过程
+偏好的定义：
+\(P^*(y_1 \succ y_2 \mid x) = \frac{\exp (r^*(x, y_1))}{\exp (r^*(x, y_1)) + \exp (r^*(x, y_2))}\)
+然后根据最大似然的思想，我们要最大化这个概率，为了最大化这个概率方便我们对他取对数
+\(\log P^*(y_1 \succ y_2 \mid x) = \log \left ( \frac{\exp (r^*(x, y_1))}{\exp (r^*(x, y_1)) + \exp (r^*(x, y_2))} \right)\)
+ 然后因此，我们将模型的评分函数 $r_\phi (x, y_1)$ 和 $r_\phi (x, y_2)$ 代入上式，得到：
+ \(\log P^*(y_w \succ y_l \mid x) = \log \left ( \frac{1}{1 + \exp (r^*(x, y_l) - r^*(x, y_w))} \right)\)
+ 代入 sigmod 函数简化
+ \(\sigma (z) = \frac{1}{1 + \exp (-z)}\)
+ 得：
+ \(\log P^*(y_w \succ y_l \mid x) = \log \sigma (r_\phi (x, y_w) - r_\phi (x, y_l))\)
+ 我们要求的是在样本上的期望，所以损失函数就是这个
+ \(\mathbb{E}_{(x, y_w, y_l) \sim D} \left[ \log \sigma (r_\phi (x, y_w) - r_\phi (x, y_l)) \right]\)
+ 因为 loss 是最小化，所以加个负号
+ \(\mathcal{L}_{R}(r_{\phi},\mathcal{D})=-\mathbb{E}_{(x,y_{w},y_{l})\sim\mathcal{D}}\big[\log\sigma(r_{\phi}(x,y_{w})-r_{\phi}(x,y_{l}))\big]\)</p>
+</blockquote>
+
+<ol>
+  <li><strong>奖励模型的实现</strong>：
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>在语言模型（LM）的上下文中，奖励模型 $r_\phi (x, y)$ 是在现有的 SFT 模型 $\pi^{\text{SFT}}(y</td>
+              <td>x)$ 基础上构建的：</td>
+            </tr>
+          </tbody>
+        </table>
+        <ul>
+          <li>在现有的 SFT 模型顶部添加一个线性层，以生成一个单一的标量预测值作为奖励值。</li>
+        </ul>
+      </li>
+      <li>为了防止奖励模型的方差过高，通常会对奖励值进行归一化（如设置所有样本的奖励值期望为 0）。</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="强化学习阶段">强化学习阶段</h3>
+
+\[\max_{\pi_\theta}\mathbb{E}_{x\sim\mathcal{D},y\sim\pi_\theta(y\mid x)}\begin{bmatrix}r_\phi(x,y)\end{bmatrix}-\beta\mathbb{D}_{\mathbf{KL}}\begin{bmatrix}\pi_\theta(y\mid x)\parallel\pi_{\mathbf{ref}}(y\mid x)\end{bmatrix}\]
+
+<p>最大化奖励函数，同时最小化策略分布与参考分布的 KL 散度。</p>
+<ul>
+  <li><strong>第一项 $\mathbb{E}[r_\phi (x, y)]$：</strong>
+    <ul>
+      <li>这是奖励函数 $r_\phi (x, y)$ 的期望，表示模型生成输出 $y$ 的质量。</li>
+      <li>模型的目标是生成能获得高奖励的输出。</li>
+    </ul>
+  </li>
+  <li><strong>第二项 $\beta D_{\text{KL}}[\pi_\theta | \pi_{\text{ref}}]$：</strong>
+    <ul>
+      <li>这是一个 KL 散度（Kullback-Leibler divergence）项，用来衡量当前策略 $\pi_\theta$ 偏离参考策略 $\pi_{\text{ref}}$ 的程度。</li>
+      <li>$\beta$ 是一个超参数，用来控制当前策略 $\pi_\theta$ 和参考策略 $\pi_{\text{ref}}$ 偏离的强度。</li>
+      <li>添加这个约束的目的是防止模型在追求高奖励时生成过度偏离参考策略的内容（例如避免模式崩溃，即模型只输出单一高奖励答案）。</li>
+    </ul>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$\pi_{\text{ref}}(y</td>
+          <td>x)$ 是参考策略，一般初始化为已经通过监督微调（Supervised Fine-Tuning, SFT）得到的模型 $\pi^{\text{SFT}}$。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><strong>重要性</strong>：使用参考策略是为了确保生成的内容在奖励函数精度高的分布范围内，同时保持生成的多样性，防止模式崩塌（mode collapse）。</li>
+</ul>
+
+<p>但是，由于语言生成是离散的（输出是离散的单词序列），这个优化目标函数不可直接微分，无法用常规的梯度下降法进行优化。</p>
+
+<p>标准的方法：
+  \(R (x, y) = r_\phi (x, y) - \beta \left ( \log \pi_\theta (y|x) - \log \pi_{\text{ref}}(y|x) \right)\)
+然后说使用 PPO 最大化。</p>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />复习一下梯度下降，思考一下这个为什么不可微就不能用梯度下降  [created:: 2024-11-19]  [due:: 2024-11-19]</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />学习 PPO 的论文 [created:: 2024-11-19]</li>
+</ul>
+
+<h2 id="dpo-算法">DPO 算法</h2>
+
+<h3 id="dpo-目标函数的推导">DPO 目标函数的推导</h3>
+
+<p><strong>从原本的 RLHF 的 loss 函数推导到 DPO 的 loss 函数</strong></p>
+
+<ol>
+  <li><strong>优化目标</strong>
+我们的目标是找到策略 $\pi_\theta (y|x)$，使以下目标函数最大化：
+\(\mathcal{L}(\pi_\theta) = \int \pi_\theta (y|x) r (x, y) \, dy - \beta \int \pi_\theta (y|x) \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} \, dy.\)
+其中：
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>第一项 $\int \pi_\theta (y</td>
+              <td>x) r (x, y) dy$ 表示奖励函数 $r (x, y)$ 在策略 $\pi_\theta (y</td>
+              <td>x)$ 下的期望。</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>第二项 $\beta \int \pi_\theta (y</td>
+              <td>x) \log \frac{\pi_\theta (y</td>
+              <td>x)}{\pi_{\text{ref}}(y</td>
+              <td>x)} \, dy$ 是 KL 散度，用来约束策略 $\pi_\theta (y</td>
+              <td>x)$ 不偏离参考策略 $\pi_{\text{ref}}(y</td>
+              <td>x)$。</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>$\beta &gt; 0$ 是权衡奖励和约束的超参数。</li>
+    </ul>
+  </li>
+</ol>
+
+<table>
+  <tbody>
+    <tr>
+      <td>此外，策略 $\pi_\theta (y</td>
+      <td>x)$ 需要满足概率分布的归一化条件：</td>
+    </tr>
+    <tr>
+      <td>$$\int \pi_\theta (y</td>
+      <td>x) \, dy = 1.$$</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<ol>
+  <li><strong>引入拉格朗日乘子</strong>
+为了在优化目标中引入概率分布的归一化约束，我们定义拉格朗日函数，加入一个归一化约束项 $\lambda (x)$：
+\(\mathcal{L}(\pi_\theta, \lambda) = \int \pi_\theta (y|x) r (x, y) \, dy - \beta \int \pi_\theta (y|x) \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} \, dy + \lambda (x) \left ( 1 - \int \pi_\theta (y|x) \, dy \right ).\)</li>
+</ol>
+
+<p>这里：</p>
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$\lambda (x)$ 是与输入 $x$ 相关的拉格朗日乘子，用来确保 $\pi_\theta (y</td>
+          <td>x)$ 满足归一化条件。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<hr />
+
+<ol>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>**对 $\pi_\theta (y</td>
+          <td>x)$ 求偏导**</td>
+        </tr>
+        <tr>
+          <td>对拉格朗日函数 $\mathcal{L}(\pi_\theta, \lambda)$ 关于 $\pi_\theta (y</td>
+          <td>x)$ 求导，得到优化条件。具体计算如下：</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+
+<p>(1) 奖励项的偏导
+奖励项是：
+\(\int \pi_\theta (y|x) r (x, y) \, dy.\)
+对 $\pi_\theta (y|x)$ 求偏导，得到：
+\(\frac{\partial}{\partial \pi_\theta (y|x)} \left[ \pi_\theta (y|x) r (x, y) \right] = r (x, y).\)</p>
+
+<p>(2) KL 散度项的偏导
+KL 散度项是：
+\(\int \pi_\theta (y|x) \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} \, dy.\)
+对 $\pi_\theta (y|x)$ 求偏导：</p>
+<ul>
+  <li>首先展开 KL 散度：
+\(\pi_\theta (y|x) \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} = \pi_\theta (y|x) \log \pi_\theta (y|x) - \pi_\theta (y|x) \log \pi_{\text{ref}}(y|x).\)</li>
+  <li>求导时：
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>对 $\pi_\theta (y</td>
+              <td>x) \log \pi_\theta (y</td>
+              <td>x)$ 求导，得到：</td>
+            </tr>
+            <tr>
+              <td>$$\log \pi_\theta (y</td>
+              <td>x) + 1.$$</td>
+              <td> </td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>对 $\pi_\theta (y</td>
+              <td>x) \log \pi_{\text{ref}}(y</td>
+              <td>x)$ 求导，得到：</td>
+            </tr>
+            <tr>
+              <td>$$\log \pi_{\text{ref}}(y</td>
+              <td>x).$$</td>
+              <td> </td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>因此，KL 散度项的偏导为：
+\(\frac{\partial}{\partial \pi_\theta (y|x)} \left[ -\beta \int \pi_\theta (y|x) \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} \, dy \right] = -\beta \left[ \log \pi_\theta (y|x) - \log \pi_{\text{ref}}(y|x) + 1 \right].\)</p>
+
+<p>(3) 归一化约束项的偏导
+归一化约束项是：
+\(\lambda (x) \left ( 1 - \int \pi_\theta (y|x) \, dy \right).\)
+对 $\pi_\theta (y|x)$ 求导，得到：
+\(\frac{\partial}{\partial \pi_\theta (y|x)} \left[ \lambda (x) \left ( 1 - \int \pi_\theta (y|x) \, dy \right) \right] = -\lambda (x).\)</p>
+
+<hr />
+
+<ol>
+  <li><strong>合并偏导并设为 0</strong>
+将三部分的结果合并，得到：
+\(\frac{\partial \mathcal{L}}{\partial \pi_\theta (y|x)} = r (x, y) - \beta \left[ \log \pi_\theta (y|x) - \log \pi_{\text{ref}}(y|x) + 1 \right] - \lambda (x).\)
+设偏导为 0：
+\(R (x, y) - \beta \left[ \log \pi_\theta (y|x) - \log \pi_{\text{ref}}(y|x) + 1 \right] - \lambda (x) = 0.\)</li>
+</ol>
+
+<p>整理得到：
+\(\beta \log \pi_\theta (y|x) = \beta \log \pi_{\text{ref}}(y|x) + r (x, y) - \beta - \lambda (x).\)</p>
+
+<hr />
+
+<ol>
+  <li><strong>解出 $\pi_\theta (y|x)$</strong>
+两边除以 $\beta$，得到：
+\(\log \pi_\theta (y|x) = \log \pi_{\text{ref}}(y|x) + \frac{1}{\beta} r (x, y) - \frac{1}{\beta} (\beta + \lambda (x)).\)
+对两边取指数，得到：
+\(\pi_\theta (y|x) = \pi_{\text{ref}}(y|x) \cdot \exp\left (\frac{1}{\beta} r (x, y)\right) \cdot \exp\left (-\frac{1}{\beta} (\beta + \lambda (x))\right).\)</li>
+</ol>
+
+<p>定义 $Z (x) = \exp\left (\frac{\lambda (x) + \beta}{\beta}\right)$ 为归一化常数，最终得到：
+\(\pi_\theta (y|x) = \frac{1}{Z (x)} \pi_{\text{ref}}(y|x) \cdot \exp\left (\frac{1}{\beta} r (x, y)\right).\)</p>
+
+<hr />
+
+<ol>
+  <li>
+    <p><strong>分区函数 $Z (x)$ 的确定</strong>
+为了保证 $\pi_\theta (y|x)$ 是一个合法的概率分布，满足：
+\(\int \pi_\theta (y|x) \, dy = 1.\)
+将 $\pi_\theta (y|x)$ 的表达式代入：
+\(\int \frac{1}{Z (x)} \pi_{\text{ref}}(y|x) \cdot \exp\left (\frac{1}{\beta} r (x, y)\right) \, dy = 1.\)
+因此：
+\(Z (x) = \int \pi_{\text{ref}}(y|x) \cdot \exp\left (\frac{1}{\beta} r (x, y)\right) \, dy.\)
+—</p>
+  </li>
+  <li>
+    <p>解出 $r(x,y)$
+由上述 $\pi_\theta (y|x)$ 的表达式，可以解出 $r(x,y)$：</p>
+  </li>
+</ol>
+
+\[r(x,y)=\beta\log\frac{\pi_r(y\mid x)}{\pi_{\mathrm{ref}}(y\mid x)}+\beta\log Z(x).\]
+
+<hr />
+
+<ol>
+  <li>代入偏好模型</li>
+</ol>
+
+\[p^*(y_1\succ y_2\mid x)=\frac1{1+\exp\left(\beta\log\frac{\pi^*(y_2|x)}{\pi_{\mathrm{ref}}(y_2|x)}-\beta\log\frac{\pi^*(y_1|x)}{\pi_{\mathrm{ref}}(y_1|x)}\right)}\text{(6)}\]
+
+<hr />
+
+<ol>
+  <li>求得 Loss
+根据最大似然估计，我们可以得到损失函数：</li>
+</ol>
+
+\[\mathcal{L}_{\mathrm{DPO}}(\pi_\theta;\pi_{\mathrm{ref}})=-\mathbb{E}_{(x,y_w,y_l)\sim\mathcal{D}}\left[\log\sigma\left(\beta\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\mathrm{ref}}(y_w\mid x)}-\beta\log\frac{\pi_\theta(y_l\mid x)}{\pi_{\mathrm{ref}}(y_l\mid x)}\right)\right].\]
+
+<p>DPO相当于拟合一个重新参数化的 Bradley-Terry 模型</p>
+
+\[r(y)=\beta\log\frac{\pi_\theta(y|x)}{\pi_\mathrm{ref}(y|x)},\]
+
+<table>
+  <tbody>
+    <tr>
+      <td>作者不直接定义一个显式的 r(y)，而是通过语言模型策略 $\pi_\theta(y</td>
+      <td>x)$ 和参考策略 $\pi_\mathrm{ref}(y</td>
+      <td>x)$ 的比率间接定义。</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="dpo-梯度更新过程">DPO 梯度更新过程</h3>
+
+<p>我们从 DPO 损失函数的定义出发，通过逐步推导梯度公式，来说明公式的来源。以下是具体推导过程。</p>
+
+<hr />
+
+<ol>
+  <li><strong>DPO 的损失函数</strong>
+DPO 的目标是最小化以下损失函数：
+\(\mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[\log \sigma \left (\beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)} \right) \right],\)</li>
+</ol>
+
+<hr />
+
+<ol>
+  <li><strong>对损失函数的梯度求导</strong>
+我们希望计算损失函数对策略参数 $\theta$ 的梯度：
+\(\nabla_\theta \mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}).\)
+2.1 <strong>将梯度作用到期望外</strong>
+损失函数是一个期望形式，因此可以将梯度直接作用到期望内部：
+\(\nabla_\theta \mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \nabla_\theta \log \sigma \left (\beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)} \right) \right].\)</li>
+</ol>
+
+<p>2.2 <strong>对 sigmoid 内部项求导</strong>
+对 $\log \sigma (z)$ 的梯度为：
+\(\nabla_\theta \log \sigma (z) = \sigma (-z) \cdot \nabla_\theta z.\)
+其中 $\sigma (-z) = 1 - \sigma (z)$。这一步的作用是将梯度转移到 $z$ 上。</p>
+
+<p>令：
+\(Z = \beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)}.\)</p>
+
+<p>则：
+\(\nabla_\theta \log \sigma (z) = \sigma (-z) \cdot \nabla_\theta z.\)</p>
+
+<p>2.3 <strong>计算 $z$ 对 $\theta$ 的梯度</strong>
+将 $z$ 展开为：
+\(Z = \beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)}.\)</p>
+
+<p>计算 $z$ 对 $\theta$ 的梯度：
+\(\nabla_\theta z = \beta \left ( \nabla_\theta \log \pi_\theta (y_w|x) - \nabla_\theta \log \pi_\theta (y_l|x) \right).\)</p>
+
+<p>将 $\nabla_\theta z$ 和 $\sigma (-z)$ 带入梯度公式：
+\(\nabla_\theta \mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \sigma (-z) \cdot \beta \left ( \nabla_\theta \log \pi_\theta (y_w|x) - \nabla_\theta \log \pi_\theta (y_l|x) \right) \right].\)</p>
+
+<p>2.4 <strong>简化权重项</strong>
+注意到 $\sigma (-z) = 1 - \sigma (z)$。对于 DPO 的优化，权重用 $\sigma (z)$ 即可，因此最终梯度为：
+\(\nabla_\theta \mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\beta \mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \sigma \left ( \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)} - \beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} \right) \cdot \left ( \nabla_\theta \log \pi_\theta (y_w|x) - \nabla_\theta \log \pi_\theta (y_l|x) \right) \right].\)</p>
+
+<hr />
+
+<ol>
+  <li><strong>最终公式</strong>
+令隐式奖励函数为：
+\(\hat{r}_\theta (x, y) = \beta \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)}.\)
+则公式进一步简化为：
+\(\nabla_\theta \mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\beta \mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \sigma \left ( \hat{r}_\theta (x, y_l) - \hat{r}_\theta (x, y_w) \right) \cdot \left ( \nabla_\theta \log \pi_\theta (y_w|x) - \nabla_\theta \log \pi_\theta (y_l|x) \right) \right].\)</li>
+</ol>
+
+<h4 id="梯度更新的解释">梯度更新的解释</h4>
+
+<ol>
+  <li><strong>调整偏好答案和非偏好答案的概率</strong>：</li>
+</ol>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>梯度的第一项 $\nabla_\theta \log \pi_\theta(y_w</td>
+          <td>x)$ 增加偏好答案 $y_w$ 的生成概率。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>第二项 $\nabla_\theta \log \pi_\theta(y_l</td>
+          <td>x)$ 减少非偏好答案 $y_l$ 的生成概率。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>更新的大小由 sigmoid 加权，重点修正模型排序错误较大的样本。</li>
+</ul>
+
+<ol>
+  <li><strong>权重反映偏好评分的偏差</strong>：</li>
+</ol>
+
+<ul>
+  <li>
+    <p>权重 $\sigma(\hat{r}<em>\theta(x, y_l) - \hat{r}</em>\theta(x, y_w))$ 直接取决于偏好排序的正确性。</p>
+  </li>
+  <li>
+    <p>如果模型对偏好和非偏好的排序与人类一致，则权重较小；否则，权重较大，修正力度更强。</p>
+  </li>
+</ul>
+
+<ol>
+  <li><strong>综合目标</strong>：</li>
+</ol>
+
+<ul>
+  <li>DPO 的更新机制本质上是在策略 $\pi_\theta$ 和人类偏好之间不断调整，使 $\pi_\theta$ 生成的结果逐渐接近人类期望。</li>
+</ul>
+
+<h4 id="dpo-的流程">DPO 的流程</h4>
+
+<p>这段话描述了 DPO 方法的具体工作流程，包括如何构建数据集、初始化模型以及优化策略的过程。以下是详细解析：</p>
+
+<hr />
+
+<ol>
+  <li><strong>DPO 的工作流程</strong>
+(1) <strong>数据集构建</strong>
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td><strong>样本生成</strong>：首先，对每个提示 $x$（例如一个问题或任务）生成两个候选答案 $y_1$ 和 $y_2$，它们是从参考策略 $\pi_{\text{ref}}(\cdot</td>
+              <td>x)$ 中采样得到的。</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li><strong>人类偏好标注</strong>：然后，通过人类标注的方式，根据偏好选择 $y_1$ 和 $y_2$ 中的优先答案（例如，哪一个更符合人类预期）。标注后的数据集可以表示为：
+\(D = \{(x^{(i)}, y_w^{(i)}, y_l^{(i)})\}_{i=1}^N,\)
+其中 $y_w$ 是偏好答案（”winner”），$y_l$ 是不偏好答案（”loser”）。</li>
+    </ul>
+  </li>
+</ol>
+
+<p>(2) <strong>优化语言模型</strong></p>
+<ul>
+  <li>在构造好的偏好数据集 $D$ 和给定的参考策略 $\pi_{\text{ref}}$ 下，优化目标是最小化 DPO 损失函数：
+\(\mathcal{L}_{\text{DPO}} = -\mathbb{E}_{(x, y_w, y_l) \sim D} \left[\log \sigma\left (\beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right)\right].\)</li>
+  <li>通过优化 $\pi_\theta$，使得模型逐渐调整为生成更符合人类偏好的答案。</li>
+</ul>
+
+<hr />
+
+<ol>
+  <li><strong>实际应用中的简化</strong>
+    <ul>
+      <li>在实际操作中，可以直接复用现有的公开偏好数据集，而无需重复生成候选答案并进行人类标注。这种做法大大减少了数据构建的成本。</li>
+    </ul>
+  </li>
+</ol>
+
+<hr />
+
+<ol>
+  <li><strong>参考策略 $\pi_{\text{ref}}$ 的初始化</strong></li>
+</ol>
+
+<p>(1) 如果 $\pi^{\text{SFT}}$ 可用：</p>
+<ul>
+  <li>通常，参考策略 $\pi_{\text{ref}}$ 是从监督微调模型 $\pi^{\text{SFT}}$ 初始化的。
+    <ul>
+      <li><strong>$\pi^{\text{SFT}}$：</strong> 通过监督学习方法训练的模型，它是一个能够生成合理答案的基础模型。</li>
+      <li>当 $\pi^{\text{SFT}}$ 可用时，直接设置 $\pi_{\text{ref}} = \pi^{\text{SFT}}$。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>(2) 如果 $\pi^{\text{SFT}}$ 不可用：</p>
+
+<ul>
+  <li>如果没有现成的监督微调模型 $\pi^{\text{SFT}}$，可以通过最大化偏好答案的似然初始化参考策略：
+\(\pi_{\text{ref}} = \arg\max_{\pi} \mathbb{E}_{(x, y_w) \sim D} [\log \pi (y_w|x)].\)</li>
+  <li>这意味着 $\pi_{\text{ref}}$ 的训练目标是提升偏好答案 $y_w$ 的生成概率，从而构造一个合理的参考策略。</li>
+  <li>通过 $\pi^{\text{SFT}}$ 或最大化偏好答案似然的方法，可以缓解模型分布与真实参考分布（即人类偏好生成的答案分布不可用）之间的偏移问题。</li>
+</ul>
+
+<h2 id="dpo-理论分析">DPO 理论分析</h2>
+
+<h3 id="证明-1你的模型包含奖励模型">证明 1：你的模型包含奖励模型</h3>
+
+<p>证明，DPO 的训出来的模型</p>
+
+<p>\(r^*(x,y)=\beta\log\frac{\pi_\theta^*(y|x)}{\pi_{\mathrm{ref}}(y|x)}\)
+等价于一般的奖励模型（Bradley-Terry 模型）</p>
+
+<p>下面为了证明证明 1 ，给出了一些定义和引理。</p>
+
+<h4 id="定义-1偏好奖励模型等价">定义 1：偏好奖励模型等价</h4>
+
+<p>两个偏好奖励模型等价当且仅当
+\(r(x,y)-r^{\prime}(x,y)=f(x)\)</p>
+
+<p>证明：</p>
+
+<p>在定义中，$f (x)$ 是<strong>与 $x$ 有关</strong>的函数，而不是一个常数。这是等价性定义中的关键点。</p>
+
+<p>定义中提到，两个奖励函数 $r (x, y)$ 和 $r’ (x, y)$ 被认为是等价的，如果它们的差异可以表示为：
+\(R (x, y) - r' (x, y) = f (x),\)
+其中 $f (x)$ 是仅与输入 $x$ 相关的函数，和候选答案 $y$ 无关。</p>
+
+<h4 id="为什么-f-x-与-x-相关">为什么 $f (x)$ 与 $x$ 相关？</h4>
+<ul>
+  <li>$f (x)$ 可能表示不同输入 $x$ 的整体偏移量。这个偏移量对候选项 $y$ 是一致的，但会因 $x$ 而变化。</li>
+  <li>$f (x)$ 的存在表明，不同输入 $x$ 下，奖励函数的绝对值可以有不同的基线或偏移，但这些偏移不影响候选项 $y$ 之间的<strong>相对评分</strong>。</li>
+</ul>
+
+<hr />
+
+<h4 id="等价性定义">等价性定义</h4>
+<p>两个奖励函数 $r (x, y)$ 和 $r’ (x, y)$ 被认为是等价的，若它们的差异为：
+\(R (x, y) - r' (x, y) = f (x),\)</p>
+<ul>
+  <li>这里 $f (x)$ 是<strong>仅与输入 $x$ 有关</strong>的函数，而不是一个常数。</li>
+  <li>换句话说，$r (x, y)$ 和 $r’ (x, y)$ 对任意给定的输入 $x$，它们的评分差异在候选项 $y$ 上是恒定的。</li>
+</ul>
+
+<h4 id="为什么允许-f-x-的存在">为什么允许 $f (x)$ 的存在？</h4>
+<p>在偏好分布（如 Bradley-Terry 或 Plackett-Luce 模型）中，偏好仅取决于奖励函数的相对差异，而不是奖励函数的绝对值。因此：</p>
+<ul>
+  <li>$f (x)$ 的存在相当于为输入 $x$ 下的所有候选项 $y$ 添加了一个全局偏移。</li>
+  <li>这个偏移不影响候选项之间的相对评分，因此不会改变偏好分布或最优策略。</li>
+</ul>
+
+<hr />
+
+<h4 id="具体解释f-x-的作用">具体解释：$f (x)$ 的作用</h4>
+
+<ol>
+  <li><strong>举例</strong>
+假设对于输入 $x$，两个奖励函数是：
+\(R (x, y) = \text{quality}(y) + 10 x, \quad r' (x, y) = \text{quality}(y),\)
+其中 $\text{quality}(y)$ 表示候选项 $y$ 的质量，而 $10 x$ 是一个仅与 $x$ 相关的偏移。
+    <ul>
+      <li>这里 $r (x, y) - r’ (x, y) = 10 x = f (x)$。</li>
+      <li>虽然 $f (x) = 10 x$ 会影响奖励函数的绝对值，但它对 $y$ 的相对排序没有影响，因此 $r (x, y)$ 和 $r’ (x, y)$ 是等价的。</li>
+    </ul>
+  </li>
+  <li><strong>对偏好分布的影响</strong>
+在 Bradley-Terry 模型中，偏好分布是由相对评分决定的，例如：
+\(P (y_1 \succ y_2 \mid x) = \frac{\exp (r (x, y_1))}{\exp (r (x, y_1)) + \exp (r (x, y_2))}.\)
+如果 $r (x, y)$ 和 $r’ (x, y)$ 相差 $f (x)$，则：
+\(P (y_1 \succ y_2 \mid x) = \frac{\exp (r' (x, y_1) + f (x))}{\exp (r' (x, y_1) + f (x)) + \exp (r' (x, y_2) + f (x))}.\)
+因为 $f (x)$ 是对所有候选项的全局偏移，它在分布计算中被约掉，不影响最终的概率值。</li>
+</ol>
+
+<h4 id="-结论-等价类和最优策略">### 结论 ：等价类和最优策略</h4>
+
+<h4 id="引理-2">引理 2</h4>
+
+<p><strong>同一等价类中的奖励函数会导致相同的最优策略</strong>。</p>
+
+<h4 id="为什么"><strong>为什么？</strong></h4>
+
+<ul>
+  <li>在强化学习（RL）中，最优策略由奖励函数的相对差异决定，而非绝对值。</li>
+  <li>由于同一等价类中的奖励函数在候选答案之间的相对排序相同，因此它们会诱导相同的最优策略。</li>
+</ul>
+
+<h4 id="结论与-plackett-luce-或-bradley-terry-模型一致的奖励函数等价类都可以通过重新参数化的形式来表示">结论：与 Plackett-Luce 或 Bradley-Terry 模型一致的奖励函数等价类，都可以通过重新参数化的形式来表示。</h4>
+
+<p>证明略</p>
+
+<h3 id="传统强化学习方法的不稳定性">传统强化学习方法的不稳定性</h3>
+
+<p>这段内容从理论和实验两个角度解释了 <strong>DPO（Direct Preference Optimization）</strong> 方法的稳定性优势，并将其与基于强化学习（如 <strong>PPO</strong>）的方法进行了对比，指出了 DPO 的理论优势以及在实际应用中的鲁棒性表现。</p>
+
+<p>以下是逐步解析：</p>
+
+<h4 id="1-强化学习中的优化目标">(1) 强化学习中的优化目标</h4>
+<p>文中提到的优化目标是：
+\(\max_{\pi_\theta} \mathbb{E}_{\pi_\theta} \left[ r_\phi (x, y) - \beta \log \sum_y \pi_{\text{ref}}(y|x) \exp \left ( \frac{1}{\beta} r_\phi (x, y) \right) - \beta \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} \right].\)</p>
+
+<ul>
+  <li><strong>主要内容</strong>：
+    <ul>
+      <li>$r_\phi (x, y)$：由奖励函数定义的分数。</li>
+      <li>第二项是一个<strong>归一化项</strong>，对应分区函数的对数值。</li>
+      <li>最后一项是策略 $\pi_\theta$ 和参考策略 $\pi_{\text{ref}}$ 之间的 KL 散度，用于限制策略偏离参考策略的程度。</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="2-强化学习的不稳定性来源">(2) 强化学习的不稳定性来源</h4>
+<ul>
+  <li>传统强化学习（例如 PPO）使用<strong>Actor-Critic 框架</strong>优化类似的目标，然而：
+    <ul>
+      <li><strong>归一化项（normalization term）</strong>：
+        <ul>
+          <li>
+            <table>
+              <tbody>
+                <tr>
+                  <td>分区函数的计算（即 $\sum_y \pi_{\text{ref}}(y</td>
+                  <td>x) \exp \left ( \frac{1}{\beta} r_\phi (x, y) \right)$）是高维的积分，可能导致优化过程的不稳定。</td>
+                </tr>
+              </tbody>
+            </table>
+          </li>
+          <li>如果不精确估计归一化项，梯度的方差会增大，优化变得困难。</li>
+        </ul>
+      </li>
+      <li><strong>高方差的梯度</strong>：
+        <ul>
+          <li>在传统 RL 中，归一化项通常通过 Monte Carlo 采样估计，这可能导致梯度估计的高方差，进而影响收敛。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="3-dpo-的解决方案">(3) DPO 的解决方案</h4>
+<p>DPO 的重新参数化解决了上述问题：</p>
+<ul>
+  <li><strong>不需要显式估计归一化项</strong>：
+    <ul>
+      <li>DPO 的重新参数化将归一化项隐含地包含在优化过程中，不需要像 PPO 那样使用 Monte Carlo 或复杂的基线函数来估计分区函数。</li>
+    </ul>
+  </li>
+  <li><strong>更稳定的梯度更新</strong>：
+    <ul>
+      <li>通过直接优化策略（而非依赖价值函数或采样基线），DPO 避免了梯度的高方差问题，使得训练过程更加稳定。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="实验">实验</h2>
+
+<p>略</p>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><summary type="html"><![CDATA[DPO 论文学习]]></summary></entry><entry><title type="html">RAG-DDR论文笔记</title><link href="/2024/11/12/RAG-DDR%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0-%E9%98%85%E8%AF%BBing.html" rel="alternate" type="text/html" title="RAG-DDR论文笔记" /><published>2024-11-12T00:00:00+08:00</published><updated>2024-11-12T00:00:00+08:00</updated><id>/2024/11/12/RAG-DDR%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0%E2%80%94%E9%98%85%E8%AF%BBing</id><content type="html" xml:base="/2024/11/12/RAG-DDR%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0-%E9%98%85%E8%AF%BBing.html"><![CDATA[<h1 id="rag-ddr-optimizing-retrieval-augmented--generation-using-differentiable-data-rewards-论文笔记">RAG-DDR: OPTIMIZING RETRIEVAL-AUGMENTED  GENERATION USING DIFFERENTIABLE DATA REWARDS 论文笔记</h1>
 
 <!---more-->
 
@@ -668,7 +1717,7 @@
   <li>有没有一种方法可以使 LLM 学习新的，而旧的知识不变呢？或者说学习其他的知识，而原本不相关的知识不变</li>
   <li>好多论文的过程，基本都是自己设计一个 loss 然后训练，最后效果比较好，能不能其他方向呢？</li>
   <li></li>
-</ol>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><summary type="html"><![CDATA[RAG-DDR: OPTIMIZING RETRIEVAL-AUGMENTED GENERATION USING DIFFERENTIABLE DATA REWARDS 论文笔记]]></summary></entry><entry><title type="html">MiniMind训练记录（第一次完整训LLM记录）</title><link href="/2024/11/12/MiniMind%E8%AE%AD%E7%BB%83%E8%AE%B0%E5%BD%95-%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E8%AE%ADLLM%E8%AE%B0%E5%BD%95-%E8%AE%AD%E7%BB%83%E4%B8%ADing.html" rel="alternate" type="text/html" title="MiniMind训练记录（第一次完整训LLM记录）" /><published>2024-11-12T00:00:00+08:00</published><updated>2024-11-12T00:00:00+08:00</updated><id>/2024/11/12/MiniMind%E8%AE%AD%E7%BB%83%E8%AE%B0%E5%BD%95%EF%BC%88%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E8%AE%ADLLM%E8%AE%B0%E5%BD%95%EF%BC%89%E2%80%94%20%E8%AE%AD%E7%BB%83%E4%B8%ADing</id><content type="html" xml:base="/2024/11/12/MiniMind%E8%AE%AD%E7%BB%83%E8%AE%B0%E5%BD%95-%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E8%AE%ADLLM%E8%AE%B0%E5%BD%95-%E8%AE%AD%E7%BB%83%E4%B8%ADing.html"><![CDATA[<h1 id="minimind训练记录">MiniMind训练记录</h1>
+</ol>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><summary type="html"><![CDATA[RAG-DDR: OPTIMIZING RETRIEVAL-AUGMENTED GENERATION USING DIFFERENTIABLE DATA REWARDS 论文笔记]]></summary></entry><entry><title type="html">MiniMind训练记录（第一次完整训LLM记录）</title><link href="/2024/11/12/MiniMind%E8%AE%AD%E7%BB%83%E8%AE%B0%E5%BD%95-%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E8%AE%ADLLM%E8%AE%B0%E5%BD%95-%E8%AE%AD%E7%BB%83%E4%B8%AD.html" rel="alternate" type="text/html" title="MiniMind训练记录（第一次完整训LLM记录）" /><published>2024-11-12T00:00:00+08:00</published><updated>2024-11-12T00:00:00+08:00</updated><id>/2024/11/12/MiniMind%E8%AE%AD%E7%BB%83%E8%AE%B0%E5%BD%95%EF%BC%88%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E8%AE%ADLLM%E8%AE%B0%E5%BD%95%EF%BC%89%E2%80%94%20%E8%AE%AD%E7%BB%83%E4%B8%AD</id><content type="html" xml:base="/2024/11/12/MiniMind%E8%AE%AD%E7%BB%83%E8%AE%B0%E5%BD%95-%E7%AC%AC%E4%B8%80%E6%AC%A1%E5%AE%8C%E6%95%B4%E8%AE%ADLLM%E8%AE%B0%E5%BD%95-%E8%AE%AD%E7%BB%83%E4%B8%AD.html"><![CDATA[<h1 id="minimind训练记录">MiniMind训练记录</h1>
 
 <p>记录一下第一次训LLM，包括pretrain、SFT……，并把遇到的问题记录下来</p>
 
@@ -5946,864 +6995,4 @@ a = U_{infer}(q, \hat{Q}, \hat{K}_t)\)</p>
 
 <p>总公司主干网设置一个数据中心，用来存储与企业经营相关的数据；根据企业计算与存储的需要，数据中心可以是一台或几台企业级服务器、服务器集群，也可以是建设一个私有云平台或租用公有云</p>
 
-<p>总公司的核心交换层网络、汇聚层网络、接入层网络是处理企业事务的专用网络，除公司外网之外，不允许公司内部网络的任何路由器、主机，以有线或无线等任何方式接入到互联网</p>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="物联网" /><category term="课程笔记" /><summary type="html"><![CDATA[物联网 分成三层 每一层分成几个模块 功能和流程是不一样的 功能是要达到的效果 🌻对着框架讲流程 再讲每部分功能 每个模块怎么实现 再展示是什么样子的 🌻设计思想—&gt; 架构—&gt;流程—&gt;每一块的功能 至少讲清楚每一层用了什么 eg RFID WSN eg 有线 无线]]></summary></entry><entry><title type="html">物联网实验四 RFID-2.4G有源实验</title><link href="/2024/06/25/%E7%89%A9%E8%81%94%E7%BD%91%E5%AE%9E%E9%AA%8C%E5%9B%9B-RFID-2.4G%E6%9C%89%E6%BA%90%E5%AE%9E%E9%AA%8C.html" rel="alternate" type="text/html" title="物联网实验四 RFID-2.4G有源实验" /><published>2024-06-25T00:00:00+08:00</published><updated>2024-06-25T00:00:00+08:00</updated><id>/2024/06/25/%E7%89%A9%E8%81%94%E7%BD%91%E5%AE%9E%E9%AA%8C%E5%9B%9B%20RFID-2.4G%E6%9C%89%E6%BA%90%E5%AE%9E%E9%AA%8C</id><content type="html" xml:base="/2024/06/25/%E7%89%A9%E8%81%94%E7%BD%91%E5%AE%9E%E9%AA%8C%E5%9B%9B-RFID-2.4G%E6%9C%89%E6%BA%90%E5%AE%9E%E9%AA%8C.html"><![CDATA[<!---more-->
-<div class="cover" style="page-break-after:always;font-family:仿宋;width:100%;height:100%;border:none;margin: 0 auto;text-align:center;">
-    <div style="width:80%;;margin: 0 auto;height:0;padding-bottom:25%;">
-        <img src="/assets/%E5%AE%9E%E9%AA%8C4%20RFID-2.4G%E6%9C%89%E6%BA%90%E5%AE%9E%E9%AA%8C.assets/%E6%9C%AA%E5%91%BD%E5%90%8D.jpg" alt="校名" style="width:100%;" /></div>
-    <br /><br />
-    <div style="width:40%;margin: 0 auto;height:0;padding-bottom:40%;">
-        <img src="/assets/%E5%AE%9E%E9%AA%8C4%20RFID-2.4G%E6%9C%89%E6%BA%90%E5%AE%9E%E9%AA%8C.assets/%E6%9C%AA%E5%91%BD%E5%90%8D.png" alt="校徽" style="width:100%;" /></div>
-    <br /><br />
-    <p style="text-align:center;font-size:24pt;margin: 0 auto">《物联网实验》</p>
-    <p style="text-align:center;font-size:24pt;margin: 0 auto">实验报告 </p>
-    <br /><br />
-    <table style="border:none;text-align:center;width:80%;font-family:仿宋;margin: 0 auto;">
-    <tbody style="font-family:仿宋;font-size:16pt;">
-    	<tr style="font-weight:bold;"> 
-    		<td style="width:25%;text-align:right;">题&emsp;&emsp;目</td><td style="width:5%">：</td> 
-    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">实验4 RFID-2.4G有源实验</td></tr>
-        <tr style="font-weight:bold;"> 
-    		<td style="width:25%;text-align:right;">姓&emsp;&emsp;名</td><td style="width:5%">：</td> 
-    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">高星杰</td></tr>
-    	<tr style="font-weight:bold;"> 
-    		<td style="width:25%;text-align:right;">学&emsp;&emsp;号</td><td style="width:5%">：</td> 
-    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">2021307220712</td></tr>
-        <tr style="font-weight:bold;"> 
-    		<td style="width:25%;text-align:right;">专&emsp;&emsp;业</td><td style="width:5%">：</td> 
-    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">计算机科学与技术</td></tr>
-    	<tr style="font-weight:bold;"> 
-    		<td style="width:25%;text-align:right;">上课时间</td><td style="width:5%">：</td> 
-    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">2024春</td></tr>
-    	<tr style="font-weight:bold;"> 
-    		<td style="width:25%;text-align:right;">授课教师</td><td style="width:5%">：</td> 
-    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">朱容波</td></tr>
-    </tbody></table>
- 		<br /><br /><p style="text-align:center;">2024 年 6月 25 日</p>
-</div>
-
-<p>[TOC]</p>
-
-<h1 id="实验4-rfid-24g有源实验">实验4 RFID-2.4G有源实验</h1>
-
-<h2 id="实验目的">实验目的</h2>
-
-<ul>
-  <li>加深RFID-2.4G技术的理解</li>
-  <li>掌握使用RFID的数据读取的方式</li>
-  <li>了解2.4G有源卡的读取</li>
-  <li>更好地理解物联网中的RFID标签的设计原理；</li>
-  <li>进一步熟练实验，提高自己的实践动手能力；</li>
-</ul>
-
-<h2 id="实验要求">实验要求</h2>
-
-<ul>
-  <li>
-    <p>通信协议：2.4G有源RFID</p>
-  </li>
-  <li>
-    <p>实验内容：2.4G有源RFID数据读取</p>
-  </li>
-  <li>
-    <p>参考视频：2.4G有源RFID数据读取实验.mp4</p>
-  </li>
-  <li>
-    <p>通过Python编写界面程序实现RFID端口数据读取</p>
-  </li>
-</ul>
-
-<h2 id="实验设备">实验设备</h2>
-
-<ul>
-  <li>硬件：2.4G 有缘 RFID 节点，串口线，物联网实验开发箱；</li>
-  <li>软件：Keli4 For ARM 开发软件，串口调试工具；</li>
-  <li>参考资料：协议栈 API 接口说明文档，LoRa 源码，STM32 工程源码</li>
-</ul>
-
-<h2 id="实验原理">实验原理</h2>
-
-<p>在进行实验之前，要先对实验理论进行了解。</p>
-
-<p>首先我们要对RFID-2.4G技术进行了解，对此我们将以问答的形式给出。</p>
-
-<h3 id="什么是有源rfid-24g">什么是有源RFID-2.4G？</h3>
-
-<p>RFID-2.4G 是工作在2.4GHz频段的射频识别系统（RFID），这是一种利用无线电波进行非接触式数据传输的技术，广泛应用于资产跟踪、人员定位、供应链管理等领域。2.4GHz频段属于微波频段的一部分，具体范围通常在2.4GHz至2.5GHz之间。由于这一频段与Wi-Fi、蓝牙等常见设备共用，具有较好的兼容性和全球应用前景。</p>
-
-<p>RFID-2.4G系统通常为有源RFID系统，这意味着标签内置有电池，可以主动发送信号，而不是像无源RFID那样依赖读卡器提供能量。有源标签具备较长的读取距离，通常可达数十米甚至几百米；较大的数据存储容量，可以存储大量数据如传感器数据、时间戳等；多功能性，可以实现环境监测、实时定位等高级功能。</p>
-
-<p>这种系统广泛应用于需要远距离数据传输和监控的场景，如仓库和工厂中高价值物品的资产追踪、安全管理中的人员定位（例如医院病人监控、监狱囚犯管理），以及物流运输过程中货物的实时监控。其优势包括读取距离长、实时数据传输和高数据处理能力，但也面临电池寿命需要定期更换、系统成本较高以及可能受到频段共用设备干扰的问题。</p>
-
-<p>所以我们就可以了解RFID-2.4G系统是利用2.4GHz频段进行数据传输，凭借其远距离读取和实时监控的能力，在资产追踪、人员定位和供应链管理等领域有着广泛应用。尽管面临一些挑战，其独特优势使其在许多应用场景中仍然是不可替代的技术手段。</p>
-
-<h2 id="实验步骤">实验步骤</h2>
-
-<ol>
-  <li>前期准备：观看实验教学视频，了解实验步骤，理解实验原理，阅读参考手册，详细了解实验步骤，抓住实验细节；</li>
-  <li>标签连接好电源；</li>
-  <li>用公母直连线连接电脑串口和有源2.4G节点的DB9接头，S1开关拨打到左边，让DB9和2.4G读卡器相连；</li>
-  <li>打开串口调试助手，串口参数：9600 8 N 1 ，标签自动向读卡器发信息，其中 FB 10 00 00 0C 0F 01 01 就是读到的有源卡的卡号。</li>
-  <li>使用GUI显示界串口接收到的数据。</li>
-</ol>
-
-<h2 id="实验结果">实验结果</h2>
-
-<h3 id="1-标签连接好电源">1 标签连接好电源</h3>
-
-<p><img src="/assets/%E5%AE%9E%E9%AA%8C4%20RFID-2.4G%E6%9C%89%E6%BA%90%E5%AE%9E%E9%AA%8C.assets/image-20240626192948733.png" alt="image-20240626192948733" /></p>
-
-<h3 id="2-连接有源24g节点和电脑">2 连接有源2.4G节点和电脑</h3>
-
-<p><img src="/assets/%E5%AE%9E%E9%AA%8C4%20RFID-2.4G%E6%9C%89%E6%BA%90%E5%AE%9E%E9%AA%8C.assets/image-20240626193000812.png" alt="image-20240626193000812" /></p>
-
-<h3 id="3-使用串口调试助手读取卡号">3 使用串口调试助手读取卡号</h3>
-
-<p><img src="/assets/%E5%AE%9E%E9%AA%8C4%20RFID-2.4G%E6%9C%89%E6%BA%90%E5%AE%9E%E9%AA%8C.assets/f7be87e9a07c64436af2ac66fa1149f4.png" alt="f7be87e9a07c64436af2ac66fa1149f4" /></p>
-
-<h3 id="4-使用python编写可视化gui并接收数据">4 使用Python编写可视化GUI，并接收数据</h3>
-
-<p><img src="/assets/%E5%AE%9E%E9%AA%8C4%20RFID-2.4G%E6%9C%89%E6%BA%90%E5%AE%9E%E9%AA%8C.assets/db6785af4fbc48c37961a5e5c45dee6c.png" alt="db6785af4fbc48c37961a5e5c45dee6c" /></p>
-
-<h4 id="完整代码逐行注释">完整代码+逐行注释</h4>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">threading</span>  <span class="c1"># 用于实现多线程
-</span><span class="kn">import</span> <span class="n">serial</span>  <span class="c1"># pySerial库，用于串口通信
-</span><span class="kn">from</span> <span class="n">tkinter</span> <span class="kn">import</span> <span class="n">ttk</span>  <span class="c1"># ttk模块提供了若干新小部件
-</span><span class="kn">import</span> <span class="n">tkinter</span> <span class="k">as</span> <span class="n">tk</span>  <span class="c1"># Tkinter是Python的标准GUI库
-</span><span class="kn">import</span> <span class="n">binascii</span>  <span class="c1"># 用于二进制和ASCII字符串的相互转换
-</span>
-<span class="c1"># 一个简单的信息窗口类
-</span>
-
-<span class="k">class</span> <span class="nc">InformWindow</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">informStr</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">window</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Tk</span><span class="p">()</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">window</span><span class="p">.</span><span class="nf">title</span><span class="p">(</span><span class="sh">"</span><span class="s">Information</span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 设置窗口标题
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">window</span><span class="p">.</span><span class="nf">geometry</span><span class="p">(</span><span class="sh">"</span><span class="s">220x60</span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 设置窗口大小
-</span>        <span class="n">label</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Label</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">window</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">informStr</span><span class="p">)</span>  <span class="c1"># 显示信息的标签
-</span>        <span class="n">buttonOK</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Button</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">window</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">OK</span><span class="sh">"</span><span class="p">,</span>
-                             <span class="n">command</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">processButtonOK</span><span class="p">)</span>  <span class="c1"># 确定按钮
-</span>        <span class="n">label</span><span class="p">.</span><span class="nf">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">TOP</span><span class="p">)</span>
-        <span class="n">buttonOK</span><span class="p">.</span><span class="nf">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">BOTTOM</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">window</span><span class="p">.</span><span class="nf">mainloop</span><span class="p">()</span>  <span class="c1"># 进入消息循环
-</span>
-    <span class="k">def</span> <span class="nf">processButtonOK</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">window</span><span class="p">.</span><span class="nf">destroy</span><span class="p">()</span>  <span class="c1"># 销毁窗口
-</span>
-<span class="c1"># 主GUI类
-</span>
-
-<span class="k">class</span> <span class="nc">mainGUI</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">window</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Tk</span><span class="p">()</span>
-        <span class="n">window</span><span class="p">.</span><span class="nf">title</span><span class="p">(</span><span class="sh">"</span><span class="s">GUI UART Tx/Rx Demo</span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 设置窗口标题
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">uartState</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c1"># 标识串口是否打开
-</span>
-        <span class="c1"># 包含COM信息和开始/停止按钮的框架
-</span>        <span class="n">frame_COMinf</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Frame</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
-        <span class="n">frame_COMinf</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">labelCOM</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Label</span><span class="p">(</span><span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">COMx: </span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># COM端口标签
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">COM</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">StringVar</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="sh">"</span><span class="s">COM1</span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># COM端口变量
-</span>        <span class="n">ertryCOM</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Entry</span><span class="p">(</span><span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">COM</span><span class="p">)</span>  <span class="c1"># 输入COM端口
-</span>        <span class="n">labelCOM</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">ertryCOM</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">labelBaudrate</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Label</span><span class="p">(</span><span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">Baudrate: </span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 波特率标签
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">Baudrate</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">IntVar</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">115200</span><span class="p">)</span>  <span class="c1"># 波特率变量
-</span>        <span class="n">ertryBaudrate</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Entry</span><span class="p">(</span>
-            <span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">Baudrate</span><span class="p">)</span>  <span class="c1"># 输入波特率
-</span>        <span class="n">labelBaudrate</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">ertryBaudrate</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">labelParity</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Label</span><span class="p">(</span><span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">Parity: </span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 校验位标签
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">Parity</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">StringVar</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="sh">"</span><span class="s">NONE</span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 校验位变量
-</span>        <span class="n">comboParity</span> <span class="o">=</span> <span class="n">ttk</span><span class="p">.</span><span class="nc">Combobox</span><span class="p">(</span>
-            <span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">17</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">Parity</span><span class="p">)</span>  <span class="c1"># 校验位下拉框
-</span>        <span class="n">comboParity</span><span class="p">[</span><span class="sh">"</span><span class="s">values</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="sh">"</span><span class="s">NONE</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">ODD</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">EVEN</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">MARK</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">SPACE</span><span class="sh">"</span><span class="p">)</span>
-        <span class="n">comboParity</span><span class="p">[</span><span class="sh">"</span><span class="s">state</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="sh">"</span><span class="s">readonly</span><span class="sh">"</span>
-        <span class="n">labelParity</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">comboParity</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">labelStopbits</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Label</span><span class="p">(</span><span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">Stopbits: </span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 停止位标签
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">Stopbits</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">StringVar</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="sh">"</span><span class="s">1</span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 停止位变量
-</span>        <span class="n">comboStopbits</span> <span class="o">=</span> <span class="n">ttk</span><span class="p">.</span><span class="nc">Combobox</span><span class="p">(</span>
-            <span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">17</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">Stopbits</span><span class="p">)</span>  <span class="c1"># 停止位下拉框
-</span>        <span class="n">comboStopbits</span><span class="p">[</span><span class="sh">"</span><span class="s">values</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="sh">"</span><span class="s">1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">1.5</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">2</span><span class="sh">"</span><span class="p">)</span>
-        <span class="n">comboStopbits</span><span class="p">[</span><span class="sh">"</span><span class="s">state</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="sh">"</span><span class="s">readonly</span><span class="sh">"</span>
-        <span class="n">labelStopbits</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">comboStopbits</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">buttonSS</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Button</span><span class="p">(</span>
-            <span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">Start</span><span class="sh">"</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">processButtonSS</span><span class="p">)</span>  <span class="c1"># 开始/停止按钮
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">buttonSS</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">E</span><span class="p">)</span>
-
-        <span class="c1"># 串口对象
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">ser</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="nc">Serial</span><span class="p">()</span>
-
-        <span class="c1"># 串口读取线程
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">ReadUARTThread</span> <span class="o">=</span> <span class="n">threading</span><span class="p">.</span><span class="nc">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">ReadUART</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">ReadUARTThread</span><span class="p">.</span><span class="nf">start</span><span class="p">()</span>
-
-        <span class="c1"># 接收数据的框架
-</span>        <span class="n">frameRecv</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Frame</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
-        <span class="n">frameRecv</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">labelOutText</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Label</span><span class="p">(</span><span class="n">frameRecv</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">ReceivedData:</span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 接收数据标签
-</span>        <span class="n">labelOutText</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">W</span><span class="p">)</span>
-        <span class="n">frameRecvSon</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Frame</span><span class="p">(</span><span class="n">frameRecv</span><span class="p">)</span>
-        <span class="n">frameRecvSon</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">scrollbarRecv</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Scrollbar</span><span class="p">(</span><span class="n">frameRecvSon</span><span class="p">)</span>
-        <span class="n">scrollbarRecv</span><span class="p">.</span><span class="nf">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">RIGHT</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">Y</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">OutputText</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Text</span><span class="p">(</span><span class="n">frameRecvSon</span><span class="p">,</span> <span class="n">wrap</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">WORD</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
-                                  <span class="n">height</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">yscrollcommand</span><span class="o">=</span><span class="n">scrollbarRecv</span><span class="p">.</span><span class="nb">set</span><span class="p">)</span>  <span class="c1"># 显示接收数据的文本框
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">OutputText</span><span class="p">.</span><span class="nf">pack</span><span class="p">()</span>
-
-        <span class="c1"># 发送数据的框架
-</span>        <span class="n">frameTrans</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Frame</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
-        <span class="n">frameTrans</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">labelInText</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Label</span><span class="p">(</span><span class="n">frameTrans</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">To Transmit Data:</span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 发送数据标签
-</span>        <span class="n">labelInText</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">W</span><span class="p">)</span>
-        <span class="n">frameTransSon</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Frame</span><span class="p">(</span><span class="n">frameTrans</span><span class="p">)</span>
-        <span class="n">frameTransSon</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">scrollbarTrans</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Scrollbar</span><span class="p">(</span><span class="n">frameTransSon</span><span class="p">)</span>
-        <span class="n">scrollbarTrans</span><span class="p">.</span><span class="nf">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">RIGHT</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">Y</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">InputText</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Text</span><span class="p">(</span><span class="n">frameTransSon</span><span class="p">,</span> <span class="n">wrap</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">WORD</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
-                                 <span class="n">height</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">yscrollcommand</span><span class="o">=</span><span class="n">scrollbarTrans</span><span class="p">.</span><span class="nb">set</span><span class="p">)</span>  <span class="c1"># 输入发送数据的文本框
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">InputText</span><span class="p">.</span><span class="nf">pack</span><span class="p">()</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">buttonSend</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Button</span><span class="p">(</span>
-            <span class="n">frameTrans</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">Send</span><span class="sh">"</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">processButtonSend</span><span class="p">)</span>  <span class="c1"># 发送按钮
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">buttonSend</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">E</span><span class="p">)</span>
-        <span class="n">window</span><span class="p">.</span><span class="nf">mainloop</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">processButtonSS</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="nf">if </span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">uartState</span><span class="p">):</span>
-            <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>  <span class="c1"># 关闭串口
-</span>            <span class="n">self</span><span class="p">.</span><span class="n">buttonSS</span><span class="p">[</span><span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="sh">"</span><span class="s">Start</span><span class="sh">"</span>  <span class="c1"># 更改按钮文字
-</span>            <span class="n">self</span><span class="p">.</span><span class="n">uartState</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># 重新启动串口
-</span>            <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">COM</span><span class="p">.</span><span class="nf">get</span><span class="p">()</span>
-            <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">baudrate</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">Baudrate</span><span class="p">.</span><span class="nf">get</span><span class="p">()</span>
-            <span class="n">strParity</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">Parity</span><span class="p">.</span><span class="nf">get</span><span class="p">()</span>
-            <span class="nf">if </span><span class="p">(</span><span class="n">strParity</span> <span class="o">==</span> <span class="sh">"</span><span class="s">NONE</span><span class="sh">"</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">parity</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="n">PARITY_NONE</span>
-            <span class="nf">elif </span><span class="p">(</span><span class="n">strParity</span> <span class="o">==</span> <span class="sh">"</span><span class="s">ODD</span><span class="sh">"</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">parity</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="n">PARITY_ODD</span>
-            <span class="nf">elif </span><span class="p">(</span><span class="n">strParity</span> <span class="o">==</span> <span class="sh">"</span><span class="s">EVEN</span><span class="sh">"</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">parity</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="n">PARITY_EVEN</span>
-            <span class="nf">elif </span><span class="p">(</span><span class="n">strParity</span> <span class="o">==</span> <span class="sh">"</span><span class="s">MARK</span><span class="sh">"</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">parity</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="n">PARITY_MARK</span>
-            <span class="nf">elif </span><span class="p">(</span><span class="n">strParity</span> <span class="o">==</span> <span class="sh">"</span><span class="s">SPACE</span><span class="sh">"</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">parity</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="n">PARITY_SPACE</span>
-
-            <span class="n">strStopbits</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">Stopbits</span><span class="p">.</span><span class="nf">get</span><span class="p">()</span>
-            <span class="nf">if </span><span class="p">(</span><span class="n">strStopbits</span> <span class="o">==</span> <span class="sh">"</span><span class="s">1</span><span class="sh">"</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">stopbits</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="n">STOPBITS_ONE</span>
-            <span class="nf">elif </span><span class="p">(</span><span class="n">strStopbits</span> <span class="o">==</span> <span class="sh">"</span><span class="s">1.5</span><span class="sh">"</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">stopbits</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="n">STOPBITS_ONE_POINT_FIVE</span>
-            <span class="nf">elif </span><span class="p">(</span><span class="n">strStopbits</span> <span class="o">==</span> <span class="sh">"</span><span class="s">2</span><span class="sh">"</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">stopbits</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="n">STOPBITS_TWO</span>
-
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="nf">open</span><span class="p">()</span>  <span class="c1"># 打开串口
-</span>            <span class="k">except</span><span class="p">:</span>
-                <span class="n">informStr</span> <span class="o">=</span> <span class="sh">"</span><span class="s">Can</span><span class="sh">'</span><span class="s">t open </span><span class="sh">"</span> <span class="o">+</span> <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">port</span>
-                <span class="nc">InformWindow</span><span class="p">(</span><span class="n">informStr</span><span class="p">)</span>
-
-            <span class="nf">if </span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="nf">isOpen</span><span class="p">()):</span>  <span class="c1"># 打开成功
-</span>                <span class="n">self</span><span class="p">.</span><span class="n">buttonSS</span><span class="p">[</span><span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="sh">"</span><span class="s">Stop</span><span class="sh">"</span>  <span class="c1"># 更改按钮文字
-</span>                <span class="n">self</span><span class="p">.</span><span class="n">uartState</span> <span class="o">=</span> <span class="bp">True</span>
-
-    <span class="k">def</span> <span class="nf">processButtonSend</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="nf">if </span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">uartState</span><span class="p">):</span>
-            <span class="n">strToSend</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">InputText</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">tk</span><span class="p">.</span><span class="n">END</span><span class="p">)</span>
-            <span class="n">bytesToSend</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="nf">fromhex</span><span class="p">(</span><span class="n">strToSend</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># 将输入的十六进制字符串转换为字节
-</span>            <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="n">bytesToSend</span><span class="p">)</span>  <span class="c1"># 发送数据
-</span>            <span class="nf">print</span><span class="p">(</span><span class="n">bytesToSend</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">informStr</span> <span class="o">=</span> <span class="sh">"</span><span class="s">UART is not open</span><span class="sh">"</span>
-            <span class="nc">InformWindow</span><span class="p">(</span><span class="n">informStr</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">ReadUART</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-            <span class="nf">if </span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">uartState</span><span class="p">):</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">ch</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="nf">read</span><span class="p">()</span>  <span class="c1"># 读取一个字节
-</span>                    <span class="nf">print</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="sh">''</span><span class="p">)</span>
-                    <span class="n">data</span> <span class="o">=</span> <span class="nf">str</span><span class="p">(</span><span class="n">binascii</span><span class="p">.</span><span class="nf">b2a_hex</span><span class="p">(</span><span class="n">ch</span><span class="p">))</span>  <span class="c1"># 将字节转换为十六进制字符串
-</span>                    <span class="nf">print</span><span class="p">(</span><span class="nf">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]).</span><span class="nf">split</span><span class="p">(</span><span class="sh">'</span><span class="se">\\</span><span class="s">x</span><span class="sh">'</span><span class="p">))</span>
-                    <span class="n">self</span><span class="p">.</span><span class="n">OutputText</span><span class="p">.</span><span class="nf">insert</span><span class="p">(</span>
-                        <span class="n">tk</span><span class="p">.</span><span class="n">END</span><span class="p">,</span> <span class="n">data</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="sh">'</span><span class="s">b</span><span class="se">\'\\</span><span class="s">x</span><span class="sh">'</span><span class="p">))</span>  <span class="c1"># 在文本框中显示接收到的数据
-</span>                <span class="k">except</span><span class="p">:</span>
-                    <span class="n">informStr</span> <span class="o">=</span> <span class="sh">"</span><span class="s">Error reading UART</span><span class="sh">"</span>
-                    <span class="nc">InformWindow</span><span class="p">(</span><span class="n">informStr</span><span class="p">)</span>
-                    <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>  <span class="c1"># 关闭串口
-</span>                    <span class="n">self</span><span class="p">.</span><span class="n">buttonSS</span><span class="p">[</span><span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="sh">"</span><span class="s">Start</span><span class="sh">"</span>
-                    <span class="n">self</span><span class="p">.</span><span class="n">uartState</span> <span class="o">=</span> <span class="bp">False</span>
-
-
-<span class="c1"># 启动主GUI
-</span><span class="nf">mainGUI</span><span class="p">()</span>
-
-</code></pre></div></div>
-
-<h2 id="实验总结与感悟">实验总结与感悟</h2>
-
-<p>本次实验是一次难忘且充实的学习体验，通过实际操作2.4G有源RFID系统，我不仅加深了对RFID技术的理解，也提升了自己在物联网领域的动手实践能力。</p>
-
-<p>在实验的开始阶段，我观看了教学视频并阅读了相关文档，详细了解了实验的每一步骤和技术原理。通过预先的理论学习，使我在动手操作时更加得心应手。特别是在连接硬件和调试软件时，视频的演示和指导为我提供了清晰的操作路径，减少了许多可能遇到的困惑和问题。</p>
-
-<p>实验过程中，我们小组齐心协力，按照步骤连接读卡器和标签，并通过串口调试助手成功读取到了有源RFID标签的数据。当我们在调试过程中遇到数据传输不稳定的问题时，通过查阅资料和与同学讨论，我们找到了问题的根源并成功解决。这一过程不仅增强了团队协作精神，也让我意识到理论知识和实际操作的紧密联系。</p>
-
-<p>在整个实验中，最让我感到兴奋的是将理论转化为实践的过程。从代码编写到硬件连接，每一步都充满了挑战和乐趣。特别是通过Python编写的程序实现了对串口数据的实时监控和可视化展示，这不仅仅是一次编程练习，更是一次全面的系统设计和实现的过程。在看到实验结果成功显示在屏幕上的那一刻，我深深感受到了成就感和满足感。</p>
-
-<p>通过这次实验，我深刻理解了2.4G有源RFID在物联网中的广泛应用，特别是在物流运输和人员定位等领域的巨大潜力。我们使用的有源RFID系统以其稳定、低功耗和长距离的特点，展示了其在实际应用中的优势。实验中的每一个环节都让我更加熟悉了物联网硬件和软件的结合，为未来的学习和工作打下了坚实的基础。</p>
-
-<p>本次实验不仅巩固了课堂所学的理论知识，更让我在实际操作中收获颇丰。感谢老师的耐心指导和同学们的热心帮助，让我在学习的道路上不断进步。通过这次实验，我不仅学到了技术，更体会到了团队合作和持续学习的重要性。期待在未来的学习中，能够继续探索和应用更多的物联网技术，不断提升自己的专业素养和技能。</p>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="物联网" /><category term="实验报告" /><summary type="html"><![CDATA[]]></summary></entry><entry><title type="html">物联网实验三 RFID-UHF超高频实验</title><link href="/2024/06/18/%E7%89%A9%E8%81%94%E7%BD%91%E5%AE%9E%E9%AA%8C%E4%B8%89-RFID-UHF%E8%B6%85%E9%AB%98%E9%A2%91%E5%AE%9E%E9%AA%8C.html" rel="alternate" type="text/html" title="物联网实验三 RFID-UHF超高频实验" /><published>2024-06-18T00:00:00+08:00</published><updated>2024-06-18T00:00:00+08:00</updated><id>/2024/06/18/%E7%89%A9%E8%81%94%E7%BD%91%E5%AE%9E%E9%AA%8C%E4%B8%89%20RFID-UHF%E8%B6%85%E9%AB%98%E9%A2%91%E5%AE%9E%E9%AA%8C</id><content type="html" xml:base="/2024/06/18/%E7%89%A9%E8%81%94%E7%BD%91%E5%AE%9E%E9%AA%8C%E4%B8%89-RFID-UHF%E8%B6%85%E9%AB%98%E9%A2%91%E5%AE%9E%E9%AA%8C.html"><![CDATA[<!---more-->
-<div class="cover" style="page-break-after:always;font-family:仿宋;width:100%;height:100%;border:none;margin: 0 auto;text-align:center;">
-    <div style="width:80%;;margin: 0 auto;height:0;padding-bottom:25%;">
-        <img src="/assets/%E5%AE%9E%E9%AA%8C4%20RFID-2.4G%E6%9C%89%E6%BA%90%E5%AE%9E%E9%AA%8C.assets/%E6%9C%AA%E5%91%BD%E5%90%8D.jpg" alt="校名" style="width:100%;" /></div>
-    <br /><br />
-    <div style="width:40%;margin: 0 auto;height:0;padding-bottom:40%;">
-        <img src="/assets/%E5%AE%9E%E9%AA%8C4%20RFID-2.4G%E6%9C%89%E6%BA%90%E5%AE%9E%E9%AA%8C.assets/%E6%9C%AA%E5%91%BD%E5%90%8D.png" alt="校徽" style="width:100%;" /></div>
-    <br /><br />
-    <p style="text-align:center;font-size:24pt;margin: 0 auto">《物联网实验》</p>
-    <p style="text-align:center;font-size:24pt;margin: 0 auto">实验报告 </p>
-    <br /><br />
-    <table style="border:none;text-align:center;width:80%;font-family:仿宋;margin: 0 auto;">
-    <tbody style="font-family:仿宋;font-size:16pt;">
-    	<tr style="font-weight:bold;"> 
-    		<td style="width:25%;text-align:right;">题&emsp;&emsp;目</td><td style="width:5%">：</td> 
-    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">实验3 RFID-UHF超高频实验</td></tr>
-        <tr style="font-weight:bold;"> 
-    		<td style="width:25%;text-align:right;">姓&emsp;&emsp;名</td><td style="width:5%">：</td> 
-    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">高星杰</td></tr>
-    	<tr style="font-weight:bold;"> 
-    		<td style="width:25%;text-align:right;">学&emsp;&emsp;号</td><td style="width:5%">：</td> 
-    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">2021307220712</td></tr>
-        <tr style="font-weight:bold;"> 
-    		<td style="width:25%;text-align:right;">专&emsp;&emsp;业</td><td style="width:5%">：</td> 
-    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">计算机科学与技术</td></tr>
-    	<tr style="font-weight:bold;"> 
-    		<td style="width:25%;text-align:right;">上课时间</td><td style="width:5%">：</td> 
-    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">2024春</td></tr>
-    	<tr style="font-weight:bold;"> 
-    		<td style="width:25%;text-align:right;">授课教师</td><td style="width:5%">：</td> 
-    		<td style="font-weight:normal;border-bottom: 2px solid;text-align:center;">朱容波</td></tr>
-    </tbody></table>
- 		<br /><br /><p style="text-align:center;">2024 年 6月 18 日</p>
-</div>
-
-<p>[TOC]</p>
-
-<h1 id="实验3-rfid-uhf超高频实验">实验3 RFID-UHF超高频实验</h1>
-
-<h2 id="实验目的">实验目的</h2>
-
-<ol>
-  <li>掌握 UHF 超高频通讯原理；</li>
-  <li>掌握 UHF 超高频通讯协议；</li>
-  <li>掌握读卡器操作流程；</li>
-  <li>了解 UHF 超高频应用；</li>
-</ol>
-
-<h2 id="实验设备">实验设备</h2>
-
-<ul>
-  <li>硬件：提供电源、PC、USB口、RS232串口、RJ45以太口、5539光敏传感器、蜂鸣传感器、CC Debugger仿真器一套。</li>
-  <li>软件：ZigBee基础实验平台软件、python3.8、IAR Embedded WorkBench,ZStack协议栈，Keil开发软件。</li>
-</ul>
-
-<h2 id="实验要求">实验要求</h2>
-
-<ol>
-  <li>参考视频实现UHF超高频RFID通信</li>
-  <li>通过Python编写界面程序实现RFID端口数据通信</li>
-</ol>
-
-<h2 id="实验原理">实验原理</h2>
-
-<p><strong>在进行实验之前我们要先了解实验的原理，为了能够讲解清楚实验的原理，我将以问答的形式介绍本次实验的原理。</strong></p>
-
-<h3 id="什么是rfid">什么是RFID？</h3>
-
-<p>RFID，即射频识别（Radio Frequency Identification），是一种通过无线电波进行非接触式数据通信的技术，用于自动识别和追踪物体。RFID系统通常由三部分组成：<strong>标签（Tag）、读写器（Reader）和数据处理系统。</strong></p>
-
-<blockquote>
-  <ol>
-    <li><strong>RFID标签（Tag）</strong></li>
-  </ol>
-
-  <p>RFID标签包含一个芯片和一个天线，芯片中存储有唯一标识信息。根据能量来源，RFID标签可以分为以下三类：</p>
-
-  <ul>
-    <li><strong>无源标签（Passive Tag）</strong>：没有电池，依靠读写器发出的电磁场供电，反射信号回读写器。</li>
-    <li><strong>有源标签（Active Tag）</strong>：内置电池，能主动发送信号，读取距离较远。</li>
-    <li><strong>半有源标签（Semi-passive Tag）</strong>：内置电池，但只在被激活时发送信号。</li>
-  </ul>
-
-  <p><strong>2. RFID读写器（Reader）</strong></p>
-
-  <p>RFID读写器通过天线发出无线电波，与RFID标签通信，读取或写入标签中的数据。读写器根据使用频率和应用场景，可以分为低频（LF）、高频（HF）和超高频（UHF）等类型。</p>
-
-  <p><strong>3. 数据处理系统</strong></p>
-
-  <p>数据处理系统接收来自读写器的数据，对数据进行处理、存储和分析。这些数据通常通过网络传输到中央数据库或管理系统，用于进一步的应用和决策支持。</p>
-</blockquote>
-
-<h4 id="rfid工作原理">RFID工作原理</h4>
-
-<p>RFID系统的工作过程通常包括以下步骤：</p>
-
-<ol>
-  <li><strong>读写器发射信号</strong>：RFID读写器通过天线发射无线电信号，形成一个电磁场。</li>
-  <li><strong>标签接收信号</strong>：当RFID标签进入读写器的读写范围时，标签天线接收信号，激活标签内的芯片。</li>
-  <li><strong>标签回应信号</strong>：无源标签通过反射读写器的信号回应数据，有源标签则使用自身电源主动发送数据。</li>
-  <li><strong>读写器接收信号</strong>：读写器接收到来自标签的信号，将标签中的数据读取出来。</li>
-  <li><strong>数据处理</strong>：读写器将读取到的数据传输到数据处理系统，进行存储、分析和应用。</li>
-</ol>
-
-<h4 id="rfid的应用">RFID的应用</h4>
-
-<p>RFID技术具有识别距离远、多目标识别、抗干扰能力强、数据存储容量大等优点，被广泛应用于各个领域：</p>
-
-<ul>
-  <li><strong>物流与仓储管理</strong>：用于自动化库存管理、货物追踪、仓库盘点等，提高管理效率。</li>
-  <li><strong>交通与自动收费</strong>：用于不停车收费系统（ETC）、公交卡、门禁系统等，方便快捷。</li>
-  <li><strong>零售与防盗</strong>：用于商品防盗、库存管理和快速结算等，提升购物体验。</li>
-  <li><strong>医疗与健康管理</strong>：用于病人身份识别、药品追踪、医疗设备管理等，确保安全和准确性。</li>
-  <li><strong>农业与畜牧业</strong>：用于动物身份识别、养殖管理、环境监控等，提升管理效率和生产效益。</li>
-</ul>
-
-<h3 id="什么是uhf">什么是UHF？</h3>
-
-<p>UHF（Ultra High Frequency，超高频）是一种射频识别（RFID）技术使用的频率范围，通常指频率范围在300 MHz到3 GHz之间。UHF RFID技术具有较长的读取距离和较快的数据传输速度，因此在许多应用中被广泛采用。</p>
-
-<h4 id="uhf的特点">UHF的特点</h4>
-
-<ol>
-  <li><strong>频率范围</strong>：UHF频段通常在300 MHz到3 GHz之间。常见的UHF RFID系统工作频率为860-960 MHz。</li>
-  <li><strong>读取距离</strong>：UHF RFID标签的读取距离较长，一般可以达到几米到十几米，甚至更远，具体距离取决于读写器的功率、天线设计和环境因素。</li>
-  <li><strong>数据传输速度</strong>：UHF RFID系统的数据传输速度较快，适用于需要快速读取大量标签的应用场景。</li>
-  <li><strong>抗干扰能力</strong>：UHF RFID系统采用多种技术减少干扰，如频率跳变、调制技术等，能够在复杂环境中稳定工作。</li>
-  <li><strong>成本</strong>：UHF RFID标签的成本较低，适合大规模应用。</li>
-</ol>
-
-<h4 id="uhf-rfid的工作原理">UHF RFID的工作原理</h4>
-
-<p>UHF RFID系统的工作过程如下：</p>
-
-<ol>
-  <li><strong>读写器发射射频信号</strong>：UHF RFID读写器通过天线发射射频信号。</li>
-  <li><strong>标签接收信号</strong>：UHF RFID标签的天线接收射频信号，激活标签内的芯片。无源标签依靠接收到的信号供电，有源标签则使用内置电池供电。</li>
-  <li><strong>标签回应信号</strong>：标签芯片处理信号后，将存储的数据通过反射或主动发射的方式回应给读写器。</li>
-  <li><strong>读写器接收信号</strong>：读写器接收到标签发回的信号，并将数据解码，传输到数据处理系统。</li>
-</ol>
-
-<h4 id="uhf-rfid的应用">UHF RFID的应用</h4>
-
-<p>由于UHF RFID技术的特点，它在多个领域中得到广泛应用：</p>
-
-<ul>
-  <li><strong>物流与供应链管理</strong>：UHF RFID用于自动化仓库管理、货物追踪、库存盘点等，提高供应链效率。</li>
-  <li><strong>零售业</strong>：用于商品防盗、库存管理、快速结算等，提高购物体验和运营效率。</li>
-  <li><strong>交通与自动收费</strong>：用于高速公路不停车收费系统（ETC）、停车场管理等，提高交通管理效率。</li>
-  <li><strong>制造业</strong>：用于生产线自动化、设备管理、产品追踪等，提高生产效率和质量控制。</li>
-  <li><strong>医疗与健康管理</strong>：用于病人身份识别、药品管理、医疗设备追踪等，提高医疗服务质量。</li>
-  <li><strong>资产管理</strong>：用于公司资产的标识和追踪，提高资产利用率和管理效率。</li>
-</ul>
-
-<h2 id="实验步骤">实验步骤</h2>
-
-<h3 id="1-盘存操作">1. 盘存操作</h3>
-
-<ol>
-  <li>
-    <p><strong>发送盘存指令</strong></p>
-
-    <ul>
-      <li>在串口调试助手上发送以下盘存指令：
-        <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>73 00 01 00 00 00 20 00 02 00 01 90 01 00
-</code></pre></div>        </div>
-      </li>
-      <li>首先返回命令成功数据：
-        <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>73 00 03 00 01 00 20 00 04 00 00 00 00 00 00
-</code></pre></div>        </div>
-      </li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>读取EPC码</strong></p>
-    <ul>
-      <li>将超高频标签置于读写器天线上方，返回的数据中包含EPC码：
-        <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>E2 00 41 27 88 14 01 01 22 70 29 DB
-</code></pre></div>        </div>
-      </li>
-    </ul>
-  </li>
-</ol>
-
-<h3 id="2-停止盘存">2. 停止盘存</h3>
-
-<ul>
-  <li>发送停止盘存指令：
-    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>73 00 01 00 00 00 20 00 02 00 00 00 00 00
-</code></pre></div>    </div>
-  </li>
-  <li>成功返回数据：
-    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>73 00 03 00 01 00 20 00 04 00 00 00 00 00 00 00 73 00 00 01 00 20 00 04 00 00 00 00 00 00
-</code></pre></div>    </div>
-  </li>
-</ul>
-
-<h3 id="3-标签扇区读取操作">3. 标签扇区读取操作</h3>
-
-<h4 id="31-读取epc码">3.1 读取EPC码</h4>
-
-<ul>
-  <li>扇区读取命令0x22可读取标签的四个分区数据。</li>
-  <li>EPC码长度为96位（6个word），从地址0x02开始。</li>
-  <li>发送读取EPC码的指令：
-    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>73 00 01 00 00 00 22 00 0C 00 03 C9 00 00 00 00 00 00 01 00 02 00 06 00
-</code></pre></div>    </div>
-  </li>
-  <li>返回的数据中最后的6个word即为EPC码。</li>
-</ul>
-
-<h4 id="32-读取tid码">3.2 读取TID码</h4>
-
-<ul>
-  <li>TID码长度为96位（6个word），从地址0x00开始。</li>
-  <li>发送读取TID码的指令：
-    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>73 00 01 00 00 00 22 00 0C 00 02 42 00 00 00 00 00 00 02 00 00 00 06 00
-</code></pre></div>    </div>
-  </li>
-  <li>返回的数据中最后的6个word即为TID码。</li>
-</ul>
-
-<h3 id="4-标签扇区写操作">4. 标签扇区写操作</h3>
-
-<ul>
-  <li>在AITGM-UHF接口应用程序上，发送以下十六进制数据：
-    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>73 00 01 00 00 00 30 00 18 00 25 F0 00 00 00 00 00 00 01 00 02 00 06 00 E2 00 41 27 88 14 01 04 04 80 E1 6E
-</code></pre></div>    </div>
-  </li>
-  <li>返回的数据中最后4个字节全为0表示执行成功。</li>
-</ul>
-
-<h3 id="5-使用python可视化">5. 使用Python可视化</h3>
-
-<ul>
-  <li>使用Python第三方库Serial读取串口接收到的传输信息。</li>
-  <li>使用Tkinter创建可视化界面，显示发送与接收情况。</li>
-</ul>
-
-<h2 id="实验结果">实验结果</h2>
-
-<h3 id="1-盘存操作-1">1 盘存操作</h3>
-
-<p>将超高频标签置于读写器天线上方</p>
-
-<p><img src="/assets/%E5%AE%9E%E9%AA%8C3%20RFID-UHF%E8%B6%85%E9%AB%98%E9%A2%91%E5%AE%9E%E9%AA%8C.assets/4bc5c25af3f55b9f83888f7d60130cde_720.jpg" alt="4bc5c25af3f55b9f83888f7d60130cde_720" style="zoom:20%;" /></p>
-
-<p>输入指令</p>
-
-<p><img src="/assets/%E5%AE%9E%E9%AA%8C3%20RFID-UHF%E8%B6%85%E9%AB%98%E9%A2%91%E5%AE%9E%E9%AA%8C.assets/08857fc37acfbcf33d7b30392792b2bb.png" alt="08857fc37acfbcf33d7b30392792b2bb" /></p>
-
-<p>发送指令并返回结果</p>
-
-<p><img src="/assets/%E5%AE%9E%E9%AA%8C3%20RFID-UHF%E8%B6%85%E9%AB%98%E9%A2%91%E5%AE%9E%E9%AA%8C.assets/bf69dcad04b3ec4442657ad2ab65a250.png" alt="bf69dcad04b3ec4442657ad2ab65a250" /></p>
-
-<h3 id="2-停止存盘">2 停止存盘</h3>
-
-<p>输入停止存盘指令并发送，可以发现返回数据停止了。</p>
-
-<p><img src="/assets/%E5%AE%9E%E9%AA%8C3%20RFID-UHF%E8%B6%85%E9%AB%98%E9%A2%91%E5%AE%9E%E9%AA%8C.assets/df0f4c5b8edf2dc9a23cb0d4ff38ab2f.png" alt="tes" /></p>
-
-<h3 id="3-标签扇区读取操作-1">3 标签扇区读取操作</h3>
-
-<h4 id="31-读取epc码-1">3.1 读取EPC码</h4>
-
-<p><img src="/assets/%E5%AE%9E%E9%AA%8C3%20RFID-UHF%E8%B6%85%E9%AB%98%E9%A2%91%E5%AE%9E%E9%AA%8C.assets/d2fedcdf5d93ee63f9a576abbfb7b799.png" alt="d2fedcdf5d93ee63f9a576abbfb7b799" /></p>
-
-<h4 id="32-读取tid码-1">3.2 读取TID码</h4>
-
-<p><img src="/assets/%E5%AE%9E%E9%AA%8C3%20RFID-UHF%E8%B6%85%E9%AB%98%E9%A2%91%E5%AE%9E%E9%AA%8C.assets/image-20240623113323828.png" alt="image-20240623113323828" /></p>
-
-<h3 id="4-标签扇区写操作-1">4 标签扇区写操作</h3>
-
-<p>返回末尾是 <code class="language-plaintext highlighter-rouge">00 00 </code>说明成功</p>
-
-<p><img src="/assets/%E5%AE%9E%E9%AA%8C3%20RFID-UHF%E8%B6%85%E9%AB%98%E9%A2%91%E5%AE%9E%E9%AA%8C.assets/7dc2dc643fffe71e52e6fe1480343514.png" alt="7dc2dc643fffe71e52e6fe1480343514" /></p>
-
-<h3 id="5-读取epc码">5 读取EPC码</h3>
-
-<p>可以发现已经写入成功</p>
-
-<p><img src="/assets/%E5%AE%9E%E9%AA%8C3%20RFID-UHF%E8%B6%85%E9%AB%98%E9%A2%91%E5%AE%9E%E9%AA%8C.assets/f79fac753b4f70a55390372a7664cd9c.png" alt="f79fac753b4f70a55390372a7664cd9c" /></p>
-
-<h3 id="6-实时盘存">6 实时盘存</h3>
-
-<p><img src="/assets/%E5%AE%9E%E9%AA%8C3%20RFID-UHF%E8%B6%85%E9%AB%98%E9%A2%91%E5%AE%9E%E9%AA%8C.assets/dd8d4ce45950f5eeb2b794ebc514fc70.png" alt="dd8d4ce45950f5eeb2b794ebc514fc70" /></p>
-
-<p><img src="/assets/%E5%AE%9E%E9%AA%8C3%20RFID-UHF%E8%B6%85%E9%AB%98%E9%A2%91%E5%AE%9E%E9%AA%8C.assets/1dbc7af3ecb91f58e13fc055ae9c8fc4-9113392.png" alt="1dbc7af3ecb91f58e13fc055ae9c8fc4" /></p>
-
-<h3 id="7-python可视化">7 Python可视化</h3>
-
-<p><img src="/assets/%E5%AE%9E%E9%AA%8C3%20RFID-UHF%E8%B6%85%E9%AB%98%E9%A2%91%E5%AE%9E%E9%AA%8C.assets/cd2840b62ad1ce752e8bd9a31133a148.png" alt="cd2840b62ad1ce752e8bd9a31133a148" style="zoom: 50%;" /></p>
-
-<h4 id="实验代码">实验代码</h4>
-
-<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="kn">import</span> <span class="n">binascii</span>  <span class="c1"># 用于二进制和ASCII字符串的相互转换
-</span><span class="kn">import</span> <span class="n">tkinter</span> <span class="k">as</span> <span class="n">tk</span>  <span class="c1"># Tkinter是Python的标准GUI库
-</span><span class="kn">from</span> <span class="n">tkinter</span> <span class="kn">import</span> <span class="n">ttk</span>  <span class="c1"># ttk模块提供了若干新小部件
-</span><span class="kn">import</span> <span class="n">serial</span>  <span class="c1"># pySerial库，用于串口通信
-</span><span class="kn">import</span> <span class="n">threading</span>  <span class="c1"># 用于实现多线程
-</span>
-<span class="c1"># 一个简单的信息窗口类
-</span><span class="k">class</span> <span class="nc">InformWindow</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">informStr</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">window</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Tk</span><span class="p">()</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">window</span><span class="p">.</span><span class="nf">title</span><span class="p">(</span><span class="sh">"</span><span class="s">Information</span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 设置窗口标题
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">window</span><span class="p">.</span><span class="nf">geometry</span><span class="p">(</span><span class="sh">"</span><span class="s">220x60</span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 设置窗口大小
-</span>        <span class="n">label</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Label</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">window</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="n">informStr</span><span class="p">)</span>  <span class="c1"># 显示信息的标签
-</span>        <span class="n">buttonOK</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Button</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">window</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">OK</span><span class="sh">"</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">processButtonOK</span><span class="p">)</span>  <span class="c1"># 确定按钮
-</span>        <span class="n">label</span><span class="p">.</span><span class="nf">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">TOP</span><span class="p">)</span>
-        <span class="n">buttonOK</span><span class="p">.</span><span class="nf">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">BOTTOM</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">window</span><span class="p">.</span><span class="nf">mainloop</span><span class="p">()</span>  <span class="c1"># 进入消息循环
-</span>
-    <span class="k">def</span> <span class="nf">processButtonOK</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">window</span><span class="p">.</span><span class="nf">destroy</span><span class="p">()</span>  <span class="c1"># 销毁窗口
-</span>
-<span class="c1"># 主GUI类
-</span><span class="k">class</span> <span class="nc">mainGUI</span><span class="p">:</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="n">window</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Tk</span><span class="p">()</span>
-        <span class="n">window</span><span class="p">.</span><span class="nf">title</span><span class="p">(</span><span class="sh">"</span><span class="s">GUI UART Tx/Rx Demo</span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 设置窗口标题
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">uartState</span> <span class="o">=</span> <span class="bp">False</span>  <span class="c1"># 标识串口是否打开
-</span>
-        <span class="c1"># 包含COM信息和开始/停止按钮的框架
-</span>        <span class="n">frame_COMinf</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Frame</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
-        <span class="n">frame_COMinf</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">labelCOM</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Label</span><span class="p">(</span><span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">COMx: </span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># COM端口标签
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">COM</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">StringVar</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="sh">"</span><span class="s">COM1</span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># COM端口变量
-</span>        <span class="n">ertryCOM</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Entry</span><span class="p">(</span><span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">COM</span><span class="p">)</span>  <span class="c1"># 输入COM端口
-</span>        <span class="n">labelCOM</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">ertryCOM</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">labelBaudrate</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Label</span><span class="p">(</span><span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">Baudrate: </span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 波特率标签
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">Baudrate</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">IntVar</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="mi">115200</span><span class="p">)</span>  <span class="c1"># 波特率变量
-</span>        <span class="n">ertryBaudrate</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Entry</span><span class="p">(</span><span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">Baudrate</span><span class="p">)</span>  <span class="c1"># 输入波特率
-</span>        <span class="n">labelBaudrate</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">ertryBaudrate</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">labelParity</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Label</span><span class="p">(</span><span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">Parity: </span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 校验位标签
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">Parity</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">StringVar</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="sh">"</span><span class="s">NONE</span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 校验位变量
-</span>        <span class="n">comboParity</span> <span class="o">=</span> <span class="n">ttk</span><span class="p">.</span><span class="nc">Combobox</span><span class="p">(</span><span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">17</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">Parity</span><span class="p">)</span>  <span class="c1"># 校验位下拉框
-</span>        <span class="n">comboParity</span><span class="p">[</span><span class="sh">"</span><span class="s">values</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="sh">"</span><span class="s">NONE</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">ODD</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">EVEN</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">MARK</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">SPACE</span><span class="sh">"</span><span class="p">)</span>
-        <span class="n">comboParity</span><span class="p">[</span><span class="sh">"</span><span class="s">state</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="sh">"</span><span class="s">readonly</span><span class="sh">"</span>
-        <span class="n">labelParity</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">comboParity</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">labelStopbits</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Label</span><span class="p">(</span><span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">Stopbits: </span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 停止位标签
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">Stopbits</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">StringVar</span><span class="p">(</span><span class="n">value</span><span class="o">=</span><span class="sh">"</span><span class="s">1</span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 停止位变量
-</span>        <span class="n">comboStopbits</span> <span class="o">=</span> <span class="n">ttk</span><span class="p">.</span><span class="nc">Combobox</span><span class="p">(</span><span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">17</span><span class="p">,</span> <span class="n">textvariable</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">Stopbits</span><span class="p">)</span>  <span class="c1"># 停止位下拉框
-</span>        <span class="n">comboStopbits</span><span class="p">[</span><span class="sh">"</span><span class="s">values</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="sh">"</span><span class="s">1</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">1.5</span><span class="sh">"</span><span class="p">,</span> <span class="sh">"</span><span class="s">2</span><span class="sh">"</span><span class="p">)</span>
-        <span class="n">comboStopbits</span><span class="p">[</span><span class="sh">"</span><span class="s">state</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="sh">"</span><span class="s">readonly</span><span class="sh">"</span>
-        <span class="n">labelStopbits</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">comboStopbits</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">buttonSS</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Button</span><span class="p">(</span><span class="n">frame_COMinf</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">Start</span><span class="sh">"</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">processButtonSS</span><span class="p">)</span>  <span class="c1"># 开始/停止按钮
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">buttonSS</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">E</span><span class="p">)</span>
-        
-        <span class="c1"># 串口对象
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">ser</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="nc">Serial</span><span class="p">()</span>
-        
-        <span class="c1"># 串口读取线程
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">ReadUARTThread</span> <span class="o">=</span> <span class="n">threading</span><span class="p">.</span><span class="nc">Thread</span><span class="p">(</span><span class="n">target</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">ReadUART</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">ReadUARTThread</span><span class="p">.</span><span class="nf">start</span><span class="p">()</span>
-        
-        <span class="c1"># 接收数据的框架
-</span>        <span class="n">frameRecv</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Frame</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
-        <span class="n">frameRecv</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">labelOutText</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Label</span><span class="p">(</span><span class="n">frameRecv</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">ReceivedData:</span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 接收数据标签
-</span>        <span class="n">labelOutText</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">W</span><span class="p">)</span>
-        <span class="n">frameRecvSon</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Frame</span><span class="p">(</span><span class="n">frameRecv</span><span class="p">)</span>
-        <span class="n">frameRecvSon</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">scrollbarRecv</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Scrollbar</span><span class="p">(</span><span class="n">frameRecvSon</span><span class="p">)</span>
-        <span class="n">scrollbarRecv</span><span class="p">.</span><span class="nf">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">RIGHT</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">Y</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">OutputText</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Text</span><span class="p">(</span><span class="n">frameRecvSon</span><span class="p">,</span> <span class="n">wrap</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">WORD</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">20</span><span class="p">,</span> <span class="n">yscrollcommand</span><span class="o">=</span><span class="n">scrollbarRecv</span><span class="p">.</span><span class="nb">set</span><span class="p">)</span>  <span class="c1"># 显示接收数据的文本框
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">OutputText</span><span class="p">.</span><span class="nf">pack</span><span class="p">()</span>
-        
-        <span class="c1"># 发送数据的框架
-</span>        <span class="n">frameTrans</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Frame</span><span class="p">(</span><span class="n">window</span><span class="p">)</span>
-        <span class="n">frameTrans</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">labelInText</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Label</span><span class="p">(</span><span class="n">frameTrans</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">To Transmit Data:</span><span class="sh">"</span><span class="p">)</span>  <span class="c1"># 发送数据标签
-</span>        <span class="n">labelInText</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">W</span><span class="p">)</span>
-        <span class="n">frameTransSon</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Frame</span><span class="p">(</span><span class="n">frameTrans</span><span class="p">)</span>
-        <span class="n">frameTransSon</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-        <span class="n">scrollbarTrans</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Scrollbar</span><span class="p">(</span><span class="n">frameTransSon</span><span class="p">)</span>
-        <span class="n">scrollbarTrans</span><span class="p">.</span><span class="nf">pack</span><span class="p">(</span><span class="n">side</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">RIGHT</span><span class="p">,</span> <span class="n">fill</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">Y</span><span class="p">)</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">InputText</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Text</span><span class="p">(</span><span class="n">frameTransSon</span><span class="p">,</span> <span class="n">wrap</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">WORD</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">yscrollcommand</span><span class="o">=</span><span class="n">scrollbarTrans</span><span class="p">.</span><span class="nb">set</span><span class="p">)</span>  <span class="c1"># 输入发送数据的文本框
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">InputText</span><span class="p">.</span><span class="nf">pack</span><span class="p">()</span>
-        <span class="n">self</span><span class="p">.</span><span class="n">buttonSend</span> <span class="o">=</span> <span class="n">tk</span><span class="p">.</span><span class="nc">Button</span><span class="p">(</span><span class="n">frameTrans</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="sh">"</span><span class="s">Send</span><span class="sh">"</span><span class="p">,</span> <span class="n">command</span><span class="o">=</span><span class="n">self</span><span class="p">.</span><span class="n">processButtonSend</span><span class="p">)</span>  <span class="c1"># 发送按钮
-</span>        <span class="n">self</span><span class="p">.</span><span class="n">buttonSend</span><span class="p">.</span><span class="nf">grid</span><span class="p">(</span><span class="n">row</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">padx</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">pady</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">sticky</span><span class="o">=</span><span class="n">tk</span><span class="p">.</span><span class="n">E</span><span class="p">)</span>
-        <span class="n">window</span><span class="p">.</span><span class="nf">mainloop</span><span class="p">()</span>
-
-    <span class="k">def</span> <span class="nf">processButtonSS</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="nf">if </span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">uartState</span><span class="p">):</span>
-            <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>  <span class="c1"># 关闭串口
-</span>            <span class="n">self</span><span class="p">.</span><span class="n">buttonSS</span><span class="p">[</span><span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="sh">"</span><span class="s">Start</span><span class="sh">"</span>  <span class="c1"># 更改按钮文字
-</span>            <span class="n">self</span><span class="p">.</span><span class="n">uartState</span> <span class="o">=</span> <span class="bp">False</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># 重新启动串口
-</span>            <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">port</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">COM</span><span class="p">.</span><span class="nf">get</span><span class="p">()</span>
-            <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">baudrate</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">Baudrate</span><span class="p">.</span><span class="nf">get</span><span class="p">()</span>
-            <span class="n">strParity</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">Parity</span><span class="p">.</span><span class="nf">get</span><span class="p">()</span>
-            <span class="nf">if </span><span class="p">(</span><span class="n">strParity</span> <span class="o">==</span> <span class="sh">"</span><span class="s">NONE</span><span class="sh">"</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">parity</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="n">PARITY_NONE</span>
-            <span class="nf">elif </span><span class="p">(</span><span class="n">strParity</span> <span class="o">==</span> <span class="sh">"</span><span class="s">ODD</span><span class="sh">"</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">parity</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="n">PARITY_ODD</span>
-            <span class="nf">elif </span><span class="p">(</span><span class="n">strParity</span> <span class="o">==</span> <span class="sh">"</span><span class="s">EVEN</span><span class="sh">"</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">parity</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="n">PARITY_EVEN</span>
-            <span class="nf">elif </span><span class="p">(</span><span class="n">strParity</span> <span class="o">==</span> <span class="sh">"</span><span class="s">MARK</span><span class="sh">"</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">parity</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="n">PARITY_MARK</span>
-            <span class="nf">elif </span><span class="p">(</span><span class="n">strParity</span> <span class="o">==</span> <span class="sh">"</span><span class="s">SPACE</span><span class="sh">"</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">parity</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="n">PARITY_SPACE</span>
-
-            <span class="n">strStopbits</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">Stopbits</span><span class="p">.</span><span class="nf">get</span><span class="p">()</span>
-            <span class="nf">if </span><span class="p">(</span><span class="n">strStopbits</span> <span class="o">==</span> <span class="sh">"</span><span class="s">1</span><span class="sh">"</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">stopbits</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="n">STOPBITS_ONE</span>
-            <span class="nf">elif </span><span class="p">(</span><span class="n">strStopbits</span> <span class="o">==</span> <span class="sh">"</span><span class="s">1.5</span><span class="sh">"</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">stopbits</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="n">STOPBITS_ONE_POINT_FIVE</span>
-            <span class="nf">elif </span><span class="p">(</span><span class="n">strStopbits</span> <span class="o">==</span> <span class="sh">"</span><span class="s">2</span><span class="sh">"</span><span class="p">):</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">stopbits</span> <span class="o">=</span> <span class="n">serial</span><span class="p">.</span><span class="n">STOPBITS_TWO</span>
-
-            <span class="k">try</span><span class="p">:</span>
-                <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="nf">open</span><span class="p">()</span>  <span class="c1"># 打开串口
-</span>            <span class="k">except</span><span class="p">:</span>
-                <span class="n">informStr</span> <span class="o">=</span> <span class="sh">"</span><span class="s">Can</span><span class="sh">'</span><span class="s">t open </span><span class="sh">"</span> <span class="o">+</span> <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="n">port</span>
-                <span class="nc">InformWindow</span><span class="p">(</span><span class="n">informStr</span><span class="p">)</span>
-
-            <span class="nf">if </span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="nf">isOpen</span><span class="p">()):</span>  <span class="c1"># 打开成功
-</span>                <span class="n">self</span><span class="p">.</span><span class="n">buttonSS</span><span class="p">[</span><span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="sh">"</span><span class="s">Stop</span><span class="sh">"</span>  <span class="c1"># 更改按钮文字
-</span>                <span class="n">self</span><span class="p">.</span><span class="n">uartState</span> <span class="o">=</span> <span class="bp">True</span>
-
-    <span class="k">def</span> <span class="nf">processButtonSend</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="nf">if </span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">uartState</span><span class="p">):</span>
-            <span class="n">strToSend</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">InputText</span><span class="p">.</span><span class="nf">get</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">tk</span><span class="p">.</span><span class="n">END</span><span class="p">)</span>
-            <span class="n">bytesToSend</span> <span class="o">=</span> <span class="nb">bytes</span><span class="p">.</span><span class="nf">fromhex</span><span class="p">(</span><span class="n">strToSend</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># 将输入的十六进制字符串转换为字节
-</span>            <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="nf">write</span><span class="p">(</span><span class="n">bytesToSend</span><span class="p">)</span>  <span class="c1"># 发送数据
-</span>            <span class="nf">print</span><span class="p">(</span><span class="n">bytesToSend</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">informStr</span> <span class="o">=</span> <span class="sh">"</span><span class="s">UART is not open</span><span class="sh">"</span>
-            <span class="nc">InformWindow</span><span class="p">(</span><span class="n">informStr</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">ReadUART</span><span class="p">(</span><span class="n">self</span><span class="p">):</span>
-        <span class="k">while</span> <span class="bp">True</span><span class="p">:</span>
-            <span class="nf">if </span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">uartState</span><span class="p">):</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="n">ch</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="nf">read</span><span class="p">()</span>  <span class="c1"># 读取一个字节
-</span>                    <span class="nf">print</span><span class="p">(</span><span class="n">ch</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="sh">''</span><span class="p">)</span>
-                    <span class="n">data</span> <span class="o">=</span> <span class="nf">str</span><span class="p">(</span><span class="n">binascii</span><span class="p">.</span><span class="nf">b2a_hex</span><span class="p">(</span><span class="n">ch</span><span class="p">))</span>  <span class="c1"># 将字节转换为十六进制字符串
-</span>                    <span class="nf">print</span><span class="p">(</span><span class="nf">str</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="mi">1</span><span class="p">:]).</span><span class="nf">split</span><span class="p">(</span><span class="sh">'</span><span class="se">\\</span><span class="s">x</span><span class="sh">'</span><span class="p">))</span>
-                    <span class="n">self</span><span class="p">.</span><span class="n">OutputText</span><span class="p">.</span><span class="nf">insert</span><span class="p">(</span><span class="n">tk</span><span class="p">.</span><span class="n">END</span><span class="p">,</span> <span class="n">data</span><span class="p">.</span><span class="nf">split</span><span class="p">(</span><span class="sh">'</span><span class="s">b</span><span class="se">\'\\</span><span class="s">x</span><span class="sh">'</span><span class="p">))</span>  <span class="c1"># 在文本框中显示接收到的数据
-</span>                <span class="k">except</span><span class="p">:</span>
-                    <span class="n">informStr</span> <span class="o">=</span> <span class="sh">"</span><span class="s">Error reading UART</span><span class="sh">"</span>
-                    <span class="nc">InformWindow</span><span class="p">(</span><span class="n">informStr</span><span class="p">)</span>
-                    <span class="n">self</span><span class="p">.</span><span class="n">ser</span><span class="p">.</span><span class="nf">close</span><span class="p">()</span>  <span class="c1"># 关闭串口
-</span>                    <span class="n">self</span><span class="p">.</span><span class="n">buttonSS</span><span class="p">[</span><span class="sh">"</span><span class="s">text</span><span class="sh">"</span><span class="p">]</span> <span class="o">=</span> <span class="sh">"</span><span class="s">Start</span><span class="sh">"</span>
-                    <span class="n">self</span><span class="p">.</span><span class="n">uartState</span> <span class="o">=</span> <span class="bp">False</span>
-
-<span class="c1"># 启动主GUI
-</span><span class="nf">mainGUI</span><span class="p">()</span>
-</code></pre></div></div>
-
-<h4 id="代码分析">代码分析</h4>
-
-<ol>
-  <li>导入必要的库</li>
-</ol>
-
-<blockquote>
-  <ul>
-    <li><strong>binascii</strong>: 用于二进制和ASCII字符串的相互转换。</li>
-    <li><strong>tkinter</strong>和<strong>ttk</strong>: 用于创建图形用户界面。</li>
-    <li><strong>serial</strong>: pySerial库，用于串口通信。</li>
-    <li><strong>threading</strong>: 用于实现多线程。</li>
-  </ul>
-</blockquote>
-
-<ol>
-  <li>信息窗口类 <code class="language-plaintext highlighter-rouge">InformWindow</code></li>
-</ol>
-
-<p>这个类用于创建一个简单的信息窗口，用于显示错误或状态信息。窗口包含一个标签和一个“OK”按钮，点击按钮后窗口关闭。</p>
-
-<ol>
-  <li>主GUI类 <code class="language-plaintext highlighter-rouge">mainGUI</code></li>
-</ol>
-
-<blockquote>
-  <ul>
-    <li><strong>初始化GUI窗口</strong>: 创建主窗口并设置标题。</li>
-    <li><strong>串口信息框架</strong>: 包含COM端口、波特率、校验位和停止位的输入字段，以及一个开始/停止按钮。用户可以在这里输入串口的相关信息并启动或停止串口通信。</li>
-    <li><strong>串口对象</strong>: 创建一个串口对象<code class="language-plaintext highlighter-rouge">self.ser</code>，用于串口通信。</li>
-    <li><strong>串口读取线程</strong>: 创建并启动一个线程<code class="language-plaintext highlighter-rouge">self.ReadUARTThread</code>，用于后台读取串口数据。</li>
-    <li><strong>接收数据框架</strong>: 一个文本框，用于显示从串口接收到的数据。包含一个滚动条，可以滚动查看长数据。</li>
-    <li><strong>发送数据框架</strong>: 一个文本框，用于输入需要通过串口发送的数据，以及一个发送按钮。</li>
-  </ul>
-</blockquote>
-
-<ol>
-  <li><code class="language-plaintext highlighter-rouge">processButtonSS</code>方法</li>
-</ol>
-
-<ul>
-  <li>处理开始/停止按钮的点击事件：
-    <ul>
-      <li>如果串口已打开，则关闭串口，并将按钮文字改为“Start”。</li>
-      <li>如果串口未打开，则根据用户输入的串口配置信息，配置并尝试打开串口。打开成功后，将按钮文字改为“Stop”。</li>
-    </ul>
-  </li>
-</ul>
-
-<ol>
-  <li><code class="language-plaintext highlighter-rouge">processButtonSend</code>方法</li>
-</ol>
-
-<ul>
-  <li>处理发送按钮的点击事件:
-    <ul>
-      <li>如果串口已打开，则读取用户输入的数据，将其转换为字节并发送到串口。</li>
-      <li>如果串口未打开，则弹出信息窗口提示用户串口未打开。</li>
-    </ul>
-  </li>
-</ul>
-
-<ol>
-  <li><code class="language-plaintext highlighter-rouge">ReadUART</code>方法</li>
-</ol>
-
-<ul>
-  <li><strong>后台线程方法</strong>: 不断检查串口是否已打开，如果打开，则读取串口数据，将数据转换为十六进制字符串并显示在接收数据框架的文本框中。</li>
-</ul>
-
-<ol>
-  <li>启动主GUI</li>
-</ol>
-
-<ul>
-  <li>创建并启动<code class="language-plaintext highlighter-rouge">mainGUI</code>对象，进入Tkinter主事件循环。</li>
-</ul>
-
-<p><strong>总体功能</strong></p>
-
-<p>创建了一个GUI界面，用于通过串口发送和接收数据。用户可以输入串口的相关配置信息（COM端口、波特率、校验位和停止位），启动或停止串口通信，发送和接收数据，并在界面上实时查看接收到的数据。通过多线程实现了后台读取串口数据，保证界面响应不被阻塞。</p>
-
-<h2 id="实验总结与感悟">实验总结与感悟</h2>
-
-<p>在这次UHF超高频通信实验中，我们不仅仅是按照步骤进行操作，更是一次深刻的学习和探索之旅。这个实验让我对UHF超高频通信技术有了更深刻的理解，也让我感受到团队合作和动手实践的无穷魅力。</p>
-
-<p>实验开始，我们怀着好奇和期待，通过发送盘存指令，成功读取到了标签的EPC码。这一刻，看到屏幕上跳动的数据，我们兴奋不已。这不仅仅是对硬件设备的成功操作，更是对我们理论知识的一次有力验证。紧接着，我们发送停止盘存指令，读写器按照我们的指令停止了操作，这种掌控感让我们对技术的敬畏和热爱又增加了几分。</p>
-
-<p>在接下来的标签扇区读取和写入操作中，我们遇到了一些小挑战，但通过团队的智慧和不懈努力，我们逐一攻克。成功读取EPC码和TID码，并对EPC码进行了修改，看到实验数据准确无误地返回，内心的成就感难以言表。这不仅是实验的成功，更是我们不断学习和探索的成果。</p>
-
-<p>通过这次实验，我深刻体会到了理论与实践相结合的重要性。书本上的知识在实际操作中变得鲜活起来，每一次成功的操作都是对我们学习成果的肯定。团队合作在这次实验中发挥了至关重要的作用，大家一起讨论、解决问题，在合作中碰撞出智慧的火花。这种合作精神和默契也将成为我们未来学习和工作的宝贵财富。</p>
-
-<p>这次实验还极大地提升了我的编程技能和实际操作能力。通过编写和调试Python代码，我们实现了串口数据的实时发送、接收和显示，这不仅增强了我们的动手能力，也让我们更加熟悉了Python编程和Tkinter图形界面的使用。在代码调试过程中，每一个问题的解决都让我对编程有了更多的信心和热爱。</p>
-
-<p>这次UHF超高频通信实验，不仅让我深入了解了这一前沿技术，还让我感受到物联网技术在现代生活中的巨大潜力和广阔前景。通过这次实验，我更加坚定了继续深入学习物联网技术的信心和决心。实验中的每一次成功和挑战，都将成为我学习道路上的宝贵经验和动力。</p>
-
-<p>这次实验经历，不仅是对知识的学习和技术的掌握，更是对自己能力的提升和信心的培养。它将激励我在未来的学习和研究中，不断探索和创新，为物联网的发展贡献自己的力量。感谢这次实验，让我更加热爱这个充满无限可能的领域。</p>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="物联网" /><category term="实验报告" /><summary type="html"><![CDATA[]]></summary></entry></feed>
+<p>总公司的核心交换层网络、汇聚层网络、接入层网络是处理企业事务的专用网络，除公司外网之外，不允许公司内部网络的任何路由器、主机，以有线或无线等任何方式接入到互联网</p>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="物联网" /><category term="课程笔记" /><summary type="html"><![CDATA[物联网 分成三层 每一层分成几个模块 功能和流程是不一样的 功能是要达到的效果 🌻对着框架讲流程 再讲每部分功能 每个模块怎么实现 再展示是什么样子的 🌻设计思想—&gt; 架构—&gt;流程—&gt;每一块的功能 至少讲清楚每一层用了什么 eg RFID WSN eg 有线 无线]]></summary></entry></feed>

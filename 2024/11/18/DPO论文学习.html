@@ -1,0 +1,2149 @@
+<!DOCTYPE html><html lang="zh-Hans">
+  <head><!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-LVD2CPW3EW"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'G-LVD2CPW3EW');
+		
+	</script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>DPO论文学习 - Ennis's Blog</title>
+
+<meta name="description" content="DPO 论文学习">
+<link rel="canonical" href="/2024/11/18/DPO%E8%AE%BA%E6%96%87%E5%AD%A6%E4%B9%A0.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: '/assets/MathJax/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Willing to be a question, willing to be an answer.
+" href="/">Ennis's Blog</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=nlp">nlp</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86">自然语言处理</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0">论文笔记</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 11月18日</span>
+            </li><li><i class="far fa-eye"></i> <span class="js-pageview" data-page-key="post68">0</span> 阅读</li></ul></div><div class="article__header"><header><h1>DPO论文学习</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/论文笔记/2024-11-18-DPO论文学习.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">DPO 论文学习</p></div></div>
+              </div>
+            </div><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="DPO论文学习"><meta itemprop="author" content="Xingjie Gao"/><meta itemprop="datePublished" content="2024-11-18T00:00:00+08:00">
+    <meta itemprop="keywords" content="nlp,自然语言处理,论文笔记"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><h1 id="dpo-论文学习">DPO 论文学习</h1>
+
+<!---more-->
+
+<h2 id="不懂的问题">不懂的问题</h2>
+
+<h3 id="偏好学习的单位是什么也是-token还是以-response">偏好学习的单位是什么？也是 token？还是以 response？</h3>
+
+<h3 id="为什么人类偏好学习需要强化学习">为什么人类偏好学习需要强化学习</h3>
+
+<p>对于一个 response 的偏好程度打分，不是模型的输出（模型输出的是对人类偏好的response（word tokens）），因为由于模型输出和打分不是一种类型的数据，所以我们无法将 LLM 的输出与标签对比算出 loss， 也就不能反向传播更新），所以就不能用常规的监督学习来训练模型</p>
+
+<p><strong>DPO 的缺点是需要大量有标注单独信息，而 RLHF 只需要小部分的</strong></p>
+
+<h3 id="什么是策略">什么是策略？</h3>
+
+<p>在本文的环境中：策略就是模型生成概率空间，即生成的文本的概率分布。</p>
+
+<p>策略训练（policy train）就是训练 LLM 的策略的过程，使其生成的文本更符合人类的偏好。</p>
+
+<p>一般的策略训练的过程</p>
+
+<ol>
+  <li>
+    <p><strong>确定目标</strong>：首先需要定义目标，这通常是通过一个<strong>损失函数</strong>来表示的。在传统的强化学习中，这个目标是最大化奖励。</p>
+  </li>
+  <li>
+    <p><strong>优化过程</strong>：通过某种优化算法（如梯度下降、Proximal Policy Optimization（PPO）等），不断调整模型的参数，改变策略，使得策略能够在特定任务中表现得更好。例如，语言模型的策略可以通过优化语言生成的质量来训练。</p>
+  </li>
+  <li>
+    <p><strong>策略调整</strong>：在训练过程中，模型会不断根据新的数据或环境反馈调整策略，以提高其执行任务的能力。</p>
+  </li>
+</ol>
+
+<h3 id="什么是奖励函数">什么是奖励函数？</h3>
+
+<p><strong>奖励函数</strong>：在强化学习和偏好学习中，奖励函数通常用于量化一个动作或响应的质量。在传统的 RLHF（从人类反馈中进行强化学习）方法中，奖励函数是由人类偏好数据训练出来的，它用来评估语言模型输出与人类偏好的一致性。</p>
+
+<p>然而，在 DPO 方法中，作者没有显式地定义和训练一个独立的奖励函数，而是通过将偏好数据直接映射到策略（即语言模型）的优化中，从而隐含地使用奖励函数。</p>
+
+<blockquote>
+  <p>这里的奖励函数可以理解为偏好数据对某个输出的偏好程度，反映了人类更倾向于选择哪些输出</p>
+</blockquote>
+
+<h3 id="什么是-kl-散度">什么是 KL 散度？</h3>
+
+<p><strong>KL 散度</strong>（<strong>Kullback-Leibler Divergence</strong>）是一种用于衡量两个概率分布之间差异的度量。它通常用于比较一个真实分布（或参考分布）和一个估计分布（或预测分布）之间的差异。</p>
+
+<p>KL 散度的公式为：</p>
+
+\[D_{KL}(P || Q) = \sum_{x} P (x) \log \frac{P (x)}{Q (x)}\]
+
+<p>或在连续情况下：</p>
+
+\[D_{KL}(P || Q) = \int p (x) \log \frac{p (x)}{q (x)} \, dx\]
+
+<p>其中：</p>
+<ul>
+  <li>$P (x)$ 是真实的概率分布（或参考分布），表示“正确”或期望的分布。</li>
+  <li>$Q (x)$ 是估计的概率分布，表示模型输出的分布。</li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$D_{KL}(P</td>
+          <td> </td>
+          <td>Q)$ 衡量了分布 $P$ 相对于 $Q$ 的<strong>信息损失</strong>，或者说是从 $Q$ 生成 $P$ 时的效率损失。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<h4 id="kl-散度的含义">KL 散度的含义：</h4>
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td><strong>非对称性</strong>：KL 散度是非对称的，即 $D_{KL}(P</td>
+          <td> </td>
+          <td>Q) \neq D_{KL}(Q</td>
+          <td> </td>
+          <td>P)$，这意味着它不是一个真正的“距离”，而是一个<strong>信息量</strong>度量。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><strong>度量差异</strong>：KL 散度的值越大，说明两个分布之间的差异越大。KL 散度为零时，说明两个分布是完全相同的（即 $P = Q$）。</li>
+  <li><strong>信息量</strong>：KL 散度表示使用分布 $Q$ 来表示分布 $P$ 时所失去的信息量。如果我们使用 $Q$ 来描述真实分布 $P$，那么我们需要多少额外的信息来弥补这个差距。</li>
+</ul>
+
+<h4 id="在机器学习中的应用">在机器学习中的应用：</h4>
+<ol>
+  <li>
+    <p><strong>在强化学习中</strong>：KL 散度通常用于控制策略优化过程中的“平稳性”或“稳定性”。例如，在<strong>Proximal Policy Optimization (PPO)</strong> 算法中，KL 散度用作约束，防止优化过程中新的策略与旧的策略偏差过大，从而保证训练过程的稳定性。</p>
+  </li>
+  <li>
+    <p><strong>在生成模型中</strong>：KL 散度常用于衡量生成模型（如变分自编码器 VAE）学习的分布与真实数据分布之间的差异。最小化 KL 散度有助于生成的样本更接近真实数据分布。</p>
+  </li>
+  <li>
+    <p><strong>在模型优化中</strong>：KL 散度也常用于<strong>对抗训练</strong>等场景，作为衡量两个模型输出概率分布差异的一种方式。</p>
+  </li>
+</ol>
+
+<h4 id="总结">总结：</h4>
+<p>KL 散度是一个衡量概率分布之间差异的工具，它通过计算一个分布生成另一个分布时的“信息损失”来工作。在强化学习、生成模型以及其他机器学习领域，KL 散度是优化过程中的一个重要工具，尤其用于控制训练过程中的分布变化。</p>
+
+<h3 id="dpo-的变量变换思想">DPO 的变量变换思想</h3>
+
+<blockquote>
+  <p>我理解这里变量变换思想就是：
+ 假设 A=B=C
+ 原本的过程就是使用 A—&gt;B—&gt;C
+ 而 DPO 的变量变换思想就是直接使用 A—&gt;C</p>
+</blockquote>
+
+<p>在<strong>DPO</strong>算法中，<strong>变量变换</strong>是一个数学技巧，它允许我们跳过显式构建奖励模型的过程，直接通过人类偏好数据优化策略。为了更好地理解这个概念，下面我将举一个简单的例子来解释“变量变换”的含义。</p>
+
+<h4 id="举例假设我们有一个简单的分类问题">举例：假设我们有一个简单的分类问题</h4>
+
+<p>假设我们正在训练一个模型来生成文本，并且我们收集了大量的人类偏好数据，这些数据表明在两个不同的模型输出之间，人类更喜欢哪一个。</p>
+
+<ul>
+  <li><strong>模型输出 A</strong>和<strong>模型输出 B</strong>是两个候选答案。</li>
+  <li><strong>人类偏好数据</strong>告诉我们，<strong>A 更好</strong>，因此我们可以把人类偏好表示为“喜欢 A、不喜欢 B”。</li>
+</ul>
+
+<p>在传统的强化学习方法中，我们可能会这样做：</p>
+<ol>
+  <li><strong>构建奖励模型</strong>：首先需要定义一个奖励函数，比如给<strong>A</strong>一个高奖励，给<strong>B</strong>一个低奖励。</li>
+  <li>然后使用强化学习（如 PPO）来优化策略，使得模型生成的答案更倾向于 A，因为 A 得到了更高的奖励。</li>
+</ol>
+
+<h4 id="变量变换的作用">变量变换的作用</h4>
+
+<p>但是，<strong>DPO</strong>采用了<strong>变量变换</strong>的方式，避免了需要显式构建奖励模型和奖励值的问题，直接通过人类的偏好数据来优化模型。</p>
+
+<p>假设我们已经知道，人类给出的是一个简单的<strong>偏好排序</strong>，也就是说，模型输出 A 被偏好于 B。DPO 的<strong>变量变换</strong>过程可以被理解为：</p>
+
+<ol>
+  <li>
+    <p><strong>换一个视角</strong>：我们不再直接优化奖励值，而是通过将奖励值变换成策略本身来进行优化。具体来说，我们定义一个新的<strong>损失函数</strong>，这个损失函数表示我们希望生成更倾向于人类偏好的答案（即 A）的策略。</p>
+
+    <ul>
+      <li><strong>变量变换</strong>的步骤：通过数学变换（例如：<strong>对数变换</strong>），我们可以把偏好损失函数定义为一个关于策略的函数，而不需要显式地训练奖励模型。换句话说，我们直接用人类给出的“喜欢”或“不喜欢”作为优化目标，调整模型的生成策略，使得模型生成 A 的概率更高。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>直接优化策略</strong>：通过这种变换，我们可以用<strong>二元交叉熵</strong>这样的简单目标函数来优化策略，即最大化模型生成 A 的概率，同时最小化生成 B 的概率。</p>
+  </li>
+</ol>
+
+<h4 id="数学背景">数学背景：</h4>
+<ul>
+  <li>
+    <p>如果我们不进行变量变换，奖励模型可能会让我们使用以下目标：
+\(\text{maximize} \quad \mathbb{E}[R (\text{output})]\)
+其中 $R (\text{output})$ 是奖励函数。</p>
+  </li>
+  <li>
+    <p>但是通过<strong>变量变换</strong>，我们可以将这个目标变成：
+\(\text{maximize} \quad \log \left ( \frac{P (\text{preferred response})}{P (\text{dispreferred response})} \right)\)
+这实际上是优化模型策略的一个等价目标，而不需要定义一个显式的奖励函数。</p>
+  </li>
+</ul>
+
+<h4 id="总结-1">总结：</h4>
+<p>在<strong>DPO</strong>中，<strong>变量变换</strong>指的是将优化目标从奖励模型转变为直接优化策略的函数。通过这种变换，我们避免了构建奖励模型的复杂过程，直接通过人类偏好数据优化语言模型的策略。</p>
+
+<h3 id="dpo-和-bradley-terry-的异同">DPO 和 Bradley-Terry 的异同</h3>
+
+<blockquote>
+  <p>Bradley-Terry 模型是一种用于衡量人类偏好数据的一致性的统计模型，它可以用来评估两个或多个选项之间的相对偏好。
+它通过给每个物品分配一个质量值，预测不同物品之间的偏好概率</p>
+
+</blockquote>
+
+<p>DPO 和 Bradley-Terry 都是理论模型，而不是真实的训练出来模型。是可以通过数学公式计算出来的。</p>
+
+<p>DPO 直接用人类偏好数据来优化模型，而 Bradley-Terry 模型是用来评估人类相对偏好的</p>
+
+<h2 id="摘要">摘要</h2>
+
+<h3 id="当前背景">当前背景</h3>
+
+<ol>
+  <li>LLM 的行为很难被精准控制，因为进行了无监督的预训练</li>
+  <li>想要控制 LLM 的办法：
+    <ul>
+      <li>RLHF：通过收集人类标签来评估模型生成结果的相对质量，并对无监督LM进行微调以符合这些偏好，通常需要通过来自人类反馈的强化学习（RLHF）</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="作者的工作">作者的工作</h3>
+
+<ol>
+  <li>DPO：我们利用<strong>奖励函数与最优策略之间的映射</strong>，表明这个受限的奖励最大化问题可以通过一次单独的策略训练精确优化，实际上解决了人类偏好数据上的分类问题（二分类：喜欢、不喜欢）。</li>
+</ol>
+
+<h3 id="实验结果">实验结果</h3>
+
+<ol>
+  <li>DPO可以将语言模型微调到与人类偏好相符，且效果与现有方法相当或更好。</li>
+  <li>使用DPO进行微调超越了RLHF控制生成内容情感的能力，并在摘要和单轮对话中提高了响应质量，同时实现和训练起来大大更简单。</li>
+</ol>
+
+<h2 id="引言">引言</h2>
+
+<h3 id="1-问题">1. 问题：</h3>
+<p>从模型非常广泛的知识和能力中选择所期望的响应和行为对于构建安全、高性能和可控的人工智能系统至关重要</p>
+
+<p>例子：</p>
+
+<blockquote>
+  <p>我们可能希望我们的语言模型意识到50%的人相信的一个常见误解，但我们肯定不希望模型声称这个误解在50%的查询中是真实的！</p>
+</blockquote>
+
+<h3 id="2-现在一般的解决方法">2. 现在一般的解决方法：</h3>
+
+<ol>
+  <li>有监督微调：直接给 LLM 高质量的数据</li>
+  <li>通过 RLHF 进行微调（缺点：复杂、计算成本高）</li>
+</ol>
+
+<h3 id="3-作者的解决办法dpo">3. 作者的解决办法：DPO</h3>
+
+<ol>
+  <li><strong>DPO 算法的基本思路</strong>：
+    <ul>
+      <li><strong>目标</strong>：DPO 的目标与现有的 RLHF 方法类似，都是<strong>奖励最大化</strong>，并且包含了一个<strong>KL 散度约束</strong>，即优化过程中不仅要最大化奖励，还要确保生成的回答不会偏离原始模型过多。</li>
+      <li><strong>细节</strong>：DPO 通过<strong>增加偏好响应的对数概率</strong>来优化模型，使得模型生成“更喜欢”的回答，同时引入了<strong>动态的权重</strong>，防止模型因过度偏向某些回答而发生退化。传统方法中的概率比值目标可能导致模型不稳定，而 DPO 通过引入这些权重来避免这种问题。</li>
+    </ul>
+  </li>
+  <li><strong>与现有方法的区别</strong>：
+    <ul>
+      <li>DPO 使用一个<strong>理论偏好模型</strong>（如<strong>Bradley-Terry 模型</strong>），用来衡量给定的奖励函数与人类偏好数据的一致性。现有方法（RLHF）依赖偏好模型来定义一个“偏好损失”函数，训练奖励模型，再用这个奖励模型来优化语言模型（策略）。</li>
+      <li>而 DPO 则通过<strong>变量变换</strong>，将这个“偏好损失”函数直接定义为语言模型策略的函数。也就是说，DPO 不需要显式地学习奖励函数，而是直接通过人类偏好的数据来优化模型。</li>
+    </ul>
+  </li>
+  <li><strong>DPO 的训练过程</strong>：
+    <ul>
+      <li>给定一组人类对语言模型响应的偏好数据，DPO 通过一个<strong>简单的二元交叉熵目标</strong>（binary cross entropy）来优化模型，而不需要在训练过程中进行策略采样或显式学习奖励函数。</li>
+    </ul>
+  </li>
+  <li><strong>实验结果</strong>：
+    <ul>
+      <li>实验表明，DPO 至少与现有方法（如基于 PPO 的 RLHF 方法）一样有效，在任务如情感调节、文本摘要和对话生成等方面，使用最多 6 B 参数的语言模型，DPO 的表现与现有方法相当，甚至在某些情况下更好。</li>
+    </ul>
+  </li>
+</ol>
+
+<p><strong>DPO 是一个简单且不依赖强化学习的算法，</strong> 它直接通过人类偏好数据优化语言模型，从而避免了复杂的奖励建模和强化学习过程。DPO 在多个任务中与传统方法相比同样有效，且实现简单，易于训练。</p>
+
+<h2 id="相关工作">相关工作</h2>
+
+<h3 id="llm-对齐的发展">LLM 对齐的发展</h3>
+
+<ol>
+  <li>无监督的 LLM 可以在 zero-shot 和 few-shot 的情况下完成一些任务，但是不如指令微调后的 LLM</li>
+  <li>指令微调可以显著提高 LLM在下游任务上的表现和与用户意图的对齐，但是需要专家示范的数据</li>
+  <li>收集对响应质量的相对人类判断往往更为容易，因此随后的研究使用人类偏好的数据集对大语言模型进行了微调，
+ 结果：提高了翻译、摘要、讲故事和遵循指令的能力。
+ 一般过程：
+    <ol>
+      <li>优化神经网络的奖励函数，以便与偏好模型下的偏好数据集兼容，如 Bradley-Terry 模型[5]，</li>
+      <li>然后使用强化学习算法（通常是 REINFORCE 、近端策略优化（PPO；）或变体）微调语言模型，以最大化给定的奖励。</li>
+    </ol>
+  </li>
+  <li>其他研究：
+    <ol>
+      <li>利用经过人类反馈微调的 LLMs 来生成针对安全性或无害性等特定属性的额外合成偏好数据，仅使用人类提供的文本评估作为 LLM 注释的弱监督</li>
+    </ol>
+  </li>
+</ol>
+
+<h3 id="总结-2">总结：</h3>
+
+<p>总共有两个方向：</p>
+
+<ol>
+  <li>一个是关于使用强化学习训练语言模型以实现多种目标的研究工作</li>
+  <li>另一个是关于从人类偏好中学习的一般方法的研究工作</li>
+</ol>
+
+<p>本文：</p>
+
+<ol>
+  <li>尽管使用相对人类偏好的方法具有吸引力，但使用强化学习对大型语言模型进行微调仍然是一个主要的实际挑战；</li>
+  <li>本项工作提供了一种在没有强化学习的情况下优化相对偏好的理论上合理的方法。</li>
+</ol>
+
+<h3 id="偏好学习不在-nlp-中的">偏好学习（不在 NLP 中的）</h3>
+
+<h4 id="情境对决赌博机-contextual-dueling-bandits">情境对决赌博机 (Contextual Dueling Bandits)</h4>
+
+<p>首先，使用偏好或动作排名而非奖励的情境赌博机学习被称为情境对决赌博机（Contextual Dueling Bandit，CDB）。在没有绝对奖励的情况下，CDB 的理论分析用<strong>冯·诺伊曼胜者（von Neumann winner）</strong> 的概念取代了最优策略。</p>
+
+<blockquote>
+  <p>冯·诺伊曼胜者是指其对任何其他策略的预期胜率至少为 50%的策略。</p>
+
+  <p>通常，在有明确奖励的环境中，我们可以定义一个最优策略，它能最大化预期奖励。</p>
+
+  <p>然而，在CDB中，没有绝对的奖励信号，只有策略之间的偏好或胜率信息。因此，冯·诺伊曼胜者被定义为：对于任何其他策略，其预期胜率至少为50%的策略。也就是说，这个策略在与任何其他策略对比时，至少不会输，可能会赢。这一概念适用于无法直接量化奖励的情况下，用相对胜率来评估策略的优劣。</p>
+</blockquote>
+
+<p>然而，在 CDB 的设置中，偏好标签是在线获得的；而在从人类偏好中学习时，我们通常从一批离线的、带有偏好标注的动作对中学习。</p>
+
+<p>类似地，<strong>基于偏好的强化学习（Preference-based RL，PbRL）</strong> 从由未知的“评分”函数生成的二元偏好中学习，而不是直接从奖励中学习。已有多种 PbRL 算法，包括可以重用离线偏好数据的方法，但通常需要先显式估计潜在的评分函数（即奖励模型），然后再对其进行优化。</p>
+
+<p>与这些方法不同，作者提出了一种单阶段的策略学习方法，可以直接优化策略以满足偏好，而无需先估计奖励模型。</p>
+
+<h2 id="预备知识">预备知识</h2>
+
+<p>RLHF 的 pipeline</p>
+
+<p>1) supervised fine-tuning (SFT); 
+2) preference sampling and reward learning
+3) RL optimization.</p>
+
+<h3 id="sft">SFT</h3>
+
+<p>RLHF 通常通过对预训练语言模型进行微调，以监督学习的方式在高质量数据上进行，针对感兴趣的下游任务（对话、摘要等），以获得模型 $\pi ^{SFT}$。</p>
+
+<h3 id="奖励模型阶段">奖励模型阶段</h3>
+
+<ol>
+  <li><strong>奖励建模的基本任务</strong>：
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>在奖励建模阶段，模型（SFT 模型，指的是预先监督微调的模型 $\pi^{\text{SFT}}(y</td>
+              <td>x)$）接收一个输入提示 $x$，并生成一组候选答案对 $(y_1, y_2)$。</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>这些候选答案对会交给人类标注者进行评估，标注者会基于偏好选择其中一个答案。例如，人类可能更喜欢答案 $y_w$ 而不是 $y_l$。</li>
+      <li>$y_w$ 表示人类标注中“偏好”的答案，而 $y_l$ 表示“不偏好”的答案。</li>
+    </ul>
+  </li>
+</ol>
+
+<hr />
+
+<ol>
+  <li><strong>引入奖励模型</strong>：
+    <ul>
+      <li>假设人类偏好的分布是由一个<strong>潜在奖励模型</strong> $r^*(y, x)$ 生成的。</li>
+      <li><strong>奖励模型 $r^*(y, x)$</strong>：它是一个无法直接获取的函数，用于衡量在特定输入 $x$ 下，答案 $y$ 的质量或偏好。</li>
+    </ul>
+  </li>
+</ol>
+
+<hr />
+
+<ol>
+  <li>如何使用奖励模型对偏好建模：
+    <ul>
+      <li>文中指出，Bradley-Terry 模型是用于偏好建模的常见方法之一。该模型假设：
+\(P^*(y_1 \succ y_2 \mid x) = \frac{\exp (r^*(x, y_1))}{\exp (r^*(x, y_1)) + \exp (r^*(x, y_2))}.\)</li>
+      <li>这个公式描述了答案 $y_1$ 相比 $y_2$ 被人类偏好的概率。概率值由各自的奖励值 $r^*(x, y)$ 决定，奖励值越高的答案更有可能被选择。</li>
+    </ul>
+  </li>
+</ol>
+
+<blockquote>
+  <p>[!TIP] 
+为什么公式是这样的：</p>
+  <ol>
+    <li>想要 $r(x,y)$ 打分越高越偏向于 $y$，所以使用了指数函数</li>
+    <li>分母是为了归一化，使得概率和为 1，使其成为一个有效的概率分布</li>
+    <li>当两数差异较大是，使用指数函数会扩大差异，使得概率更加明显</li>
+    <li>也可换一种理解方式，这个公式可以从 sigmod 简化而来，</li>
+    <li>而为什么使用 sigmod 呢？因为我们可以用模型推导出的偏好与不偏好的差值来判断是否偏好，如果是偏好的分数大于不偏好的分数，所以为正值，正值越大 sigmod 的函数值越接近 1，反之越接近 0，所以使用 sigmod 函数来表示偏好。</li>
+  </ol>
+</blockquote>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />由偏好公式推到这个损失函数  [priority:: highest]  [created:: 2024-11-18]  [scheduled:: 2024-11-18]  [completion:: 2024-11-19]</li>
+</ul>
+
+<hr />
+
+<ol>
+  <li>如何训练奖励模型 $D$：
+    <ul>
+      <li>数据集：</li>
+    </ul>
+    <ul>
+      <li>作者假设可以访问一个静态的偏好数据集 $D = {(x^{(i)}, y_w^{(i)}, y_l^{(i)})}$，其中包含输入 $x^{(i)}$ 及其对应的偏好答案对。</li>
+      <li>目标是通过这些数据学习一个<strong>参数化的奖励模型</strong> $r_\phi (x, y)$，该模型的参数 $\phi$ 可以通过最大似然估计（MLE）优化。
+     - <strong>将问题建模为二分类任务</strong>：</li>
+      <li>偏好学习的任务被建模为一个<strong>二元分类问题</strong>，目的是预测在一对答案中哪一个更符合人类的偏好。</li>
+      <li>负对数似然损失（Negative Log-Likelihood Loss）定义如下：
+\(\mathcal{L}_R (r_\phi, D) = - \mathbb{E}_{(x, y_w, y_l) \sim D} \left[ \log \sigma (r_\phi (x, y_w) - r_\phi (x, y_l)) \right].\)</li>
+      <li>$\sigma$ 是 sigmod 函数，用来二分类，表示 $\sigma (z) = \frac{1}{1 + \exp (-z)}$。</li>
+    </ul>
+  </li>
+</ol>
+
+<blockquote>
+  <p>[!NOTE] 损失函数推导过程
+偏好的定义：
+\(P^*(y_1 \succ y_2 \mid x) = \frac{\exp (r^*(x, y_1))}{\exp (r^*(x, y_1)) + \exp (r^*(x, y_2))}\)
+然后根据最大似然的思想，我们要最大化这个概率，为了最大化这个概率方便我们对他取对数
+\(\log P^*(y_1 \succ y_2 \mid x) = \log \left ( \frac{\exp (r^*(x, y_1))}{\exp (r^*(x, y_1)) + \exp (r^*(x, y_2))} \right)\)
+ 然后因此，我们将模型的评分函数 $r_\phi (x, y_1)$ 和 $r_\phi (x, y_2)$ 代入上式，得到：
+ \(\log P^*(y_w \succ y_l \mid x) = \log \left ( \frac{1}{1 + \exp (r^*(x, y_l) - r^*(x, y_w))} \right)\)
+ 代入 sigmod 函数简化
+ \(\sigma (z) = \frac{1}{1 + \exp (-z)}\)
+ 得：
+ \(\log P^*(y_w \succ y_l \mid x) = \log \sigma (r_\phi (x, y_w) - r_\phi (x, y_l))\)
+ 我们要求的是在样本上的期望，所以损失函数就是这个
+ \(\mathbb{E}_{(x, y_w, y_l) \sim D} \left[ \log \sigma (r_\phi (x, y_w) - r_\phi (x, y_l)) \right]\)
+ 因为 loss 是最小化，所以加个负号
+ \(\mathcal{L}_{R}(r_{\phi},\mathcal{D})=-\mathbb{E}_{(x,y_{w},y_{l})\sim\mathcal{D}}\big[\log\sigma(r_{\phi}(x,y_{w})-r_{\phi}(x,y_{l}))\big]\)</p>
+</blockquote>
+
+<ol>
+  <li><strong>奖励模型的实现</strong>：
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>在语言模型（LM）的上下文中，奖励模型 $r_\phi (x, y)$ 是在现有的 SFT 模型 $\pi^{\text{SFT}}(y</td>
+              <td>x)$ 基础上构建的：</td>
+            </tr>
+          </tbody>
+        </table>
+        <ul>
+          <li>在现有的 SFT 模型顶部添加一个线性层，以生成一个单一的标量预测值作为奖励值。</li>
+        </ul>
+      </li>
+      <li>为了防止奖励模型的方差过高，通常会对奖励值进行归一化（如设置所有样本的奖励值期望为 0）。</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="强化学习阶段">强化学习阶段</h3>
+
+\[\max_{\pi_\theta}\mathbb{E}_{x\sim\mathcal{D},y\sim\pi_\theta(y\mid x)}\begin{bmatrix}r_\phi(x,y)\end{bmatrix}-\beta\mathbb{D}_{\mathbf{KL}}\begin{bmatrix}\pi_\theta(y\mid x)\parallel\pi_{\mathbf{ref}}(y\mid x)\end{bmatrix}\]
+
+<p>最大化奖励函数，同时最小化策略分布与参考分布的 KL 散度。</p>
+<ul>
+  <li><strong>第一项 $\mathbb{E}[r_\phi (x, y)]$：</strong>
+    <ul>
+      <li>这是奖励函数 $r_\phi (x, y)$ 的期望，表示模型生成输出 $y$ 的质量。</li>
+      <li>模型的目标是生成能获得高奖励的输出。</li>
+    </ul>
+  </li>
+  <li><strong>第二项 $\beta D_{\text{KL}}[\pi_\theta | \pi_{\text{ref}}]$：</strong>
+    <ul>
+      <li>这是一个 KL 散度（Kullback-Leibler divergence）项，用来衡量当前策略 $\pi_\theta$ 偏离参考策略 $\pi_{\text{ref}}$ 的程度。</li>
+      <li>$\beta$ 是一个超参数，用来控制当前策略 $\pi_\theta$ 和参考策略 $\pi_{\text{ref}}$ 偏离的强度。</li>
+      <li>添加这个约束的目的是防止模型在追求高奖励时生成过度偏离参考策略的内容（例如避免模式崩溃，即模型只输出单一高奖励答案）。</li>
+    </ul>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$\pi_{\text{ref}}(y</td>
+          <td>x)$ 是参考策略，一般初始化为已经通过监督微调（Supervised Fine-Tuning, SFT）得到的模型 $\pi^{\text{SFT}}$。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li><strong>重要性</strong>：使用参考策略是为了确保生成的内容在奖励函数精度高的分布范围内，同时保持生成的多样性，防止模式崩塌（mode collapse）。</li>
+</ul>
+
+<p>但是，由于语言生成是离散的（输出是离散的单词序列），这个优化目标函数不可直接微分，无法用常规的梯度下降法进行优化。</p>
+
+<p>标准的方法：
+  \(R (x, y) = r_\phi (x, y) - \beta \left ( \log \pi_\theta (y|x) - \log \pi_{\text{ref}}(y|x) \right)\)
+然后说使用 PPO 最大化。</p>
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />复习一下梯度下降，思考一下这个为什么不可微就不能用梯度下降  [created:: 2024-11-19]  [due:: 2024-11-19]</li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />学习 PPO 的论文 [created:: 2024-11-19]</li>
+</ul>
+
+<h2 id="dpo-算法">DPO 算法</h2>
+
+<h3 id="dpo-目标函数的推导">DPO 目标函数的推导</h3>
+
+<p><strong>从原本的 RLHF 的 loss 函数推导到 DPO 的 loss 函数</strong></p>
+
+<ol>
+  <li><strong>优化目标</strong>
+我们的目标是找到策略 $\pi_\theta (y|x)$，使以下目标函数最大化：
+\(\mathcal{L}(\pi_\theta) = \int \pi_\theta (y|x) r (x, y) \, dy - \beta \int \pi_\theta (y|x) \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} \, dy.\)
+其中：
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>第一项 $\int \pi_\theta (y</td>
+              <td>x) r (x, y) dy$ 表示奖励函数 $r (x, y)$ 在策略 $\pi_\theta (y</td>
+              <td>x)$ 下的期望。</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>第二项 $\beta \int \pi_\theta (y</td>
+              <td>x) \log \frac{\pi_\theta (y</td>
+              <td>x)}{\pi_{\text{ref}}(y</td>
+              <td>x)} \, dy$ 是 KL 散度，用来约束策略 $\pi_\theta (y</td>
+              <td>x)$ 不偏离参考策略 $\pi_{\text{ref}}(y</td>
+              <td>x)$。</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>$\beta &gt; 0$ 是权衡奖励和约束的超参数。</li>
+    </ul>
+  </li>
+</ol>
+
+<table>
+  <tbody>
+    <tr>
+      <td>此外，策略 $\pi_\theta (y</td>
+      <td>x)$ 需要满足概率分布的归一化条件：</td>
+    </tr>
+    <tr>
+      <td>$$\int \pi_\theta (y</td>
+      <td>x) \, dy = 1.$$</td>
+    </tr>
+  </tbody>
+</table>
+
+<hr />
+
+<ol>
+  <li><strong>引入拉格朗日乘子</strong>
+为了在优化目标中引入概率分布的归一化约束，我们定义拉格朗日函数，加入一个归一化约束项 $\lambda (x)$：
+\(\mathcal{L}(\pi_\theta, \lambda) = \int \pi_\theta (y|x) r (x, y) \, dy - \beta \int \pi_\theta (y|x) \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} \, dy + \lambda (x) \left ( 1 - \int \pi_\theta (y|x) \, dy \right ).\)</li>
+</ol>
+
+<p>这里：</p>
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>$\lambda (x)$ 是与输入 $x$ 相关的拉格朗日乘子，用来确保 $\pi_\theta (y</td>
+          <td>x)$ 满足归一化条件。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ul>
+
+<hr />
+
+<ol>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>**对 $\pi_\theta (y</td>
+          <td>x)$ 求偏导**</td>
+        </tr>
+        <tr>
+          <td>对拉格朗日函数 $\mathcal{L}(\pi_\theta, \lambda)$ 关于 $\pi_\theta (y</td>
+          <td>x)$ 求导，得到优化条件。具体计算如下：</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+</ol>
+
+<p>(1) 奖励项的偏导
+奖励项是：
+\(\int \pi_\theta (y|x) r (x, y) \, dy.\)
+对 $\pi_\theta (y|x)$ 求偏导，得到：
+\(\frac{\partial}{\partial \pi_\theta (y|x)} \left[ \pi_\theta (y|x) r (x, y) \right] = r (x, y).\)</p>
+
+<p>(2) KL 散度项的偏导
+KL 散度项是：
+\(\int \pi_\theta (y|x) \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} \, dy.\)
+对 $\pi_\theta (y|x)$ 求偏导：</p>
+<ul>
+  <li>首先展开 KL 散度：
+\(\pi_\theta (y|x) \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} = \pi_\theta (y|x) \log \pi_\theta (y|x) - \pi_\theta (y|x) \log \pi_{\text{ref}}(y|x).\)</li>
+  <li>求导时：
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>对 $\pi_\theta (y</td>
+              <td>x) \log \pi_\theta (y</td>
+              <td>x)$ 求导，得到：</td>
+            </tr>
+            <tr>
+              <td>$$\log \pi_\theta (y</td>
+              <td>x) + 1.$$</td>
+              <td> </td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td>对 $\pi_\theta (y</td>
+              <td>x) \log \pi_{\text{ref}}(y</td>
+              <td>x)$ 求导，得到：</td>
+            </tr>
+            <tr>
+              <td>$$\log \pi_{\text{ref}}(y</td>
+              <td>x).$$</td>
+              <td> </td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>因此，KL 散度项的偏导为：
+\(\frac{\partial}{\partial \pi_\theta (y|x)} \left[ -\beta \int \pi_\theta (y|x) \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} \, dy \right] = -\beta \left[ \log \pi_\theta (y|x) - \log \pi_{\text{ref}}(y|x) + 1 \right].\)</p>
+
+<p>(3) 归一化约束项的偏导
+归一化约束项是：
+\(\lambda (x) \left ( 1 - \int \pi_\theta (y|x) \, dy \right).\)
+对 $\pi_\theta (y|x)$ 求导，得到：
+\(\frac{\partial}{\partial \pi_\theta (y|x)} \left[ \lambda (x) \left ( 1 - \int \pi_\theta (y|x) \, dy \right) \right] = -\lambda (x).\)</p>
+
+<hr />
+
+<ol>
+  <li><strong>合并偏导并设为 0</strong>
+将三部分的结果合并，得到：
+\(\frac{\partial \mathcal{L}}{\partial \pi_\theta (y|x)} = r (x, y) - \beta \left[ \log \pi_\theta (y|x) - \log \pi_{\text{ref}}(y|x) + 1 \right] - \lambda (x).\)
+设偏导为 0：
+\(R (x, y) - \beta \left[ \log \pi_\theta (y|x) - \log \pi_{\text{ref}}(y|x) + 1 \right] - \lambda (x) = 0.\)</li>
+</ol>
+
+<p>整理得到：
+\(\beta \log \pi_\theta (y|x) = \beta \log \pi_{\text{ref}}(y|x) + r (x, y) - \beta - \lambda (x).\)</p>
+
+<hr />
+
+<ol>
+  <li><strong>解出 $\pi_\theta (y|x)$</strong>
+两边除以 $\beta$，得到：
+\(\log \pi_\theta (y|x) = \log \pi_{\text{ref}}(y|x) + \frac{1}{\beta} r (x, y) - \frac{1}{\beta} (\beta + \lambda (x)).\)
+对两边取指数，得到：
+\(\pi_\theta (y|x) = \pi_{\text{ref}}(y|x) \cdot \exp\left (\frac{1}{\beta} r (x, y)\right) \cdot \exp\left (-\frac{1}{\beta} (\beta + \lambda (x))\right).\)</li>
+</ol>
+
+<p>定义 $Z (x) = \exp\left (\frac{\lambda (x) + \beta}{\beta}\right)$ 为归一化常数，最终得到：
+\(\pi_\theta (y|x) = \frac{1}{Z (x)} \pi_{\text{ref}}(y|x) \cdot \exp\left (\frac{1}{\beta} r (x, y)\right).\)</p>
+
+<hr />
+
+<ol>
+  <li>
+    <p><strong>分区函数 $Z (x)$ 的确定</strong>
+为了保证 $\pi_\theta (y|x)$ 是一个合法的概率分布，满足：
+\(\int \pi_\theta (y|x) \, dy = 1.\)
+将 $\pi_\theta (y|x)$ 的表达式代入：
+\(\int \frac{1}{Z (x)} \pi_{\text{ref}}(y|x) \cdot \exp\left (\frac{1}{\beta} r (x, y)\right) \, dy = 1.\)
+因此：
+\(Z (x) = \int \pi_{\text{ref}}(y|x) \cdot \exp\left (\frac{1}{\beta} r (x, y)\right) \, dy.\)
+—</p>
+  </li>
+  <li>
+    <p>解出 $r(x,y)$
+由上述 $\pi_\theta (y|x)$ 的表达式，可以解出 $r(x,y)$：</p>
+  </li>
+</ol>
+
+\[r(x,y)=\beta\log\frac{\pi_r(y\mid x)}{\pi_{\mathrm{ref}}(y\mid x)}+\beta\log Z(x).\]
+
+<hr />
+
+<ol>
+  <li>代入偏好模型</li>
+</ol>
+
+\[p^*(y_1\succ y_2\mid x)=\frac1{1+\exp\left(\beta\log\frac{\pi^*(y_2|x)}{\pi_{\mathrm{ref}}(y_2|x)}-\beta\log\frac{\pi^*(y_1|x)}{\pi_{\mathrm{ref}}(y_1|x)}\right)}\text{(6)}\]
+
+<hr />
+
+<ol>
+  <li>求得 Loss
+根据最大似然估计，我们可以得到损失函数：</li>
+</ol>
+
+\[\mathcal{L}_{\mathrm{DPO}}(\pi_\theta;\pi_{\mathrm{ref}})=-\mathbb{E}_{(x,y_w,y_l)\sim\mathcal{D}}\left[\log\sigma\left(\beta\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\mathrm{ref}}(y_w\mid x)}-\beta\log\frac{\pi_\theta(y_l\mid x)}{\pi_{\mathrm{ref}}(y_l\mid x)}\right)\right].\]
+
+<p>DPO相当于拟合一个重新参数化的 Bradley-Terry 模型</p>
+
+\[r(y)=\beta\log\frac{\pi_\theta(y|x)}{\pi_\mathrm{ref}(y|x)},\]
+
+<table>
+  <tbody>
+    <tr>
+      <td>作者不直接定义一个显式的 r(y)，而是通过语言模型策略 $\pi_\theta(y</td>
+      <td>x)$ 和参考策略 $\pi_\mathrm{ref}(y</td>
+      <td>x)$ 的比率间接定义。</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="dpo-梯度更新过程">DPO 梯度更新过程</h3>
+
+<p>我们从 DPO 损失函数的定义出发，通过逐步推导梯度公式，来说明公式的来源。以下是具体推导过程。</p>
+
+<hr />
+
+<ol>
+  <li><strong>DPO 的损失函数</strong>
+DPO 的目标是最小化以下损失函数：
+\(\mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[\log \sigma \left (\beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)} \right) \right],\)</li>
+</ol>
+
+<hr />
+
+<ol>
+  <li><strong>对损失函数的梯度求导</strong>
+我们希望计算损失函数对策略参数 $\theta$ 的梯度：
+\(\nabla_\theta \mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}).\)
+2.1 <strong>将梯度作用到期望外</strong>
+损失函数是一个期望形式，因此可以将梯度直接作用到期望内部：
+\(\nabla_\theta \mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \nabla_\theta \log \sigma \left (\beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)} \right) \right].\)</li>
+</ol>
+
+<p>2.2 <strong>对 sigmoid 内部项求导</strong>
+对 $\log \sigma (z)$ 的梯度为：
+\(\nabla_\theta \log \sigma (z) = \sigma (-z) \cdot \nabla_\theta z.\)
+其中 $\sigma (-z) = 1 - \sigma (z)$。这一步的作用是将梯度转移到 $z$ 上。</p>
+
+<p>令：
+\(Z = \beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)}.\)</p>
+
+<p>则：
+\(\nabla_\theta \log \sigma (z) = \sigma (-z) \cdot \nabla_\theta z.\)</p>
+
+<p>2.3 <strong>计算 $z$ 对 $\theta$ 的梯度</strong>
+将 $z$ 展开为：
+\(Z = \beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)}.\)</p>
+
+<p>计算 $z$ 对 $\theta$ 的梯度：
+\(\nabla_\theta z = \beta \left ( \nabla_\theta \log \pi_\theta (y_w|x) - \nabla_\theta \log \pi_\theta (y_l|x) \right).\)</p>
+
+<p>将 $\nabla_\theta z$ 和 $\sigma (-z)$ 带入梯度公式：
+\(\nabla_\theta \mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \sigma (-z) \cdot \beta \left ( \nabla_\theta \log \pi_\theta (y_w|x) - \nabla_\theta \log \pi_\theta (y_l|x) \right) \right].\)</p>
+
+<p>2.4 <strong>简化权重项</strong>
+注意到 $\sigma (-z) = 1 - \sigma (z)$。对于 DPO 的优化，权重用 $\sigma (z)$ 即可，因此最终梯度为：
+\(\nabla_\theta \mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\beta \mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \sigma \left ( \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)} - \beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} \right) \cdot \left ( \nabla_\theta \log \pi_\theta (y_w|x) - \nabla_\theta \log \pi_\theta (y_l|x) \right) \right].\)</p>
+
+<hr />
+
+<ol>
+  <li><strong>最终公式</strong>
+令隐式奖励函数为：
+\(\hat{r}_\theta (x, y) = \beta \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)}.\)
+则公式进一步简化为：
+\(\nabla_\theta \mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\beta \mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \sigma \left ( \hat{r}_\theta (x, y_l) - \hat{r}_\theta (x, y_w) \right) \cdot \left ( \nabla_\theta \log \pi_\theta (y_w|x) - \nabla_\theta \log \pi_\theta (y_l|x) \right) \right].\)</li>
+</ol>
+
+<h4 id="梯度更新的解释">梯度更新的解释</h4>
+
+<ol>
+  <li><strong>调整偏好答案和非偏好答案的概率</strong>：</li>
+</ol>
+
+<ul>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>梯度的第一项 $\nabla_\theta \log \pi_\theta(y_w</td>
+          <td>x)$ 增加偏好答案 $y_w$ 的生成概率。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>第二项 $\nabla_\theta \log \pi_\theta(y_l</td>
+          <td>x)$ 减少非偏好答案 $y_l$ 的生成概率。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>更新的大小由 sigmoid 加权，重点修正模型排序错误较大的样本。</li>
+</ul>
+
+<ol>
+  <li><strong>权重反映偏好评分的偏差</strong>：</li>
+</ol>
+
+<ul>
+  <li>
+    <p>权重 $\sigma(\hat{r}<em>\theta(x, y_l) - \hat{r}</em>\theta(x, y_w))$ 直接取决于偏好排序的正确性。</p>
+  </li>
+  <li>
+    <p>如果模型对偏好和非偏好的排序与人类一致，则权重较小；否则，权重较大，修正力度更强。</p>
+  </li>
+</ul>
+
+<ol>
+  <li><strong>综合目标</strong>：</li>
+</ol>
+
+<ul>
+  <li>DPO 的更新机制本质上是在策略 $\pi_\theta$ 和人类偏好之间不断调整，使 $\pi_\theta$ 生成的结果逐渐接近人类期望。</li>
+</ul>
+
+<h4 id="dpo-的流程">DPO 的流程</h4>
+
+<p>这段话描述了 DPO 方法的具体工作流程，包括如何构建数据集、初始化模型以及优化策略的过程。以下是详细解析：</p>
+
+<hr />
+
+<ol>
+  <li><strong>DPO 的工作流程</strong>
+(1) <strong>数据集构建</strong>
+    <ul>
+      <li>
+        <table>
+          <tbody>
+            <tr>
+              <td><strong>样本生成</strong>：首先，对每个提示 $x$（例如一个问题或任务）生成两个候选答案 $y_1$ 和 $y_2$，它们是从参考策略 $\pi_{\text{ref}}(\cdot</td>
+              <td>x)$ 中采样得到的。</td>
+            </tr>
+          </tbody>
+        </table>
+      </li>
+      <li><strong>人类偏好标注</strong>：然后，通过人类标注的方式，根据偏好选择 $y_1$ 和 $y_2$ 中的优先答案（例如，哪一个更符合人类预期）。标注后的数据集可以表示为：
+\(D = \{(x^{(i)}, y_w^{(i)}, y_l^{(i)})\}_{i=1}^N,\)
+其中 $y_w$ 是偏好答案（”winner”），$y_l$ 是不偏好答案（”loser”）。</li>
+    </ul>
+  </li>
+</ol>
+
+<p>(2) <strong>优化语言模型</strong></p>
+<ul>
+  <li>在构造好的偏好数据集 $D$ 和给定的参考策略 $\pi_{\text{ref}}$ 下，优化目标是最小化 DPO 损失函数：
+\(\mathcal{L}_{\text{DPO}} = -\mathbb{E}_{(x, y_w, y_l) \sim D} \left[\log \sigma\left (\beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right)\right].\)</li>
+  <li>通过优化 $\pi_\theta$，使得模型逐渐调整为生成更符合人类偏好的答案。</li>
+</ul>
+
+<hr />
+
+<ol>
+  <li><strong>实际应用中的简化</strong>
+    <ul>
+      <li>在实际操作中，可以直接复用现有的公开偏好数据集，而无需重复生成候选答案并进行人类标注。这种做法大大减少了数据构建的成本。</li>
+    </ul>
+  </li>
+</ol>
+
+<hr />
+
+<ol>
+  <li><strong>参考策略 $\pi_{\text{ref}}$ 的初始化</strong></li>
+</ol>
+
+<p>(1) 如果 $\pi^{\text{SFT}}$ 可用：</p>
+<ul>
+  <li>通常，参考策略 $\pi_{\text{ref}}$ 是从监督微调模型 $\pi^{\text{SFT}}$ 初始化的。
+    <ul>
+      <li><strong>$\pi^{\text{SFT}}$：</strong> 通过监督学习方法训练的模型，它是一个能够生成合理答案的基础模型。</li>
+      <li>当 $\pi^{\text{SFT}}$ 可用时，直接设置 $\pi_{\text{ref}} = \pi^{\text{SFT}}$。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>(2) 如果 $\pi^{\text{SFT}}$ 不可用：</p>
+
+<ul>
+  <li>如果没有现成的监督微调模型 $\pi^{\text{SFT}}$，可以通过最大化偏好答案的似然初始化参考策略：
+\(\pi_{\text{ref}} = \arg\max_{\pi} \mathbb{E}_{(x, y_w) \sim D} [\log \pi (y_w|x)].\)</li>
+  <li>这意味着 $\pi_{\text{ref}}$ 的训练目标是提升偏好答案 $y_w$ 的生成概率，从而构造一个合理的参考策略。</li>
+  <li>通过 $\pi^{\text{SFT}}$ 或最大化偏好答案似然的方法，可以缓解模型分布与真实参考分布（即人类偏好生成的答案分布不可用）之间的偏移问题。</li>
+</ul>
+
+<h2 id="dpo-理论分析">DPO 理论分析</h2>
+
+<h3 id="证明-1你的模型包含奖励模型">证明 1：你的模型包含奖励模型</h3>
+
+<p>证明，DPO 的训出来的模型</p>
+
+<p>\(r^*(x,y)=\beta\log\frac{\pi_\theta^*(y|x)}{\pi_{\mathrm{ref}}(y|x)}\)
+等价于一般的奖励模型（Bradley-Terry 模型）</p>
+
+<p>下面为了证明证明 1 ，给出了一些定义和引理。</p>
+
+<h4 id="定义-1偏好奖励模型等价">定义 1：偏好奖励模型等价</h4>
+
+<p>两个偏好奖励模型等价当且仅当
+\(r(x,y)-r^{\prime}(x,y)=f(x)\)</p>
+
+<p>证明：</p>
+
+<p>在定义中，$f (x)$ 是<strong>与 $x$ 有关</strong>的函数，而不是一个常数。这是等价性定义中的关键点。</p>
+
+<p>定义中提到，两个奖励函数 $r (x, y)$ 和 $r’ (x, y)$ 被认为是等价的，如果它们的差异可以表示为：
+\(R (x, y) - r' (x, y) = f (x),\)
+其中 $f (x)$ 是仅与输入 $x$ 相关的函数，和候选答案 $y$ 无关。</p>
+
+<h4 id="为什么-f-x-与-x-相关">为什么 $f (x)$ 与 $x$ 相关？</h4>
+<ul>
+  <li>$f (x)$ 可能表示不同输入 $x$ 的整体偏移量。这个偏移量对候选项 $y$ 是一致的，但会因 $x$ 而变化。</li>
+  <li>$f (x)$ 的存在表明，不同输入 $x$ 下，奖励函数的绝对值可以有不同的基线或偏移，但这些偏移不影响候选项 $y$ 之间的<strong>相对评分</strong>。</li>
+</ul>
+
+<hr />
+
+<h4 id="等价性定义">等价性定义</h4>
+<p>两个奖励函数 $r (x, y)$ 和 $r’ (x, y)$ 被认为是等价的，若它们的差异为：
+\(R (x, y) - r' (x, y) = f (x),\)</p>
+<ul>
+  <li>这里 $f (x)$ 是<strong>仅与输入 $x$ 有关</strong>的函数，而不是一个常数。</li>
+  <li>换句话说，$r (x, y)$ 和 $r’ (x, y)$ 对任意给定的输入 $x$，它们的评分差异在候选项 $y$ 上是恒定的。</li>
+</ul>
+
+<h4 id="为什么允许-f-x-的存在">为什么允许 $f (x)$ 的存在？</h4>
+<p>在偏好分布（如 Bradley-Terry 或 Plackett-Luce 模型）中，偏好仅取决于奖励函数的相对差异，而不是奖励函数的绝对值。因此：</p>
+<ul>
+  <li>$f (x)$ 的存在相当于为输入 $x$ 下的所有候选项 $y$ 添加了一个全局偏移。</li>
+  <li>这个偏移不影响候选项之间的相对评分，因此不会改变偏好分布或最优策略。</li>
+</ul>
+
+<hr />
+
+<h4 id="具体解释f-x-的作用">具体解释：$f (x)$ 的作用</h4>
+
+<ol>
+  <li><strong>举例</strong>
+假设对于输入 $x$，两个奖励函数是：
+\(R (x, y) = \text{quality}(y) + 10 x, \quad r' (x, y) = \text{quality}(y),\)
+其中 $\text{quality}(y)$ 表示候选项 $y$ 的质量，而 $10 x$ 是一个仅与 $x$ 相关的偏移。
+    <ul>
+      <li>这里 $r (x, y) - r’ (x, y) = 10 x = f (x)$。</li>
+      <li>虽然 $f (x) = 10 x$ 会影响奖励函数的绝对值，但它对 $y$ 的相对排序没有影响，因此 $r (x, y)$ 和 $r’ (x, y)$ 是等价的。</li>
+    </ul>
+  </li>
+  <li><strong>对偏好分布的影响</strong>
+在 Bradley-Terry 模型中，偏好分布是由相对评分决定的，例如：
+\(P (y_1 \succ y_2 \mid x) = \frac{\exp (r (x, y_1))}{\exp (r (x, y_1)) + \exp (r (x, y_2))}.\)
+如果 $r (x, y)$ 和 $r’ (x, y)$ 相差 $f (x)$，则：
+\(P (y_1 \succ y_2 \mid x) = \frac{\exp (r' (x, y_1) + f (x))}{\exp (r' (x, y_1) + f (x)) + \exp (r' (x, y_2) + f (x))}.\)
+因为 $f (x)$ 是对所有候选项的全局偏移，它在分布计算中被约掉，不影响最终的概率值。</li>
+</ol>
+
+<h4 id="-结论-等价类和最优策略">### 结论 ：等价类和最优策略</h4>
+
+<h4 id="引理-2">引理 2</h4>
+
+<p><strong>同一等价类中的奖励函数会导致相同的最优策略</strong>。</p>
+
+<h4 id="为什么"><strong>为什么？</strong></h4>
+
+<ul>
+  <li>在强化学习（RL）中，最优策略由奖励函数的相对差异决定，而非绝对值。</li>
+  <li>由于同一等价类中的奖励函数在候选答案之间的相对排序相同，因此它们会诱导相同的最优策略。</li>
+</ul>
+
+<h4 id="结论与-plackett-luce-或-bradley-terry-模型一致的奖励函数等价类都可以通过重新参数化的形式来表示">结论：与 Plackett-Luce 或 Bradley-Terry 模型一致的奖励函数等价类，都可以通过重新参数化的形式来表示。</h4>
+
+<p>证明略</p>
+
+<h3 id="传统强化学习方法的不稳定性">传统强化学习方法的不稳定性</h3>
+
+<p>这段内容从理论和实验两个角度解释了 <strong>DPO（Direct Preference Optimization）</strong> 方法的稳定性优势，并将其与基于强化学习（如 <strong>PPO</strong>）的方法进行了对比，指出了 DPO 的理论优势以及在实际应用中的鲁棒性表现。</p>
+
+<p>以下是逐步解析：</p>
+
+<h4 id="1-强化学习中的优化目标">(1) 强化学习中的优化目标</h4>
+<p>文中提到的优化目标是：
+\(\max_{\pi_\theta} \mathbb{E}_{\pi_\theta} \left[ r_\phi (x, y) - \beta \log \sum_y \pi_{\text{ref}}(y|x) \exp \left ( \frac{1}{\beta} r_\phi (x, y) \right) - \beta \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} \right].\)</p>
+
+<ul>
+  <li><strong>主要内容</strong>：
+    <ul>
+      <li>$r_\phi (x, y)$：由奖励函数定义的分数。</li>
+      <li>第二项是一个<strong>归一化项</strong>，对应分区函数的对数值。</li>
+      <li>最后一项是策略 $\pi_\theta$ 和参考策略 $\pi_{\text{ref}}$ 之间的 KL 散度，用于限制策略偏离参考策略的程度。</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="2-强化学习的不稳定性来源">(2) 强化学习的不稳定性来源</h4>
+<ul>
+  <li>传统强化学习（例如 PPO）使用<strong>Actor-Critic 框架</strong>优化类似的目标，然而：
+    <ul>
+      <li><strong>归一化项（normalization term）</strong>：
+        <ul>
+          <li>
+            <table>
+              <tbody>
+                <tr>
+                  <td>分区函数的计算（即 $\sum_y \pi_{\text{ref}}(y</td>
+                  <td>x) \exp \left ( \frac{1}{\beta} r_\phi (x, y) \right)$）是高维的积分，可能导致优化过程的不稳定。</td>
+                </tr>
+              </tbody>
+            </table>
+          </li>
+          <li>如果不精确估计归一化项，梯度的方差会增大，优化变得困难。</li>
+        </ul>
+      </li>
+      <li><strong>高方差的梯度</strong>：
+        <ul>
+          <li>在传统 RL 中，归一化项通常通过 Monte Carlo 采样估计，这可能导致梯度估计的高方差，进而影响收敛。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="3-dpo-的解决方案">(3) DPO 的解决方案</h4>
+<p>DPO 的重新参数化解决了上述问题：</p>
+<ul>
+  <li><strong>不需要显式估计归一化项</strong>：
+    <ul>
+      <li>DPO 的重新参数化将归一化项隐含地包含在优化过程中，不需要像 PPO 那样使用 Monte Carlo 或复杂的基线函数来估计分区函数。</li>
+    </ul>
+  </li>
+  <li><strong>更稳定的梯度更新</strong>：
+    <ul>
+      <li>通过直接优化策略（而非依赖价值函数或采样基线），DPO 避免了梯度的高方差问题，使得训练过程更加稳定。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="实验">实验</h2>
+
+<p>略</p>
+
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-11-18T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2024/11/12/RAG-DDR%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0-%E9%98%85%E8%AF%BBing.html">RAG-DDR论文笔记</a></div><div class="next"><span>下篇</span><a href="/2024/11/18/Tool-Learning-with-Foundation-Models-%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html">Tool Learning with Foundation Models 论文笔记</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"><div id="vcomments"></div><script>
+  window.Lazyload.js(['//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js', 'https://unpkg.com/valine/dist/Valine.min.js'], function() {
+    var _config = {
+      el: '#vcomments',
+      appId:  'ONcOJaEzueQcEXVrHVv5dQ4F-gzGzoHsz',
+      appKey: '0iORBozCMxniZ0spe5QY9zCO',
+      verify: true,
+    };_config.lang = 'en';new Valine(_config);
+  });
+</script></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xingjie Gao"><meta itemprop="url" content="/"><meta itemprop="description" content="To be a question, to be an answer."><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"><li title="给我发邮件。">
+      <a class="button button--circle mail-button" itemprop="email" href="mailto:xingjie-gao@outlook.com" target="_blank">
+        <i class="fas fa-envelope"></i>
+      </a><li title="在 Github 上关注我。">
+        <a class="button button--circle github-button" itemprop="sameAs" href="https://github.com/Kfkcome" target="_blank">
+          <div class="icon"><svg fill="#000000" width="24px" height="24px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path class="svgpath" data-index="path_0" fill="#272636" d="M0 525.2c0 223.6 143.3 413.7 343 483.5 26.9 6.8 22.8-12.4 22.8-25.4l0-88.7c-155.3 18.2-161.5-84.6-172-101.7-21.1-36-70.8-45.2-56-62.3 35.4-18.2 71.4 4.6 113.1 66.3 30.2 44.7 89.1 37.2 119 29.7 6.5-26.9 20.5-50.9 39.7-69.6C248.8 728.2 181.7 630 181.7 513.2c0-56.6 18.7-108.7 55.3-150.7-23.3-69.3 2.2-128.5 5.6-137.3 66.5-6 135.5 47.6 140.9 51.8 37.8-10.2 80.9-15.6 129.1-15.6 48.5 0 91.8 5.6 129.8 15.9 12.9-9.8 77-55.8 138.8-50.2 3.3 8.8 28.2 66.7 6.3 135 37.1 42.1 56 94.6 56 151.4 0 117-67.5 215.3-228.8 243.7 26.9 26.6 43.6 63.4 43.6 104.2l0 128.8c0.9 10.3 0 20.5 17.2 20.5C878.1 942.4 1024 750.9 1024 525.3c0-282.9-229.3-512-512-512C229.1 13.2 0 242.3 0 525.2L0 525.2z" />
+</svg>
+</div>
+        </a>
+      </li></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© Ennis's Blog 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script>
+  window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
+    var $canvas = null, $this = null, _ctx = null, _text = '';
+    $('.language-chart').each(function(){
+      $this = $(this);
+      $canvas = $('<canvas></canvas>');
+      _text = $this.text();
+      $this.text('').append($canvas);
+      _ctx = $canvas.get(0).getContext('2d');
+      (_ctx && _text) && (new Chart(_ctx, JSON.parse(_text)) && $this.attr('data-processed', true));
+    });
+  });
+</script>
+<script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};_config.TeX = { equationNumbers: { autoNumber: "all" } };MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="/assets/MathJax/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+<script>(function() {
+  function errorHandler(error, callback) {
+    if (error) {
+      callback && callback(error);
+      throw error;
+    }
+  }
+
+  function pageview(_AV, options) {
+    var AV = _AV;
+    var appId, appKey, appClass;
+    appId = options.appId;
+    appKey = options.appKey;
+    appClass = options.appClass;
+    if (!AV.applicationId) {
+      AV.init({
+        serverURLs: 'https://avoscloud.com',
+        appId: appId,
+        appKey: appKey
+      });
+    } else {
+      console.log('LeanCloud SDK 已经初始化过了。');
+    }
+    return {
+      get: get,
+      increase: increase
+    };
+
+    function searchKey(key) {
+      var query = new AV.Query(appClass);
+      query.equalTo('key', key);
+      return query.first();
+    }
+
+    function insert(key, title) {
+      var Blog = AV.Object.extend(appClass);
+      var blog = new Blog();
+      blog.set('title', title);
+      blog.set('key', key);
+      blog.set('views', 0);
+      return blog.save();
+    }
+
+    function increment(result) {
+      result.increment('views', 1);
+      return result.save(null, {
+        fetchWhenSave: true
+      });
+    }
+
+    function get(key, callback) {
+      searchKey(key).then(function(result) {
+        if (result) {
+          callback && callback(result.attributes.views);
+        }
+      }, errorHandler);
+    }
+
+    function increase(key, title, callback) {
+      searchKey(key).then(function(result) {
+        if (result) {
+          increment(result).then(function(result) {
+            callback && callback(result.attributes.views);
+          });
+        } else {
+          insert(key, title).then(function(result) {
+            increment(result).then(function(result) {
+              callback && callback(result.attributes.views);
+            });
+          }, errorHandler);
+        }
+      }, errorHandler);
+    }
+  }
+  window.pageview = pageview;
+})();
+</script>
+  <script>
+    window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js'], function() {
+      var pageview = window.pageview(AV, {
+        appId:    'ONcOJaEzueQcEXVrHVv5dQ4F-gzGzoHsz',
+        appKey:   '0iORBozCMxniZ0spe5QY9zCO',
+        appClass: 'Test'
+      });
+      var key =   'post68';
+      var title = "DPO论文学习";
+      pageview.increase(key, title, function(view) {
+        $("[data-page-key='post68']").text(view);
+      });
+    });
+  </script>
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+
