@@ -1,0 +1,2001 @@
+<!DOCTYPE html><html lang="zh-Hans">
+  <head><!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-LVD2CPW3EW"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'G-LVD2CPW3EW');
+		
+	</script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>LoRA LOW-RANK ADAPTATION 论文笔记 - Ennis's Blog</title>
+
+<meta name="description" content="LoRA LOW-RANK ADAPTATION 论文笔记">
+<link rel="canonical" href="http://localhost:4000/2024/11/18/LoRA-LOW-RANK-ADAPTATION-%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: '/assets/MathJax/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Willing to be a question, willing to be an answer.
+" href="/">Ennis's Blog</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=nlp">nlp</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86">自然语言处理</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0">论文笔记</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 11月18日</span>
+            </li><li><i class="far fa-eye"></i> <span class="js-pageview" data-page-key="post70">0</span> 阅读</li></ul></div><div class="article__header"><header><h1>LoRA LOW-RANK ADAPTATION 论文笔记</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/论文笔记/2024-11-18-LoRA LOW-RANK ADAPTATION 论文笔记.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">LoRA LOW-RANK ADAPTATION 论文笔记</p></div></div>
+              </div>
+            </div><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="LoRA LOW-RANK ADAPTATION 论文笔记"><meta itemprop="author" content="Xingjie Gao"/><meta itemprop="datePublished" content="2024-11-18T00:00:00+08:00">
+    <meta itemprop="keywords" content="nlp,自然语言处理,论文笔记"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><h1 id="lora-low-rank-adaptation-论文笔记">LoRA LOW-RANK ADAPTATION 论文笔记</h1>
+
+<!---more-->
+
+<h2 id="不懂的问题">不懂的问题</h2>
+
+<h3 id="线性代数基础">线性代数基础</h3>
+
+<p>根据线性代数的性质：</p>
+<ul>
+  <li>若 $B \in \mathbb{R}^{512 \times 4}$ 和 $A \in \mathbb{R}^{4 \times 512}$，则矩阵乘积 $\Delta W = B A$ 的最大秩 $\text{rank}(\Delta W)$ 由 $B$ 和 $A$ 的秩中较小的那个决定：
+\(\text{rank}(\Delta W) \leq \min (\text{rank}(B), \text{rank}(A))\)</li>
+  <li>在 LoRA 的低秩分解中：
+    <ul>
+      <li>$B$ 的列数是 4，其秩最多为 4。</li>
+      <li>$A$ 的行数是 4，其秩最多为 4。</li>
+      <li>因此，$\Delta W = B A$ 的秩最多为 4。</li>
+    </ul>
+  </li>
+  <li>虽然 $\Delta W$ 的尺寸是 $512 \times 512$，但它的 <strong>列空间维度（rank）</strong> 被限制在 4，即列向量最多线性独立的维度是 4。</li>
+</ul>
+
+<p>假设我们有一个 $512 \times 512$ 的矩阵更新：</p>
+<ul>
+  <li>如果直接更新 $\Delta W$ 的每个元素（完整微调），那么矩阵的秩可以达到最大值 512。</li>
+  <li>LoRA 的假设是任务适配过程中权重更新的本质维度较低，因此可以用 <strong>4 个基向量（来自 $B$ 的列空间）</strong> 和它们的线性组合来近似表示更新。</li>
+</ul>
+
+<p>这意味着即使 $\Delta W$ 的尺寸是 $512 \times 512$，其独立的方向（秩）是受 $r = 4$ 的限制的。</p>
+
+<p>所以这正是为什么通过调整 $r$ 可以控制 LoRA 的表达能力：$r$ 越大，权重更新的潜在方向越多，表达能力越强；当 $r$ 接近 512 时，LoRA 的表达能力接近完整微调。</p>
+
+<h2 id="摘要">摘要</h2>
+
+<h3 id="问题">问题</h3>
+
+<p>模型越来越大，全参数 SFT 变的不可行</p>
+
+<h3 id="作者的工作">作者的工作</h3>
+
+<p>LORA：该方法冻结预训练模型的权重，并将可训练的秩分解矩阵注入到Transformer架构的每一层，极大地减少了下游任务的可训练参数数量。</p>
+
+<h3 id="结果">结果</h3>
+
+<ul>
+  <li>与使用Adam微调的GPT-3 175B相比，LoRA可以将可训练参数的数量减少10,000倍，并将GPU内存需求减少3倍。</li>
+  <li>尽管可训练参数较少，训练吞吐量更高，并且与适配器不同，不会增加额外的推理延迟，LoRA在RoBERTa、DeBERTa、GPT-2和GPT-3的模型质量上表现与微调持平或更好</li>
+</ul>
+
+<h2 id="引言">引言</h2>
+
+<ul>
+  <li>问题：模型越来越大，全参数 SFT 变的不可行</li>
+  <li>现有解决方法：针对不同任务添加一些参数或者适配器
+    <ul>
+      <li>好处：只需要存储和加载少量的任务特定参数，除了每个任务的预训练模型外，极大地提高了部署时的操作效率。</li>
+      <li>缺点：适配器会增加推理了延迟、无法与达到微调基础，在效率和质量直接由权衡</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="lora">LoRA</h3>
+
+<ol>
+  <li>灵感：LoRA 的灵感来源于研究表明，<strong>过参数化的模型其实存在于一个低维空间</strong>。也就是说，在模型适应（fine-tuning）过程中，权重的变化可以用一个低秩结构表示（即低秩分解）。</li>
+  <li>核心思想：
+    <ul>
+      <li><strong>冻结预训练模型权重</strong>：只优化特定层的“变化部分”。</li>
+      <li><strong>低秩分解</strong>：通过优化某些密集层变化的低秩分解矩阵（如图中提到的矩阵 AAA 和 BBB），实现模型适应。</li>
+      <li>
+        <p>例如，GPT-3 175B 预训练模型中的一个矩阵，其原始秩（rank）为 12,288，LoRA 只需优化秩 r=1r=1r=1 或 r=2r=2r=2 的矩阵就能完成 fine-tuning。</p>
+
+        <p><img src="/assets/posts_assets/Pasted%20image%2020241120185140.png" alt="" /></p>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<p>这张图是 <strong>LoRA（Low-Rank Adaptation）</strong> 方法的关键机制示意图，展示了如何对预训练模型中的权重矩阵 $W \in \mathbb{R}^{d \times d}$ 进行低秩分解和优化。</p>
+
+<hr />
+
+<h4 id="图中元素解释">图中元素解释</h4>
+
+<ol>
+  <li><strong>Pretrained Weights $W$</strong>：
+    <ul>
+      <li>$W$ 是预训练模型中的一个权重矩阵，其维度为 $d \times d$。</li>
+      <li>在 LoRA 方法中，这个矩阵 <strong>保持冻结（不更新）</strong>。</li>
+    </ul>
+  </li>
+  <li><strong>输入 $x$ 和输出 $h$</strong>：
+    <ul>
+      <li>输入 $x$ 是特征向量，其维度为 $d$。</li>
+      <li>输出 $h$ 是经过 LoRA 适配后的向量，作为网络的输出，维度同样为 $d$。</li>
+    </ul>
+  </li>
+  <li><strong>低秩分解矩阵 $A$ 和 $B$</strong>：
+    <ul>
+      <li>LoRA 引入两个小规模的低秩矩阵 $A \in \mathbb{R}^{d \times r}$ 和 $B \in \mathbb{R}^{r \times d}$，其中 $r \ll d$（例如 $r=1$ 或 $r=2$）。</li>
+      <li>$A$ 和 $B$ 的作用是近似描述 $W$ 的变化（即微调时需要的调整量 $\Delta W$）。</li>
+      <li>在初始化时：
+        <ul>
+          <li>$A$ 通常从高斯分布 $\mathcal{N}(0, \sigma^2)$ 中随机采样。</li>
+          <li>$B$ 初始化为零矩阵。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>模型调整机制</strong>：
+    <ul>
+      <li>微调时，仅优化 $A$ 和 $B$ 的参数，而不改变 $W$。</li>
+      <li>输入 $x$ 经过计算后产生一个调整量：
+\(\Delta h = B \cdot (A \cdot x)\)</li>
+      <li>最终输出为：
+\(H = W \cdot x + \Delta h\)</li>
+      <li>这表明模型输出是预训练权重 $W$ 的结果加上一个低秩调整项。</li>
+    </ul>
+  </li>
+</ol>
+
+<h4 id="lora-优势">LoRA 优势</h4>
+
+<ol>
+  <li>
+    <p><strong>共享和高效任务切换</strong>：</p>
+
+    <ul>
+      <li><strong>模块化</strong>：预训练模型可以用于多个任务。LoRA 通过替换不同的低秩矩阵 AAA 和 BBB，实现了高效的任务切换。</li>
+      <li><strong>减少存储需求</strong>：因为只需要存储这些小的矩阵，而不是整个模型参数。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>提高训练效率</strong>：</p>
+
+    <ul>
+      <li><strong>降低硬件门槛</strong>：相比传统方法，LoRA <strong>只优化小规模矩阵</strong>，因此显著减少计算量。根据文中描述，可以将所需的硬件资源减少到原来的三分之一。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>零推理延迟</strong>：</p>
+
+    <ul>
+      <li>LoRA 的设计可以在部署时将优化的矩阵与预训练权重合并，因此不会增加推理延迟。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>方法的通用性和组合性</strong>：</p>
+
+    <ul>
+      <li>LoRA <strong>独立于其他方法</strong>，如前缀微调（prefix-tuning），并且可以与这些方法组合使用以增强效果。</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="术语约定">术语约定</h3>
+
+<ol>
+  <li><strong>关于 Transformer 的术语和维度</strong>
+    <ul>
+      <li><strong>$d_{\text{model}}$</strong>：
+        <ul>
+          <li>表示 Transformer 模型中某一层的输入和输出向量的维度。</li>
+          <li>在 Transformer 的每一层中，所有的输入和输出张量都会使用这个维度。</li>
+        </ul>
+      </li>
+      <li><strong>投影矩阵（Projection Matrices）</strong>：
+        <ul>
+          <li>$W_q$：用于生成 <strong>query</strong>（查询向量）的投影矩阵。</li>
+          <li>$W_k$：用于生成 <strong>key</strong>（键向量）的投影矩阵。</li>
+          <li>$W_v$：用于生成 <strong>value</strong>（值向量）的投影矩阵。</li>
+          <li>$W_o$：表示 <strong>输出投影矩阵</strong>。</li>
+          <li>这些矩阵都位于 <strong>自注意力模块（self-attention module）</strong> 内，是 Transformer 的核心部分。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<hr />
+
+<ol>
+  <li><strong>权重的定义</strong>
+    <ul>
+      <li><strong>$W$ 或 $W_0$</strong>：
+        <ul>
+          <li>代表 Transformer 中某一层的 <strong>预训练权重矩阵</strong>，这些矩阵通过预训练模型获得，在微调时被冻结（即不被更新）。</li>
+        </ul>
+      </li>
+      <li><strong>$\Delta W$</strong>：
+        <ul>
+          <li>代表 LoRA 在微调过程中累计更新的权重变化量。</li>
+          <li>LoRA 的核心思想是通过优化这个权重变化量，而不是直接修改原始的权重矩阵 $W$。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<hr />
+
+<ol>
+  <li><strong>LoRA 的秩（Rank）$r$</strong>
+    <ul>
+      <li><strong>$r$</strong>：
+        <ul>
+          <li>表示 LoRA 中低秩分解矩阵的秩（rank）。</li>
+          <li>$r$ 通常远小于 $d_{\text{model}}$，用来表示矩阵分解的低维度，从而降低优化问题的计算复杂度。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<hr />
+
+<ol>
+  <li><strong>优化方法和架构设置</strong>
+    <ul>
+      <li><strong>优化方法</strong>：
+        <ul>
+          <li>作者采用了 <strong>Adam</strong> 优化器，这是一个在深度学习中常用的自适应学习率优化算法（参考：Loshchilov &amp; Hutter, 2019 和 Kingma &amp; Ba, 2017）。</li>
+        </ul>
+      </li>
+      <li><strong>MLP 维度设置</strong>：
+        <ul>
+          <li>Transformer 中多层感知机（MLP）的隐藏层维度定义为：
+\(D_{\text{ffn}} = 4 \times d_{\text{model}}\)</li>
+          <li>意味着 MLP 的隐藏层通常比输入输出的维度大 4 倍，用于增强模型的非线性表达能力。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="问题陈述">问题陈述</h2>
+
+<p>LoRA 不涉及 loss 的设计，而是专注于语言建模任务的优化方法</p>
+
+<h3 id="1-背景预训练模型">1. 背景：预训练模型</h3>
+
+<p>假设我们有一个预训练的自回归语言模型（autoregressive language model）：
+     \(P_\Phi (y|x)\)
+     其中：
+     - $x$：输入序列（例如任务的 prompt 或上下文）。
+     - $y$：输出序列（例如模型生成的文本）。
+     - $\Phi$：模型参数。</p>
+
+<ul>
+  <li>被用于解决多种下游任务（downstream tasks），如文本摘要（summarization）、阅读理解（MRC）、自然语言到 SQL 转换（NL 2 SQL）等。</li>
+  <li><strong>任务定义</strong>：
+    <ul>
+      <li>每个下游任务通过一个训练数据集表示：
+\(\mathcal{Z} = \{(x_i, y_i)\}_{i=1}^N\)
+其中 $x_i$ 是输入序列，$y_i$ 是目标序列（输出）。
+        <ul>
+          <li>例如，在 NL 2 SQL 任务中：
+            <ul>
+              <li>$x_i$：自然语言查询。</li>
+              <li>$y_i$：对应的 SQL 命令。</li>
+            </ul>
+          </li>
+          <li>在摘要任务中：
+            <ul>
+              <li>$x_i$：文章内容。</li>
+              <li>$y_i$：文章摘要。</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="2-完整微调full-fine-tuning的问题">2. 完整微调（Full Fine-Tuning）的问题</h3>
+
+<ul>
+  <li>在传统的完整微调方法中：
+    <ul>
+      <li>模型会从预训练权重 $\Phi_0$ 开始进行优化。</li>
+      <li>更新后的模型参数为：
+\(\Phi = \Phi_0 + \Delta \Phi\)
+其中 $\Delta \Phi$ 是模型在下游任务上的更新。</li>
+    </ul>
+  </li>
+  <li>目标是最大化条件语言建模目标：
+\(\max_{\Phi} \sum_{(x, y) \in \mathcal{Z}} \sum_{t=1}^{|y|} \log P_\Phi (y_t | x, y_{&lt;t})\)
+这里：
+    <ul>
+      <li>$y_t$：序列的第 $t$ 个 token。</li>
+      <li>$y_{&lt;t}$：序列的前 $t-1$ 个 token。</li>
+    </ul>
+  </li>
+  <li><strong>主要问题</strong>：
+    <ol>
+      <li><strong>存储需求</strong>：
+        <ul>
+          <li>对于每个下游任务，需要学习不同的参数 $\Delta \Phi$，其维度和 $\Phi_0$ 一样大。</li>
+          <li>如果预训练模型很大（例如 GPT-3，参数量高达 175 亿），存储多个独立的模型实例变得非常困难甚至不可行。</li>
+        </ul>
+      </li>
+      <li><strong>部署复杂性</strong>：
+        <ul>
+          <li>部署和维护多个完整微调后的模型对存储和计算资源要求很高。</li>
+        </ul>
+      </li>
+    </ol>
+  </li>
+</ul>
+
+<h3 id="3-lora-的方法参数高效微调">3. LoRA 的方法：参数高效微调</h3>
+<ul>
+  <li>为了解决上述问题，LoRA 提出了一个 <strong>更高效的微调方法</strong>，核心是：
+    <ul>
+      <li>将任务特定的参数增量 $\Delta \Phi$ 编码为一个 <strong>低维参数集</strong> $\Theta$，满足：
+\(|\Theta| \ll |\Phi_0|\)</li>
+      <li>这样，微调的任务变成了优化 $\Theta$：
+\(\max_{\Theta} \sum_{(x, y) \in \mathcal{Z}} \sum_{t=1}^{|y|} \log P_{\Phi_0 + \Delta \Phi (\Theta)}(y_t | x, y_{&lt;t})\)</li>
+    </ul>
+  </li>
+  <li><strong>低秩表示的优点</strong>：
+    <ul>
+      <li>通过使用低秩分解（low-rank representation），可以显著减少存储和计算成本。</li>
+      <li>当模型是 GPT-3（175 B 参数量）时，$\Theta$ 的规模可以小到原始参数规模的 <strong>0.01%</strong>。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="现有的方法">现有的方法</h2>
+
+<h3 id="迁移学习的现有方法">迁移学习的现有方法</h3>
+
+<ul>
+  <li>转移学习的方法有很多，当前主流方法包括：
+    <ol>
+      <li><strong>适配器层（Adapter Layers）</strong>：通过在模型的 Transformer 层中插入小型适配器模块进行调整。</li>
+      <li><strong>Prompt Tuning</strong>：通过优化输入提示（Prompt）来适配下游任务。</li>
+    </ol>
+  </li>
+  <li>这些方法在参数和计算效率上取得了进展，但在 <strong>大规模生产环境</strong> 中仍存在明显缺点，例如增加推理延迟或优化难度。</li>
+</ul>
+
+<p><img src="/assets/posts_assets/Pasted%20image%2020241120195037.png" alt="" /></p>
+<h3 id="适配器层的不足引入推理延迟">适配器层的不足：引入推理延迟</h3>
+
+<h4 id="1-适配器层的设计">(1) <strong>适配器层的设计</strong>：</h4>
+<ul>
+  <li>原始适配器层设计（例如 Houlsby et al., 2019）在每个 Transformer 块中插入两层适配器。</li>
+  <li>后续方法（例如 Lin et al., 2020）优化了设计，减少为每块一层，并引入了额外的 <strong>LayerNorm</strong>，进一步降低了延迟。</li>
+</ul>
+
+<h4 id="2-延迟来源">(2) <strong>延迟来源</strong>：</h4>
+<ul>
+  <li><strong>顺序处理的限制</strong>：适配器层尽管参数量很小（通常 &lt;1% 的原始模型参数），但它们需要逐层顺序执行，限制了并行处理能力。</li>
+  <li><strong>延迟问题明显</strong>：在在线推理（batch size 较小，例如 batch size = 1）中，由于缺乏并行性，适配器层显著增加了推理延迟。</li>
+  <li><strong>分片（Sharding）的复杂性</strong>：在模型分片场景（如 Shoeybi et al., 2020）中，适配器层会增加更多 GPU 间的同步操作（如 <strong>AllReduce</strong> 和 <strong>Broadcast</strong>），进一步提高了开销。</li>
+</ul>
+
+<h4 id="3-表格中的数据说明">(3) <strong>表格中的数据说明</strong>：</h4>
+<ul>
+  <li>表格展示了 GPT-2 模型在使用适配器层和其他方法时的推理延迟：
+    <ul>
+      <li><strong>Fine-Tune/LoRA</strong> 方法延迟最小（例如 batch size = 1 时仅 19.8 毫秒）。</li>
+      <li><strong>Adapter Layers</strong> 方法的延迟明显更高：
+        <ul>
+          <li>Adapter$L$ 和 Adapter$H$ 分别增加了 20.7% 和 30.3% 的延迟。</li>
+          <li>延迟增加在小 batch size 场景尤为明显。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<h3 id="prompt-tuning-的不足">Prompt Tuning 的不足</h3>
+<h4 id="1-优化难度">(1) <strong>优化难度</strong>：</h4>
+<ul>
+  <li>Prompt Tuning 的优化过程较难，表现为：
+    <ul>
+      <li>随着可训练参数增加，性能的变化呈现 <strong>非单调性</strong>（即增加参数量并不一定提升性能）。</li>
+      <li>作者观察到这种现象在原始论文（Li &amp; Liang, 2021）中也被证实。</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="2-序列长度限制">(2) <strong>序列长度限制</strong>：</h4>
+<ul>
+  <li>Prompt Tuning 需要保留一部分序列作为 Prompt，这会减少可用于任务处理的序列长度，进而限制模型性能。</li>
+  <li>例如，原始输入序列长度可能被占用一部分用于 Prompt，从而减少了处理有效任务的空间。</li>
+</ul>
+
+<h4 id="3-性能潜力受限">(3) <strong>性能潜力受限</strong>：</h4>
+<ul>
+  <li>Prompt Tuning 在下游任务的表现可能不如其他方法，例如适配器层或 LoRA。</li>
+</ul>
+
+<h2 id="lora-方法">LoRA 方法</h2>
+
+<p>LoRA原则上适用于深度学习模型中的任何稠密层，尽管在我们的实验中我们只关注 Transformer 语言模型中的某些权重作为激励使用案例。</p>
+
+<h3 id="通过低秩分解low-rank-decomposition来高效更新权重矩阵">通过低秩分解（low-rank decomposition）来高效更新权重矩阵</h3>
+
+<p><strong>1. 低秩参数化更新矩阵（Low-Rank-Parameterized Update Matrices）</strong></p>
+<ul>
+  <li>神经网络的权重矩阵通常是全秩（full-rank）的。</li>
+  <li>LoRA 假设：预训练语言模型的权重更新可以被约束在一个 <strong>低秩子空间</strong> 中。</li>
+  <li>核心公式：
+\(W_0 + \Delta W = W_0 + BA\)
+    <ul>
+      <li>$W_0 \in \mathbb{R}^{d \times k}$：预训练模型中的冻结权重矩阵。</li>
+      <li>$\Delta W \in \mathbb{R}^{d \times k}$：权重的更新量。</li>
+      <li>$B \in \mathbb{R}^{d \times r}, A \in \mathbb{R}^{r \times k}$：两个可训练的低秩矩阵，其中 $r \ll \min (d, k)$。</li>
+      <li><strong>低秩分解的核心思想</strong>：通过约束 $\Delta W$ 为低秩表示，显著减少了优化参数量。</li>
+    </ul>
+  </li>
+  <li>在训练过程中：
+    <ul>
+      <li>$W_0$ 冻结，不会更新。</li>
+      <li>$A$ 和 $B$ 是唯一需要优化的矩阵。</li>
+      <li>输入向量 $x$ 的前向计算公式变为：
+\(H = W_0 x + \Delta Wx = W_0 x + BAx\)</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<ol>
+  <li><strong>初始化和优化细节</strong>
+    <ul>
+      <li>初始化方式：
+        <ul>
+          <li>$A$ 的初始值来自随机高斯分布。</li>
+          <li>$B$ 的初始值为零矩阵。</li>
+          <li>因此，$\Delta W = BA = 0$ 在训练开始时为零。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<ul>
+  <li>缩放机制
+    <ul>
+      <li>$\Delta W$ 被缩放为：
+\(\Delta W = \frac{\alpha}{r} BA\)
+其中 $\alpha$ 是一个比例常数，与秩 $r$ 成反比。$\alpha$ 是缩放因子，用于调整更新幅度</li>
+      <li>调整 $\alpha$ 的作用类似于调整学习率，可以减少因 $r$ 变化导致的超参数重新调整需求。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>这段话主要说明了 <strong>LoRA（Low-Rank Adaptation）</strong> 是完整微调（full fine-tuning）的一种泛化形式，并对其表达能力及与其他方法的对比做出分析。以下是详细解释：</p>
+
+<hr />
+
+<p><strong>3. 适用于所有全参数微调</strong></p>
+
+<ul>
+  <li><strong>完整微调的传统方式</strong>：
+    <ul>
+      <li>一般来说，完整微调会训练预训练模型中的 <strong>部分参数</strong> 或者 <strong>全部参数</strong>。</li>
+      <li>这些训练参数可以包括权重矩阵以及模型中的偏置（bias）。</li>
+    </ul>
+  </li>
+  <li><strong>LoRA 的突破</strong>：
+    <ul>
+      <li>LoRA 提出了一种更通用的微调形式：
+        <ul>
+          <li>不需要直接调整完整的权重矩阵（full-rank updates），而是通过低秩分解（low-rank decomposition）来表示权重更新。</li>
+          <li>在应用 LoRA 时，对所有权重矩阵应用低秩更新，同时训练模型中的所有偏置项，可以近似恢复完整微调的表达能力</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>LoRA 的效果
+    <ul>
+      <li>效果主要取决于 LoRA 的秩 $r$：
+        <ul>
+          <li>LoRA 中的权重更新是通过两个低秩矩阵 $B$ 和 $A$ 表示的，秩 $r$ 决定了更新矩阵的表达能力。</li>
+          <li>当 $r$ 增加并接近于原始权重矩阵的秩时，LoRA 的表达能力接近于完整微调。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>与其他方法的对比
+    <ul>
+      <li><strong>适配器层方法（adapter-based methods）</strong>：
+        <ul>
+          <li>适配器方法在微调时，会插入额外的层进行任务适配。</li>
+          <li>缺点：
+            <ul>
+              <li>当增加可训练参数时，这些方法的表现最终会趋于类似于一个多层感知机（MLP），难以与完整微调匹敌。</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><strong>基于前缀的微调方法（prefix-based methods）</strong>：
+        <ul>
+          <li>例如 Prompt Tuning，通过优化前缀（prompt）来适配任务。</li>
+          <li>缺点：
+            <ul>
+              <li>受限于输入序列的长度（部分序列长度被前缀占用），在长输入序列的任务中表现不佳。</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li><strong>LoRA 的优势</strong>：
+        <ul>
+          <li>通过调整秩 $r$，LoRA 在模型训练参数的规模增加时，可以更接近完整微调的表现，同时不会受到序列长度或其他限制。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<p><strong>4. 推理时的零延迟（No Additional Inference Latency）</strong></p>
+<ul>
+  <li><strong>推理阶段的操作</strong>：
+    <ul>
+      <li>在生产部署中，可以直接计算并存储：
+\(W = W_0 + BA\)</li>
+      <li>推理时，模型直接使用 $W$ 进行计算，与原始全权重模型完全一致，无需额外计算。</li>
+    </ul>
+  </li>
+  <li><strong>切换任务</strong>：
+    <ul>
+      <li>当需要切换到其他任务时，只需移除现有的 $BA$，并替换为新的 $B’A’$，这一过程非常快且占用极少的内存。</li>
+      <li>这种特性特别适合需要频繁切换任务的应用场景。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="将-lora-应用于-transformer-模型">将 LoRA 应用于 Transformer 模型</h3>
+
+<p>好处：</p>
+
+<ol>
+  <li>内存和存储的减少
+    <ul>
+      <li>内存的减少：VRAM 减少了 2/3 ，因为冻结的参数不需要为这些参数存储梯度和优化器状态，显存需求降低至原来的 1/3（1.2 TB -&gt; 350 GB）</li>
+      <li>存储的减少：模型的保存文件减少了 10,000 倍（350 GB -&gt; 35 MB）</li>
+    </ul>
+  </li>
+  <li>切换任务代价更低：我们可以在部署时以更低的成本在任务之间切换，只需交换 LoRA 权重，而不是所有参数</li>
+  <li>训练速度也提高了 25%：因为不需要计算绝大多数参数的梯度。</li>
+</ol>
+
+<p>缺点：</p>
+
+<p>不同任务的批量处理不行</p>
+
+<ul>
+  <li>例如，如果选择将 A 和 B 吸收到 W 中以消除额外的推理延迟，那么在单次前向传播中，将不同任务的不同 A 和 B 批量输入并不是很简单。</li>
+  <li>尽管在延迟不关键的场景中，可以不合并权重，并动态选择批次中样本使用的 LoRA 模块。</li>
+</ul>
+
+<h2 id="实验">实验</h2>
+
+<p><img src="/assets/posts_assets/Pasted%20image%2020241121102730.png" alt="" /></p>
+
+<p><img src="/assets/posts_assets/Pasted%20image%2020241121102718.png" alt="" />
+<img src="/assets/posts_assets/Pasted%20image%2020241121102741.png" alt="" /></p>
+
+<p><img src="/assets/posts_assets/Pasted%20image%2020241121102835.png" alt="" />GPT-3 175B 验证准确率与 WikiSQL 和 MNLI-matched 上多种适应方法的可训练参数数量。LoRA 展现了更好的可扩展性和任务性能。</p>
+
+<h2 id="理解-lora">理解 LoRA</h2>
+
+<p>要理解三个问题：</p>
+
+<p>1) 在参数预算约束下，应该调整预训练 Transformer 中的哪一部分权重矩阵以最大化下游性能？
+2) “最优”调整矩阵∆W 真的是秩亏的吗？如果是，实际中使用哪个秩比较好？
+3) ∆W 与 W 之间有什么联系？∆W 是否与 W 高度相关？与 W 相比，∆W 有多大？</p>
+
+<h3 id="问题一哪些权重应该调整">问题一：哪些权重应该调整？</h3>
+
+<p><img src="/assets/posts_assets/Pasted%20image%2020241121103550.png" alt="" /></p>
+
+<p>这部分讨论了在参数预算有限的情况下，应该对 Transformer 中的哪些权重矩阵应用 LoRA，以在下游任务中获得最佳性能。以下是详细解释：</p>
+
+<hr />
+
+<p><strong>1. 研究目标</strong></p>
+<ul>
+  <li><strong>问题</strong>：在给定的参数预算（例如 18 M 可训练参数）下，如何选择 Transformer 模型中需要 LoRA 适配的权重矩阵类型，以获得最佳的任务性能。</li>
+  <li><strong>背景</strong>：Transformer 的自注意力模块包含四种主要的权重矩阵：$W_q, W_k, W_v, W_o$。LoRA 可以单独适配某一个矩阵，也可以组合适配多个矩阵。</li>
+  <li><strong>目标</strong>：探索不同权重组合的适配效果，并分析对验证集准确率的影响。</li>
+</ul>
+
+<hr />
+
+<p><strong>2. 实验设置</strong></p>
+<ul>
+  <li><strong>参数预算</strong>：
+    <ul>
+      <li>总的可训练参数设置为 <strong>18 M</strong>。</li>
+      <li>在存储为 FP 16 格式时，占用约 <strong>35 MB</strong> 的存储空间。</li>
+    </ul>
+  </li>
+  <li><strong>秩 $r$</strong>：
+    <ul>
+      <li>如果只适配一个矩阵，则 $r = 8$。</li>
+      <li>如果适配两个矩阵，则每个矩阵的 $r = 4$。</li>
+      <li>如果适配更多矩阵（例如四个矩阵），则 $r$ 会进一步降低，以满足总参数预算。</li>
+    </ul>
+  </li>
+  <li><strong>模型</strong>：
+    <ul>
+      <li>使用 GPT-3 175 B 作为基础模型。</li>
+      <li>在两个任务上验证效果：
+        <ul>
+          <li><strong>WikiSQL</strong>（±0.5% 的标准差）：结构化查询的自然语言转换任务。</li>
+          <li><strong>MultiNLI</strong>（±0.1% 的标准差）：文本蕴含任务。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>3. 结论分析</strong></p>
+<ol>
+  <li><strong>单独适配某一种权重矩阵</strong>：
+    <ul>
+      <li>适配单个矩阵时，准确率相对较低，尤其是 $W_q$ 和 $W_k$ 单独适配的表现明显低于组合适配。</li>
+    </ul>
+  </li>
+  <li><strong>组合适配的优越性</strong>：
+    <ul>
+      <li>适配 $W_q$ 和 $W_v$ 的组合效果最佳。</li>
+      <li>这表明，即使每种矩阵的秩较低（如 $r = 4$），组合适配多个矩阵可以捕获更多的任务相关信息，从而比单独适配一个矩阵表现更好。</li>
+    </ul>
+  </li>
+  <li><strong>适配更多矩阵（如 $W_q, W_k, W_v, W_o$）</strong>：
+    <ul>
+      <li>在 MultiNLI 上，适配所有四个矩阵的表现达到最优（91.7%）。</li>
+      <li>说明在更复杂的任务中，适配更多权重矩阵（即使每个矩阵的秩更低）有助于提升模型的适配能力。</li>
+    </ul>
+  </li>
+</ol>
+
+<hr />
+
+<p><strong>4. 结论</strong></p>
+<ul>
+  <li><strong>有效利用参数预算</strong>：
+    <ul>
+      <li>将参数预算分配给多个权重矩阵的适配，比将预算集中于单个矩阵更有效。</li>
+      <li>即使每个矩阵的秩较低，组合适配能更好地捕获任务所需的信息。</li>
+    </ul>
+  </li>
+  <li><strong>权重选择的重要性</strong>：
+    <ul>
+      <li>$W_q$ 和 $W_v$ 的组合对性能提升尤为重要。</li>
+      <li>表明在 Transformer 中，不同权重矩阵对任务的影响不同，选择关键权重进行适配是提高性能的关键。</li>
+    </ul>
+  </li>
+  <li><strong>任务复杂性影响</strong>：
+    <ul>
+      <li>对于更复杂的任务（如 MultiNLI），适配更多权重矩阵效果更好。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="问题二最优秩是多少">问题二：最优秩是多少？</h3>
+
+<p><img src="/assets/posts_assets/Pasted%20image%2020241121104154.png" alt="" /></p>
+
+<p>令我们惊讶的是，在这些数据集中，像一个这样的较小排名就足以适应 Wq 和 Wv，而单独训练 Wq 需要更大的 r。</p>
+
+<p>增加 r 并不会覆盖更有意义的子空间，这表明低秩适应矩阵是足够的。</p>
+
+<h4 id="探讨不同秩的空间相似性">探讨不同秩的空间相似性</h4>
+
+<p>讨论在不同秩 $r$ 的情况下，LoRA 的低秩更新矩阵 $A_{r=8}$ ​ 和 $A_{r=64}$ ​ 的子空间相似性。通过子空间分析，解释了为何较低的 $r$（如 $r=1$ 或 $r=8$）能够在任务中表现良好。
+<img src="/assets/posts_assets/Pasted%20image%2020241121110556.png" alt="" /></p>
+
+<h5 id="研究目标">研究目标</h5>
+<ul>
+  <li><strong>目标</strong>：
+    <ul>
+      <li>探索低秩分解中不同秩 $r$ 的矩阵 $A$ 是否共享重要的子空间。</li>
+      <li>进一步解释为何较低的秩（如 $r=1$ 或 $r=8$）仍能有效表示权重更新。</li>
+    </ul>
+  </li>
+  <li><strong>方法</strong>：
+    <ul>
+      <li>使用奇异值分解（SVD）得到适配矩阵 $A_{r=8}$ 和 $A_{r=64}$ 的右奇异向量矩阵（right-singular unitary matrices）：
+\(U_{A_{r=8}}, U_{A_{r=64}}\)</li>
+      <li>研究 $U_{A_{r=8}}$ 的前 $i$ 个奇异向量与 $U_{A_{r=64}}$ 的前 $j$ 个奇异向量之间的子空间重叠情况。</li>
+    </ul>
+  </li>
+</ul>
+
+<h5 id="子空间相似性定义">子空间相似性定义</h5>
+<ul>
+  <li><strong>子空间相似性度量</strong>：
+    <ul>
+      <li>使用基于 Grassmann 距离的归一化相似性指标来量化子空间重叠：
+\(\phi (A_{r=8}, A_{r=64}, i, j) = \frac{\|\left (U_{A_{r=8}}^i\right)^T U_{A_{r=64}}^j\|_F^2}{\min (i, j)}\)
+        <ul>
+          <li>$U_{A_{r=8}}^i$：$U_{A_{r=8}}$ 的前 $i$ 个奇异向量列。</li>
+          <li>$U_{A_{r=64}}^j$：$U_{A_{r=64}}$ 的前 $j$ 个奇异向量列。</li>
+          <li>$\phi$ 的值范围为 $[0, 1]$，其中：
+            <ul>
+              <li>$\phi = 1$：两个子空间完全重叠。</li>
+              <li>$\phi = 0$：两个子空间完全分离。</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>研究重点</strong>：
+    <ul>
+      <li>探索 $A_{r=8}$ 和 $A_{r=64}$ 在不同的 $i$ 和 $j$ 组合下的子空间重叠情况。</li>
+      <li>仅分析第 48 层的结果，但结果适用于所有层。</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<h5 id="图表解析">图表解析</h5>
+<p>图 3 展示了子空间相似性 $\phi$ 的热图，分别针对权重更新矩阵 $\Delta W_q$ 和 $\Delta W_v$：</p>
+<ul>
+  <li><strong>第一和第二图</strong>（左侧）：
+    <ul>
+      <li>代表 $A_{r=8}$ 和 $A_{r=64}$ 的子空间相似性，聚焦于 $i, j \leq 8$ 的情况。</li>
+      <li>左下角的部分放大，显示较低秩时的子空间重叠情况。</li>
+    </ul>
+  </li>
+  <li><strong>第三和第四图</strong>（右侧）：
+    <ul>
+      <li>代表相似性较高的方向（子空间重叠显著）。</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<h5 id="关键观察">关键观察</h5>
+
+<ul>
+  <li><strong>子空间重叠现象</strong>：
+    <ul>
+      <li>$A_{r=8}$ 和 $A_{r=64}$ 的奇异向量子空间在前几个奇异向量方向上高度重叠（相似性 $\phi &gt; 0.5$）。</li>
+      <li>说明低秩矩阵 $A_{r=8}$ 的重要方向已经包含在 $A_{r=64}$ 的子空间中。</li>
+    </ul>
+  </li>
+  <li><strong>噪声过滤作用</strong>：
+    <ul>
+      <li>更高秩的矩阵（如 $A_{r=64}$）包含更多奇异向量，但其中一些可能主要是噪声。</li>
+      <li>低秩矩阵（如 $A_{r=8}$）通过限制秩，有效过滤掉了这些噪声向量，从而提高了更新的有效性。</li>
+    </ul>
+  </li>
+  <li><strong>权重更新的重要方向</strong>：
+    <ul>
+      <li>对于 $\Delta W_v$ 和 $\Delta W_q$，前几个奇异向量的重叠性尤其显著，表明这些方向对任务适配最为重要。</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<h5 id="结论与解释">结论与解释</h5>
+
+<ol>
+  <li><strong>子空间相似性说明了低秩的有效性</strong>：
+    <ul>
+      <li>尽管 $r=8$ 比 $r=64$ 的秩低得多，但它已经捕捉了任务适配所需的最重要方向。</li>
+      <li>因此，低秩的 LoRA 参数（如 $r=8$ 或更低）仍能在任务中表现良好。</li>
+    </ul>
+  </li>
+  <li><strong>解释低秩的表现</strong>：
+    <ul>
+      <li>低秩适配矩阵通过子空间共享，专注于最重要的方向，减少了对不必要方向（潜在噪声）的学习。</li>
+    </ul>
+  </li>
+  <li><strong>为什么 $r=1$ 仍然有效</strong>：
+    <ul>
+      <li>当 $r=1$ 时，虽然只有一个奇异向量，但这个方向与高秩矩阵（如 $r=64$）中的重要方向高度重叠，适配效果不会显著下降。</li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="问题三w-与-w-之间的关系">问题三：∆W 与 W 之间的关系</h3>
+
+<h4 id="1-研究问题"><strong>1. 研究问题</strong></h4>
+<ul>
+  <li><strong>核心问题</strong>：
+    <ul>
+      <li>$\Delta W$ 与 $W$ 的关系如何？
+        <ul>
+          <li>$\Delta W$ 是否与 $W$ 的重要奇异方向高度相关？</li>
+          <li>$\Delta W$ 是否主要放大了 $W$ 已有的重要方向，还是引入了新方向？</li>
+        </ul>
+      </li>
+      <li>这些问题的答案可以揭示 LoRA 如何利用预训练模型权重进行下游任务的适配。</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<h4 id="2-分析方法"><strong>2. 分析方法</strong></h4>
+<ol>
+  <li><strong>将 $W$ 投影到 $\Delta W$ 的子空间</strong>：
+    <ul>
+      <li>使用 $\Delta W$ 的左右奇异向量矩阵（通过 SVD 得到的 $U$ 和 $V$）定义子空间。</li>
+      <li>投影操作：计算 $U^T W V^T$，并与 Frobenius 范数 $|W|_F$ 比较，以量化 $W$ 的信息在 $\Delta W$ 子空间中的占比。</li>
+    </ul>
+  </li>
+  <li><strong>比较不同方向的相关性</strong>：
+    <ul>
+      <li>替换 $U$ 和 $V$ 为：
+        <ul>
+          <li>$\Delta W$ 的奇异向量（适配子空间）。</li>
+          <li>$W$ 的前 $r$ 个奇异向量（预训练模型的重要方向）。</li>
+          <li>随机高斯矩阵的奇异向量（随机方向）。</li>
+        </ul>
+      </li>
+      <li>比较投影结果的 Frobenius 范数，分析 $\Delta W$ 的相关性。</li>
+    </ul>
+  </li>
+</ol>
+
+<hr />
+<p><img src="/assets/posts_assets/Pasted%20image%2020241121111027.png" alt="" /></p>
+<h4 id="3-图-4-的热图分析"><strong>3. 图 4 的热图分析</strong></h4>
+<ul>
+  <li><strong>左图和中图（$\Delta W_q$ 和 $\Delta W_v$）</strong>：
+    <ul>
+      <li>显示了两个随机种子下，$\Delta W_q$ 和 $\Delta W_v$ 的列向量相似性。</li>
+      <li>可以看到，相似性较高的方向集中在前几个奇异向量，说明适配的矩阵捕获了主要的变化方向。</li>
+    </ul>
+  </li>
+  <li><strong>右图（随机高斯矩阵的相似性）</strong>：
+    <ul>
+      <li>显示了随机矩阵的奇异向量相似性，几乎没有任何结构（接近 0），表明 $\Delta W$ 的方向与随机噪声完全不同。</li>
+    </ul>
+  </li>
+</ul>
+
+<hr />
+
+<p><img src="/assets/posts_assets/Pasted%20image%2020241121111241.png" alt="" /></p>
+<h4 id="4-表格-7-的数据分析"><strong>4. 表格 7 的数据分析</strong></h4>
+<p>表格展示了不同投影方向下的 Frobenius 范数对比：</p>
+
+<ol>
+  <li><strong>$|U^T W_q V^T|_F$</strong>：
+    <ul>
+      <li>这是将 $W_q$ 投影到不同子空间后的范数：
+        <ul>
+          <li>对比 $\Delta W_q$、$W_q$ 自身、随机矩阵的子空间。</li>
+        </ul>
+      </li>
+      <li>$r=4$：
+        <ul>
+          <li>投影到 $\Delta W_q$ 的子空间后，范数为 $0.32$，远小于投影到 $W_q$ 的 $21.67$，表明 $\Delta W_q$ 并没有简单重复 $W_q$ 的奇异方向。</li>
+          <li>投影到随机矩阵的范数为 $0.02$，进一步验证 $\Delta W_q$ 的方向并非随机。</li>
+        </ul>
+      </li>
+      <li>$r=64$：
+        <ul>
+          <li>投影到 $\Delta W_q$ 的子空间后，范数为 $1.90$，仍然小于 $W_q$ 的 $37.71$。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>$|\Delta W_q|_F$</strong>：
+    <ul>
+      <li>适配矩阵 $\Delta W_q$ 的范数为 $6.91$（$r=4$）和 $3.57$（$r=64$）。</li>
+      <li>说明随着 $r$ 增加，适配矩阵的强度逐渐降低。</li>
+    </ul>
+  </li>
+</ol>
+
+<hr />
+
+<h4 id="5-关键结论"><strong>5. 关键结论</strong></h4>
+<ol>
+  <li><strong>$\Delta W$ 不是简单重复 $W$</strong>：
+    <ul>
+      <li>投影结果表明，$\Delta W$ 的子空间与 $W$ 的重要方向部分重叠，但也包含了额外的新方向。</li>
+      <li>适配矩阵的作用是放大 $W$ 中已有的部分方向，同时引入对任务有用的新方向。</li>
+    </ul>
+  </li>
+  <li><strong>适配矩阵的放大因子较高</strong>：
+    <ul>
+      <li>表格中提到，对于 $r=4$，$\Delta W_q$ 的放大因子高达 $21.5 = 6.91 / 0.32$，表明 LoRA 更倾向于放大重要特征，而不是重复预训练模型已有的权重分布。</li>
+    </ul>
+  </li>
+  <li><strong>低秩适配有效性</strong>：
+    <ul>
+      <li>尽管 $r$ 较低（如 $r=4$），$\Delta W$ 的低秩方向仍能捕获适配的核心特征，并显著增强下游任务的表现。</li>
+    </ul>
+  </li>
+</ol>
+
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-11-18T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2024/11/18/DPO%E8%AE%BA%E6%96%87%E5%AD%A6%E4%B9%A0.html">DPO论文学习</a></div><div class="next"><span>下篇</span><a href="/2024/11/18/Tool-Learning-with-Foundation-Models-%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html">Tool Learning with Foundation Models 论文笔记</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"><div id="vcomments"></div><script>
+  window.Lazyload.js(['//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js', 'https://unpkg.com/valine/dist/Valine.min.js'], function() {
+    var _config = {
+      el: '#vcomments',
+      appId:  'ONcOJaEzueQcEXVrHVv5dQ4F-gzGzoHsz',
+      appKey: '0iORBozCMxniZ0spe5QY9zCO',
+      verify: true,
+    };_config.lang = 'en';new Valine(_config);
+  });
+</script></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xingjie Gao"><meta itemprop="url" content="/"><meta itemprop="description" content="To be a question, to be an answer."><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"><li title="给我发邮件。">
+      <a class="button button--circle mail-button" itemprop="email" href="mailto:xingjie-gao@outlook.com" target="_blank">
+        <i class="fas fa-envelope"></i>
+      </a><li title="在 Github 上关注我。">
+        <a class="button button--circle github-button" itemprop="sameAs" href="https://github.com/Kfkcome" target="_blank">
+          <div class="icon"><svg fill="#000000" width="24px" height="24px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path class="svgpath" data-index="path_0" fill="#272636" d="M0 525.2c0 223.6 143.3 413.7 343 483.5 26.9 6.8 22.8-12.4 22.8-25.4l0-88.7c-155.3 18.2-161.5-84.6-172-101.7-21.1-36-70.8-45.2-56-62.3 35.4-18.2 71.4 4.6 113.1 66.3 30.2 44.7 89.1 37.2 119 29.7 6.5-26.9 20.5-50.9 39.7-69.6C248.8 728.2 181.7 630 181.7 513.2c0-56.6 18.7-108.7 55.3-150.7-23.3-69.3 2.2-128.5 5.6-137.3 66.5-6 135.5 47.6 140.9 51.8 37.8-10.2 80.9-15.6 129.1-15.6 48.5 0 91.8 5.6 129.8 15.9 12.9-9.8 77-55.8 138.8-50.2 3.3 8.8 28.2 66.7 6.3 135 37.1 42.1 56 94.6 56 151.4 0 117-67.5 215.3-228.8 243.7 26.9 26.6 43.6 63.4 43.6 104.2l0 128.8c0.9 10.3 0 20.5 17.2 20.5C878.1 942.4 1024 750.9 1024 525.3c0-282.9-229.3-512-512-512C229.1 13.2 0 242.3 0 525.2L0 525.2z" />
+</svg>
+</div>
+        </a>
+      </li></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© Ennis's Blog 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script>
+  window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
+    var $canvas = null, $this = null, _ctx = null, _text = '';
+    $('.language-chart').each(function(){
+      $this = $(this);
+      $canvas = $('<canvas></canvas>');
+      _text = $this.text();
+      $this.text('').append($canvas);
+      _ctx = $canvas.get(0).getContext('2d');
+      (_ctx && _text) && (new Chart(_ctx, JSON.parse(_text)) && $this.attr('data-processed', true));
+    });
+  });
+</script>
+<script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};_config.TeX = { equationNumbers: { autoNumber: "all" } };MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="/assets/MathJax/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+<script>(function() {
+  function errorHandler(error, callback) {
+    if (error) {
+      callback && callback(error);
+      throw error;
+    }
+  }
+
+  function pageview(_AV, options) {
+    var AV = _AV;
+    var appId, appKey, appClass;
+    appId = options.appId;
+    appKey = options.appKey;
+    appClass = options.appClass;
+    if (!AV.applicationId) {
+      AV.init({
+        serverURLs: 'https://avoscloud.com',
+        appId: appId,
+        appKey: appKey
+      });
+    } else {
+      console.log('LeanCloud SDK 已经初始化过了。');
+    }
+    return {
+      get: get,
+      increase: increase
+    };
+
+    function searchKey(key) {
+      var query = new AV.Query(appClass);
+      query.equalTo('key', key);
+      return query.first();
+    }
+
+    function insert(key, title) {
+      var Blog = AV.Object.extend(appClass);
+      var blog = new Blog();
+      blog.set('title', title);
+      blog.set('key', key);
+      blog.set('views', 0);
+      return blog.save();
+    }
+
+    function increment(result) {
+      result.increment('views', 1);
+      return result.save(null, {
+        fetchWhenSave: true
+      });
+    }
+
+    function get(key, callback) {
+      searchKey(key).then(function(result) {
+        if (result) {
+          callback && callback(result.attributes.views);
+        }
+      }, errorHandler);
+    }
+
+    function increase(key, title, callback) {
+      searchKey(key).then(function(result) {
+        if (result) {
+          increment(result).then(function(result) {
+            callback && callback(result.attributes.views);
+          });
+        } else {
+          insert(key, title).then(function(result) {
+            increment(result).then(function(result) {
+              callback && callback(result.attributes.views);
+            });
+          }, errorHandler);
+        }
+      }, errorHandler);
+    }
+  }
+  window.pageview = pageview;
+})();
+</script>
+  <script>
+    window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js'], function() {
+      var pageview = window.pageview(AV, {
+        appId:    'ONcOJaEzueQcEXVrHVv5dQ4F-gzGzoHsz',
+        appKey:   '0iORBozCMxniZ0spe5QY9zCO',
+        appClass: 'Test'
+      });
+      var key =   'post70';
+      var title = "LoRA LOW-RANK ADAPTATION 论文笔记";
+      pageview.increase(key, title, function(view) {
+        $("[data-page-key='post70']").text(view);
+      });
+    });
+  </script>
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+

@@ -13,7 +13,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>RAG-DDR论文笔记 - Ennis's Blog</title>
 
 <meta name="description" content="RAG-DDR: OPTIMIZING RETRIEVAL-AUGMENTED  GENERATION USING DIFFERENTIABLE DATA REWARDS 论文笔记">
-<link rel="canonical" href="/2024/11/12/RAG-DDR%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0-%E9%98%85%E8%AF%BBing.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+<link rel="canonical" href="http://localhost:4000/2024/11/12/RAG-DDR%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0-%E9%98%85%E8%AF%BB.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
 
 <meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
 
@@ -293,7 +293,7 @@
             </li><li><i class="far fa-eye"></i> <span class="js-pageview" data-page-key="post66">0</span> 阅读</li></ul></div><div class="article__header"><header><h1>RAG-DDR论文笔记</h1></header><span class="split-space">&nbsp;</span>
           <a class="edit-on-github"
             title="在 Github 上修改"
-            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/论文笔记/2024-11-12-RAG-DDR论文笔记—阅读ing.md">
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/论文笔记/2024-11-12-RAG-DDR论文笔记—阅读.md">
             <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">RAG-DDR: OPTIMIZING RETRIEVAL-AUGMENTED  GENERATION USING DIFFERENTIABLE DATA REWARDS 论文笔记</p></div></div>
               </div>
             </div><div class ="main"><div class="grid grid--reverse">
@@ -343,6 +343,8 @@
 <p>DDR 方法通过奖励机制，使得系统能够在训练过程中调整检索和生成模块的数据偏好，逐渐对齐它们的需求。通过这种数据偏好对齐，检索模块可以更有针对性地提供生成模块需要的核心信息，而生成模块也能够更有效地利用这些检索内容，从而提升系统整体的生成效果。</p>
 
 <h3 id="dpo-和-sft-有什么本质的区别">DPO 和 SFT 有什么本质的区别?</h3>
+
+<p>使用的数据不一样</p>
 
 <h3 id="对比学习是什么这里的对比学习和经典的有什么区别与联系">对比学习是什么？这里的对比学习和经典的有什么区别与联系</h3>
 
@@ -624,7 +626,7 @@
 
 \[P(\tilde{y}_{t}^{+}&gt;\tilde{y}_{t}^{-}|x)=\sigma(r(x,\tilde{y}_{t}^{+})-r(x,\tilde{y}_{t}^{-}))\]
 
-<p>损失函数定义：</p>
+<p>然后用 DPO 训 $V_t$ 损失函数定义：</p>
 
 <p>\(\huge 
 \mathcal{L}(V_{t};V_{t}^{\mathrm{ref}})=-\mathbb{E}_{(x,\bar{y}_{t}^{+},\bar{y}_{t}^{-})\sim\mathcal{D}}[\log\sigma(\beta\log\frac{V_{t}(\tilde{y}_{t}^{+}\mid x)}{V_{t}^{\mathrm{ref}}(\tilde{y}_{t}^{+}\mid x)}-\beta\log\frac{V_{t}(\tilde{y}_{t}^{-}\mid x)}{V_{t}^{\mathrm{ref}}(\tilde{y}_{t}^{-}\mid x)})]\)</p>
@@ -970,14 +972,6 @@
   <li><strong>模块和优化的有效性</strong>：知识精炼模块和多轮优化的生成模块是 DDR 成功的关键因素。</li>
   <li><strong>外部知识的高效利用</strong>：DDR 能够更有效地利用外部知识，提高了模型在知识检索和回答生成中的表现。</li>
 </ul>
-
-<h2 id="个人思考">个人思考</h2>
-
-<ol>
-  <li>有没有一种方法可以使 LLM 学习新的，而旧的知识不变呢？或者说学习其他的知识，而原本不相关的知识不变</li>
-  <li>好多论文的过程，基本都是自己设计一个 loss 然后训练，最后效果比较好，能不能其他方向呢？</li>
-  <li></li>
-</ol>
 
 </div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-11-12T00:00:00+08:00"><!-- start custom article footer snippet -->
 
