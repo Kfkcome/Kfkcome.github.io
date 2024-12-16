@@ -1,0 +1,1679 @@
+<!DOCTYPE html><html lang="zh-Hans">
+  <head><!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=G-LVD2CPW3EW"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'G-LVD2CPW3EW');
+		
+	</script><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>DSPY COMPILING DECLARATIVE LANGUAGE  MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习 - Ennis's Blog</title>
+
+<meta name="description" content="DSPY COMPILING DECLARATIVE LANGUAGE MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习不懂的">
+<link rel="canonical" href="http://localhost:4000/2024/12/08/DSPY-COMPILING-DECLARATIVE-LANGUAGE-MODEL-CALLS-INTO-SELF-IMPROVING-PIPELINES%E8%AE%BA%E6%96%87%E5%AD%A6%E4%B9%A0.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
+
+<meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
+
+<meta name="theme-color" content="#ffffff">
+<!-- end favicons snippet --><link rel="stylesheet" href="/assets/css/main.css"><link rel="stylesheet" href="https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css" ><!-- start custom head snippets -->
+
+<!-- end custom head snippets -->
+<script>(function() {
+  window.isArray = function(val) {
+    return Object.prototype.toString.call(val) === '[object Array]';
+  };
+  window.isString = function(val) {
+    return typeof val === 'string';
+  };
+
+  window.hasEvent = function(event) {
+    return 'on'.concat(event) in window.document;
+  };
+
+  window.isOverallScroller = function(node) {
+    return node === document.documentElement || node === document.body || node === window;
+  };
+
+  window.isFormElement = function(node) {
+    var tagName = node.tagName;
+    return tagName === 'INPUT' || tagName === 'SELECT' || tagName === 'TEXTAREA';
+  };
+
+  window.pageLoad = (function () {
+    var loaded = false, cbs = [];
+    window.addEventListener('load', function () {
+      var i;
+      loaded = true;
+      if (cbs.length > 0) {
+        for (i = 0; i < cbs.length; i++) {
+          cbs[i]();
+        }
+      }
+    });
+    return {
+      then: function(cb) {
+        cb && (loaded ? cb() : (cbs.push(cb)));
+      }
+    };
+  })();
+})();
+(function() {
+  window.throttle = function(func, wait) {
+    var args, result, thisArg, timeoutId, lastCalled = 0;
+
+    function trailingCall() {
+      lastCalled = new Date;
+      timeoutId = null;
+      result = func.apply(thisArg, args);
+    }
+    return function() {
+      var now = new Date,
+        remaining = wait - (now - lastCalled);
+
+      args = arguments;
+      thisArg = this;
+
+      if (remaining <= 0) {
+        clearTimeout(timeoutId);
+        timeoutId = null;
+        lastCalled = now;
+        result = func.apply(thisArg, args);
+      } else if (!timeoutId) {
+        timeoutId = setTimeout(trailingCall, remaining);
+      }
+      return result;
+    };
+  };
+})();
+(function() {
+  var Set = (function() {
+    var add = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (data[i] === item) {
+          return;
+        }
+      }
+      this.size ++;
+      data.push(item);
+      return data;
+    };
+
+    var Set = function(data) {
+      this.size = 0;
+      this._data = [];
+      var i;
+      if (data.length > 0) {
+        for (i = 0; i < data.length; i++) {
+          add.call(this, data[i]);
+        }
+      }
+    };
+    Set.prototype.add = add;
+    Set.prototype.get = function(index) { return this._data[index]; };
+    Set.prototype.has = function(item) {
+      var i, data = this._data;
+      for (i = 0; i < data.length; i++) {
+        if (this.get(i) === item) {
+          return true;
+        }
+      }
+      return false;
+    };
+    Set.prototype.is = function(map) {
+      if (map._data.length !== this._data.length) { return false; }
+      var i, j, flag, tData = this._data, mData = map._data;
+      for (i = 0; i < tData.length; i++) {
+        for (flag = false, j = 0; j < mData.length; j++) {
+          if (tData[i] === mData[j]) {
+            flag = true;
+            break;
+          }
+        }
+        if (!flag) { return false; }
+      }
+      return true;
+    };
+    Set.prototype.values = function() {
+      return this._data;
+    };
+    return Set;
+  })();
+
+  window.Lazyload = (function(doc) {
+    var queue = {js: [], css: []}, sources = {js: {}, css: {}}, context = this;
+    var createNode = function(name, attrs) {
+      var node = doc.createElement(name), attr;
+      for (attr in attrs) {
+        if (attrs.hasOwnProperty(attr)) {
+          node.setAttribute(attr, attrs[attr]);
+        }
+      }
+      return node;
+    };
+    var end = function(type, url) {
+      var s, q, qi, cbs, i, j, cur, val, flag;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        s[url] = true;
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (cur.urls.has(url)) {
+            qi = cur, val = qi.urls.values();
+            qi && (cbs = qi.callbacks);
+            for (flag = true, j = 0; j < val.length; j++) {
+              cur = val[j];
+              if (!s[cur]) {
+                flag = false;
+              }
+            }
+            if (flag && cbs && cbs.length > 0) {
+              for (j = 0; j < cbs.length; j++) {
+                cbs[j].call(context);
+              }
+              qi.load = true;
+            }
+          }
+        }
+      }
+    };
+    var load = function(type, urls, callback) {
+      var s, q, qi, node, i, cur,
+        _urls = typeof urls === 'string' ? new Set([urls]) : new Set(urls), val, url;
+      if (type === 'js' || type ==='css') {
+        s = sources[type], q = queue[type];
+        for (i = 0; i < q.length; i++) {
+          cur = q[i];
+          if (_urls.is(cur.urls)) {
+            qi = cur;
+            break;
+          }
+        }
+        val = _urls.values();
+        if (qi) {
+          callback && (qi.load || qi.callbacks.push(callback));
+          callback && (qi.load && callback());
+        } else {
+          q.push({
+            urls: _urls,
+            callbacks: callback ? [callback] : [],
+            load: false
+          });
+          for (i = 0; i < val.length; i++) {
+            node = null, url = val[i];
+            if (s[url] === undefined) {
+              (type === 'js' ) && (node = createNode('script', { src: url }));
+              (type === 'css') && (node = createNode('link', { rel: 'stylesheet', href: url }));
+              if (node) {
+                node.onload = (function(type, url) {
+                  return function() {
+                    end(type, url);
+                  };
+                })(type, url);
+                (doc.head || doc.body).appendChild(node);
+                s[url] = false;
+              }
+            }
+          }
+        }
+      }
+    };
+    return {
+      js: function(url, callback) {
+        load('js', url, callback);
+      },
+      css: function(url, callback) {
+        load('css', url, callback);
+      }
+    };
+  })(this.document);
+})();
+</script><script>
+  (function() {
+    var TEXT_VARIABLES = {
+      version: '2.2.6',
+      sources: {
+        font_awesome: 'https://cdn.bootcdn.net/ajax/libs/font-awesome/5.15.1/css/all.css',
+        jquery: 'https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js',
+        leancloud_js_sdk: '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js',
+        chart: 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js',
+        gitalk: {
+          js: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.js',
+          css: 'https://cdn.bootcss.com/gitalk/1.2.2/gitalk.min.css'
+        },
+        valine: 'https://unpkg.com/valine/dist/Valine.min.js',
+        mathjax: '/assets/MathJax/MathJax.js?config=TeX-MML-AM_CHTML',
+        mermaid: 'https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js'
+      },
+      site: {
+        toc: {
+          selectors: 'h1,h2,h3'
+        }
+      },
+      paths: {
+        search_js: '/assets/search.js'
+      }
+    };
+    window.TEXT_VARIABLES = TEXT_VARIABLES;
+  })();
+</script>
+</head>
+  <body>
+    <div class="root" data-is-touch="false">
+      <div class="layout--page js-page-root"><div class="page__main js-page-main page__main--immersive page__viewport has-aside cell cell--auto">
+
+      <div class="page__main-inner"><div class="page__header d-print-none"><header class="header"><div class="main">
+      <div class="header__title">
+        <div class="header__brand"><svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="24px" height="24px" viewBox="0 0 24 24">
+<style type="text/css">
+	.st0{fill:#515151;}
+</style>
+<path class="st0" d="M1.7,22.3c5.7-5.7,11.3-5.7,17,0c3.3-3.3,3.5-5.3,0.8-6c2.7,0.7,3.5-1.1,2.3-5.6s-3.3-5.2-6.3-2.1
+	c3-3,2.3-5.2-2.1-6.3S7,1.8,7.7,4.6C7,1.8,5,2.1,1.7,5.3C7.3,11,7.3,16.7,1.7,22.3"/>
+</svg>
+<a title="Willing to be a question, willing to be an answer.
+" href="/">Ennis's Blog</a></div><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></div><nav class="navigation">
+        <ul><li class="navigation__item"><a href="/">主页</a></li><li class="navigation__item"><a href="/archive.html">归档</a></li><li class="navigation__item"><a href="/about.html">关于</a></li><li><button class="button button--secondary button--circle search-button js-search-toggle"><i class="fas fa-search"></i></button></li></ul>
+      </nav></div>
+  </header>
+</div><div class="page__content"><div class="article__header--overlay"><div class="hero overlay" style="background-image:;background-color:#f1f8ff;"><div class="hero__content"><div class ="main"><div class="article__info clearfix"><ul class="left-col menu"><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=nlp">nlp</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%87%AA%E7%84%B6%E8%AF%AD%E8%A8%80%E5%A4%84%E7%90%86">自然语言处理</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0">论文笔记</a>
+            </li><li>
+              <a class="button button--secondary button--pill button--sm"
+                href="/archive.html?tag=%23%E5%B7%A5%E5%85%B7%E5%AD%A6%E4%B9%A0">#工具学习</a>
+            </li></ul><ul class="right-col menu"><li><i class="far fa-calendar-alt"></i> <span>2024年 12月08日</span>
+            </li><li><i class="far fa-eye"></i> <span class="js-pageview" data-page-key="post74">0</span> 阅读</li></ul></div><div class="article__header"><header><h1>DSPY COMPILING DECLARATIVE LANGUAGE  MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习</h1></header><span class="split-space">&nbsp;</span>
+          <a class="edit-on-github"
+            title="在 Github 上修改"
+            href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/论文笔记/2024-12-8-DSPY COMPILING DECLARATIVE LANGUAGE  MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习.md">
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">DSPY COMPILING DECLARATIVE LANGUAGE MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习不懂的</p></div></div>
+              </div>
+            </div><div class ="main"><div class="grid grid--reverse">
+
+              <div class="col-aside d-print-none js-col-aside"><aside class="page__aside js-page-aside"><div class="toc-aside js-toc-root"></div>
+</aside></div>
+
+              <div class="col-main cell cell--auto"><!-- start custom main top snippet -->
+
+<!-- end custom main top snippet -->
+<article itemscope itemtype="http://schema.org/Article"><meta itemprop="headline" content="DSPY COMPILING DECLARATIVE LANGUAGE  MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习"><meta itemprop="author" content="Xingjie Gao"/><meta itemprop="datePublished" content="2024-12-08T00:00:00+08:00">
+    <meta itemprop="keywords" content="nlp,自然语言处理,论文笔记,#工具学习"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
+
+<!-- end custom article top snippet -->
+<div class="article__content" itemprop="articleBody"><h1 id="dspy-compiling-declarative-language-model-calls-into-self-improving-pipelines论文学习">DSPY COMPILING DECLARATIVE LANGUAGE MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习</h1>
+
+<h2 id="不懂的">不懂的</h2>
+
+<!---more-->
+<h3 id="teleprompter-在-dspy-编译器中的作用"><strong>Teleprompter 在 DSPy 编译器中的作用</strong></h3>
+
+<p>在 DSPy 编程模型中，<strong>Teleprompter（提示器）</strong> 是一种核心组件，负责模块化优化过程。具体来说，Teleprompter 是通用的优化策略，用于指导 DSPy 编译器如何让各个模块从数据中学习，以提升整个程序的质量或降低其运行成本。以下是对 Teleprompter 的详细解释：</p>
+
+<ol>
+  <li><strong>定义与功能</strong>
+    <ul>
+      <li><strong>通用优化策略</strong>：Teleprompter 不局限于特定的优化方法，而是提供了一套通用的框架，可以应用于多种优化需求，如提升模型性能、减少计算资源消耗等。</li>
+      <li><strong>决策指导</strong>：它决定了每个 DSPy 模块应如何从输入数据中学习。这包括选择合适的学习方法（如少样本学习、微调等）以及如何生成和利用示例数据来改进模块的行为。</li>
+    </ul>
+  </li>
+  <li><strong>工作机制</strong>
+    <ul>
+      <li><strong>模块学习</strong>：Teleprompter 通过分析模块的示例轨迹（example traces），来理解模块在不同输入下的表现。这些轨迹包含模块在处理特定任务时的详细操作步骤和输出结果。</li>
+      <li><strong>构建提示或微调模型</strong>：基于这些轨迹，Teleprompter 可以生成有效的少样本提示（few-shot prompts），帮助模块在未来处理类似任务时表现得更好。此外，它还可以指导对小型语言模型（LMs）的微调，使其更适应管道中各个步骤的需求。</li>
+    </ul>
+  </li>
+  <li><strong>模块化优势</strong>
+    <ul>
+      <li><strong>高度模块化</strong>：由于 Teleprompter 是模块化设计的，它可以独立于具体的优化目标进行扩展和调整。这意味着可以灵活地应用不同的优化策略，而不需要对整个编译器进行大幅修改。</li>
+      <li><strong>适应多种任务</strong>：无论是提示优化、模型微调、推理增强还是数据增强，Teleprompter 都能够根据具体任务需求，选择最合适的优化方法。</li>
+    </ul>
+  </li>
+  <li><strong>自动化优化流程</strong>
+    <ul>
+      <li><strong>自动映射</strong>：Teleprompter 帮助编译器自动将声明式模块映射为高质量的优化组合。这包括提示生成、模型微调、推理过程的优化等，使得整个自然语言处理管道能够高效协同工作。</li>
+      <li><strong>自我改进</strong>：通过不断地模拟和优化，Teleprompter 使得 DSPy 程序能够自我改进，逐步提升其在特定任务上的表现。</li>
+    </ul>
+  </li>
+  <li><strong>类比与启发</strong>
+    <ul>
+      <li><strong>类比 PyTorch 的优化器</strong>：类似于 PyTorch 中用于调整模型参数的优化器（如 SGD、Adam 等），Teleprompter 也是一种用于优化 DSPy 模块行为的工具。不过，Teleprompter 更加专注于如何利用数据和示例来指导模块的学习过程。</li>
+    </ul>
+  </li>
+</ol>
+
+<p><strong>总结</strong>
+Teleprompter 在 DSPy 编译器中扮演着至关重要的角色，通过提供通用的优化策略，指导各个模块如何从数据中有效学习，从而自动优化整个 DSPy 程序的性能和效率。其模块化和自动化的设计，使得 DSPy 编程模型能够灵活适应多种自然语言处理任务，并持续提升其处理能力。</p>
+
+<h2 id="摘要">摘要</h2>
+
+<p>背景：</p>
+
+<p>当前的解决复杂问题，需要将多个语言模型堆叠成管道单的技术来解决，然后每个 LLM 负责一个特定的任务。一般情况下设计 prompt 模版让 LLM 负责特定的任务</p>
+
+<p>问题：</p>
+
+<ol>
+  <li>需要专家人工设计 prompt</li>
+  <li>设计的 prompt 依赖于经验和试错，面对复杂任务时会出错</li>
+  <li>设计的 prompt 通用性较差，无法迁移到新的任务和场景上。</li>
+  <li>Prompt 是静态的，缺乏灵活的机制</li>
+  <li>用 prompt 可能让多个 LLM 堆叠的性能下降</li>
+</ol>
+
+<p>工作:</p>
+
+<p>提出 DSPy（Declarative Self-Improvement Pipelines）模块: 将 LM 的工作流转换为 text transformation graph 文本变换图来实现对复杂任务的处理</p>
+
+<blockquote>
+  <p>这些图实际上是 <strong>命令式计算图（imperative computation graphs）</strong>，其中语言模型（LM）通过声明式的模块调用。</p>
+</blockquote>
+
+<p>解释：</p>
+
+<ul>
+  <li>DSPy 模块具有<strong>参数化</strong>特性，可以通过创建和收集示例来学习- 如何应用 <strong>prompting</strong>、<strong>微调（finetuning）</strong>、<strong>数据增强（augmentation）</strong> 和 <strong>推理（reasoning）</strong> 等技术的组合。</li>
+  <li>DSPy 允许用户通过编写简单的程序来定义 LM 管道，这些管道能够执行复杂的任务，如<strong>数学问题推理</strong>、<strong>多跳检索</strong>、<strong>复杂问题回答</strong>和<strong>控制智能体循环</strong>等。</li>
+  <li>DSPy 中的程序通过一个<strong>编译器</strong>进行优化，能够在几分钟内自动调整管道，以最大化某个指定的指标（如任务表现）。</li>
+</ul>
+
+<p>结果：</p>
+
+<ul>
+  <li>
+    <p>比<strong>少量样本提示（few-shot prompting）</strong> 提高了 25% 到 65% 的表现，并且相比 <strong>专家创建的示例</strong> 提高了 5% 到 46%（具体数据取决于不同的模型和任务）。</p>
+  </li>
+  <li>
+    <p>DSPy 程序即使编译到较小的开源语言模型（如 770M 参数的 T5 和 llama2-13b-chat）上，表现也能与依赖专家编写提示链的专有 GPT-3.5 方法相媲美。</p>
+  </li>
+</ul>
+
+<h2 id="引言">引言</h2>
+
+<h3 id="背景">背景</h3>
+
+<p>多阶段管道和 agent 发展：将复杂任务分解为对多个可以调用 LM 任务</p>
+
+<h3 id="问题">问题</h3>
+
+<ol>
+  <li>LLM 对 prompt 非常敏感，并且在多个 LM 的系统中更敏感</li>
+  <li>当前 LM 调用一般使用 prompt 模版来实现
+    <ol>
+      <li>这种 prompt 无法扩展泛化不能用到其他的 pipeline 上</li>
+    </ol>
+  </li>
+</ol>
+
+<h3 id="工作">工作</h3>
+
+<h5 id="引入">引入</h5>
+
+<p>为了实现更系统化的 AI pipeline设计方法，我们引入了 DSPy 编程模块</p>
+
+<ul>
+  <li>不用自由形式的 strings，而是用类似编程语言</li>
+  <li>然后编译器就可以自动从中生成 LM 调用策略和 prompt</li>
+</ul>
+
+<p>想法来源：</p>
+
+<p>受到了<strong>神经网络抽象的启发</strong></p>
+
+<ul>
+  <li><strong>通用层的模块化组合</strong>：在构建复杂的神经网络架构时，许多通用的层（如卷积层、全连接层等）可以以模块化的方式进行组合。类似地，DSPy 也允许将各种处理步骤（例如提示生成、数据预处理等）作为模块组合起来，构建复杂的语言模型管道。</li>
+  <li><strong>优化器而非手动调优</strong>：神经网络的训练不再依赖于人工手动调整每个模型参数，而是通过使用优化算法（如梯度下降）来自动调整网络权重。同样，DSPy 的编译器通过自动化的优化策略，减少了人工设计和调优每个模型的需求</li>
+</ul>
+
+<h5 id="实现">实现</h5>
+
+<h6 id="dspy-programming-model">DSPy programming model</h6>
+
+<ol>
+  <li>将 prompt 转换为具有自然语言类型签名的声明模块
+    <ol>
+      <li>DSPy 模块类似于神经网络的层，是适应任务的组件，能够抽象出各种文本转换任务，例如回答问题或总结论文。</li>
+      <li>对每个模块进行参数化，能够通过在管道中反复引导有用的示范来学习其预期的行为。</li>
+    </ol>
+  </li>
+</ol>
+
+<blockquote>
+  <p>pipeline 构建：</p>
+  <ol>
+    <li>声明所需模块</li>
+    <li>使用的逻辑流来逻辑地连接模块</li>
+  </ol>
+</blockquote>
+
+<h6 id="dspy-compiler">DSPy compiler</h6>
+<ol>
+  <li><strong>编译器的作用</strong>：
+    <ul>
+      <li><strong>优化 DSPy 程序</strong>：提升程序的质量或降低其成本。</li>
+      <li><strong>自动映射</strong>：
+        <ul>
+          <li><strong>高质量组合</strong>：编译器自动将声明式模块映射为高质量的提示（prompting）、微调（finetuning）、推理（reasoning）和增强（augmentation）的组合，从而优化整个管道的性能。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li><strong>编译器的输入</strong>：
+    <ul>
+      <li><strong>程序</strong>：待优化的 DSPy 程序。</li>
+      <li><strong>训练输入</strong>：少量带有可选标签的训练数据。</li>
+      <li><strong>验证指标</strong>：用于评估优化效果的标准。</li>
+    </ul>
+  </li>
+  <li><strong>训练过程</strong>：
+    <ul>
+      <li><strong>程序模拟</strong>：编译器在给定的输入上模拟程序的不同版本。</li>
+      <li><strong>自我改进</strong>：通过引导模块生成示例轨迹，编译器利用这些轨迹构建有效的少样本提示（few-shot prompts）或对管道的步骤进行小型语言模型（LMs）的微调（finetuning）。</li>
+      <li><strong>模块化优化</strong>：
+        <ul>
+          <li><strong>Teleprompters</strong>：编译器使用称为 teleprompters 的通用优化策略来决定模块如何从数据中学习。这些策略是高度模块化的，能够灵活应用于不同的优化需求。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<h6 id="评估">评估</h6>
+
+<p>超过专家编写 prompt 的性能</p>
+
+<p>数学语言问题（GMS8K；Cobbe等，2021）和多跳问答</p>
+
+<h5 id="结果">结果</h5>
+
+<ul>
+  <li>表明简单的DSPy程序在性能上优于使用手工设计提示的系统，</li>
+  <li>同时也使我们的程序能够有效地使用更小、更高效的语言模型。</li>
+</ul>
+
+<h2 id="相关工作">相关工作</h2>
+
+<p>这一段介绍了 DSPy 编程模型的背景和灵感来源，并回顾了与之相关的研究和工作。主要包括以下几个方面：</p>
+
+<h3 id="1-灵感来源">1. <strong>灵感来源</strong>：</h3>
+
+<ul>
+  <li>DSPy 的灵感来自于 <strong>Torch</strong>, <strong>Theano</strong>, <strong>Chainer</strong> 等深度学习框架的工作，这些框架通过提供强大的抽象，推动了深度学习的发展。</li>
+  <li>类似的转变也正在发生在 <strong>语言模型（LM）管道</strong> 的发展上，DSPy 的目标是为 <strong>基础模型编程（foundation model programming）</strong> 提供一个坚实的概念框架和编程抽象。</li>
+  <li>DSPy 借鉴了 <strong>可微编程（differentiable programming）</strong> 的思想，但应用于语言模型调用，而非神经网络，并且在语法上借鉴了 <strong>PyTorch</strong> 的元素。</li>
+</ul>
+
+<h3 id="2-in-context-learning-及其发展">2. <strong>In-context learning 及其发展</strong>：</h3>
+
+<ul>
+  <li><strong>In-context learning（上下文学习）</strong> 是基础模型编程的关键机制，随着研究的发展，越来越多的工作表明，尤其是在 <strong>指令调优（instruction tuning）</strong> 上，我们可以通过 <strong>prompting</strong>（提示）来引导语言模型表现出复杂的行为。</li>
+  <li>这些方法依赖于语言模型进行任务指定的行为，而不再依赖于传统的手工构建的启发式规则或任务特定的标注（如 <strong>weak supervision</strong>），语言模型已经能够替代这些手动构建的任务特定方法。</li>
+</ul>
+
+<h3 id="3-语言模型管道和工具的应用">3. <strong>语言模型管道和工具的应用</strong>：</h3>
+
+<ul>
+  <li>当前，语言模型管道通常会调用各种工具，包括 <strong>检索模型</strong>、<strong>多模态基础模型</strong> 和更传统的工具（如 <strong>API</strong> 和 <strong>计算器</strong>）。许多工具包（如 <strong>LangChain</strong>, <strong>Semantic Kernel</strong>, <strong>LlamaIndex</strong> 等）已经被开发出来，用于简化这些管道的搭建和应用。</li>
+  <li>这些工具包通常依赖于手工编写的 <strong>prompt模板</strong> 来表达任务特定的行为，这就是 DSPy 试图解决的问题。DSPy 提供了一种更系统化的方式，避免了手动调整模板的复杂性。</li>
+</ul>
+
+<h3 id="4-离散优化和强化学习的应用">4. <strong>离散优化和强化学习的应用</strong>：</h3>
+
+<ul>
+  <li>当前有一些研究应用了 <strong>离散优化</strong> 和 <strong>强化学习（RL）</strong> 来寻找有效的提示，通常是针对单一的语言模型调用（例如 <strong>Guo et al., 2023</strong> 等）。然而，DSPy 希望将这一领域的技术推广，提供一个更通用的框架，允许从高层次的声明性签名中优化任意管道，并通过引导高质量的多阶段演示和约束来实现这一目标。</li>
+  <li>在此框架中，DSPy 编译器可能会应用 <strong>模型选择技术</strong>（如交叉验证）或使用 <strong>强化学习</strong> 和 <strong>语言模型反馈</strong> 进行优化，甚至可能结合 <strong>贝叶斯超参数优化方法</strong>。</li>
+</ul>
+
+<h3 id="5-dspy-编程模型的目标与贡献">5. <strong>DSPy 编程模型的目标与贡献</strong>：</h3>
+
+<ul>
+  <li>本文旨在 <strong>展示 DSPy 编程模型的动机</strong>，并报告应用 DSPy 编译器后的新实证结果。其灵感来自于早期的研究工作，如 <strong>Bergstra et al., 2010; 2013</strong> 和 <strong>Paszke et al., 2019</strong>，这些研究通过基准数据和定性指标支持各自的编程模型。</li>
+  <li>本文重点展示了 <strong>DSPy 编程模型</strong> 和其编译器如何帮助构建 <strong>出色的语言模型系统</strong>，无需手工编写提示字符串，而是通过模块化的单元来构建，从而打开了在 <strong>高级抽象层次</strong> 上系统性探索丰富设计空间的大门。</li>
+</ul>
+
+<h2 id="dspy-programming-modeldspy-编程模型">DSPy programming model（DSPy 编程模型）</h2>
+
+<p>我们提出了 DSPy，它将语言模型视为文本生成的抽象设备，并优化其在任意计算图中的使用。</p>
+
+<p>DSPy 程序用 Python 表达：每个程序接收任务输入（例如，要回答的问题或要总结的论文），并在一系列步骤后返回输出（例如，答案或摘要）。</p>
+
+<p>DSPy 为自动优化贡献了三个抽象：签名、模块和提词器。</p>
+
+<ul>
+  <li>签名抽象了模块的输入/输出行为；</li>
+  <li>模块替代现有的手动提示技术，可以在任意管道中组合；</li>
+  <li>提词器优化管道中的所有模块，以最大化某个指标。</li>
+</ul>
+
+<h3 id="自然语言签名natural-language-signatures">自然语言签名（Natural language signatures）</h3>
+
+<p>使用自然语言类型签名，抽象 prompt 和 fine-tuning</p>
+
+<p>与 prompt 不同，DSPy 程序使用自然语言签名将工作分配给 LLM。</p>
+
+<p>自然语言类型签名：</p>
+
+<ul>
+  <li>自然语言类型的函数声明，描述了输入和输出，而不是提示 LM 来实现该操作。</li>
+  <li>形式：一个元组（包含输入字段和输出字段）
+    <ul>
+      <li>一个字段由在字段名称和可选的元数据组成</li>
+      <li><strong>在使用过程中 DSPy 编译器会根据字段名称推断字段的对应的内容（ICL）</strong></li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="模块">模块</h3>
+
+<p>自然语言签名定义了一个接口，而没有实现，下面就介绍如何实例化模块。</p>
+
+<p>使用签名，返回一个具有该签名的函数
+<img src="assets/posts_assets/Pasted%20image%2020241210145143.png" alt="" /></p>
+
+<h4 id="预测模块">预测模块</h4>
+
+<ul>
+  <li>总体功能
+    <ul>
+      <li>是签名和模型之间的桥梁</li>
+      <li>存储提供的签名、可选的语言模型、一个用于提示的演示列表</li>
+    </ul>
+  </li>
+  <li>工作：
+    <ul>
+      <li>接受输入字段的关键字参数</li>
+      <li>利用输入字段过构造 prompt，并包括一些示范</li>
+      <li>最后调用指定的 LM 生成输出</li>
+      <li>解析输出字段，将语言模型结果转换为最终的输出</li>
+    </ul>
+  </li>
+  <li>编译模式
+    <ul>
+      <li>
+        <ul>
+          <li>当 <strong>Predict</strong> 检测到它正处于“编译模式”时，它会<strong>内部追踪输入和输出的记录</strong>（input/output traces）。这些记录用于帮助 <strong>teleprompter</strong>（优化器）在后续的引导式学习过程中生成有用的示范（demonstrations）。</li>
+        </ul>
+      </li>
+      <li>这个过程类似于通过示范和优化来增强模型的效果，从而提升任务执行的精度和效率。</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="其他内置模块">其他内置模块</h4>
+
+<ul>
+  <li><strong>将 prompt 转换为支持任何签名的模块化函数，这与任务特定细节</strong></li>
+  <li>模块里内置的是（方法），而签名定义的是任务</li>
+</ul>
+
+<h4 id="参数化-将上面介绍的参数化">参数化 (将上面介绍的参数化)</h4>
+
+<p>参数化：DSPy 在构建和使用语言模型时，通过<strong>参数化</strong>来细化和控制模型的行为。换句话说，DSPy 允许对每个语言模型调用进行精细的定制，以满足特定任务的需求。</p>
+
+<p><strong>参数化的三个关键要素</strong>： 要使语言模型正确执行一个特定的任务或签名，DSPy 需要传递三个重要的参数：</p>
+
+<ul>
+  <li>
+    <p><strong>(1) 特定的语言模型（LM）</strong>： 这里，DSPy 需要明确调用哪个语言模型。不同的语言模型可能具有不同的能力和行为。例如，某些模型可能擅长生成文本，另一些可能在推理或翻译任务上更为有效。</p>
+
+    <p>举例来说，如果任务是生成一段文章的摘要，DSPy 可能选择一个大规模的文本生成模型；如果任务是代码生成，可能选择一个训练过编程语言的特定模型。</p>
+  </li>
+  <li>
+    <p><strong>(2) 提示指令和字段前缀（Prompt Instructions）</strong>： 对于每个任务，DSPy 需要明确地传达给模型它应该如何执行。例如，如果任务是翻译，提示指令可能是“Translate English to French”。同时，字段的前缀（字段名如 “question” 和 “answer”）会提供更多关于任务类型的上下文，以确保模型能够理解输入的格式和输出的要求。</p>
+
+    <p>例如：</p>
+
+    <ul>
+      <li>输入字段：“question: What is the capital of France?”</li>
+      <li>输出字段：“answer: ”</li>
+    </ul>
+
+    <p>DSPy 会使用这些字段来生成任务的提示，如“Question: What is the capital of France?” 然后根据输入的“question”字段生成“answer”的输出。</p>
+  </li>
+  <li>
+    <p><strong>(3) 演示示例（Demonstrations）</strong>： 最重要的一部分是<strong>演示示例</strong>。这些示例是 DSPy 用来指导语言模型生成正确输出的数据。演示示例提供了任务的具体表现形式，可以用来训练模型或作为少量提示（few-shot prompts）引导模型在没有完全微调的情况下学习。</p>
+
+    <ul>
+      <li>对于冻结的模型（没有进一步训练的模型），演示示例作为提示直接传递给模型，帮助模型理解如何在特定上下文中生成正确的输出。</li>
+      <li>对于需要微调的模型，演示示例可以作为训练数据，帮助模型学习任务的特定行为。</li>
+    </ul>
+  </li>
+</ul>
+
+<p><strong>作者的主要研究在于：</strong></p>
+
+<ul>
+  <li>
+    <p><strong>自动生成和选择有用的演示</strong>： DSPy 的关键优势在于能够自动生成和选择有用的演示示例。这使得用户能够为模型任务提供高质量的“少量示例”，而不必手动编写或收集大量的训练数据。通过从实际使用中不断“启动”（bootstrapping）新的演示，DSPy 可以让语言模型不断学习新的行为。</p>
+  </li>
+  <li>
+    <p>[I] 我们可以专注于模型该怎么去做，而不是专注于生成有效示例  [created:: 2024-12-10]</p>
+  </li>
+</ul>
+
+<h4 id="示例">示例</h4>
+
+<p><strong>RAG 系统示例：</strong></p>
+
+<p>假设你想要创建一个基于“检索增强生成”（RAG）的系统，该系统结合了<strong>检索</strong>和<strong>生成</strong>的步骤来回答问题。具体来说，RAG 系统从数据库中检索相关信息（context），然后基于这些信息生成答案。</p>
+
+<p>以下是 RAG 系统的代码示例：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="k">class</span> <span class="nc">RAG</span><span class="p">(</span><span class="n">dspy</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">num_passages</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+        <span class="c1"># 'Retrieve'模块会使用用户的默认检索设置，除非被覆盖。
+</span>        <span class="n">self</span><span class="p">.</span><span class="n">retrieve</span> <span class="o">=</span> <span class="n">dspy</span><span class="p">.</span><span class="nc">Retrieve</span><span class="p">(</span><span class="n">k</span><span class="o">=</span><span class="n">num_passages</span><span class="p">)</span>
+        <span class="c1"># 'ChainOfThought'模块：根据检索到的context和问题生成答案。
+</span>        <span class="n">self</span><span class="p">.</span><span class="n">generate_answer</span> <span class="o">=</span> <span class="n">dspy</span><span class="p">.</span><span class="nc">ChainOfThought</span><span class="p">(</span><span class="sh">"</span><span class="s">context, question -&gt; answer</span><span class="sh">"</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="n">question</span><span class="p">):</span>
+        <span class="c1"># 使用检索模块来获取问题的相关文档（passages）。
+</span>        <span class="n">context</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="nf">retrieve</span><span class="p">(</span><span class="n">question</span><span class="p">).</span><span class="n">passages</span>
+        <span class="c1"># 使用ChainOfThought模块来根据检索到的上下文和问题生成答案。
+</span>        <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="nf">generate_answer</span><span class="p">(</span><span class="n">context</span><span class="o">=</span><span class="n">context</span><span class="p">,</span> <span class="n">question</span><span class="o">=</span><span class="n">question</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>示例使用：</p>
+
+<p>用户可以通过简单的调用来使用该系统：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="nc">RAG</span><span class="p">()(</span><span class="sh">"</span><span class="s">Where is Guaraní spoken?</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>这行代码将会使用 <code class="language-plaintext highlighter-rouge">RAG</code> 模块来回答“Where is Guaraní spoken?”这个问题，具体的操作流程是：首先检索与问题相关的文档，然后使用 <code class="language-plaintext highlighter-rouge">ChainOfThought</code> 来生成答案。</p>
+
+<h5 id="模块化的好处">模块化的好处：</h5>
+
+<ul>
+  <li>
+    <p><strong>模块化</strong>：该系统清晰地分为两个独立的模块：一个用于检索相关信息，另一个用于基于检索到的信息生成答案。这种模块化设计使得每个部分可以独立地进行开发、测试和优化。</p>
+  </li>
+  <li>
+    <p><strong>灵活的组合</strong>：用户可以根据不同的需求替换模块。例如，<code class="language-plaintext highlighter-rouge">ChainOfThought</code> 可以替代基本的 <code class="language-plaintext highlighter-rouge">Predict</code> 模块，用来生成更复杂的答案。甚至可以根据不同的任务（例如搜索查询生成）调整模块的功能。</p>
+  </li>
+</ul>
+
+<h5 id="任务定制">任务定制：</h5>
+
+<p>通过调整签名（signature），你可以改变系统的行为。例如，如果使用签名 <code class="language-plaintext highlighter-rouge">"context, question -&gt; search query"</code>，系统将不再生成答案，而是生成一个搜索查询。</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">self</span><span class="p">.</span><span class="n">generate_search_query</span> <span class="o">=</span> <span class="n">dspy</span><span class="p">.</span><span class="nc">ChainOfThought</span><span class="p">(</span><span class="sh">"</span><span class="s">context, question -&gt; search query</span><span class="sh">"</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>这会将任务从回答问题变为生成搜索查询。这样，用户可以灵活地在不同任务之间切换。</p>
+
+<h3 id="提示器">提示器</h3>
+
+<p>在编译 DSPy 程序时，我们通常会调用一个提词器，它是一个<strong>优化器</strong>，接收程序、训练集和指标，并返回一个新的优化程序。不同的提词器（第 4 节）采用不同的优化策略。</p>
+
+<ul class="task-list">
+  <li class="task-list-item">
+    <p><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />DSPy要人工定义管道,我们可不可以自动生成管道，让 AI 定义 pipieline，这样的 pipeline 在复杂、多变的情况下更好，减少了人工干预的需要  [created:: 2024-12-10]  [completion:: 2024-12-11]</p>
+  </li>
+  <li class="task-list-item">训练数据：
+    <ul>
+      <li>小型训练集</li>
+      <li>仅使用输入数据，并不需要完整中间步骤的标签，（除非对于评估模型性能的度量标准有用）
+        <ul>
+          <li>减少构建一个新 pipeline 的时候需要重新标注数据</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li class="task-list-item">评估指标：
+    <ul>
+      <li>简单的指标: EM、F 1</li>
+      <li>复杂的指标，平衡多个关注点</li>
+    </ul>
+  </li>
+  <li class="task-list-item">提示器可以由 teacher 模型组成
+    <ul>
+      <li>用 teacher 模型生成适合的演示样例，这样可以提供一些无标签的数据进行训练.</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="示例-1">示例</h4>
+
+<h5 id="rag">RAG</h5>
+
+<ul>
+  <li>展示了如何使用一个小型的问答训练集和精确匹配指标来优化RAG模块。</li>
+</ul>
+
+<p>代码逐行解释：</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c1">## Small training set with only questions and final answers.
+</span><span class="n">qa_trainset</span> <span class="o">=</span> <span class="p">[</span><span class="n">dspy</span><span class="p">.</span><span class="nc">Example</span><span class="p">(</span><span class="n">question</span><span class="o">=</span><span class="sh">"</span><span class="s">What is the capital of France?</span><span class="sh">"</span><span class="p">,</span> <span class="n">answer</span><span class="o">=</span><span class="sh">"</span><span class="s">Paris</span><span class="sh">"</span><span class="p">)]</span>
+
+ <span class="c1"># The teleprompter will bootstrap missing labels: reasoning chains and retrieval contexts.
+</span><span class="n">teleprompter</span> <span class="o">=</span> <span class="n">dspy</span><span class="p">.</span><span class="nc">BootstrapFewShot</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="n">dspy</span><span class="p">.</span><span class="n">evaluate</span><span class="p">.</span><span class="n">answer_exact_match</span><span class="p">)</span>
+<span class="n">compiled_rag</span> <span class="o">=</span> <span class="n">teleprompter</span><span class="p">.</span><span class="nf">compile</span><span class="p">(</span><span class="nc">RAG</span><span class="p">(),</span> <span class="n">trainset</span><span class="o">=</span><span class="n">qa_trainset</span><span class="p">)</span>
+</code></pre></div></div>
+
+<p>第1-2行：定义训练集</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">qa_trainset</span> <span class="o">=</span> <span class="p">[</span><span class="n">dspy</span><span class="p">.</span><span class="nc">Example</span><span class="p">(</span><span class="n">question</span><span class="o">=</span><span class="sh">"</span><span class="s">What is the capital of France?</span><span class="sh">"</span><span class="p">,</span> <span class="n">answer</span><span class="o">=</span><span class="sh">"</span><span class="s">Paris</span><span class="sh">"</span><span class="p">)]</span>
+</code></pre></div></div>
+
+<ul>
+  <li><strong>解释</strong>：
+    <ul>
+      <li>创建了一个小型的训练集 <code class="language-plaintext highlighter-rouge">qa_trainset</code>，其中包含一个问答对。</li>
+      <li>每个 <code class="language-plaintext highlighter-rouge">dspy.Example</code> 包含 <code class="language-plaintext highlighter-rouge">question</code>（问题）和 <code class="language-plaintext highlighter-rouge">answer</code>（答案）两个字段。</li>
+      <li>这里的训练集非常小，仅包含一个示例，但DSPy设计允许在少量数据下仍能有效工作。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>第4-6行：引导和编译管道</p>
+
+<div class="language-python highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="n">teleprompter</span> <span class="o">=</span> <span class="n">dspy</span><span class="p">.</span><span class="nc">BootstrapFewShot</span><span class="p">(</span><span class="n">metric</span><span class="o">=</span><span class="n">dspy</span><span class="p">.</span><span class="n">evaluate</span><span class="p">.</span><span class="n">answer_exact_match</span><span class="p">)</span>
+<span class="n">compiled_rag</span> <span class="o">=</span> <span class="n">teleprompter</span><span class="p">.</span><span class="nf">compile</span><span class="p">(</span><span class="nc">RAG</span><span class="p">(),</span> <span class="n">trainset</span><span class="o">=</span><span class="n">qa_trainset</span><span class="p">)</span>
+</code></pre></div></div>
+
+<ul>
+  <li><strong>解释</strong>：
+    <ul>
+      <li><strong>第5行</strong>：创建一个 <code class="language-plaintext highlighter-rouge">BootstrapFewShot</code> 类型的 <strong>远程提示器（teleprompter）</strong>，并指定使用的评估指标为精确匹配（EM）。
+        <ul>
+          <li><code class="language-plaintext highlighter-rouge">BootstrapFewShot</code> 的作用是自动生成缺失的标签，如推理链（reasoning chains）和检索上下文（retrieval contexts），从而丰富训练示例。</li>
+          <li>评估指标 <code class="language-plaintext highlighter-rouge">dspy.evaluate.answer_exact_match</code> 用于衡量生成的答案与参考答案的精确匹配程度。</li>
+        </ul>
+      </li>
+      <li><strong>第6行</strong>：使用远程提示器编译 <code class="language-plaintext highlighter-rouge">RAG</code> 模块，并传入训练集 <code class="language-plaintext highlighter-rouge">qa_trainset</code>。
+        <ul>
+          <li><code class="language-plaintext highlighter-rouge">RAG()</code> 创建了一个RAG模块实例，该模块包含检索（Retrieve）和生成（ChainOfThought）两个子模块。</li>
+          <li><code class="language-plaintext highlighter-rouge">teleprompter.compile(RAG(), trainset=qa_trainset)</code> 会根据训练集和指定的指标，自动生成和优化RAG管道。</li>
+          <li>编译后的 <code class="language-plaintext highlighter-rouge">compiled_rag</code> 是一个优化后的RAG管道，能够根据少量训练示例有效地执行问答任务。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>整体流程说明：</p>
+
+<ol>
+  <li>
+    <p><strong>定义训练集</strong>：</p>
+
+    <ul>
+      <li>创建一个包含问题和答案的小型训练集。例如：“What is the capital of France?” -&gt; “Paris”。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>创建远程提示器</strong>：</p>
+
+    <ul>
+      <li><code class="language-plaintext highlighter-rouge">BootstrapFewShot</code> 使用指定的评估指标（如精确匹配）来指导管道的优化。</li>
+      <li>远程提示器负责自动生成缺失的标签信息，如推理链和检索上下文，提升训练示例的质量和多样性。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>编译优化管道</strong>：</p>
+
+    <ul>
+      <li>使用远程提示器编译RAG模块，并传入训练集。</li>
+      <li>通过编译过程，DSPy 自动生成高质量的少量示例，优化RAG管道的各个模块，使其能够更好地完成问答任务。</li>
+    </ul>
+  </li>
+</ol>
+
+<p>优势：</p>
+
+<ul>
+  <li><strong>标签效率</strong>：只需为最终输出提供标签（答案），不需要为每个中间步骤提供标签（如推理链和检索上下文），减少了数据标注的工作量。</li>
+  <li><strong>模块化与自动化优化</strong>：用户只需定义高层次的任务需求，DSPy 会自动生成和优化模块行为，使得管道能够高效且准确地完成任务。</li>
+  <li><strong>少量数据有效性</strong>：即使训练集很小，通过引导生成高质量的示例，DSPy 仍能有效优化管道，适应复杂任务。</li>
+</ul>
+
+<h2 id="dspy-编译器">DSPy 编译器</h2>
+
+<p>分为三个阶段</p>
+
+<h3 id="阶段一候选生成">阶段一：候选生成</h3>
+
+<p>生成数据</p>
+
+<p>需要先造一下示例</p>
+
+<p>用 teacher moodel 或者 zero-shot 生成一些输出，然后用指标去评估，选一些合格的好的</p>
+
+<h3 id="阶段二参数优化">阶段二：参数优化</h3>
+
+<p>参数优化是确保程序高效运行和达成预期目标的关键步骤。该阶段的核心任务是为每个参数选择最优的候选值，以提升整体系统的性能或降低资源消耗。</p>
+
+<ul>
+  <li>Few-shot
+    <ul>
+      <li>随机搜索</li>
+      <li><strong>树结构的帕森估计器（Tree-structured Parzen Estimators, TPE）</strong></li>
+    </ul>
+  </li>
+  <li>Fine-tuning
+    <ul>
+      <li>更新模块的权重</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="阶段三高阶程序优化">阶段三：高阶程序优化</h3>
+
+<p>修改程序的 pipeline</p>
+
+<ul class="task-list">
+  <li>方式一：集成
+    <ul>
+      <li>将引导多个相同程序的副本，然后用一个新的程序替换它，新的程序并行运行所有副本，并将它们的预测通过自定义函数（例如，多数投票）汇总成一个结果</li>
+    </ul>
+  </li>
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />可不可让他自己优化pipeline  [created:: 2024-12-11]  [completion:: 2024-12-14]</li>
+</ul>
+
+<h2 id="目标和评估">目标和评估</h2>
+
+<p>结果</p>
+
+<ul>
+  <li>通过 DSPy，我们可以用简洁且明确定义的模块替换手工制作的提示字符串，而不会降低质量或表达能力。</li>
+  <li>参数化模块并将提示处理为优化问题使 DSPy 更适合适应不同的语言模型，并且它可能优于专家撰写的提示。</li>
+</ul>
+</div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-12-08T00:00:00+08:00"><!-- start custom article footer snippet -->
+
+<!-- end custom article footer snippet -->
+<div class="article__subscribe"><div class="subscribe"><i class="fas fa-rss"></i> <a type="application/rss+xml" href="/feed.xml">订阅</a></div>
+</div><div class="article__license"><div class="license">
+    <p>本文遵守 <a itemprop="license" rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">Attribution-NonCommercial 4.0 International</a> 许可协议。
+      <a rel="license" href="https://creativecommons.org/licenses/by-nc/4.0/">
+        <img alt="Attribution-NonCommercial 4.0 International" src="https://i.creativecommons.org/l/by-nc/4.0/88x31.png" />
+      </a>
+    </p>
+  </div></div></footer>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2024/12/01/T-Eval-Evaluating-the-Tool-Utilization-Capability-of-Large-Language-Models-Step-by-Step%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html">T-Eval Evaluating the Tool Utilization Capability of  Large Language Models Step by Step论文笔记</a></div><div class="next"><span>下篇</span><a href="/2024/12/14/ChatCoT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html">ChatCoT 论文粗读</a></div></div></div>
+
+</div>
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    $(function() {
+      var $this ,$scroll;
+      var $articleContent = $('.js-article-content');
+      var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+      var scroll = hasSidebar ? '.js-page-main' : 'html, body';
+      $scroll = $(scroll);
+
+      $articleContent.find('.highlight').each(function() {
+        $this = $(this);
+        $this.attr('data-lang', $this.find('code').attr('data-lang'));
+      });
+      $articleContent.find('h1[id], h2[id], h3[id], h4[id], h5[id], h6[id]').each(function() {
+        $this = $(this);
+        $this.append($('<a class="anchor d-print-none" aria-hidden="true"></a>').html('<i class="fas fa-anchor"></i>'));
+      });
+      $articleContent.on('click', '.anchor', function() {
+        $scroll.scrollToAnchor('#' + $(this).parent().attr('id'), 400);
+      });
+    });
+  });
+})();
+</script>
+</div><section class="page__comments d-print-none"><div id="vcomments"></div><script>
+  window.Lazyload.js(['//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js', 'https://unpkg.com/valine/dist/Valine.min.js'], function() {
+    var _config = {
+      el: '#vcomments',
+      appId:  'ONcOJaEzueQcEXVrHVv5dQ4F-gzGzoHsz',
+      appKey: '0iORBozCMxniZ0spe5QY9zCO',
+      verify: true,
+    };_config.lang = 'en';new Valine(_config);
+  });
+</script></section></article><!-- start custom main bottom snippet -->
+
+<!-- end custom main bottom snippet -->
+</div>
+            </div></div></div><div class="page__footer d-print-none">
+<footer class="footer py-4 js-page-footer">
+  <div class="main"><div itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Xingjie Gao"><meta itemprop="url" content="/"><meta itemprop="description" content="To be a question, to be an answer."><div class="footer__author-links"><div class="author-links">
+  <ul class="menu menu--nowrap menu--inline"><li title="给我发邮件。">
+      <a class="button button--circle mail-button" itemprop="email" href="mailto:xingjie-gao@outlook.com" target="_blank">
+        <i class="fas fa-envelope"></i>
+      </a><li title="在 Github 上关注我。">
+        <a class="button button--circle github-button" itemprop="sameAs" href="https://github.com/Kfkcome" target="_blank">
+          <div class="icon"><svg fill="#000000" width="24px" height="24px" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg">
+  <path class="svgpath" data-index="path_0" fill="#272636" d="M0 525.2c0 223.6 143.3 413.7 343 483.5 26.9 6.8 22.8-12.4 22.8-25.4l0-88.7c-155.3 18.2-161.5-84.6-172-101.7-21.1-36-70.8-45.2-56-62.3 35.4-18.2 71.4 4.6 113.1 66.3 30.2 44.7 89.1 37.2 119 29.7 6.5-26.9 20.5-50.9 39.7-69.6C248.8 728.2 181.7 630 181.7 513.2c0-56.6 18.7-108.7 55.3-150.7-23.3-69.3 2.2-128.5 5.6-137.3 66.5-6 135.5 47.6 140.9 51.8 37.8-10.2 80.9-15.6 129.1-15.6 48.5 0 91.8 5.6 129.8 15.9 12.9-9.8 77-55.8 138.8-50.2 3.3 8.8 28.2 66.7 6.3 135 37.1 42.1 56 94.6 56 151.4 0 117-67.5 215.3-228.8 243.7 26.9 26.6 43.6 63.4 43.6 104.2l0 128.8c0.9 10.3 0 20.5 17.2 20.5C878.1 942.4 1024 750.9 1024 525.3c0-282.9-229.3-512-512-512C229.1 13.2 0 242.3 0 525.2L0 525.2z" />
+</svg>
+</div>
+        </a>
+      </li></ul>
+</div>
+</div>
+    </div><div class="site-info mt-2">
+      <div>© Ennis's Blog 2021,
+        Powered by <a title="Jekyll is a simple, blog-aware, static site generator." href="http://jekyllrb.com/">Jekyll</a> & <a
+        title="TeXt is a super customizable Jekyll theme." href="https://github.com/kitian616/jekyll-TeXt-theme">TeXt Theme</a>.
+      </div>
+    </div>
+  </div>
+</footer>
+</div></div>
+    </div><script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $body = $('body'), $window = $(window);
+    var $pageRoot = $('.js-page-root'), $pageMain = $('.js-page-main');
+    var activeCount = 0;
+    function modal(options) {
+      var $root = this, visible, onChange, hideWhenWindowScroll = false;
+      var scrollTop;
+      function setOptions(options) {
+        var _options = options || {};
+        visible = _options.initialVisible === undefined ? false : show;
+        onChange = _options.onChange;
+        hideWhenWindowScroll = _options.hideWhenWindowScroll;
+      }
+      function init() {
+        setState(visible);
+      }
+      function setState(isShow) {
+        if (isShow === visible) {
+          return;
+        }
+        visible = isShow;
+        if (visible) {
+          activeCount++;
+          scrollTop = $(window).scrollTop() || $pageMain.scrollTop();
+          $root.addClass('modal--show');
+          $pageMain.scrollTop(scrollTop);
+          activeCount === 1 && ($pageRoot.addClass('show-modal'), $body.addClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.on('scroll', hide);
+          $window.on('keyup', handleKeyup);
+        } else {
+          activeCount > 0 && activeCount--;
+          $root.removeClass('modal--show');
+          $window.scrollTop(scrollTop);
+          activeCount === 0 && ($pageRoot.removeClass('show-modal'), $body.removeClass('of-hidden'));
+          hideWhenWindowScroll && window.hasEvent('touchstart') && $window.off('scroll', hide);
+          $window.off('keyup', handleKeyup);
+        }
+        onChange && onChange(visible);
+      }
+      function show() {
+        setState(true);
+      }
+      function hide() {
+        setState(false);
+      }
+      function handleKeyup(e) {
+        // Char Code: 27  ESC
+        if (e.which ===  27) {
+          hide();
+        }
+      }
+      setOptions(options);
+      init();
+      return {
+        show: show,
+        hide: hide,
+        $el: $root
+      };
+    }
+    $.fn.modal = modal;
+  });
+})();
+</script><div class="modal modal--overflow page__search-modal d-print-none js-page-search-modal"><script>
+(function () {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    // search panel
+    var search = (window.search || (window.search = {}));
+    var useDefaultSearchBox = window.useDefaultSearchBox === undefined ?
+      true : window.useDefaultSearchBox ;
+
+    var $searchModal = $('.js-page-search-modal');
+    var $searchToggle = $('.js-search-toggle');
+    var searchModal = $searchModal.modal({ onChange: handleModalChange, hideWhenWindowScroll: true });
+    var modalVisible = false;
+    search.searchModal = searchModal;
+
+    var $searchBox = null;
+    var $searchInput = null;
+    var $searchClear = null;
+
+    function getModalVisible() {
+      return modalVisible;
+    }
+    search.getModalVisible = getModalVisible;
+
+    function handleModalChange(visible) {
+      modalVisible = visible;
+      if (visible) {
+        search.onShow && search.onShow();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].focus();
+      } else {
+        search.onShow && search.onHide();
+        useDefaultSearchBox && $searchInput[0] && $searchInput[0].blur();
+        setTimeout(function() {
+          useDefaultSearchBox && ($searchInput.val(''), $searchBox.removeClass('not-empty'));
+          search.clear && search.clear();
+          window.pageAsideAffix && window.pageAsideAffix.refresh();
+        }, 400);
+      }
+    }
+
+    $searchToggle.on('click', function() {
+      modalVisible ? searchModal.hide() : searchModal.show();
+    });
+    // Char Code: 83  S, 191 /
+    $(window).on('keyup', function(e) {
+      if (!modalVisible && !window.isFormElement(e.target || e.srcElement) && (e.which === 83 || e.which === 191)) {
+        modalVisible || searchModal.show();
+      }
+    });
+
+    if (useDefaultSearchBox) {
+      $searchBox = $('.js-search-box');
+      $searchInput = $searchBox.children('input');
+      $searchClear = $searchBox.children('.js-icon-clear');
+      search.getSearchInput = function() {
+        return $searchInput.get(0);
+      };
+      search.getVal = function() {
+        return $searchInput.val();
+      };
+      search.setVal = function(val) {
+        $searchInput.val(val);
+      };
+
+      $searchInput.on('focus', function() {
+        $(this).addClass('focus');
+      });
+      $searchInput.on('blur', function() {
+        $(this).removeClass('focus');
+      });
+      $searchInput.on('input', window.throttle(function() {
+        var val = $(this).val();
+        if (val === '' || typeof val !== 'string') {
+          search.clear && search.clear();
+        } else {
+          $searchBox.addClass('not-empty');
+          search.onInputNotEmpty && search.onInputNotEmpty(val);
+        }
+      }, 400));
+      $searchClear.on('click', function() {
+        $searchInput.val(''); $searchBox.removeClass('not-empty');
+        search.clear && search.clear();
+      });
+    }
+  });
+})();
+</script><div class="search search--dark">
+  <div class="main">
+    <div class="search__header">搜索</div>
+    <div class="search-bar">
+      <div class="search-box js-search-box">
+        <div class="search-box__icon-search"><i class="fas fa-search"></i></div>
+        <input type="text" />
+        <div class="search-box__icon-clear js-icon-clear">
+          <a><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+      <button class="button button--theme-dark button--pill search__cancel js-search-toggle">
+        取消</button>
+    </div>
+    <div class="search-result js-search-result"></div>
+  </div>
+</div>
+<script>var SOURCES = window.TEXT_VARIABLES.sources;
+var PAHTS = window.TEXT_VARIABLES.paths;
+window.Lazyload.js([SOURCES.jquery, PAHTS.search_js], function() {
+  var search = (window.search || (window.search = {}));
+  var searchData = window.TEXT_SEARCH_DATA || {};
+
+  function memorize(f) {
+    var cache = {};
+    return function () {
+      var key = Array.prototype.join.call(arguments, ',');
+      if (key in cache) return cache[key];
+      else return cache[key] = f.apply(this, arguments);
+    };
+  }
+
+  /// search
+  function searchByQuery(query) {
+    var i, j, key, keys, cur, _title, result = {};
+    keys = Object.keys(searchData);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      for (j = 0; j < searchData[key].length; j++) {
+        cur = searchData[key][j], _title = cur.title;
+        if ((result[key] === undefined || result[key] && result[key].length < 4 )
+          && _title.toLowerCase().indexOf(query.toLowerCase()) >= 0) {
+          if (result[key] === undefined) {
+            result[key] = [];
+          }
+          result[key].push(cur);
+        }
+      }
+    }
+    return result;
+  }
+
+  var renderHeader = memorize(function(header) {
+    return $('<p class="search-result__header">' + header + '</p>');
+  });
+
+  var renderItem = function(index, title, url) {
+    return $('<li class="search-result__item" data-index="' + index + '"><a class="button" href="' + url + '">' + title + '</a></li>');
+  };
+
+  function render(data) {
+    if (!data) { return null; }
+    var $root = $('<ul></ul>'), i, j, key, keys, cur, itemIndex = 0;
+    keys = Object.keys(data);
+    for (i = 0; i < keys.length; i++) {
+      key = keys[i];
+      $root.append(renderHeader(key));
+      for (j = 0; j < data[key].length; j++) {
+        cur = data[key][j];
+        $root.append(renderItem(itemIndex++, cur.title, cur.url));
+      }
+    }
+    return $root;
+  }
+
+  // search box
+  var $result = $('.js-search-result'), $resultItems;
+  var lastActiveIndex, activeIndex;
+
+  function clear() {
+    $result.html(null);
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+  }
+  function onInputNotEmpty(val) {
+    $result.html(render(searchByQuery(val)));
+    $resultItems = $('.search-result__item'); activeIndex = 0;
+    $resultItems.eq(0).addClass('active');
+  }
+
+  search.clear = clear;
+  search.onInputNotEmpty = onInputNotEmpty;
+
+  function updateResultItems() {
+    lastActiveIndex >= 0 && $resultItems.eq(lastActiveIndex).removeClass('active');
+    activeIndex >= 0 && $resultItems.eq(activeIndex).addClass('active');
+  }
+
+  function moveActiveIndex(direction) {
+    var itemsCount = $resultItems ? $resultItems.length : 0;
+    if (itemsCount > 1) {
+      lastActiveIndex = activeIndex;
+      if (direction === 'up') {
+        activeIndex = (activeIndex - 1 + itemsCount) % itemsCount;
+      } else if (direction === 'down') {
+        activeIndex = (activeIndex + 1 + itemsCount) % itemsCount;
+      }
+      updateResultItems();
+    }
+  }
+
+  // Char Code: 13  Enter, 37  ⬅, 38  ⬆, 39  ➡, 40  ⬇
+  $(window).on('keyup', function(e) {
+    var modalVisible = search.getModalVisible && search.getModalVisible();
+    if (modalVisible) {
+      if (e.which === 38) {
+        modalVisible && moveActiveIndex('up');
+      } else if (e.which === 40) {
+        modalVisible && moveActiveIndex('down');
+      } else if (e.which === 13) {
+        modalVisible && $resultItems && activeIndex >= 0 && $resultItems.eq(activeIndex).children('a')[0].click();
+      }
+    }
+  });
+
+  $result.on('mouseover', '.search-result__item > a', function() {
+    var itemIndex = $(this).parent().data('index');
+    itemIndex >= 0 && (lastActiveIndex = activeIndex, activeIndex = itemIndex, updateResultItems());
+  });
+});
+</script>
+</div></div>
+
+
+<script>(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function scrollToAnchor(anchor, duration, callback) {
+      var $root = this;
+      $root.animate({ scrollTop: $(anchor).position().top }, duration, function() {
+        window.history.replaceState(null, '', window.location.href.split('#')[0] + anchor);
+        callback && callback();
+      });
+    }
+    $.fn.scrollToAnchor = scrollToAnchor;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function affix(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroll,
+        offsetBottom = 0, scrollTarget = window, scroll = window.document, disabled = false, isOverallScroller = true,
+        rootTop, rootLeft, rootHeight, scrollBottom, rootBottomTop,
+        hasInit = false, curState;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.offsetBottom && (offsetBottom = _options.offsetBottom);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroll && (scroll = _options.scroll);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $scrollTarget = $(scrollTarget);
+        isOverallScroller = window.isOverallScroller($scrollTarget[0]);
+        $scroll = $(scroll);
+      }
+      function preCalc() {
+        top();
+        rootHeight = $root.outerHeight();
+        rootTop = $root.offset().top + (isOverallScroller ? 0 :  $scrollTarget.scrollTop());
+        rootLeft = $root.offset().left;
+      }
+      function calc(needPreCalc) {
+        needPreCalc && preCalc();
+        scrollBottom = $scroll.outerHeight() - offsetBottom - rootHeight;
+        rootBottomTop = scrollBottom - rootTop;
+      }
+      function top() {
+        if (curState !== 'top') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: 0
+          });
+          curState = 'top';
+        }
+      }
+      function fixed() {
+        if (curState !== 'fixed') {
+          $root.addClass('fixed').css({
+            left: rootLeft + 'px',
+            top: 0
+          });
+          curState = 'fixed';
+        }
+      }
+      function bottom() {
+        if (curState !== 'bottom') {
+          $root.removeClass('fixed').css({
+            left: 0,
+            top: rootBottomTop + 'px'
+          });
+          curState = 'bottom';
+        }
+      }
+      function setState() {
+        var scrollTop = $scrollTarget.scrollTop();
+        if (scrollTop >= rootTop && scrollTop <= scrollBottom) {
+          fixed();
+        } else if (scrollTop < rootTop) {
+          top();
+        } else {
+          bottom();
+        }
+      }
+      function init() {
+        if(!hasInit) {
+          var interval, timeout;
+          calc(true); setState();
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState();
+          });
+          $window.on('resize', function() {
+            disabled || (calc(true), setState());
+          });
+          hasInit = true;
+        }
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions,
+        refresh: function() {
+          calc(true, { animation: false }); setState();
+        }
+      };
+    }
+    $.fn.affix = affix;
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    function toc(options) {
+      var $root = this, $window = $(window), $scrollTarget, $scroller, $tocUl = $('<ul class="toc toc--ellipsis"></ul>'), $tocLi, $headings, $activeLast, $activeCur,
+        selectors = 'h1,h2,h3', container = 'body', scrollTarget = window, scroller = 'html, body', disabled = false,
+        headingsPos, scrolling = false, hasRendered = false, hasInit = false;
+
+      function setOptions(options) {
+        var _options = options || {};
+        _options.selectors && (selectors = _options.selectors);
+        _options.container && (container = _options.container);
+        _options.scrollTarget && (scrollTarget = _options.scrollTarget);
+        _options.scroller && (scroller = _options.scroller);
+        _options.disabled !== undefined && (disabled = _options.disabled);
+        $headings = $(container).find(selectors).filter('[id]');
+        $scrollTarget = $(scrollTarget);
+        $scroller = $(scroller);
+      }
+      function calc() {
+        headingsPos = [];
+        $headings.each(function() {
+          headingsPos.push(Math.floor($(this).position().top));
+        });
+      }
+      function setState(element, disabled) {
+        var scrollTop = $scrollTarget.scrollTop(), i;
+        if (disabled || !headingsPos || headingsPos.length < 1) { return; }
+        if (element) {
+          $activeCur = element;
+        } else {
+          for (i = 0; i < headingsPos.length; i++) {
+            if (scrollTop >= headingsPos[i]) {
+              $activeCur = $tocLi.eq(i);
+            } else {
+              $activeCur || ($activeCur = $tocLi.eq(i));
+              break;
+            }
+          }
+        }
+        $activeLast && $activeLast.removeClass('active');
+        ($activeLast = $activeCur).addClass('active');
+      }
+      function render() {
+        if(!hasRendered) {
+          $root.append($tocUl);
+          $headings.each(function() {
+            var $this = $(this);
+            $tocUl.append($('<li></li>').addClass('toc-' + $this.prop('tagName').toLowerCase())
+              .append($('<a></a>').text($this.text()).attr('href', '#' + $this.prop('id'))));
+          });
+          $tocLi = $tocUl.children('li');
+          $tocUl.on('click', 'a', function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            scrolling = true;
+            setState($this.parent());
+            $scroller.scrollToAnchor($this.attr('href'), 400, function() {
+              scrolling = false;
+            });
+          });
+        }
+        hasRendered = true;
+      }
+      function init() {
+        var interval, timeout;
+        if(!hasInit) {
+          render(); calc(); setState(null, scrolling);
+          // run calc every 100 millisecond
+          interval = setInterval(function() {
+            calc();
+          }, 100);
+          timeout = setTimeout(function() {
+            clearInterval(interval);
+          }, 45000);
+          window.pageLoad.then(function() {
+            setTimeout(function() {
+              clearInterval(interval);
+              clearTimeout(timeout);
+            }, 3000);
+          });
+          $scrollTarget.on('scroll', function() {
+            disabled || setState(null, scrolling);
+          });
+          $window.on('resize', window.throttle(function() {
+            if (!disabled) {
+              render(); calc(); setState(null, scrolling);
+            }
+          }, 100));
+        }
+        hasInit = true;
+      }
+
+      setOptions(options);
+      if (!disabled) {
+        init();
+      }
+      $window.on('resize', window.throttle(function() {
+        init();
+      }, 200));
+      return {
+        setOptions: setOptions
+      };
+    }
+    $.fn.toc = toc;
+  });
+})();
+/*(function () {
+
+})();*/
+</script><script>
+  /* toc must before affix, since affix need to konw toc' height. */(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  var TOC_SELECTOR = window.TEXT_VARIABLES.site.toc.selectors;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window);
+    var $articleContent = $('.js-article-content');
+    var $tocRoot = $('.js-toc-root'), $col2 = $('.js-col-aside');
+    var toc;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+    var hasToc = $articleContent.find(TOC_SELECTOR).length > 0;
+
+    function disabled() {
+      return $col2.css('display') === 'none' || !hasToc;
+    }
+
+    tocDisabled = disabled();
+
+    toc = $tocRoot.toc({
+      selectors: TOC_SELECTOR,
+      container: $articleContent,
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      tocDisabled = disabled();
+      toc && toc.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+  });
+})();
+(function() {
+  var SOURCES = window.TEXT_VARIABLES.sources;
+  window.Lazyload.js(SOURCES.jquery, function() {
+    var $window = $(window), $pageFooter = $('.js-page-footer');
+    var $pageAside = $('.js-page-aside');
+    var affix;
+    var tocDisabled = false;
+    var hasSidebar = $('.js-page-root').hasClass('layout--page--sidebar');
+
+    affix = $pageAside.affix({
+      offsetBottom: $pageFooter.outerHeight(),
+      scrollTarget: hasSidebar ? '.js-page-main' : null,
+      scroller: hasSidebar ? '.js-page-main' : null,
+      scroll: hasSidebar ? $('.js-page-main').children() : null,
+      disabled: tocDisabled
+    });
+
+    $window.on('resize', window.throttle(function() {
+      affix && affix.setOptions({
+        disabled: tocDisabled
+      });
+    }, 100));
+
+    window.pageAsideAffix = affix;
+  });
+})();
+</script><script>
+  window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', 'https://cdn.bootcss.com/Chart.js/2.7.2/Chart.bundle.min.js'], function() {
+    var $canvas = null, $this = null, _ctx = null, _text = '';
+    $('.language-chart').each(function(){
+      $this = $(this);
+      $canvas = $('<canvas></canvas>');
+      _text = $this.text();
+      $this.text('').append($canvas);
+      _ctx = $canvas.get(0).getContext('2d');
+      (_ctx && _text) && (new Chart(_ctx, JSON.parse(_text)) && $this.attr('data-processed', true));
+    });
+  });
+</script>
+<script type="text/x-mathjax-config">
+	var _config = { tex2jax: {
+		inlineMath: [['$','$'], ['\\(','\\)']]
+	}};_config.TeX = { equationNumbers: { autoNumber: "all" } };MathJax.Hub.Config(_config);
+</script>
+<script type="text/javascript" src="/assets/MathJax/MathJax.js?config=TeX-MML-AM_CHTML" async></script>
+<script>
+  window.Lazyload.js('https://cdn.bootcss.com/mermaid/8.0.0-rc.8/mermaid.min.js', function() {
+    mermaid.initialize({
+      startOnLoad: true
+    });
+    mermaid.init(undefined, '.language-mermaid');
+  });
+</script>
+<script>(function() {
+  function errorHandler(error, callback) {
+    if (error) {
+      callback && callback(error);
+      throw error;
+    }
+  }
+
+  function pageview(_AV, options) {
+    var AV = _AV;
+    var appId, appKey, appClass;
+    appId = options.appId;
+    appKey = options.appKey;
+    appClass = options.appClass;
+    if (!AV.applicationId) {
+      AV.init({
+        serverURLs: 'https://avoscloud.com',
+        appId: appId,
+        appKey: appKey
+      });
+    } else {
+      console.log('LeanCloud SDK 已经初始化过了。');
+    }
+    return {
+      get: get,
+      increase: increase
+    };
+
+    function searchKey(key) {
+      var query = new AV.Query(appClass);
+      query.equalTo('key', key);
+      return query.first();
+    }
+
+    function insert(key, title) {
+      var Blog = AV.Object.extend(appClass);
+      var blog = new Blog();
+      blog.set('title', title);
+      blog.set('key', key);
+      blog.set('views', 0);
+      return blog.save();
+    }
+
+    function increment(result) {
+      result.increment('views', 1);
+      return result.save(null, {
+        fetchWhenSave: true
+      });
+    }
+
+    function get(key, callback) {
+      searchKey(key).then(function(result) {
+        if (result) {
+          callback && callback(result.attributes.views);
+        }
+      }, errorHandler);
+    }
+
+    function increase(key, title, callback) {
+      searchKey(key).then(function(result) {
+        if (result) {
+          increment(result).then(function(result) {
+            callback && callback(result.attributes.views);
+          });
+        } else {
+          insert(key, title).then(function(result) {
+            increment(result).then(function(result) {
+              callback && callback(result.attributes.views);
+            });
+          }, errorHandler);
+        }
+      }, errorHandler);
+    }
+  }
+  window.pageview = pageview;
+})();
+</script>
+  <script>
+    window.Lazyload.js(['https://cdn.bootcss.com/jquery/3.1.1/jquery.min.js', '//cdn.jsdelivr.net/npm/leancloud-storage@3.13.2/dist/av-min.js'], function() {
+      var pageview = window.pageview(AV, {
+        appId:    'ONcOJaEzueQcEXVrHVv5dQ4F-gzGzoHsz',
+        appKey:   '0iORBozCMxniZ0spe5QY9zCO',
+        appClass: 'Test'
+      });
+      var key =   'post74';
+      var title = "DSPY COMPILING DECLARATIVE LANGUAGE  MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习";
+      pageview.increase(key, title, function(view) {
+        $("[data-page-key='post74']").text(view);
+      });
+    });
+  </script>
+    </div>
+    <script>(function () {
+  var $root = document.getElementsByClassName('root')[0];
+  if (window.hasEvent('touchstart')) {
+    $root.dataset.isTouch = true;
+    document.addEventListener('touchstart', function(){}, false);
+  }
+})();
+</script>
+  </body>
+</html>
+

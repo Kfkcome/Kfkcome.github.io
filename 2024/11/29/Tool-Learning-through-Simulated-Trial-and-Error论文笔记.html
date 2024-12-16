@@ -12,7 +12,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no"><title>Tool Learning through Simulated Trial and Error论文笔记 - Ennis's Blog</title>
 
-<meta name="description" content="">
+<meta name="description" content="2024-11-29-Tool Learning through Simulated Trial and Error论文笔记">
 <link rel="canonical" href="http://localhost:4000/2024/11/29/Tool-Learning-through-Simulated-Trial-and-Error%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html"><link rel="alternate" type="application/rss+xml" title="Ennis's Blog" href="/feed.xml"><!-- start favicons snippet, use https://realfavicongenerator.net/ --><link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png"><link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32x32.png"><link rel="icon" type="image/png" sizes="16x16" href="/assets/favicon-16x16.png"><link rel="manifest" href="/assets/site.webmanifest"><link rel="mask-icon" href="/assets/safari-pinned-tab.svg" color="#fc4d50"><link rel="shortcut icon" href="/assets/favicon.ico">
 
 <meta name="msapplication-TileColor" content="#ffc40d"><meta name="msapplication-config" content="/assets/browserconfig.xml">
@@ -294,7 +294,7 @@
           <a class="edit-on-github"
             title="在 Github 上修改"
             href="https://github.com/Kfkcome/Kfkcome.github.io/tree/master/_posts/论文笔记/2024-11-29-Tool Learning through Simulated Trial and Error论文笔记.md">
-            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt"></p></div></div>
+            <i class="far fa-edit"></i></a></div><p class="overlay__excerpt">2024-11-29-Tool Learning through Simulated Trial and Error论文笔记</p></div></div>
               </div>
             </div><div class ="main"><div class="grid grid--reverse">
 
@@ -308,7 +308,430 @@
     <meta itemprop="keywords" content="nlp,自然语言处理,论文笔记"><div class="js-article-content"><div class="layout--article"><!-- start custom article top snippet -->
 
 <!-- end custom article top snippet -->
-<div class="article__content" itemprop="articleBody">
+<div class="article__content" itemprop="articleBody"><h1 id="2024-11-29-tool-learning-through-simulated-trial-and-error论文笔记">2024-11-29-Tool Learning through Simulated Trial and Error论文笔记</h1>
+
+<!---more-->
+<h2 id="摘要">摘要</h2>
+
+<blockquote>
+  <p>短期记忆和长期记忆是什么？</p>
+
+  <p>怎么实现的持续学习？</p>
+
+  <p>这篇文章提升的是选择工具的准确性，还是使用工具的操作的准确性？</p>
+
+  <p>试错也是一种认识工具，感觉这些研究都是主动让 LLM 使用预设的认知工具，然后提升性能。就比这种试错的思想是在 query 中给出而不是 LLM 自己得出的。就是说试错这种规则是人告诉 LLM 让他按这种规则做，而不是 LLM 学会这种规则后自就做。</p>
+
+  <p>这篇文章就感觉就是先造数据、知识，然后再将知识转换为参数形式（微调）</p>
+
+  <p>为什么不用 DPO 呢？</p>
+</blockquote>
+
+<h3 id="背景">背景</h3>
+
+<ul>
+  <li>工具学习有一定作用</li>
+  <li>现在主要研究是工具的广泛覆盖和添加新工具的灵活性上</li>
+</ul>
+
+<h3 id="问题">问题</h3>
+
+<ul>
+  <li>LLM 在使用工具时的准确性被人忽略了
+    <ul>
+      <li>现有 LLM 使用工具的正确率只有 30%到 60%</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="工作">工作</h3>
+
+<ul>
+  <li>提出了 simulated trial and error (STE) 的方法
+    <ul>
+      <li>思路：模仿生物中成功工具使用行为的三个关键机制：试错、想象和记忆。</li>
+      <li>具体：
+        <ul>
+          <li>STE 利用大型语言模型（LLM）的“想象力”来模拟使用工具的合理场景，之后 LLM 与工具互动，以从其执行反馈中学习</li>
+          <li>短期记忆和长期记忆均被运用，以分别提高探索的深度和广度。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="实验">实验</h3>
+
+<ul>
+  <li>对于ToolBench的综合实验显示，STE在上下文学习和微调设置下显著提高了大型语言模型（LLMs）的工具学习。
+    <ul>
+      <li>为Mistral-Instruct-7B带来了46.7%的提升，使其超越了GPT-4。</li>
+    </ul>
+  </li>
+  <li>我们还展示了通过简单的经验重放策略实现工具的有效持续学习。</li>
+</ul>
+
+<h2 id="引言">引言</h2>
+
+<h3 id="背景-1">背景</h3>
+
+<p>工具学习有所发展：</p>
+
+<ul>
+  <li>帮助模型超越静态参数中的知识</li>
+  <li>可以获取最新的信息、调用外部推理者、影响外部世界</li>
+</ul>
+
+<p>当前主要研究方向：</p>
+
+<ul>
+  <li>提高新工具的便利性或能使用更多的工具 (Tool LLM  掌握 16000+ API)
+    <ul>
+      <li>方法：
+        <ul>
+          <li>使用 In Conext Learning (ICL) 使得 LLM 从上下文中学习工具</li>
+          <li>通过 LLMs 造工具使用示例进行微调</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>问题：</p>
+
+<ul>
+  <li>LLM 在使用其训练过的工具时的准确性被忽略了
+    <ul>
+      <li>ICL 灵活但难以达到生产级的准确性。</li>
+      <li>微调可以通过整合更多示例来潜在地提高准确性，但现有的研究大多侧重于推广到未见过的工具，而不是优化 LLM 在训练期间已见工具的使用能力</li>
+    </ul>
+  </li>
+  <li>准确性的需求很大：
+    <ul>
+      <li>例如金融交易或其他具有法律约束力的操作。不准确的工具使用可能导致不必要或有害的结果，并迅速破坏用户信任。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="工作-1">工作</h3>
+
+<h4 id="作者的解决思路">作者的解决思路</h4>
+
+<p>如何真正掌握一种工具？</p>
+
+<ul>
+  <li>试错法对于工具学习至关重要
+    <ul>
+      <li>我们并不仅仅是通过阅读用户手册来掌握工具，而且从成功和失败中学习</li>
+    </ul>
+  </li>
+  <li>试错：聪明的动物不是随机进行试错而是主动想象或模拟目前无法感知的合理情景进行探索</li>
+  <li>记忆：记忆，无论是短期还是长期，对于工具的渐进学习和反复使用都起着重要作用</li>
+</ul>
+
+<h4 id="作者的解决方法">作者的解决方法</h4>
+
+<p>提出了 simulated ttrial and error (STE) 的方法,，一种基于生物的工具增强型 LLM 的方法</p>
+
+<ol>
+  <li>模拟：给定一个工具（API），STE 利用 LLM 模拟或想象是用该工具的克星场景（即指令），</li>
+  <li>试错：然后，它通过合成、执行并观察 API 调用的反馈，迭代与 API 进行交互，完成该场景，并反思之前的尝试</li>
+</ol>
+
+<p>设计了记忆机制，用于提高模拟指令的质量：</p>
+
+<ul>
+  <li>短期记忆：有最近的试错轨迹组成，用于提高单个场景中的更深入探索</li>
+  <li>长期记忆：包含过去提炼过的探索和反思，维持长期的渐进学习。</li>
+</ul>
+
+<p>在开发阶段：可以用探索实验中的工具使用示例来 fine-tuning 或者 In-context Learning</p>
+
+<h4 id="实验结果">实验&amp;结果</h4>
+
+<p>在 ToolBench 中的 API 进行了全面实验</p>
+
+<ul>
+  <li>现在 LLM 使用工具的可靠性还有很大差距：
+    <ul>
+      <li>GPT-4（OpenAI, 2023）的正确率为 60.8%，</li>
+      <li>而专门为工具使用进行微调的 ToolLLaMAv 2（Qin et al., 2024）仅为 37.3%。</li>
+    </ul>
+  </li>
+  <li>STE 在增强 LLM 与工具的结合方面很有效（ICL 或 fine-tuning）
+    <ul>
+      <li>STE 将 Mistral-Instruct-7 B（Jiang et al., 2023）的工具使用能力提高到 76.8%（绝对提升 46.7%），使其在 ICL 下超越了 GPT-4。</li>
+    </ul>
+  </li>
+  <li>新工具添加会造成灾难性遗忘（fine-tuning）: 学习新工具可能导致 LLM 失去其现有的工具使用能力或通用语言能力
+    <ul>
+      <li>作者提出了一种简单的经验重放策略(experience replay strategy)，缓解了这一问题，以实现工具的持续学习</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="方法介绍siimulated-trial-and-error-ste">方法介绍：Siimulated Trial and Error (STE)</h2>
+
+<p>STE 由两个阶段组成：探索阶段和利用阶段</p>
+
+<h3 id="探索阶段">探索阶段</h3>
+
+<ul>
+  <li>对于每个 API：LLM 在预算范围内与 API 进行交互，以尽可能多地获取有关 API 的信息</li>
+  <li>探索方式：
+    <ul>
+      <li><img src="assets/posts_assets/Pasted%20image%2020241130163332.png" alt="" /></li>
+      <li>在每个试验中，基于 API 描述，LLM想象一个与 API 相关的合理用户查询；</li>
+      <li>试图通过与 API 交互来满足该查询；</li>
+      <li>反思该试验，以促进后续的探索。</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="迭代自我修正与执行工具得到反馈">迭代自我修正与执行工具得到反馈</h4>
+
+<p>思路：LLM 通过工具的执行反馈来修正其输出</p>
+
+<p>具体：采用 ReAct 格式：</p>
+
+<ol>
+  <li>LLM 首先将其内部思维进行口头表达，然后再调 API</li>
+  <li>再重复思考→行动→观察过程，直到模型决定 API 调用已经返回了足够的信息或者达到了预定义的最大调用次数
+    <ul>
+      <li>这个阶段用 ICL 学习纠正 API 调用中的语法和语义的错误，收集工具使用姜堰作为细粒度试错轨迹</li>
+    </ul>
+  </li>
+  <li>模型对用户的查询做出响应，并自我反思所搜索的查询是否成功满足</li>
+</ol>
+
+<h4 id="短期记忆">短期记忆</h4>
+
+<p><img src="assets/posts_assets/Pasted%20image%2020241130170405.png" alt="" /></p>
+
+<ul>
+  <li>该记忆由最近试验的探索轨迹组成，LLM 被指示在该记忆的条件下进行后续试验</li>
+  <li>每个回合都从一个新的短期记忆开始，新进行的试验会动态地添加到记忆中，持续一定的试验次数。</li>
+</ul>
+
+<h4 id="长期记忆">长期记忆</h4>
+
+<ul>
+  <li>
+    <p>短期记忆只能存储少量的试验，因为细致的轨迹会迅速消耗大型语言模型（LLM）的上下文容量。</p>
+  </li>
+  <li>
+    <p>长期记忆作用：该记忆存储来自过去情境的提炼试错经验，以支持在较长时间范围内的渐进学习。</p>
+  </li>
+</ul>
+
+<p>具体实现：</p>
+
+<ul>
+  <li>长期记忆记录了过去探索的查询及其是否被判断为成功完成（图 2，右侧）。</li>
+  <li>它仅在每个新试验开始时加载到上下文中，确保本次想象的场景与之前不一样。</li>
+  <li>通过这种方式，长期记忆作为一个不断增长的过去成功与失败库，使 LLM 能够不断扩大探索，从而在不同情节中取得进展。</li>
+</ul>
+
+<h3 id="利用阶段">利用阶段</h3>
+<p>从探索阶段获得的试验被用来通过 fine-tuning 或上下文学习（ICL）来增强大型语言模型（LLM）的工具使用能力。</p>
+
+<ol>
+  <li>对于每个试验，我们提取合成的用户查询、LLM 的最后一次 API 调用及其执行结果，以及试验轨迹中的最终响应。</li>
+  <li>然后，我们使用 GPT-4 进行过滤，以判断每个示例的有效性，并为每个新的 API 对有效示例进行改写，使其大致相同（附录 E），以在不同 API 之间保持平衡，并进一步为合成的工具使用示例增加语言变化</li>
+  <li>训练：
+    <ol>
+      <li>对于微调，我们使用标准的语言建模目标，损失仅在工具使用/响应生成部分计算，而不包括上下文中的 API 文档。</li>
+      <li>对于 ICL，合成示例用作演示池，从中检索上下文示例并附加到LLM的上下文中的API文档。我们使用一种动态的最近邻演示选择策略，其中与测试用户查询在语义上最接近的示例被检索为上下文示例</li>
+    </ol>
+  </li>
+</ol>
+
+<h2 id="实验-1">实验</h2>
+
+<h3 id="工具">工具</h3>
+
+<ul>
+  <li>使用 ToolBench 中选了 50 个 API 可以免费并且低延迟的，涵盖搜索引擎，特定领域的信息检索 API，以及解决问题的 API （计算器）</li>
+</ul>
+
+<h3 id="探索阶段的设置">探索阶段的设置</h3>
+
+<ul>
+  <li>使用 ChatGPT（16 k-0613）进行探索和释义，并使用 GPT-4（8 k-0613）进行最终示例过滤。</li>
+  <li>每次试验的最大 API 调用次数设置为 4</li>
+  <li>每个 API，探索阶段持续 15 个回合，每个回合进行 4 次试验，总共在过滤和释义之前产生 60 个示例。</li>
+  <li>过滤后，每个 API 随机选择 15 个示例进入测试集，其余的被释义和重述成大约 140 个示例，总计约 7 K 的工具使用示例。（对于测试示例，我们手动检查并纠正任何问题（如有），以确保测试集的质量。）</li>
+</ul>
+
+<h3 id="基线使用-ste">基线&amp;使用 STE</h3>
+
+<p>基础模型： Llama-2-Chat-7 B/13 B 、Mistral-Instruct-7 B 和 GPT-3.5-turbo/GPT-4（仅限 ICL），并比较它们在有无 STE 情况下的性能</p>
+
+<p>基线：ToolLLaMA-v 2（它基于 Llama-2-7 B，并在 126 K 个由 ChatGPT 3.5-turbo 合成的一般工具使用示例上进行了微调，涵盖了来自 RapidAPI 的大量工具，包括我们实验中使用的工具。）</p>
+
+<p>实验设置：</p>
+
+<ul>
+  <li>ICL：使用 SentenceBERT 的 paraphrase-mpnet-base-v 2 模型来计算语义相似度，并选择与测试查询最接近的前 8 个示例作为上下文演示
+    <ul>
+      <li>对于使用 ICL 的 Llama-2，由于完整的 50 个 API 文档的令牌长度（约 7 K 个令牌）超出了其上下文长度（4096），我们为模型添加了一个 oracle tool retriever，该检索器根据相关文档检索与真实 API 最相似的前 15 个 API。</li>
+    </ul>
+  </li>
+  <li>我们将规模相近的其他模型（7 B/13 B）与相同的工具检索器结合使用（当 ICL 用于利用阶段时）</li>
+  <li>Fine-tuning：为了公平不添加的 API 文档</li>
+</ul>
+
+<h3 id="评估指标">评估指标</h3>
+
+<ul>
+  <li>正确性：调 API 名字正确，参数正确，考虑到 API 名称和参数</li>
+  <li>Wellformedness：有效 API 调用且没有语法/格式错误(调 API 的格式)的示例百分比</li>
+  <li>API 匹配性：正确选择使用真实 API 的示例百分比</li>
+</ul>
+
+<blockquote>
+  <p>直接检查是否回答用户问题不行，因为大部分 API 是动态的现实世界信息单独</p>
+
+  <p>例如，天气“明天”，其中日期取决于进行 API 调用的实际时间），这使得此类评估不可行。我们将这一挑战留给未来的研究。</p>
+</blockquote>
+
+<h2 id="结果">结果</h2>
+
+<h3 id="ste-的效果">STE 的效果</h3>
+
+<p><img src="/assets/posts_assets/Pasted%20image%2020241130220438.png" alt="" /></p>
+
+<ul>
+  <li>基线：
+    <ul>
+      <li>GPT-4 最好，但是正确率只有 60.8%</li>
+      <li>Llama 和 Mistral 都不比较差，因为他们进行 API 调用时无法遵循规定的句法/格式要求</li>
+      <li>ToolLLaMAv 2经过了广泛的工具使用微调，但其表现仍远低于 GPT-3.5/4,</li>
+      <li>ToolLLaMAv 2 比 Llama 2 ，它的性能提升似乎主要来自于格式的良好程度，但在选择正确的工具和预测正确的参数方面仍面临严重困难
+        <ul>
+          <li>结论：表明，仅仅针对一般工具使用进行微调是不够的，无法达到实际部署所需的性能水平。</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>STE 在 fine-tuning 中和 ICL 中都有很好的效果
+    <ul>
+      <li>Mistral-Instruct-7 B 在 ICL 下的性能超过了 GPT-4，达到了 76.8%</li>
+      <li>STE 在 Mistral-Instruct-7 B 上的性能提升了 46.7%，使其超越了 GPT-4</li>
+    </ul>
+  </li>
+  <li>使用 STE 进行微调还使 LLM 在合规性和选择正确工具方面几乎完美。
+    <ul>
+      <li>这可能是因为微调允许将更广泛的工具使用示例注入模型，而不仅仅是 ICL。虽然由于成本和可用性我们无法微调 GPT-3.5/4，但可以合理假设，STE 可能会进一步提升它们的工具使用能力，超越其当前的 ICL 表现。</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="消融实验">消融实验</h3>
+
+<p><img src="/assets/posts_assets/Pasted%20image%2020241130222754.png" alt="" /></p>
+
+<ol>
+  <li>没有执行反馈的探索可能会产生大量格式不正确的示例，其中 API 调用不符合语法/格式要求；</li>
+  <li>短期和长期记忆都证明对有效的试验和错误至关重要；</li>
+  <li>自我反思在保持信息丰富的长期记忆以进行探索方面很重要。</li>
+</ol>
+
+<ul>
+  <li>短期记忆有效地推动 LLM 从工具中全面探索细致的信息
+    <ul>
+      <li>缺乏短期记忆的探索导致积极使用工具示例的比例显著下降（78.3%→51.7%），因为模型无法从细粒度的过去错误中学习以促进未来的试验</li>
+    </ul>
+  </li>
+  <li>长期记忆在较长时间范围内改善了整体多样性</li>
+</ul>
+
+<h3 id="错误分析">错误分析</h3>
+
+<h4 id="基础模型的错误无-ste">基础模型的错误（无 STE）</h4>
+<ul>
+  <li>API 错误选择
+    <ul>
+      <li><img src="/assets/posts_assets/Pasted%20image%2020241130223811.png" alt="" /></li>
+      <li>使用 ICL 和 STE 示例可以通过更好地说明 API 的细粒度语义来解决大约一半此类错误</li>
+    </ul>
+  </li>
+  <li>缺失/错误的参数
+    <ul>
+      <li>STE 对于此类错误特别有效</li>
+    </ul>
+  </li>
+  <li>难以评估的示例
+    <ul>
+      <li><img src="/assets/posts_assets/Pasted%20image%2020241130224133.png" alt="" /></li>
+      <li>对于大约三分之一的错误示例（表 6 中的一个示例），判断模型预测的正确性是困难的。造成这种情况的主要原因有
+        <ul>
+          <li>存在功能重叠的工具，这使得真实情况不唯一</li>
+          <li>某些工具的时间敏感性质妨碍了一致的真实情况。</li>
+        </ul>
+      </li>
+      <li>现有研究（Qin 等，2024；Patil 等，2023）也指出了工具使用评估中的这种困难，这对未来的研究仍然是一个开放的挑战</li>
+    </ul>
+  </li>
+</ul>
+
+<h4 id="微调后的错误">微调后的错误</h4>
+
+<p>用的是最强的（Mistral-Instruct-7 B）</p>
+
+<ul>
+  <li>常识/世界知识（47.4%）。许多工具需要常识/世界知识。图 3 (a) 展示了一个示例，其中调用 API 需要知道目标交通站的 4 个字符缩写，而模型在这里产生了错误的缩写。可以通过扩展或额外的知识检索来缓解这个问题。</li>
+  <li>语言理解（31.6%）。某些错误是由于缺乏基本的语言理解能力造成的。图 3 (b) 展示了一个示例，其中模型误解了用户查询，从而导致错误的参数。使用更强大的基础语言模型可以减少此类错误。</li>
+  <li>基础知识（21.1%）。我们发现一些错误是由于缺乏基础知识，模型生成的 API 调用在语义上是正确的，但没有基于 API 约束进行支持。</li>
+</ul>
+
+<h4 id="持续工具学习">持续工具学习</h4>
+
+<p>尽管微调在工具使用方面显著优于示例学习，但一个缺点是由于灾难性遗，导致灵活性可能下降。</p>
+
+<p>由于从头开始重新训练模型成本高昂且会影响灵活性，我们探索了持续学习（CL），并表明简单的复习（Scialom et al., 2022）似乎足以实现与 STE 的持续工具学习。</p>
+
+<p>方法：</p>
+
+<ol>
+  <li>
+    <p><strong>工具的批次添加</strong>：</p>
+
+    <ul>
+      <li>研究人员将可用的工具分为四个连续的批次，逐步引入这些工具，模拟模型在不断学习新工具的情况下的表现。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>回放缓冲区（Replay Buffer）</strong>：</p>
+
+    <ul>
+      <li>在每一轮训练中，为了避免模型遗忘已学过的工具，研究人员将每个API（工具）的10%用例从之前的批次中添加到回放缓冲区。这类似于记忆复习的概念，确保模型在学习新工具时不会遗忘之前学过的内容。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>保持通用能力</strong>：</p>
+
+    <ul>
+      <li>为了确保模型不仅在使用工具上表现良好，还能保留其通用的语言能力（例如理解和生成自然语言），每一轮训练都会从<strong>FlanV2</strong>数据集中随机抽取2,000个样本来进行训练。这是一个高质量的通用指令数据集。</li>
+      <li>同时，评估模型的通用能力时，使用了<strong>MMLU（Massive Multitask Language Understanding）</strong>和<strong>BBH（Big-Bench-Hard）</strong>这两个广泛使用的基准测试集。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>模型表现</strong>：</p>
+
+    <ul>
+      <li>研究发现，如果没有回放机制（rehearsal），模型会严重遗忘之前学过的工具，尤其是较早学到的工具。回放机制能够有效地缓解这种遗忘问题，使得模型在新的训练阶段，能够保留对旧工具的知识。</li>
+      <li>使用回放机制的<strong>CL-trained模型</strong>（即经过持续学习训练的模型）在性能上与<strong>Llama-FT</strong>（即在大规模数据集上经过微调的Llama模型）相当，表现出在学习新工具的同时，依然保持了良好的语言理解能力。</li>
+    </ul>
+  </li>
+  <li>
+    <p><strong>经验回放在LLM工具学习中的应用</strong>：</p>
+
+    <ul>
+      <li>该研究扩展了<strong>Scialom et al. (2022)</strong> 的发现，证明了经验回放在语言模型工具学习中的有效性。通过这种方法，模型可以灵活地学习新工具，同时避免忘记已经掌握的知识。</li>
+    </ul>
+  </li>
+</ol>
 </div><section class="article__sharing d-print-none"></section><div class="d-print-none"><footer class="article__footer"><meta itemprop="dateModified" content="2024-11-29T00:00:00+08:00"><!-- start custom article footer snippet -->
 
 <!-- end custom article footer snippet -->
@@ -320,7 +743,7 @@
       </a>
     </p>
   </div></div></footer>
-<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2024/11/18/Tool-Learning-with-Foundation-Models-%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html">Tool Learning with Foundation Models 论文笔记</a></div></div></div>
+<div class="article__section-navigator clearfix"><div class="previous"><span>上篇</span><a href="/2024/11/18/Tool-Learning-with-Foundation-Models-%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html">Tool Learning with Foundation Models 论文笔记</a></div><div class="next"><span>下篇</span><a href="/2024/12/01/T-Eval-Evaluating-the-Tool-Utilization-Capability-of-Large-Language-Models-Step-by-Step%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html">T-Eval Evaluating the Tool Utilization Capability of  Large Language Models Step by Step论文笔记</a></div></div></div>
 
 </div>
 
