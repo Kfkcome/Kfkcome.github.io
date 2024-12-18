@@ -1,5 +1,386 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2024-12-16T20:36:17+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
-</subtitle><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><entry><title type="html">Self-Planning Code Generation with Large Language Models 论文粗读</title><link href="http://localhost:4000/2024/12/16/Self-Planning-Code-Generation-with-Large-Language-Models-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="Self-Planning Code Generation with Large Language Models 论文粗读" /><published>2024-12-16T00:00:00+08:00</published><updated>2024-12-16T00:00:00+08:00</updated><id>http://localhost:4000/2024/12/16/Self-Planning-Code-Generation-with-Large-Language-Models-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="http://localhost:4000/2024/12/16/Self-Planning-Code-Generation-with-Large-Language-Models-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="self-planning-code-generation-with-large-language-models-论文粗读">&lt;Self-Planning Code Generation with Large Language Models&gt; 论文粗读</h1>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2024-12-18T19:58:59+08:00</updated><id>/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
+</subtitle><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><entry><title type="html">论文粗读</title><link href="/2024/12/18/TooL-LLM-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="论文粗读" /><published>2024-12-18T00:00:00+08:00</published><updated>2024-12-18T00:00:00+08:00</updated><id>/2024/12/18/%3CTooL%20LLM%3E%20%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/18/TooL-LLM-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="tool-llm-论文粗读">&lt;TooL LLM&gt; 论文粗读</h1>
+
+<hr />
+
+<h2 id="-meta-data"><span style="color: rgb(27, 94, 32)"><span style="background-color: rgb(241, 248, 233)">💡 Meta Data</span></span></h2>
+
+<p>| <span style="background-color: rgb(219, 238, 221)">Title</span>    | <span style="background-color: rgb(219, 238, 221)">ToolLLM: Facilitating Large Language Models to Master 16000+ Real-world APIs</span>                                                                                                                                  |
+| —————————————————————— | ———————————————————————————————————————————————————————————————————————————————————————– |
+| <span style="background-color: rgb(243, 250, 244)">Journal</span>  | <span style="background-color: rgb(243, 250, 244)"> </span><em><span style="background-color: rgb(243, 250, 244)">(10.48550/arXiv.2307.16789)</span></em>                                                                                                                      |
+| <span style="background-color: rgb(219, 238, 221)">Authors</span>  | <span style="background-color: rgb(219, 238, 221)">Qin Yujia,Liang Shihao,Ye Yining,Zhu Kunlun,Yan Lan,Lu Yaxi,Lin Yankai,Cong Xin,Tang Xiangru,Qian Bill,Zhao Sihan,Hong Lauren,Tian Runchu,Xie Ruobing,Zhou Jie,Gerstein Mark,Li Dahai,Liu Zhiyuan,Sun Maosong</span> |
+| <span style="background-color: rgb(243, 250, 244)">Pub.date</span> | <span style="background-color: rgb(243, 250, 244)">2023-10-03</span>                                                                                                                                                                                                    |
+<!---more--></p>
+<h2 id="-研究背景--基础--目的-motivation"><span style="color: rgb(230, 81, 0)"><span style="background-color: rgb(255, 248, 225)">📜 研究背景 &#x26; 基础 &#x26; 目的 (Motivation)</span></span></h2>
+
+<hr />
+
+<ul>
+  <li>
+    <p>开源模型使用工具的能力还非常弱：</p>
+
+    <ul>
+      <li>因为instruct-tuning 主要集中在基本语言任务上，而忽略了工具使用</li>
+      <li>与闭源的LLM有很大差距</li>
+    </ul>
+  </li>
+  <li>
+    <p>当前研究：有人探讨了为工具使用指令调优数据，但他们未能充分激发大语言模型的工具使用能力，并具有固有的局限性</p>
+
+    <ul>
+      <li>有限的API</li>
+      <li>受限的场景</li>
+      <li>低效的推理和规划</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="-研究方法"><span style="color: rgb(21, 101, 192)"><span style="background-color: rgb(225, 245, 254)">🔬 研究方法</span></span></h2>
+
+<hr />
+
+<p>为了弥补差距，提出了ToolLLM，一个一般工具使用框架：包含数据构建、模型训练和评估。</p>
+
+<h3 id="数据构建">数据构建</h3>
+
+<p>提出了ToolBench，一个用于工具使用的指令微调数据集，是使用chatgpt自动构建的</p>
+
+<p>构建可以分为三个阶段</p>
+
+<ol>
+  <li>
+    <p>API集合：RapidAPI Hub中16464个真实世界的的RESTful API涵盖49个类别</p>
+  </li>
+  <li>
+    <p>指令生成：提示Chatgpt生成涉及这些API的多样化指令，涵盖单工具和多工具场景</p>
+
+    <ul>
+      <li>
+        <p>抽样不用的API组合，然后制定涉及他们的各种指令</p>
+
+        <ul>
+          <li>抽样方法：随机从统一类别中选择2-5个工具，从每个工具抽样3个API</li>
+        </ul>
+      </li>
+      <li>
+        <p>ICL+prompt 实现让gpt生成instruction</p>
+      </li>
+      <li>
+        <p>然后用这些（instruction，relevant API）训练一个API retriever</p>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>解决路径注释：使用ChatGPT为每个instruction搜索有效的解决路径（API调用链）</p>
+
+    <ul>
+      <li>
+        <p>解决路径：包含模型包含多个LLM推理轮次和实时API调用</p>
+      </li>
+      <li>
+        <p>问题：但是GPT-4对复杂的指令通过率很低，这使得注释效率很低，CoT 和 ReACT 也不行</p>
+
+        <ul>
+          <li>错误积累</li>
+          <li>探索有限（仅探索一个路径）</li>
+        </ul>
+      </li>
+      <li>
+        <p>解决：开发了一种新颖的基于深度优先搜索的决策树算法来增强LLM的规划和推理能力，它使LLM能评估多个推理轨迹，做出深思熟虑的决策（选择撤回或者继续走）</p>
+      </li>
+      <li>
+        <p>结果：显著提高了注释效率，并完成了使用ReACT无法实现的复杂指令训<img src="/assets/posts_assets/45QMKDXT.png" alt="" /></p>
+      </li>
+    </ul>
+  </li>
+</ol>
+
+<h3 id="评估">评估</h3>
+
+<p>开发了一个自动评估器 ToolEval，包含两个指标</p>
+
+<ol>
+  <li>
+    <p>通过率：衡量LLM在有限资源内成功执行指令的能力</p>
+  </li>
+  <li>
+    <p>获胜率：比较两种解决方案的质量和有用性</p>
+
+    <ul>
+      <li>做法：向GPT提供一个指令和两个解决路径，获得偏好</li>
+    </ul>
+  </li>
+</ol>
+
+<p>通过这两点，构建ChatGPT的prompt</p>
+
+<p>为什么要有ToolEval？</p>
+
+<ol>
+  <li>API不断变化的</li>
+  <li>指令存在无线潜在解决路径</li>
+  <li>为每个测试指令标注一个固定的真实解决路径是不可行的</li>
+</ol>
+
+<p>结果：发现ToolEval与人工标注者的通过率有87.1%的一致性而获胜率有80.3%</p>
+
+<p>表明ToolEval很大程度上能够反映和代表人类评估。</p>
+
+<h3 id="模型训练">模型训练</h3>
+
+<p>基于ToolBench对LLaMA进行微调，得到ToolLLaMA，并为其配备了神经网络API检索器，以推荐适合每个指令的API</p>
+
+<h4 id="api-retriever训练">API Retriever训练</h4>
+
+<p>使用Sentence-BERT</p>
+
+<ul>
+  <li>API检索器将指令和API文档分别编码为两个向量嵌入，然后通过计算嵌入相似度来评估相关性，</li>
+  <li>指令相关的API作为正例，并从其他API中随机抽取一些作为负例进行对比学习</li>
+</ul>
+
+<p><img src="/assets/posts_assets/M3KNXVCX.png" alt="" /></p>
+
+<h2 id="-结论"><span style="color: rgb(74, 20, 140)"><span style="background-color: rgb(245, 245, 245)">🚩 结论</span></span></h2>
+
+<hr />
+
+<ul>
+  <li>性能好：ToolLLaMA展现出执行复杂指令和推广至未见 API 的卓越能力，并且其表现与 ChatGPT 相当</li>
+  <li>泛化能力好：ToolLLaMA 在一个超出分布的工具使用数据集 APIBench 中也表现出强大的零-shot 泛化能力。</li>
+</ul>
+
+<h2 id="-感想--疑问"><span style="color: rgb(0, 96, 100)"><span style="background-color: rgb(224, 247, 250)">📌 感想 &#x26; 疑问</span></span></h2>
+
+<hr />]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;TooL LLM&gt; 论文粗读 💡 Meta Data Title ToolLLM: Facilitating Large Language Models to Master 16000+ Real-world APIs Journal  (10.48550/arXiv.2307.16789) Authors Qin Yujia,Liang Shihao,Ye Yining,Zhu Kunlun,Yan Lan,Lu Yaxi,Lin Yankai,Cong Xin,Tang Xiangru,Qian Bill,Zhao Sihan,Hong Lauren,Tian Runchu,Xie Ruobing,Zhou Jie,Gerstein Mark,Li Dahai,Liu Zhiyuan,Sun Maosong Pub.date 2023-10-03]]></summary></entry><entry><title type="html">论文粗读</title><link href="/2024/12/17/Toolformer-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="论文粗读" /><published>2024-12-17T00:00:00+08:00</published><updated>2024-12-17T00:00:00+08:00</updated><id>/2024/12/17/%3CToolformer%3E%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/17/Toolformer-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="toolformer-论文粗读">&lt;Toolformer&gt; 论文粗读</h1>
+
+<hr />
+
+<h2 id="-meta-data"><span style="color: rgb(27, 94, 32)"><span style="background-color: rgb(241, 248, 233)">💡 Meta Data</span></span></h2>
+
+<p>| <span style="background-color: rgb(219, 238, 221)">Title</span>    | <span style="background-color: rgb(219, 238, 221)">Toolformer: Language Models Can Teach Themselves to Use Tools</span>                                                           |
+| —————————————————————— | ——————————————————————————————————————————————————————————— |
+| <span style="background-color: rgb(243, 250, 244)">Journal</span>  | <span style="background-color: rgb(243, 250, 244)"> </span><em><span style="background-color: rgb(243, 250, 244)">(10.48550/ARXIV.2302.04761)</span></em>                                |
+| <span style="background-color: rgb(219, 238, 221)">Authors</span>  | <span style="background-color: rgb(219, 238, 221)">Schick Timo,Dwivedi-Yu Jane,Dessì Roberto,Raileanu Roberta,Lomeli Maria,Zettlemoyer Luke,Cancedda Nicola,Scialom Thomas</span> |
+| <span style="background-color: rgb(243, 250, 244)">Pub.date</span> | <span style="background-color: rgb(243, 250, 244)">2023</span>                                                                                                                    |
+<!---more--></p>
+<h2 id="-研究背景--基础--目的-motivation"><span style="color: rgb(230, 81, 0)"><span style="background-color: rgb(255, 248, 225)">📜 研究背景 &#x26; 基础 &#x26; 目的 (Motivation)</span></span></h2>
+
+<hr />
+
+<ul>
+  <li>
+    <p>LLM的对于一些任务上有卓越的能力，但是基本功能方面却存在困难，例如算数或事实查找。</p>
+
+    <ul>
+      <li>这些领域是小模型的强项</li>
+    </ul>
+  </li>
+  <li>
+    <p>当前的研究：要么依赖大量的人类标注数据、要么仅限于特定任务的工具使用，阻碍了工具在语言模型中的广泛采用。</p>
+  </li>
+</ul>
+
+<h2 id="-研究方法"><span style="color: rgb(21, 101, 192)"><span style="background-color: rgb(225, 245, 254)">🔬 研究方法</span></span></h2>
+
+<hr />
+
+<h3 id="思路">思路</h3>
+
+<ul>
+  <li>
+    <p>让LLM通过简单的API自我学习使用外部工具。</p>
+  </li>
+  <li>
+    <p>提出了Toolformer，实现以下愿望：</p>
+
+    <ul>
+      <li>
+        <p>自监督学习工具，不用人类标注数据</p>
+
+        <ul>
+          <li>
+            <p>原因：</p>
+
+            <ul>
+              <li>人类标注成本高</li>
+              <li>人类觉得有用的不一定是LLM觉得有用的</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <p>LM 不能失去其泛化能力，不局限于特定任务</p>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="方法">方法</h3>
+
+<p>利用In-context learning，从零开始生成数据集</p>
+
+<ol>
+  <li>首先仅通过少量人类编写的API使用示例，让语言模型为一个庞大的语言建模数据集标注潜在的API调用</li>
+  <li>然后使用自监督损失（self-supervised loss）来确定哪些API调用实际上有助于模型预测未来的token</li>
+  <li>最后微调模型</li>
+</ol>
+
+<p>具体：</p>
+
+<p><img src="/assets/posts_assets/Pasted%20image%2020241218101428.png" alt="" /></p>
+
+<ol>
+  <li>
+    <p><strong>给定一个普通文本的数据集，然后转化成带有API调用的数据集</strong></p>
+
+    <ol>
+      <li>
+        <p>编写prompt，利用In-context-learning 采样大量潜在的API调用（生成多个API调用）</p>
+
+        <ul>
+          <li>先找到序列中哪个位置调用API（设定一个阈值，如果生成&lt;API&gt;概率大于阈值则保留该位置）</li>
+          <li>然后选定API：选定位置后，继续生成，然后进行采样多个API候补</li>
+        </ul>
+      </li>
+      <li>
+        <p>然后执行API调用（每个API的返回是文本序列）</p>
+      </li>
+    </ol>
+  </li>
+  <li>
+    <p><strong>然后检查获得的相应是否有助于未来的token，来筛选</strong></p>
+
+    <ol>
+      <li>具体就是比较加入API调用后，生成后序序列的概率和不加API调用的概率哪个大（要大过设定的阈值），如果加入API后大超过阈值那就是有帮助，则保留</li>
+    </ol>
+  </li>
+  <li>
+    <p><strong>经过筛选得到了增强的数据集，然后进行微调</strong></p>
+  </li>
+</ol>
+
+<blockquote>
+  <p>生成过程中如果生成到了spacial token了就中断生成过程，获得API响应后，插入响应和&lt;/API&gt; token后继续解码过程</p>
+</blockquote>
+
+<h2 id="-结论"><span style="color: rgb(74, 20, 140)"><span style="background-color: rgb(245, 245, 245)">🚩 结论</span></span></h2>
+
+<hr />
+
+<ul>
+  <li>Toolformer 显著提高了zero-shot性能</li>
+  <li>语言建模能力也没有牺牲</li>
+</ul>
+
+<p><img src="/assets/posts_assets/BVWDZZY3.png" alt="" /></p>
+
+<h2 id="-感想--疑问"><span style="color: rgb(0, 96, 100)"><span style="background-color: rgb(224, 247, 250)">📌 感想 &#x26; 疑问</span></span></h2>
+
+<hr />
+
+<p>缺点：</p>
+
+<ul>
+  <li>无法与搜索引擎交互，只能用他给出的结果，无法重构查询等，然后就没有修补办法。</li>
+</ul>
+
+<p>收获：</p>
+
+<ul>
+  <li>微调以后再禁用API测试，确实是一个检测微调后有没有损失模型性能的好办法</li>
+  <li>微调过程中仅对工具选择算loss感觉挺有用
+*</li>
+</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;Toolformer&gt; 论文粗读 💡 Meta Data Title Toolformer: Language Models Can Teach Themselves to Use Tools Journal  (10.48550/ARXIV.2302.04761) Authors Schick Timo,Dwivedi-Yu Jane,Dessì Roberto,Raileanu Roberta,Lomeli Maria,Zettlemoyer Luke,Cancedda Nicola,Scialom Thomas Pub.date 2023]]></summary></entry><entry><title type="html">论文粗读</title><link href="/2024/12/17/TALM-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="论文粗读" /><published>2024-12-17T00:00:00+08:00</published><updated>2024-12-17T00:00:00+08:00</updated><id>/2024/12/17/TALM--%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/17/TALM-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="talm-论文粗读">&lt;TALM&gt; 论文粗读</h1>
+
+<hr />
+
+<h2 id="-meta-data"><span style="color: rgb(27, 94, 32)"><span style="background-color: rgb(241, 248, 233)">💡 Meta Data</span></span></h2>
+
+<p>| <span style="background-color: rgb(219, 238, 221)">Title</span>    | <span style="background-color: rgb(219, 238, 221)">TALM: Tool Augmented Language Models</span>                                                     |
+| —————————————————————— | ————————————————————————————————————————————————– |
+| <span style="background-color: rgb(243, 250, 244)">Journal</span>  | <span style="background-color: rgb(243, 250, 244)"> </span><em><span style="background-color: rgb(243, 250, 244)">(10.48550/ARXIV.2205.12255)</span></em> |
+| <span style="background-color: rgb(219, 238, 221)">Authors</span>  | <span style="background-color: rgb(219, 238, 221)">Parisi Aaron,Zhao Yao,Fiedel Noah</span>                                                        |
+| <span style="background-color: rgb(243, 250, 244)">Pub.date</span> | <span style="background-color: rgb(243, 250, 244)">2022</span>                                                                                     |
+<!---more--></p>
+<h2 id="-研究背景--基础--目的-motivation"><span style="color: rgb(230, 81, 0)"><span style="background-color: rgb(255, 248, 225)">📜 研究背景 &#x26; 基础 &#x26; 目的 (Motivation)</span></span></h2>
+
+<hr />
+
+<ul>
+  <li>LLM 需要工具：LLM 不能使模型解决需要访问训练时不可用短暂、变化或私人数据的任务，许多任务用API更好解决</li>
+  <li>最近研究将LLM连接到一个环境（仅是作为query的接受者）</li>
+</ul>
+
+<h2 id="-研究方法"><span style="color: rgb(21, 101, 192)"><span style="background-color: rgb(225, 245, 254)">🔬 研究方法</span></span></h2>
+
+<hr />
+
+<p>提出了工具增强语言模型（TALM），使用模型生成的输出调用任意工具，并关注工具输出以生成任务输出</p>
+
+<p>贡献：</p>
+
+<ul>
+  <li>仅使用text-to-text 的API 来增强语言模型</li>
+  <li>提出自我博弈（self-play）技术，提高了在few-shot的启动性能</li>
+</ul>
+
+<h3 id="talm模型">TALM模型</h3>
+
+<p><img src="/assets/posts_assets/LMBWTV2M.png" alt="" /></p>
+
+<ol>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>TALM 首先生成一个基于任务输入文本的工具输入，并通过生成分隔符，例如“</td>
+          <td>result”，调用工具的 API。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>每当检测到这个分隔符时，就会调用工具 API，并将其结果附加到文本序列中。</p>
+  </li>
+  <li>然后，TALM 继续生成最终的任务输出。<img src="assets/posts_assets/VQ5T6NKX.png" alt="" /></li>
+</ol>
+
+<p>TALM 同时学习两个子任务：调用工具和基于工具结果生成答案。</p>
+
+<p>TALM 在架构上用了Seq2Seq模型</p>
+
+<h3 id="迭代iterative-self-play">迭代Iterative self-play</h3>
+
+<ol>
+  <li>首先有示例数据集，然后微调这个数据集，再在新数据集（无工具示例）生成工具调用的过程。</li>
+  <li>然后看最终结果怎么样，如果大于阈值就添加到原本的数据集中</li>
+</ol>
+
+<blockquote>
+  <p>这个过程虽然本文是单步的，但是很容易建模成多步的，用类似马尔科夫链建模</p>
+</blockquote>
+
+<h2 id="-结论"><span style="color: rgb(74, 20, 140)"><span style="background-color: rgb(245, 245, 245)">🚩 结论</span></span></h2>
+
+<hr />
+
+<ul>
+  <li>一个知识密集型问答任务（NQ）和一个使用简单工具的推理导向数学任务（MathQA）上表现出色。</li>
+  <li>TALM 成功地在问答和数学任务上进行分布外推理，而未增强的语言模型则失败。</li>
+  <li>小模型从工具中收益更多（知识密集的任务）</li>
+</ul>
+
+<p><img src="assets/posts_assets/K39LZNDR.png" alt="" /></p>
+
+<h2 id="-感想--疑问"><span style="color: rgb(0, 96, 100)"><span style="background-color: rgb(224, 247, 250)">📌 感想 &#x26; 疑问</span></span></h2>
+
+<hr />
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />需要再搞清楚seq2seq模型和decoder-only模型的本质区别是什么  [created:: 2024-12-17]  [due:: 2024-12-17]</li>
+  <li class="task-list-item">这些论文学习工具的过程感觉都是 少样本-&gt;自己增强（标准不一样）-&gt;然后再微调自己</li>
+</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;TALM&gt; 论文粗读 💡 Meta Data Title TALM: Tool Augmented Language Models Journal  (10.48550/ARXIV.2205.12255) Authors Parisi Aaron,Zhao Yao,Fiedel Noah Pub.date 2022]]></summary></entry><entry><title type="html">Self-Planning Code Generation with Large Language Models 论文粗读</title><link href="/2024/12/16/Self-Planning-Code-Generation-with-Large-Language-Models-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="Self-Planning Code Generation with Large Language Models 论文粗读" /><published>2024-12-16T00:00:00+08:00</published><updated>2024-12-16T00:00:00+08:00</updated><id>/2024/12/16/Self-Planning-Code-Generation-with-Large-Language-Models-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/16/Self-Planning-Code-Generation-with-Large-Language-Models-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="self-planning-code-generation-with-large-language-models-论文粗读">&lt;Self-Planning Code Generation with Large Language Models&gt; 论文粗读</h1>
 
 <hr />
 
@@ -85,7 +466,7 @@
       <li>由于大型语言模型在大量的拼接文本和代码上进行训练以预测下一个标记，因此大型语言模型可能存在截断问题，即它们无法精确控制其输出的终止。当使用计划来生成部分函数（通常是若干语句）时，很难定义截断规则。</li>
     </ul>
   </li>
-</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;Self-Planning Code Generation with Large Language Models&gt; 论文粗读 💡 Meta Data Title Self-Planning Code Generation with Large Language Models Journal ACM Transactions on Software Engineering and Methodology (10.1145/3672456) Authors Jiang Xue,Dong Yihong,Wang Lecheng,Fang Zheng,Shang Qiwei,Li Ge,Jin Zhi,Jiao Wenpin Pub.date 2023-06-30]]></summary></entry><entry><title type="html">MultiTool-CoT: GPT-3 Can Use Multiple External Tools with Chain of Thought Prompting 论文粗读</title><link href="http://localhost:4000/2024/12/15/MultiTool-CoT-GPT-3-Can-Use-Multiple-External-Tools-with-Chain-of-Thought-Prompting-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="MultiTool-CoT: GPT-3 Can Use Multiple External Tools with Chain of Thought Prompting 论文粗读" /><published>2024-12-15T00:00:00+08:00</published><updated>2024-12-15T00:00:00+08:00</updated><id>http://localhost:4000/2024/12/15/MultiTool-CoT--GPT-3-Can-Use-Multiple-External-Tools-with-Chain-of-Thought-Prompting--%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="http://localhost:4000/2024/12/15/MultiTool-CoT-GPT-3-Can-Use-Multiple-External-Tools-with-Chain-of-Thought-Prompting-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="multitool-cot-gpt-3-can-use-multiple-external-tools-with-chain-of-thought-prompting-论文粗读">&lt;MultiTool-CoT: GPT-3 Can Use Multiple External Tools with Chain of Thought Prompting&gt; 论文粗读</h1>
+</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;Self-Planning Code Generation with Large Language Models&gt; 论文粗读 💡 Meta Data Title Self-Planning Code Generation with Large Language Models Journal ACM Transactions on Software Engineering and Methodology (10.1145/3672456) Authors Jiang Xue,Dong Yihong,Wang Lecheng,Fang Zheng,Shang Qiwei,Li Ge,Jin Zhi,Jiao Wenpin Pub.date 2023-06-30]]></summary></entry><entry><title type="html">MultiTool-CoT: GPT-3 Can Use Multiple External Tools with Chain of Thought Prompting 论文粗读</title><link href="/2024/12/15/MultiTool-CoT-GPT-3-Can-Use-Multiple-External-Tools-with-Chain-of-Thought-Prompting-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="MultiTool-CoT: GPT-3 Can Use Multiple External Tools with Chain of Thought Prompting 论文粗读" /><published>2024-12-15T00:00:00+08:00</published><updated>2024-12-15T00:00:00+08:00</updated><id>/2024/12/15/MultiTool-CoT--GPT-3-Can-Use-Multiple-External-Tools-with-Chain-of-Thought-Prompting--%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/15/MultiTool-CoT-GPT-3-Can-Use-Multiple-External-Tools-with-Chain-of-Thought-Prompting-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="multitool-cot-gpt-3-can-use-multiple-external-tools-with-chain-of-thought-prompting-论文粗读">&lt;MultiTool-CoT: GPT-3 Can Use Multiple External Tools with Chain of Thought Prompting&gt; 论文粗读</h1>
 
 <hr />
 
@@ -95,7 +476,7 @@
 | —————————————————————— | ———————————————————————————————————————————————- |
 | <span style="background-color: rgb(243, 250, 244)">Journal</span>  | <span style="background-color: rgb(243, 250, 244)"> </span><em><span style="background-color: rgb(243, 250, 244)">()</span></em>                      |
 | <span style="background-color: rgb(219, 238, 221)">Authors</span>  | <span style="background-color: rgb(219, 238, 221)">Inaba Tatsuro,Kiyomaru Hirokazu,Cheng Fei,Kurohashi Sadao</span>                            |
-| <span style="background-color: rgb(243, 250, 244)">Pub.date</span> |                                                                                                                                                |
+| <span style="background-color: rgb(243, 250, 244)">Pub.date</span> | 2023                                                                                                                                           |
 <!---more--></p>
 <h2 id="-研究背景--基础--目的-motivation"><span style="color: rgb(230, 81, 0)"><span style="background-color: rgb(255, 248, 225)">📜 研究背景 &#x26; 基础 &#x26; 目的 (Motivation)</span></span></h2>
 
@@ -182,7 +563,7 @@
 
 <p>*</p>
 
-<p>*</p>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;MultiTool-CoT: GPT-3 Can Use Multiple External Tools with Chain of Thought Prompting&gt; 论文粗读 💡 Meta Data Title MultiTool-CoT: GPT-3 Can Use Multiple External Tools with Chain of Thought Prompting Journal  () Authors Inaba Tatsuro,Kiyomaru Hirokazu,Cheng Fei,Kurohashi Sadao Pub.date  ]]></summary></entry><entry><title type="html">StructGPT 论文粗读</title><link href="http://localhost:4000/2024/12/14/StructGPT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="StructGPT 论文粗读" /><published>2024-12-14T00:00:00+08:00</published><updated>2024-12-14T00:00:00+08:00</updated><id>http://localhost:4000/2024/12/14/StructGPT%20%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="http://localhost:4000/2024/12/14/StructGPT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="structgpt论文粗读">&lt;StructGPT&gt;论文粗读</h1>
+<p>*</p>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;MultiTool-CoT: GPT-3 Can Use Multiple External Tools with Chain of Thought Prompting&gt; 论文粗读 💡 Meta Data Title MultiTool-CoT: GPT-3 Can Use Multiple External Tools with Chain of Thought Prompting Journal  () Authors Inaba Tatsuro,Kiyomaru Hirokazu,Cheng Fei,Kurohashi Sadao Pub.date 2023]]></summary></entry><entry><title type="html">StructGPT 论文粗读</title><link href="/2024/12/14/StructGPT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="StructGPT 论文粗读" /><published>2024-12-14T00:00:00+08:00</published><updated>2024-12-14T00:00:00+08:00</updated><id>/2024/12/14/StructGPT%20%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/14/StructGPT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="structgpt论文粗读">&lt;StructGPT&gt;论文粗读</h1>
 
 <hr />
 
@@ -357,7 +738,7 @@
   <li>这种固定的pipeline可能无法让LLM选择自己要的数据</li>
   <li>这种自己定义数据的线性化，是不是太死板了，他说用LLM结构化不太好，但是后面有人做了，是可以的。</li>
   <li>总体来说并不算是真正的工具学习，因为不是 LLM 自主调用的，而是固定的步骤。</li>
-</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;StructGPT&gt;论文粗读 💡 Meta Data Title StructGPT: A General Framework for Large Language Model to Reason over Structured Data Journal  (10.18653/v1/2023.emnlp-main.574) Authors Jiang Jinhao,Zhou Kun,Dong Zican,Ye Keming,Zhao Xin,Wen Ji-Rong Pub.date 2023]]></summary></entry><entry><title type="html">ChatCoT 论文粗读</title><link href="http://localhost:4000/2024/12/14/ChatCoT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="ChatCoT 论文粗读" /><published>2024-12-14T00:00:00+08:00</published><updated>2024-12-14T00:00:00+08:00</updated><id>http://localhost:4000/2024/12/14/ChatCoT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="http://localhost:4000/2024/12/14/ChatCoT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="chatcot论文粗读">&lt;ChatCoT&gt;论文粗读</h1>
+</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;StructGPT&gt;论文粗读 💡 Meta Data Title StructGPT: A General Framework for Large Language Model to Reason over Structured Data Journal  (10.18653/v1/2023.emnlp-main.574) Authors Jiang Jinhao,Zhou Kun,Dong Zican,Ye Keming,Zhao Xin,Wen Ji-Rong Pub.date 2023]]></summary></entry><entry><title type="html">ChatCoT 论文粗读</title><link href="/2024/12/14/ChatCoT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="ChatCoT 论文粗读" /><published>2024-12-14T00:00:00+08:00</published><updated>2024-12-14T00:00:00+08:00</updated><id>/2024/12/14/ChatCoT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/14/ChatCoT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="chatcot论文粗读">&lt;ChatCoT&gt;论文粗读</h1>
 
 <h2 id="-meta-data"><span style="color: rgb(27, 94, 32)"><span style="background-color: rgb(241, 248, 233)">💡 Meta Data</span></span></h2>
 
@@ -518,7 +899,7 @@
   <li>agent是如何搞的</li>
   <li>为什么比其他的CoT+Tool好呢？</li>
   <li>读一下其他CoT+Tool</li>
-</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;ChatCoT&gt;论文粗读 💡 Meta Data Title ChatCoT: Tool-Augmented Chain-of-Thought Reasoning on Chat-based Large Language Models Journal  (10.18653/v1/2023.findings-emnlp.985) Authors Chen Zhipeng,Zhou Kun,Zhang Beichen,Gong Zheng,Zhao Xin,Wen Ji-Rong Pub.date 2023]]></summary></entry><entry><title type="html">DSPY COMPILING DECLARATIVE LANGUAGE MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习</title><link href="http://localhost:4000/2024/12/08/DSPY-COMPILING-DECLARATIVE-LANGUAGE-MODEL-CALLS-INTO-SELF-IMPROVING-PIPELINES%E8%AE%BA%E6%96%87%E5%AD%A6%E4%B9%A0.html" rel="alternate" type="text/html" title="DSPY COMPILING DECLARATIVE LANGUAGE MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习" /><published>2024-12-08T00:00:00+08:00</published><updated>2024-12-08T00:00:00+08:00</updated><id>http://localhost:4000/2024/12/08/DSPY%20COMPILING%20DECLARATIVE%20LANGUAGE%20%20MODEL%20CALLS%20INTO%20SELF-IMPROVING%20PIPELINES%E8%AE%BA%E6%96%87%E5%AD%A6%E4%B9%A0</id><content type="html" xml:base="http://localhost:4000/2024/12/08/DSPY-COMPILING-DECLARATIVE-LANGUAGE-MODEL-CALLS-INTO-SELF-IMPROVING-PIPELINES%E8%AE%BA%E6%96%87%E5%AD%A6%E4%B9%A0.html"><![CDATA[<h1 id="dspy-compiling-declarative-language-model-calls-into-self-improving-pipelines论文学习">DSPY COMPILING DECLARATIVE LANGUAGE MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习</h1>
+</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;ChatCoT&gt;论文粗读 💡 Meta Data Title ChatCoT: Tool-Augmented Chain-of-Thought Reasoning on Chat-based Large Language Models Journal  (10.18653/v1/2023.findings-emnlp.985) Authors Chen Zhipeng,Zhou Kun,Zhang Beichen,Gong Zheng,Zhao Xin,Wen Ji-Rong Pub.date 2023]]></summary></entry><entry><title type="html">DSPY COMPILING DECLARATIVE LANGUAGE MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习</title><link href="/2024/12/08/DSPY-COMPILING-DECLARATIVE-LANGUAGE-MODEL-CALLS-INTO-SELF-IMPROVING-PIPELINES%E8%AE%BA%E6%96%87%E5%AD%A6%E4%B9%A0.html" rel="alternate" type="text/html" title="DSPY COMPILING DECLARATIVE LANGUAGE MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习" /><published>2024-12-08T00:00:00+08:00</published><updated>2024-12-08T00:00:00+08:00</updated><id>/2024/12/08/DSPY%20COMPILING%20DECLARATIVE%20LANGUAGE%20%20MODEL%20CALLS%20INTO%20SELF-IMPROVING%20PIPELINES%E8%AE%BA%E6%96%87%E5%AD%A6%E4%B9%A0</id><content type="html" xml:base="/2024/12/08/DSPY-COMPILING-DECLARATIVE-LANGUAGE-MODEL-CALLS-INTO-SELF-IMPROVING-PIPELINES%E8%AE%BA%E6%96%87%E5%AD%A6%E4%B9%A0.html"><![CDATA[<h1 id="dspy-compiling-declarative-language-model-calls-into-self-improving-pipelines论文学习">DSPY COMPILING DECLARATIVE LANGUAGE MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习</h1>
 
 <h2 id="不懂的">不懂的</h2>
 
@@ -1095,7 +1476,7 @@ Teleprompter 在 DSPy 编译器中扮演着至关重要的角色，通过提供�
 <ul>
   <li>通过 DSPy，我们可以用简洁且明确定义的模块替换手工制作的提示字符串，而不会降低质量或表达能力。</li>
   <li>参数化模块并将提示处理为优化问题使 DSPy 更适合适应不同的语言模型，并且它可能优于专家撰写的提示。</li>
-</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[DSPY COMPILING DECLARATIVE LANGUAGE MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习 不懂的]]></summary></entry><entry><title type="html">T-Eval Evaluating the Tool Utilization Capability of Large Language Models Step by Step论文笔记</title><link href="http://localhost:4000/2024/12/01/T-Eval-Evaluating-the-Tool-Utilization-Capability-of-Large-Language-Models-Step-by-Step%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html" rel="alternate" type="text/html" title="T-Eval Evaluating the Tool Utilization Capability of Large Language Models Step by Step论文笔记" /><published>2024-12-01T00:00:00+08:00</published><updated>2024-12-01T00:00:00+08:00</updated><id>http://localhost:4000/2024/12/01/T-Eval%20Evaluating%20the%20Tool%20Utilization%20Capability%20of%20%20Large%20Language%20Models%20Step%20by%20Step%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0</id><content type="html" xml:base="http://localhost:4000/2024/12/01/T-Eval-Evaluating-the-Tool-Utilization-Capability-of-Large-Language-Models-Step-by-Step%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html"><![CDATA[<h1 id="t-eval-evaluating-the-tool-utilization-capability-of-large-language-models-step-by-step论文笔记">T-Eval Evaluating the Tool Utilization Capability of Large Language Models Step by Step论文笔记</h1>
+</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[DSPY COMPILING DECLARATIVE LANGUAGE MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习 不懂的]]></summary></entry><entry><title type="html">T-Eval Evaluating the Tool Utilization Capability of Large Language Models Step by Step论文笔记</title><link href="/2024/12/01/T-Eval-Evaluating-the-Tool-Utilization-Capability-of-Large-Language-Models-Step-by-Step%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html" rel="alternate" type="text/html" title="T-Eval Evaluating the Tool Utilization Capability of Large Language Models Step by Step论文笔记" /><published>2024-12-01T00:00:00+08:00</published><updated>2024-12-01T00:00:00+08:00</updated><id>/2024/12/01/T-Eval%20Evaluating%20the%20Tool%20Utilization%20Capability%20of%20%20Large%20Language%20Models%20Step%20by%20Step%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0</id><content type="html" xml:base="/2024/12/01/T-Eval-Evaluating-the-Tool-Utilization-Capability-of-Large-Language-Models-Step-by-Step%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html"><![CDATA[<h1 id="t-eval-evaluating-the-tool-utilization-capability-of-large-language-models-step-by-step论文笔记">T-Eval Evaluating the Tool Utilization Capability of Large Language Models Step by Step论文笔记</h1>
 
 <!---more-->
 <h2 id="摘要">摘要</h2>
@@ -1111,7 +1492,7 @@ Teleprompter 在 DSPy 编译器中扮演着至关重要的角色，通过提供�
 
 <ul>
   <li>与之前全面评估模型的研究相比，我们综合地将工具利用分解为多个子过程，包括遵循指令、规划、推理、检索、理解和复习。</li>
-</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><summary type="html"><![CDATA[T-Eval Evaluating the Tool Utilization Capability of Large Language Models Step by Step论文笔记]]></summary></entry><entry><title type="html">Tool Learning through Simulated Trial and Error论文笔记</title><link href="http://localhost:4000/2024/11/29/Tool-Learning-through-Simulated-Trial-and-Error%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html" rel="alternate" type="text/html" title="Tool Learning through Simulated Trial and Error论文笔记" /><published>2024-11-29T00:00:00+08:00</published><updated>2024-11-29T00:00:00+08:00</updated><id>http://localhost:4000/2024/11/29/Tool%20Learning%20through%20Simulated%20Trial%20and%20Error%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0</id><content type="html" xml:base="http://localhost:4000/2024/11/29/Tool-Learning-through-Simulated-Trial-and-Error%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html"><![CDATA[<h1 id="2024-11-29-tool-learning-through-simulated-trial-and-error论文笔记">2024-11-29-Tool Learning through Simulated Trial and Error论文笔记</h1>
+</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><summary type="html"><![CDATA[T-Eval Evaluating the Tool Utilization Capability of Large Language Models Step by Step论文笔记]]></summary></entry><entry><title type="html">Tool Learning through Simulated Trial and Error论文笔记</title><link href="/2024/11/29/Tool-Learning-through-Simulated-Trial-and-Error%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html" rel="alternate" type="text/html" title="Tool Learning through Simulated Trial and Error论文笔记" /><published>2024-11-29T00:00:00+08:00</published><updated>2024-11-29T00:00:00+08:00</updated><id>/2024/11/29/Tool%20Learning%20through%20Simulated%20Trial%20and%20Error%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0</id><content type="html" xml:base="/2024/11/29/Tool-Learning-through-Simulated-Trial-and-Error%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html"><![CDATA[<h1 id="2024-11-29-tool-learning-through-simulated-trial-and-error论文笔记">2024-11-29-Tool Learning through Simulated Trial and Error论文笔记</h1>
 
 <!---more-->
 <h2 id="摘要">摘要</h2>
@@ -1534,3081 +1915,4 @@ Teleprompter 在 DSPy 编译器中扮演着至关重要的角色，通过提供�
       <li>该研究扩展了<strong>Scialom et al. (2022)</strong> 的发现，证明了经验回放在语言模型工具学习中的有效性。通过这种方法，模型可以灵活地学习新工具，同时避免忘记已经掌握的知识。</li>
     </ul>
   </li>
-</ol>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><summary type="html"><![CDATA[2024-11-29-Tool Learning through Simulated Trial and Error论文笔记]]></summary></entry><entry><title type="html">Tool Learning with Foundation Models 论文笔记</title><link href="http://localhost:4000/2024/11/18/Tool-Learning-with-Foundation-Models-%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html" rel="alternate" type="text/html" title="Tool Learning with Foundation Models 论文笔记" /><published>2024-11-18T00:00:00+08:00</published><updated>2024-11-18T00:00:00+08:00</updated><id>http://localhost:4000/2024/11/18/Tool%20Learning%20with%20Foundation%20Models%20%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0</id><content type="html" xml:base="http://localhost:4000/2024/11/18/Tool-Learning-with-Foundation-Models-%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html"><![CDATA[<h1 id="tool-learning-with-foundation-models-论文笔记">Tool Learning with Foundation Models 论文笔记</h1>
-
-<!---more-->
-
-<h2 id="不懂的知识">不懂的知识</h2>
-
-<h3 id="概念工具">概念工具</h3>
-
-<p><strong>概念工具</strong>（Conceptual Tools）是指帮助人类理解、分析、解决问题或推动学习与创新的一种抽象工具。这些工具通常以思想、模型、框架或方法论的形式存在，旨在扩展人类的认知能力，而不是直接作用于物理世界。它们为我们提供结构化的方式来处理复杂的信息和概念问题，支持逻辑推理、知识构建和创造性思维。</p>
-
-<hr />
-
-<h4 id="概念工具的核心特点">概念工具的核心特点</h4>
-
-<ol>
-  <li><strong>抽象性</strong>：概念工具以非物理形式存在，更多是思想和方法的体现，例如理论模型或数学公式。</li>
-  <li><strong>广泛适用性</strong>：它们可以跨学科、跨领域应用，用于多种场景的问题解决和知识深化。</li>
-  <li><strong>认知扩展</strong>：通过系统化的思维方式或结构化框架，帮助人类简化复杂问题或生成新的见解。</li>
-  <li><strong>非依赖性</strong>：与具体的物理工具不同，概念工具存在于人类的思维过程中，可以通过学习和训练掌握。</li>
-</ol>
-
-<hr />
-
-<h4 id="常见的概念工具类型">常见的概念工具类型</h4>
-
-<ol>
-  <li>
-    <p><strong>框架和模型（Frameworks and Models）</strong></p>
-
-    <ul>
-      <li>描述现实世界的一种简化或抽象。</li>
-      <li>示例：SWOT分析（用于战略规划），供需模型（经济学）。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>逻辑和推理工具（Logical and Reasoning Tools）</strong></p>
-
-    <ul>
-      <li>提供系统化的思维方法，用于推理和决策。</li>
-      <li>示例：归纳推理、演绎推理、决策树。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>符号和语言系统（Symbolic and Language Systems）</strong></p>
-
-    <ul>
-      <li>帮助描述和传递复杂的抽象概念。</li>
-      <li>示例：数学符号、编程语言、逻辑表达式。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>类比与隐喻（Analogies and Metaphors）</strong></p>
-
-    <ul>
-      <li>通过将新概念与已知概念关联，促进理解。</li>
-      <li>示例：用水流比作电流，用“DNA是生命的代码”形容遗传信息。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>思维与学习方法（Cognitive and Learning Strategies）</strong></p>
-
-    <ul>
-      <li>支持信息组织、问题解决和知识构建。</li>
-      <li>示例：思维导图、问题解决的建构主义方法。</li>
-    </ul>
-  </li>
-</ol>
-
-<hr />
-
-<h4 id="概念工具的功能">概念工具的功能</h4>
-
-<ol>
-  <li>
-    <p><strong>简化复杂性</strong>：通过提供结构化框架或模型，帮助人类分解复杂问题，使其更易于分析和理解。</p>
-
-    <ul>
-      <li>例如，用供应链模型简化全球物流的运作分析。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>支持逻辑推理与决策</strong>：概念工具为推理提供指导或验证逻辑链条的工具。</p>
-
-    <ul>
-      <li>例如，布尔逻辑真值表用于计算复杂的逻辑表达式。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>促进创新与创造性思维</strong>：通过新颖的视角或框架激发创造力。</p>
-
-    <ul>
-      <li>例如，类比思维促使我们从生物学现象中获取技术灵感（仿生学）。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>提升学习与认知效率</strong>：通过认知工具（如学习软件）减少负担，将注意力集中在高级认知任务上。</p>
-
-    <ul>
-      <li>例如，在线学习工具让学生专注于知识应用，而非信息收集。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>跨学科连接</strong>：帮助整合不同领域的知识，形成综合性解决方案。</p>
-
-    <ul>
-      <li>例如，生态系统模型结合了生物学、物理学和经济学的知识。</li>
-    </ul>
-  </li>
-</ol>
-
-<hr />
-
-<h4 id="概念工具与物理工具的对比">概念工具与物理工具的对比</h4>
-
-<table>
-  <thead>
-    <tr>
-      <th>特性</th>
-      <th>概念工具</th>
-      <th>物理工具</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>存在形式</strong></td>
-      <td>抽象、基于思想和逻辑</td>
-      <td>具体、作用于物理世界</td>
-    </tr>
-    <tr>
-      <td><strong>作用范围</strong></td>
-      <td>支持认知活动，帮助分析和解决问题</td>
-      <td>辅助完成实际操作任务</td>
-    </tr>
-    <tr>
-      <td><strong>例子</strong></td>
-      <td>数学模型、逻辑推理、思维框架</td>
-      <td>锤子、剪刀、计算机硬件</td>
-    </tr>
-    <tr>
-      <td><strong>应用场景</strong></td>
-      <td>思维活动、学习、创新</td>
-      <td>建筑、制造、日常物理操作</td>
-    </tr>
-  </tbody>
-</table>
-
-<hr />
-
-<h4 id="总结">总结</h4>
-
-<p>概念工具是人类认知能力的延伸，帮助我们以系统化、逻辑化的方式应对复杂性。这些工具存在于思想中，通过模型、框架或推理方式引导学习和解决问题的过程。它们广泛应用于教育、科学研究、商业战略、技术开发等领域，是推动知识增长和创新的重要资源。</p>
-
-<h3 id="认知工具">认知工具</h3>
-
-<p><strong>认知工具</strong>（Cognitive Tools）是用于辅助人类思维、学习和解决问题的一类工具。它们的主要功能是增强人类的认知能力，而不是替代人的思维。这些工具可以是抽象的概念（如思维模型）或具体的技术（如软件），能够帮助人们更高效地组织信息、推理、分析和创造。</p>
-
-<hr />
-
-<h4 id="认知工具的特点">认知工具的特点</h4>
-
-<ol>
-  <li><strong>辅助作用</strong>：认知工具是人类认知活动的扩展器，帮助提高效率，而不是直接完成任务。</li>
-  <li><strong>增强学习与推理</strong>：它们特别适用于复杂问题的学习、分析和解决，促进深度思考。</li>
-  <li><strong>动态性</strong>：许多认知工具可以随着任务需求而灵活适配，帮助人们应对多样化的认知挑战。</li>
-  <li><strong>个性化</strong>：认知工具常被用于个性化学习或工作场景，为用户提供定制化的支持。</li>
-</ol>
-
-<hr />
-
-<h4 id="认知工具的功能">认知工具的功能</h4>
-
-<p>认知工具的功能可以大致归纳为以下几个方面：</p>
-
-<ol>
-  <li>
-    <p><strong>支持认知过程</strong>：</p>
-
-    <ul>
-      <li>帮助用户记录思考过程或中间结果。</li>
-      <li>提供直观的组织和分析复杂信息的方式。</li>
-      <li>例如：笔记软件、思维导图工具。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>减轻认知负担</strong>：</p>
-
-    <ul>
-      <li>自动完成某些低级别的认知任务（如记忆或简单运算），从而让用户专注于更高层次的思维任务。</li>
-      <li>例如：计算器、语法检查工具。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>激发创造性思维</strong>：</p>
-
-    <ul>
-      <li>提供新颖的视角或灵感，帮助用户生成新的想法。</li>
-      <li>例如：头脑风暴软件、AI辅助设计工具。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>模拟和测试</strong>：</p>
-
-    <ul>
-      <li>创建虚拟环境，让用户实验和测试假设。</li>
-      <li>例如：虚拟实验室、医学模拟工具。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>支持学习和技能发展</strong>：</p>
-
-    <ul>
-      <li>帮助用户学习复杂知识或技能，通过交互性工具提高理解能力。</li>
-      <li>例如：在线学习平台、游戏化学习工具。</li>
-    </ul>
-  </li>
-</ol>
-
-<hr />
-
-<h4 id="认知工具的类型与示例">认知工具的类型与示例</h4>
-
-<ol>
-  <li>
-    <p><strong>组织和结构化工具</strong></p>
-
-    <ul>
-      <li>用于整理和结构化思维的工具。</li>
-      <li>示例：思维导图工具（MindMeister）、Kanban任务板（Trello）。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>学习和教育工具</strong></p>
-
-    <ul>
-      <li>支持学习过程的工具，通常提供个性化的学习体验。</li>
-      <li>示例：语言学习应用（如 Duolingo）、在线课程平台（如 Coursera）。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>数据分析和可视化工具</strong></p>
-
-    <ul>
-      <li>帮助用户分析数据并以图形化方式呈现结果。</li>
-      <li>示例：Excel、Tableau。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>逻辑与推理工具</strong></p>
-
-    <ul>
-      <li>用于支持用户进行逻辑推理和批判性思考。</li>
-      <li>示例：决策树软件、布尔逻辑验证工具。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>模拟和交互工具</strong></p>
-
-    <ul>
-      <li>提供虚拟环境让用户实验和测试。</li>
-      <li>示例：医学诊断模拟工具、建筑设计模拟（如 SketchUp）。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>AI驱动的认知工具</strong></p>
-
-    <ul>
-      <li>使用人工智能技术支持更复杂的任务，如生成内容或回答问题。</li>
-      <li>示例：ChatGPT、图像生成工具。</li>
-    </ul>
-  </li>
-</ol>
-
-<hr />
-
-<h4 id="认知工具的应用场景">认知工具的应用场景</h4>
-
-<ol>
-  <li>
-    <p><strong>教育与培训</strong>：</p>
-
-    <ul>
-      <li>学生使用认知工具来增强理解能力和记忆力，例如通过在线学习工具学习新知识。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>问题解决</strong>：</p>
-
-    <ul>
-      <li>专业人员使用认知工具进行问题分析和解决，例如使用数据分析工具挖掘商业趋势。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>创造性活动</strong>：</p>
-
-    <ul>
-      <li>艺术家和设计师使用AI辅助工具进行创意生成，例如通过图像处理软件制作视觉内容。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>研究与开发</strong>：</p>
-
-    <ul>
-      <li>科学家利用认知工具进行建模、仿真和数据处理，从而探索新现象或开发新技术。</li>
-    </ul>
-  </li>
-</ol>
-
-<hr />
-
-<h4 id="认知工具与物理工具的对比">认知工具与物理工具的对比</h4>
-
-<table>
-  <thead>
-    <tr>
-      <th>特性</th>
-      <th>认知工具</th>
-      <th>物理工具</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td><strong>作用范围</strong></td>
-      <td>扩展思维、分析、学习能力</td>
-      <td>改变物理世界或完成物理任务</td>
-    </tr>
-    <tr>
-      <td><strong>存在形式</strong></td>
-      <td>抽象的概念或数字化形式</td>
-      <td>具体的物体（如锤子、剪刀）</td>
-    </tr>
-    <tr>
-      <td><strong>例子</strong></td>
-      <td>思维导图、学习应用、AI工具</td>
-      <td>锤子、螺丝刀、打印机</td>
-    </tr>
-  </tbody>
-</table>
-
-<hr />
-
-<h4 id="总结-1">总结</h4>
-
-<p>认知工具是人类思维能力的延伸，帮助我们更高效地完成复杂认知任务。它们在教育、科研、商业、创造性领域中都有广泛的应用，并随着技术进步（如人工智能的兴起）变得更加智能化和个性化。</p>
-
-<h2 id="摘要">摘要</h2>
-
-<h3 id="背景">背景：</h3>
-
-<ol>
-  <li>现状：LLM 有使用工具的潜力：这一范式被称为用基础模型进行工具学习，结合了专用工具和基础模型的优势，以实现问题解决中更高的准确性、效率和自动化。</li>
-  <li>困难：缺乏对 LLM 使用工具的困难和挑战的全面理解</li>
-</ol>
-
-<h3 id="工作">工作：</h3>
-
-<ol>
-  <li><strong>介绍背景</strong>：我们首先介绍工具学习的背景，包括其认知起源、基础模型的范式转变以及工具与模型的互补角色。</li>
-  <li><strong>指定框架</strong>：回顾现有的工具学习研究，并制定了一个通用的工具学习框架：
-    <ol>
-      <li>从理解用户指令开始，模型应学习将复杂任务分解为几个子任务，</li>
-      <li>通过推理动态调整其计划，</li>
-      <li>并通过选择适当的工具有效地征服每个子任务。</li>
-    </ol>
-  </li>
-  <li><strong>讨论</strong>：我们还讨论了如何训练模型以提高工具使用能力，并促进工具学习中的泛化。</li>
-  <li><strong>实验</strong>：对 18 种具有代表性的工具进行了实验，并展示了当前基础模型在熟练使用工具方面的潜力</li>
-  <li><strong>讨论开发问题</strong>：讨论了一些需要进一步研究的工具学习开放问题，如确保安全和可信的工具使用、利用基础模型实现工具创建以及解决个性化挑战</li>
-</ol>
-
-<h2 id="引言">引言</h2>
-
-<h3 id="工具学习的发展">工具学习的发展</h3>
-
-<ol>
-  <li>工具对人类有极大的帮助</li>
-  <li>早期简单模型能力不足，使用工具学习比较困难</li>
-  <li>近期更具能力的基础模型的出现，标志着能力大幅提升，使得工具学习变得可行</li>
-  <li>基础模型+工具的范式出现，但是主要集中在一些特殊任务或领域上，对工具学习的理解仍然不够全面，无法估计其特征和未来发展。</li>
-  <li>所以：审查和总结基于基础模型的工具学习的当前进展对于探索其潜力和挑战，并为未来的技术进步铺平道路至关重要。</li>
-</ol>
-
-<h3 id="本文工作大纲目录">本文工作（大纲&amp;目录）</h3>
-
-<p>全面的调查工具学习的现状，理解工具学习的挑战、机遇和方向</p>
-
-<ol>
-  <li>==§2==  介绍背景
-    <ol>
-      <li>==§2.1== 人类历史上工具使用的认知起源及其对人工智能系统中工具使用的潜在影响</li>
-      <li>==§2.2== 随后从用户界面的角度对工具进行了分类</li>
-      <li>==§2.3== 回顾了基础模型带来的人工智能范式转变，强调了工具学习的出现及其重要性</li>
-      <li>==§2.4== 讨论了工具和基础模型的互补作用，并认为将两者整合可以带来多种优势，</li>
-    </ol>
-  </li>
-  <li>==§3== 现有工具学习探索的综合文献综述
-    <ol>
-      <li>==§3.1== 制定了一个通用的学习框架</li>
-      <li>==§3.2==制定了整个工具学习的过程</li>
-      <li>==§3.3==训练策略：从示范中学习和从反馈中学习</li>
-      <li>为了促进将学习到的工具使用技能转移到新工具和新情况，即可推广的工具学习，设计一个统一接口，使模型能够以标准化的方式与不同工具互动是非常重要的。</li>
-    </ol>
-  </li>
-  <li>==§4== 实验：我们基于我们的框架对 18 种代表性工具进行了实验（第 4 节），</li>
-  <li>==§5== 讨论开放问题：讨论了我们的通用框架应用于现实世界场景所需关注的其他重要研究主题
-    <ol>
-      <li>==§5.1== 安全和可信的工具使用</li>
-      <li>==§5.2== 针对大型复杂系统的工具学习</li>
-      <li>==§5.3== 工具创造</li>
-      <li>==§5.4== 个性化工具学习</li>
-      <li>==§5.5== 具身学习与工具学习</li>
-      <li>==§5.6== 工具学习中的知识冲突</li>
-      <li>==§5.7== 其他未解决的问题</li>
-    </ol>
-  </li>
-</ol>
-
-<h2 id="背景-1">背景</h2>
-
-<ol>
-  <li>在本节中，我们首先讨论人类工具使用的认知起源（§ 2.1），</li>
-  <li>接着通过用户界面的视角进行工具分类（§ 2.2）。</li>
-  <li>然后，我们回顾基础模型带来的近期人工智能范式转变（§ 2.3）及其在工具学习中的重要性。</li>
-  <li>之后，我们考察专业工具和基础模型在问题解决中的各自角色，并讨论它们整合的优势和挑战（§ 2.4）。</li>
-</ol>
-
-<h3 id="21-工具使用的认知起源">2.1 工具使用的认知起源</h3>
-
-<ol>
-  <li><strong>工具在数千年的人类进化历史中扮演了至关重要的角色</strong>。
-    <ul>
-      <li>人类与动物使用工具不同，人类能够制造出比其他动物更复杂的工具，这种能力可能归因于我们对因果关系的深刻理解，这使我们能进行技术推理</li>
-    </ul>
-  </li>
-  <li><strong>人类使用工具的神经基础</strong>
-    <ul>
-      <li>顶叶系统：在工具使用研究中，顶叶系统被认为是处理工具操作和观察的核心区域：它协助我们理解物体的用途和与周围环境的关系。
-  例如，当观察他人使用工具时，顶叶系统会被激活，帮助我们推测工具的功能以及如何使用。</li>
-      <li>前上颞回：前上颞回会被激活，帮助我们理解工具的功能和使用方法（猕猴并没有表现出这一点）</li>
-      <li>使用工具：认知科学的整体趋势是将认知理解为一种强调与外部世界互动的活动过程（Engel et al., 2013），而观察、沟通和动手实践的反馈对于掌握工具使用非常重要。</li>
-    </ul>
-  </li>
-  <li><strong>工具使用的三种智力水平</strong>
-    <ul>
-      <li>Assistive tool : 使用通常是被动和无意识的 (例如，在雨棚走廊中行走）)</li>
-      <li>Arbitrary tool : 任意工具使用需要主动互动（例如，驾驶、使用智能手机）</li>
-      <li>Free tool : 自由工具使用进一步需要理解和选择适合场景的工具（例如，烹饪新的菜肴）</li>
-      <li>在这个框架中，这三种工具使用模式呈现出递进关系，作者假设实现自由工具使用的关键认知过程是技术推理，这使得某人能够通过观察他人使用、选择或制作工具，而不是通过大量实践来学习新的动作。</li>
-    </ul>
-  </li>
-  <li><strong>从物理工具到概念工具的过渡</strong>
-    <ul>
-      <li>认知工具：它指的是一种辅助工具，促进更高阶的思维（例如，多步批判性分析、创造性解决问题方案的产生）。</li>
-      <li>认知工具可以根据其提供的功能进行分类（Lajoie &amp; Derry, 2013）。这些功能包括
-        <ul>
-          <li>(1) 支持认知过程（例如，记录中间推理结果），</li>
-          <li>(2) 减轻低级认知负荷，以释放资源用于高级思维，</li>
-          <li>(3) 使学习者能够参与超出他们能力范围的活动，</li>
-          <li>(4) 允许学习者生成和测试假设（例如，为医学学生模拟诊断）。</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-  <li><strong>弥合人类使用工具与机器使用工具之间的差距</strong>
-    <ul>
-      <li>首先，操控工具的能力深深植根于我们的认知和感知系统中，并在数百万年的进化中形成。相比之下，基础模型主要依赖于预训练数据的统计模式，基础模型的工具使用能力与人类相对而言仍存在显著差距。人类能够感知工具的属性，理解其功能，并识别适合每个任务的工具。（==§3.2.1§==讲解 LLM 该如何学习该过程）</li>
-      <li>其次，人类擅长将复杂任务分解为更小的可管理子任务，并灵活地操控工具以完成每个子任务。然而，基础模型缺乏充分理解和利用工具所需的物理具身和感官体验。因此，这些模型在需要更高阶推理和适应性任务时常常难以应对，且无法有效整合多个知识和工具来源。（==§3.2.2§==讲如何更好地利用大模型的推理能力制定可执行计划）</li>
-      <li>此外，当前将基础模型适应于学习特定工具的算法通常需要大量的监督数据（Nakano 等，2021；Reed 等，2022），这限制了其对更广泛工具或新情况的普适性和迁移能力。（==§ 3.3.1== 和 ==§ 3.3.2==总结了工具学习的训练策略  ==§ 3.3.3== 讨论如何促进工具学习的普适性和迁移性)</li>
-    </ul>
-  </li>
-</ol>
-
-<h3 id="22-工具分类用户界面视角">2.2 工具分类：用户界面视角</h3>
-
-<p>本文的重点特别是那些可以通过指令与基础模型结合操作的工具。我们介绍了一种根据工具的表达和交互方式进行分类的系统。</p>
-
-<p><img src="/assets/posts_assets/Pasted%20image%2020241125160243.png" alt="" /></p>
-
-<ol>
-  <li>物理工具：这类工具涉及与物理世界的直接交互，如机器人、传感器和可穿戴设备等，能够对环境产生实质影响。</li>
-  <li>GUI 工具：一些工具允许用户通过交互界面进行操作，即工具的视觉表示，以及预定义的操作。这些工具被定义为基于 GUI 的工具，它们对物理世界没有直接影响。如像浏览器、Microsoft Office、Adobe PhotoShop 等经过良好开发的软件</li>
-  <li>基于编程的工具：用户可以访问的最内层工具是源代码，为这些基于程序的工具的输入和输出提供了高度的灵活性。基于程序的工具是主要通过编程接口而非可视化接口设计的软件工具。它们可以有多种形式，包括声明性语言、编程库、软件开发工具包（SDK）甚至基于神经网络的工具。</li>
-</ol>
-
-<p>它们并不是严格互斥的，而是相互交织的倾向。人类有能力通过灵活执行不同类型的工具来处理复杂任务。本文认为，无论工具类型如何，基本上都可以通过建立中介接口来利用基础模型来执行它们。我们将在§3.3.3 中介绍统一不同工具接口的方法。</p>
-
-<h3 id="23-基础模型的范式转变">2.3 基础模型的范式转变</h3>
-
-<ol>
-  <li>PLM 的作用：
-    <ul>
-      <li>PLM 出现，利用 PLM 作为基础设施，自然语言作为媒介统一执行各种任务，所有自然语言理解和生成过程均通过对话交互完成。</li>
-      <li>PLM 的强大泛化能力使我们能够使用自然语言作为媒介，通过操控工具来完成这些任务。</li>
-    </ul>
-  </li>
-  <li>工具学习可以被 PLM 支持的原因：
-    <ul>
-      <li><strong>本质上，工具学习的关键在于将复杂任务分解为子动作，以自然语言的形式对动作进行分词，并将其转换为特定工具能够理解的可执行指令。语言模型充当“翻译者”，使复杂任务对没有专业技术知识的个体更加可及。</strong></li>
-    </ul>
-  </li>
-  <li>然而，仍然存在许多超出纯自然语言范围的任务。
-    <ul>
-      <li>例如：生成演示文稿、通过 CAD 应用程序构建 3 D 模型，以及通过分析团队成员日历安排会议，这些都是传统人工智能尚未定义的复杂任务。</li>
-    </ul>
-  </li>
-  <li>工具学习未来展望
-    <ul>
-      <li>因此，虽然自然语言界面在语言领域内实现了统一（Hao et al., 2022），但非语言任务带来的挑战需要一种更先进的方法来利用自然语言和工具学习。通过利用自然语言的力量，我们可以创建能够理解和适应我们周围复杂和动态世界的系统，从而开启创新和发现的新途径。</li>
-    </ul>
-  </li>
-</ol>
-
-<h3 id="24-工具与基础模型的互补角色">2.4 工具与基础模型的互补角色</h3>
-
-<p>专业工具与基础模型的整合代表了一种有前景的方法，以利用两者的独特优势。通过将基础模型的理解和推理能力融入专业工具中，我们可以创建能够执行比专业工具或基础模型单独更复杂任务的智能工具。具体而言，两者的结合带来了以下诸多好处。</p>
-
-<h4 id="使用工具的好处">使用工具的好处</h4>
-
-<ol>
-  <li>减轻记忆负担：
-    <ul>
-      <li>尽管基础模型在记忆方面表现出色（Carlini et al., 2021, 2022, 2023），但它们并不能记住每一条训练数据。</li>
-      <li>单靠记忆并不能支持实时更新知识</li>
-      <li>基础模型还被批评为会幻想知识</li>
-    </ul>
-  </li>
-  <li>提升专业性</li>
-  <li>更好的可解释性。</li>
-  <li>提升鲁棒性：LLM 的输入的轻微修改可以改变模型预测。这是因为这些模型在很大程度上依赖于训练数据中的统计模式。相反，工具是专门为其预期用途而设计的，这可能与输入扰动无关。</li>
-</ol>
-
-<h4 id="使用-llm-的好处">使用 LLM 的好处</h4>
-
-<ol>
-  <li>改善决策和推理能力</li>
-  <li>更好的用户体验
-    <ul>
-      <li>得益于基础模型强大的意图理解能力，工具学习可能会彻底改变我们与机器的互动方式，并减轻用户的认知负担，使他们能够参与更高阶的思维和决策过程。这反过来又促进了一种无缝且更自然的基于语言的交互范式，彻底改变了传统的图形用户界面（GUI）。<strong>用户只需提供高层次的指导和方向，模型就能无缝理解用户的意图，从而提供更个性化和准确的响应。</strong></li>
-      <li>降低了新用户的入门障碍，还为创新和创造力开启了无尽的可能性。</li>
-    </ul>
-  </li>
-</ol>
-
-<h2 id="工具学习">工具学习</h2>
-
-<h3 id="一般工具学习的框架">一般工具学习的框架</h3>
-
-<p><img src="/assets/posts_assets/Pasted%20image%2020241125193731.png" alt="" /></p>
-
-<h4 id="tool-set">Tool Set</h4>
-
-\[T=\{T_1,T_2,\dots \}\]
-
-<ul>
-  <li>工具集 T 包含一系列具有不同功能的工具。</li>
-  <li>在接下来的章节中，我们主要以应用程序编程接口（API）作为例子来说明如何与工具互动。</li>
-</ul>
-
-<blockquote>
-  <p>在这里，我们将 API 定义为任何可以将基础模型的输出作为输入的函数。例如，对于一个天气 API，API 的输入可能是位置和时间，而输出可能包含温度或风速。</p>
-</blockquote>
-
-<h4 id="environment">Environment</h4>
-<p>\(\mathcal{E}\)</p>
-
-<p>环境 $\mathcal{E}$ 是工具运行的世界</p>
-
-<ol>
-  <li>它向感知者提供工具的执行结果。</li>
-  <li>它提供了工具执行所需的基础设施，这可以是虚拟的也可以是真实的。
-    <ul>
-      <li>前者指的是一个模拟环境，允许模型与工具的数字表示进行交互，而真实环境则涉及与物理工具的实际互动。</li>
-      <li>虚拟环境的优势在于易于访问和复制，使得模型的培训更具成本效益。然而，虚拟环境可能无法完全复制真实世界环境的复杂性，导致过拟合和较差的泛化能力（Hansen 等，2021）。</li>
-      <li>真实环境提供了更真实的背景，但可能更难以接触，并且涉及更高的成本。</li>
-    </ul>
-  </li>
-</ol>
-
-<h4 id="controller">Controller</h4>
-
-\[\mathcal{C}\]
-
-<p>控制器 $\mathcal{C}$ 作为工具学习框架的“大脑”，通常使用基础模型进行建模。</p>
-
-<ul>
-  <li>控制器 C 的目的是提供一个可行且精确的计划，以使用工具满足用户的请求</li>
-  <li>制定计划：为此，C 应该理解用户意图，以及意图与可用工具之间的关系，然后制定一个计划，以选择适当的工具来处理任务.</li>
-  <li>分解子任务：在查询复杂且针对高层次任务的情况下，C 可能需要将任务分解为多个子任务，这需要基础模型具备强大的规划和推理能力</li>
-</ul>
-
-<h4 id="perceiver">Perceiver</h4>
-<p>\(\mathcal{P}\)
-感知者 P 负责处理用户和环境的反馈，并生成一个摘要供控制器使用。</p>
-
-<ul>
-  <li>简单的反馈处理形式包括将用户和环境反馈进行连接，或使用预定义模板格式化反馈。</li>
-  <li>然后，汇总的反馈被传递给控制器，以协助其决策。通过观察这些反馈，控制器可以确定生成的计划是否有效，以及在执行过程中是否存在需要解决的异常情况。</li>
-  <li>在更复杂的情境下，感知者应能够支持多种模态，如文本、视觉和音频，以捕捉用户和环境反馈的多样性。</li>
-</ul>
-
-<h4 id="连接组件">连接组件</h4>
-
-<h5 id="工作过程">工作过程</h5>
-
-<p>假设有一个工具集 $\mathcal{T}$, 在时间步 $\mathcal{t}$ 的时候，执行以下步骤</p>
-
-<ol>
-  <li>环境 $\mathcal{E}$ 提供了工具执行的反馈 $e_t$</li>
-  <li>感知者接受环境反馈 $e_t$ 和用户反馈 $f_t$ 并生成一个反馈总结 $x_t$
-    <ul>
-      <li>通常感知者可以通过预定义的规则（将 $e_t$ 与 $f_t$ 连接起来），或者使用神经网络建模</li>
-    </ul>
-  </li>
-  <li>控制器 $\mathcal{C}$ 生成计划 $a_t$ 从工具集 $\mathcal{T}$ 中选择一个工具来执行</li>
-</ol>
-
-<p>公式：</p>
-
-<p>\(p_{C}(a_{t})=p_{\theta_{C}}(a_{t}\mid x_{t},{\mathcal{H}}_{t},q)\)</p>
-<ul>
-  <li>$\theta_C$ 表示 C 的参数，q 表示用户的查询或指令，$\mathcal{H}<em>t = { (x_s,a_x)}^{t-1}</em>{s=0}$ 表示历史反馈和计划</li>
-  <li>$\mathcal{C}$ 还可以将其推理过程与行动预测协同作用
-    <ul>
-      <li>子任务 1：选择工具 $T_i$ ​：从工具集合 T 中选择一个适合当前任务的工具。</li>
-      <li>子任务 2：制定具体计划 $a_t$ ​：确定如何使用选择的工具执行动作。</li>
-    </ul>
-  </li>
-</ul>
-
-\[p_{\theta_{C}}(a_{t}\mid x_{t},{\mathcal{H}}_{t},q)=\sum__{i}\in{\mathcal{T}}}p_{\theta_{C}}(a_{t}\mid{\mathcal{T}}_{i},x_{t},{\mathcal{H}}_{t},q)\times p_{\theta_{C}}({\mathcal{T}}_{i}\mid x_{t},{\mathcal{H}}_{t},q),\]
-
-<ol>
-  <li>在生成计划 at 后，它将在 E 中执行，来自 E 的反馈 et+1 将被传递给感知者。上述过程会重复多轮，直到控制器完成任务。</li>
-</ol>
-
-<p>总体目标是找到一个动作序列{at}，最终实现用户指令 q 所指定的任务。请注意，在工具执行后，控制器可能还会将执行结果整合成一个合理的回应给用户</p>
-
-<h5 id="例子">例子</h5>
-
-<p>例如，给定“我想预定下周去北京的航班”这样的指令，</p>
-
-<ol>
-  <li>控制器 C 首先推断出用户的目标是预定航班，北京是目的地，下周是旅行时间。</li>
-  <li>然后，模型选择航空公司预订系统作为工具。</li>
-  <li>最后，它将时间和目的地输入作为初步计划。</li>
-  <li>在进行预订的过程中，我们可能会面临意外情况，比如下周前往北京的航班不可用。为应对这些异常情况，我们可以进一步赋予 C 推理当前上下文的能力，并生成替代计划。</li>
-</ol>
-
-<h3 id="一般流程从意图到计划">一般流程：从意图到计划</h3>
-
-<p>工具学习的总体过程需要不同组件之间的复杂交互。在本节中，我们将进一步阐述这一过程中的关键问题。</p>
-
-<h4 id="理解用户的意图和工具">理解用户的意图和工具</h4>
-
-<p>为了准确履行用户查询 q 指定的任务，控制器需要理解两个方面：</p>
-
-<ul>
-  <li>用户的根本意图，这涉及识别和形式化自然语言 q 为高层次任务（即意图理解）；</li>
-  <li>工具集 T，这意味着理解其中每个工具的功能和目标（即工具理解）。</li>
-</ul>
-
-<h5 id="理解用户的意图">理解用户的意图</h5>
-
-<ol>
-  <li>指令微调：在用人类指令模板化的数据集上对大型语言模型进行微调，可以使模型甚至能够对未见任务的指令进行泛化</li>
-  <li>挑战：
-    <ol>
-      <li>理解模糊指令。第一个挑战是处理用户查询中固有的模糊性和歧义。许多用户查询天生不精确，甚至可能是多义的，这要求控制器依赖于上下文线索和背景知识来推断用户的真实含义。
-        <ul>
-          <li>一种可能的解决方案是主动与用户互动，以澄清任何歧义，例如询问用户对先前查询的进一步说明。</li>
-        </ul>
-      </li>
-      <li>对多样化指令的泛化。另一个挑战是使模型能够对更具多样性的用户指令进行泛化。由于意图空间在理论上是无限的，基础模型在训练期间几乎无法接触到每种现实世界的意图。
-        <ul>
-          <li>一种解决方案是引入更为多样化的训练数据，这些数据涵盖了广泛的真实世界场景，从而使模型能够学习不同指令的细微差别。</li>
-          <li>另一种解决方案是利用用户反馈，主动地使模型适应个别用户，即个性化工具学习</li>
-        </ul>
-      </li>
-    </ol>
-  </li>
-</ol>
-
-<h5 id="理解工具">理解工具</h5>
-<p>一般方法：prompt-learning</p>
-
-<ul>
-  <li>零样本提示（zero-shot prompting）：描述 API 的功能、输入/输出格式、可能的参数等。此方法允许模型理解每个 API 可以完成的任务。</li>
-  <li>少样本提示（few-shot prompting）：为模型提供具体的工具使用示例，通过这些示例模仿人类行为，模型可以学习如何使用工具。</li>
-</ul>
-
-<p>挑战：</p>
-
-<ul>
-  <li>提示的效果很大程度上取决于模型本身的能力，能力较弱的模型可能无法很好地理解提示。</li>
-  <li>提示受输入上下文长度的限制。当工具数量庞大且描述较长时，在一个提示中包含所有可能的工具信息变得不可行。</li>
-</ul>
-
-<p>解决方法：</p>
-
-<ul>
-  <li>一种潜在的解决方案是增加一个中间阶段的工具选择，首先检索一小部分最适合当前任务的工具。</li>
-  <li>另一种解决方案是进行模型微调（Fine-tuning），优化模型以通过具体的工具使用案例来理解工具。</li>
-</ul>
-
-<h4 id="计划与推理">计划与推理</h4>
-
-<blockquote>
-  <p>如何通过推理和规划在工具学习中提升基础模型的能力，以及在复杂任务场景中的实现方法和挑战</p>
-
-</blockquote>
-
-<ol>
-  <li>现有的 LLM 有涌现出来的推理能力</li>
-  <li>定义推理：在基础模型中，推理能力通常被描述为“将复杂问题分解为子问题并逐步解决这些子问题的能力。</li>
-  <li>一般方法：few-shot prompt learning、CoT</li>
-</ol>
-
-<ul>
-  <li>推理研究可以分为两类：
-    <ul>
-      <li>内省式推理（Introspective Reasoning）：生成静态计划，不依赖环境交互。</li>
-      <li>外向式推理（Extrospective Reasoning）：通过与环境交互迭代生成计划，并利用反馈调整计划。</li>
-    </ul>
-  </li>
-</ul>
-
-<h5 id="内省推理和外向式推理">内省推理和外向式推理</h5>
-
-<ul>
-  <li>
-    <p><strong>内省式推理</strong>：</p>
-
-    <ul>
-      <li>在执行任务之前，生成一个静态的完整计划。</li>
-      <li>不需要与环境或用户进行交互。</li>
-      <li>优点：规划过程明确，适用于环境反馈较少的场景。</li>
-      <li>局限性：如果任务中出现意外或环境改变，静态计划难以应对。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>外向式推理</strong>：</p>
-
-    <ul>
-      <li>通过与环境交互逐步生成计划，每一步根据上一步的反馈进行调整。</li>
-      <li>优点：能更好地处理动态变化的环境或任务中的意外情况。</li>
-      <li>应用案例：
-        <ul>
-          <li>Self-Ask 和 ReAct（Yao et al., 2022b）：将任务分解为多个子问题，通过 API 或工具逐步回答。</li>
-          <li>Auto-GPT：能够自动选择工具，分步完成复杂任务，同时优化计划。</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ul>
-
-<h5 id="多工具多子任务场景中的挑战">多工具、多子任务场景中的挑战</h5>
-
-<ul>
-  <li>
-    <p><strong>任务分解复杂性</strong>：</p>
-
-    <ul>
-      <li>多工具、多子任务场景通常涉及多个步骤，这些步骤之间可能存在依赖关系，需要模型能够正确排序和选择工具。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>模型要求</strong>：</p>
-
-    <ul>
-      <li>模型需要具备高水平的推理和环境适应能力。</li>
-      <li>工具使用的切换成本较高，因此需要优化工具选择和执行效率。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>当前研究的限制</strong>：</p>
-
-    <ul>
-      <li>现有研究更多关注单工具或单子任务的场景，对多工具、多步骤任务的探索较少。</li>
-    </ul>
-  </li>
-</ul>
-
-<h5 id="解决多工具任务的未来方向">解决多工具任务的未来方向</h5>
-
-<ul>
-  <li><strong>理解工具间依赖关系</strong>：模型需要识别任务中工具的优先级和依赖关系，以便合理安排工具调用顺序。</li>
-  <li><strong>任务优化和效率提升</strong>： 优化模型在多工具任务中的执行效率，例如并行执行独立的子任务。</li>
-  <li><strong>工具升级与动态适应</strong>：工具可能会更新或发生变化，模型需要具有适应能力，能够实时调整任务规划。</li>
-</ul>
-
-<h3 id="工具学习的训练策略">工具学习的训练策略</h3>
-
-<ul>
-  <li><strong>示范学习</strong>：通过观察标注数据掌握工具使用。</li>
-  <li><strong>反馈学习</strong>：通过与环境和人类交互优化任务执行。</li>
-</ul>
-
-<h4 id="示范学习">示范学习</h4>
-
-<p>数据集：$D = { (q_i, a_i^*) }_{i=0}^{N-1}$</p>
-
-<ul>
-  <li>用户查询 $q_i$：用户的输入或任务需求。</li>
-  <li>人类标注 $a_i^*$：人类对如何处理该查询的示范。</li>
-</ul>
-
-<p>优化目标：</p>
-
-<ul>
-  <li>通过最大化以下公式来优化控制器参数 $\theta_C$：
-\(\theta_C^* = \arg\max_{\theta_C} \mathbb{E}_{(q_i, a_i^*) \in D} \prod_{t=0}^{T_i} p_{\theta_C}(a_{i,t}^* \mid x_{i,t}, \mathcal{H}_{i,t}, q_i)\)</li>
-  <li><strong>解释</strong>：
-    <ol>
-      <li><strong>目标</strong>：使控制器在处理用户查询 qiq_i 时，生成的人类标注 $a_i^*$的概率最大化。</li>
-      <li><strong>公式中的变量</strong>：
-        <ul>
-          <li>$T_i$：处理 $q_i$ 的总迭代次数（任务需要的步骤数）。</li>
-          <li>$a_{i, t}^*$：第 $t$ 次迭代中的人类标注（示范）。</li>
-          <li>$x_{i, t}$：第 $t$ 次的总结反馈（来自环境的结果和用户的输入）。</li>
-          <li>$\mathcal{H}_{i, t}$：历史记录，包含此前的反馈和动作。</li>
-        </ul>
-      </li>
-    </ol>
-  </li>
-</ul>
-
-<h5 id="监督学习">监督学习</h5>
-
-<p>传统上，行为克隆在学习用于自主车辆和机器人应用的端到端或模块化感知-控制模型方面得到了广泛探索</p>
-
-<p>例子：</p>
-
-<ul>
-  <li>WebGPT
-    <ul>
-      <li>作者首先构建了一个由 Bing 支持的搜索界面，然后微调 GPT-3（Brown 等，2020）以克隆人类的网页搜索行为。</li>
-      <li>作为一个在通用领域上预训练的语言模型，原始的 GPT-3 在本质上并不依赖于有效的浏览器命令。因此，首先收集人类与浏览器交互的示例，然后学习状态到行动的映射是至关重要的。</li>
-      <li>在微调后，该模型在操作搜索引擎进行信息检索方面表现出卓越的能力，甚至超过了人类专家。</li>
-    </ul>
-  </li>
-  <li>WebShop:
-    <ul>
-      <li>提供了一个基于 web 的互动环境，代理可以浏览和购买产品。通过行为克隆，训练后的代理在根据人类指示购买正确产品方面表现出非平凡的性能。</li>
-    </ul>
-  </li>
-</ul>
-
-<h5 id="半监督学习">半监督学习</h5>
-
-<ul>
-  <li>有标签的数据比较难获得</li>
-  <li>使用一个能力较弱的模型来为未标记数据标注伪标签，并将其转化为弱监督的工具使用示范。
-    <ul>
-      <li>例如，Baker 等人（2022）使用少量的种子标记数据训练模型，以预测在 Minecraft 视频游戏中每个时间步采取的行动的伪标签。通过学习这些伪标签，可以训练出一个更强大的模型，而无需在目标环境中推理模型或进行大规模的黄金标准人类行为标注。</li>
-    </ul>
-  </li>
-</ul>
-
-<h5 id="自监督学习">自监督学习</h5>
-
-<ul>
-  <li>自监督学习。尽管减少了对人类行为标注的严格要求，半监督学习仍然需要一个种子标记数据集来获取伪标签。</li>
-  <li>
-    <p>此外，种子数据集中的偏差在训练过程中可能会被放大，从而导致较差的泛化性能。</p>
-  </li>
-  <li>为此，研究人员最近表明，通过少量示例，基础模型可以自我学习如何以自监督的方式使用工具（Parisi et al., 2022；Schick et al., 2023）。
-    <ul>
-      <li>例如，Toolformer（Schick et al., 2023）利用基础模型的上下文学习能力，基于少量人工编写的示例迭代生成工具使用示例。这些自动生成的示例经过进一步过滤以减少噪声。最终的工具使用数据集包含足够的监督，从而显著提高了 GPT-J（Wang &amp; Komatsuzaki, 2021）的工具使用性能，突显了自监督学习在增强工具使用能力方面的潜力。</li>
-    </ul>
-  </li>
-</ul>
-
-<h4 id="反馈学习">反馈学习</h4>
-
-<ul>
-  <li>手动收集和标注工具使用的示例（可能包括完整的人类行为轨迹和最终答案）既耗时又劳动强度高。</li>
-  <li>此外，所学的模型可能由于遵循记录下的人类行为而无法有效适应新环境。</li>
-  <li>除此之外，明确标注环境条件和代理行为的每一种可能场景也是不切实际的</li>
-  <li>相比之下，人类通过试错学习来纠正和修正他们的工具使用行为（Allen et al., 2019）。同样，来自环境和人类的反馈能够让模型理解其行为的后果，并适应其行为。</li>
-</ul>
-
-\[\theta_C^* = \arg\max_{\theta_C} \mathbb{E}_{q_i \in Q} \mathbb{E}_{\{a_{i,t}\}_{t=0}^{T_i} \sim p_{\theta_C}} \left[ R(\{a_{i,t}\}_{t=0}^{T_i}) \right],\]
-
-<p>强化学习反馈来源：环境反馈和人类反馈，这可以被视为工具学习中的奖励信号来源。这两种反馈是互补的，可以相互结合。</p>
-
-<h5 id="环境反馈">环境反馈</h5>
-
-<p>控制器与环境互动，并接收有关其行为后果的反馈。模型随后根据这些反馈更新其策略，以改善工具使用行为。</p>
-
-<p><strong>环境反馈的形式</strong>：</p>
-
-<ul>
-  <li>结果反馈：指示模型的行动是否成功完成了任务</li>
-  <li>中间反馈：指的是由一个动作触发的环境状态变化。通过观察状态变化，基础模型可以学习每个动作是否有效和适当，从而更好地调整其行为</li>
-</ul>
-
-<h5 id="人类反馈">人类反馈</h5>
-
-<p>人类可以根据模型生成的计划给予模型奖励和惩罚，以调节其行为。</p>
-
-<p>显式：在 1 到 5 的评分标准上对模型生成的动作质量进行评分</p>
-
-<p>隐式：用户的比较（Ouyang 等，2022），响应时间，以及在接收到模型输出后采取的行动（例如，点击推荐链接）</p>
-
-<p>缺点：</p>
-
-<ol>
-  <li>是标签密集型的，</li>
-  <li>并且具有较高的延迟</li>
-</ol>
-
-<p>解决方法：RLHF</p>
-
-<p>挑战：</p>
-
-<ol>
-  <li>任务特定性：特定任务的相应评估标准需要预先定义，<strong>为一个任务标注的偏好数据难以转移到其他设置，这限制了 RLHF 在更广泛任务中的适用性</strong>。为此，开发一个普适的奖励模型以适应各种任务至关重要；</li>
-  <li>偏见：RL 代理优化朝向伪人类奖励模型，因此可能受到人类偏好的上限和偏见。此外，社会偏见或个人经验可能在 RLHF 过程中被放大，因此必须仔细评估学习到的奖励模型是否存在任何偏见，并采取措施进行缓解。</li>
-</ol>
-
-<h4 id="工具学习泛化">工具学习泛化</h4>
-
-<p>泛化也是工具学习的一个重要方面，尤其考虑到存在大量迅速扩展的工具。</p>
-
-<p><strong>虽然对大量工具使用数据进行监督微调可以成为促进泛化的潜在解决方案，但收集足够的监督工具使用数据并确保其质量和多样性既耗时又在实践中不可行。</strong></p>
-
-<p>抽象能力：抽象是识别工具的基本特征的过程。抽象涉及识别工具的共性和模式，以便模型能够合成和转移其知识和技能，使其能够轻松使用新工具。</p>
-
-<h5 id="泛化的基础api-统一">泛化的基础：API 统一</h5>
-
-<ul>
-  <li>该接口使模型能够以一致和标准化的方式操作各种工具</li>
-  <li>通过统一的接口，模型可以更容易地在统一的工具协议中识别和抽象工具的基本特征，而不是费力地理解各种工具接口。</li>
-</ul>
-
-<p>API 统一的三种方式：语义接口、图形用户界面（GUI）接口和编程接口。</p>
-
-<h6 id="语义接口">语义接口</h6>
-
-<p>构建自然语言与具体行动的映射</p>
-
-<p>例子：比如，<strong>ReAct</strong>（Yao等人，2022年）使用“Action:Search”作为触发器，表示执行“搜索相关段落”这一功能。</p>
-
-<p>优点：简便，直观，自然</p>
-
-<p>缺点：</p>
-
-<ul>
-  <li>生成的文本和具体工具动作之间的映射需要事先定义，这一过程非常繁琐，尤其是当工具或系统的功能快速扩展时。</li>
-  <li>模型可能无法准确生成触发特定动作的准确文本，这可能导致误触发不相关的动作。</li>
-</ul>
-
-<h6 id="gui-接口">GUI 接口</h6>
-
-<p>GUI 已经被广泛优化了</p>
-
-<p>但是有缺点：</p>
-
-<ul>
-  <li>必须建立一个虚拟环境，以便将预测的标记映射到类人鼠标移动和键盘输入上。</li>
-  <li>这些环境将模型限制在一组有限的预定义鼠标选项和常见的键盘操作中。</li>
-</ul>
-
-<p>发展：</p>
-
-<ul>
-  <li>通过利用基础模型，可以引入关于常见关键字和鼠标操作组合的先验知识，从而扩大模型能够执行的潜在操作。</li>
-</ul>
-
-<h6 id="编程接口">编程接口</h6>
-
-<p>这种接口允许模型超越纯自然语言，使用程序指定其操作。这种统一要求模型熟悉函数调用的语法</p>
-
-<p>当前的工作：</p>
-
-<ul>
-  <li>最近的代码生成语言模型（CLM），如 Incoder（Fried 等，2022）和 CodeX（Chen 等，2021），提供了这种统一的可能性。</li>
-  <li>编程接口得到了广泛应用。例如，Code-as-Policies（Liang 等，2022 a）发现，使用 CLM 作为机器人控制的基础，机器人可以利用代码语法执行复杂动作，推广到新指令，并以准确的参数值对函数进行精确控制。</li>
-</ul>
-
-<p>优点：</p>
-
-<ul>
-  <li>（1）复杂的工具学习逻辑可以使用编程语言的控制流进行建模；</li>
-  <li>（2）外部 API 的显式调用可以通过执行程序自然实现。</li>
-</ul>
-
-<h6 id="挑战">挑战</h6>
-
-<p><strong>接口选择应与基础模型的能力和局限性相一致</strong></p>
-
-<ul>
-  <li>语言基础模型训练用于生成文本，因此可能更适合语义接口。</li>
-  <li>结合视觉和文本信息的多模态基础模型可能更适合图形用户界面，因为它可以理解和生成类人鼠标移动和键盘输入。</li>
-  <li>代码基础模型可能更适合编程接口，因为它训练用于理解代码语法和函数调用</li>
-</ul>
-
-<p>工具的输出与模型输入格式不一致的挑战</p>
-
-<p>解决办法：</p>
-
-<ol>
-  <li>一个常见的做法是将模型和工具的功能组合在同一模态中
-    <ul>
-      <li>例如，Zeng 等人（2022）通过将它们的输出转换为自然语言，将各种模态的基础模型链在一起。这种简单的方法利用提示组合新的多模态能力，而无需微调。</li>
-    </ul>
-  </li>
-  <li>构建能够感知一般模态的多模态基础模型
-    <ul>
-      <li>Gato（Reed 等，2022）是一个典型的通用多体现代理，经过庞大代理经验数据集的训练。Gato 可以通过不同的体现进行感知和行动，例如玩雅达利游戏、为图像添加标题、聊天等。</li>
-      <li>PaLM-E（Driess 等，2023）将不同模态的连续输入纳入预训练语言模型。通过对多个体现任务的联合训练，PaLM-E 能够在现实世界中做出基于事实的决策。</li>
-    </ul>
-  </li>
-</ol>
-
-<h5 id="工具学习泛化的策略">工具学习泛化的策略</h5>
-
-<ul>
-  <li>仅仅统一 API 的是不够的。</li>
-  <li>可泛化工具学习要求模型进一步适应、细化和专业化其学习的知识，以满足特定任务或领域的需求</li>
-</ul>
-
-<h6 id="元工具学习">元工具学习</h6>
-
-<p><strong>元认知（Metacognition）</strong> 是指个体反思自己思维过程的能力，在面对陌生情境时能够调整自己的行为。</p>
-
-<p>在工具学习中，元认知指的是模型能够反思自己的学习过程，并在需要时调整或改进工具使用策略。</p>
-
-<ul>
-  <li><strong>元工具学习的核心思想</strong>是让模型能够根据之前的经验调整其工具使用策略，从而迁移到新任务或新领域。
-    <ul>
-      <li>例如，假设一个模型已经在<strong>Bing搜索引擎</strong>上进行过训练，当该模型迁移到<strong>Google搜索引擎</strong>时，它可以通过元认知能力，识别出在搜索引擎使用中常见的策略模式（如有效的搜索查询、相关的结果以及用户反馈），并基于这些经验，调整自己的搜索策略，以适应新的搜索引擎的算法和用户界面。</li>
-    </ul>
-  </li>
-  <li>优点：这种能力使得模型能够在新的环境中更加智能地调整自己，从而提高其在不同工具和任务之间的迁移能力。</li>
-</ul>
-
-<h6 id="课程工具学习">课程工具学习</h6>
-
-<p><strong>课程学习（Curriculum Learning）</strong> 是一种从简单到复杂的学习方法。它从基础工具入手，逐步引导模型学习更复杂的工具，从而使模型能够在先前知识的基础上逐渐建立对工具的更深理解。</p>
-
-<ul>
-  <li><strong>课程工具学习的核心思想</strong>是从最简单的工具或基本概念开始，逐步引入更复杂的工具或操作。这种方法确保模型先学习工具的基本特性，再逐渐深入到更复杂的应用。
-    <ul>
-      <li>例如，在教授一个模型使用<strong>Mathematica</strong>时，首先可以从基础的加法和减法开始，逐步引导模型学习更复杂的数学概念，比如微积分和线性代数。通过这种方法，模型能够理解复杂工具是如何建立在简单工具的基础上的，并能够把简单工具的知识迁移到更复杂的工具上</li>
-    </ul>
-  </li>
-  <li>优点：
-    <ul>
-      <li><strong>理解工具之间的关系</strong>：课程工具学习不仅帮助模型掌握个别工具的使用，还帮助模型理解复杂工具是如何通过多个基本工具组合而成的。这种理解可以帮助模型更好地识别工具之间的相似性和差异性，从而在面对新工具时，能够更有效地调整自己的策略。</li>
-      <li><strong>渐进式学习</strong>：通过从简单到复杂的逐步引导，课程学习确保了模型在面对更高阶的工具时不会感到过于复杂或困惑。模型可以基于以前学过的内容逐步建立对新任务的理解。</li>
-    </ul>
-  </li>
-</ul>
-
-<h2 id="应用与实验">应用与实验</h2>
-
-<p>我们旨在探索工具学习的应用，并调查最先进基础模型在使用工具方面的有效性和局限性。</p>
-
-<p><img src="/assets/posts_assets/Pasted%20image%2020241127132435.png" alt="" /></p>
-
-<p>“# APIs”表示每个工具对应的 API 数量。测试集是指我们在进行实验时使用的数据集。我们展示了三种设置的结果，即无工具、零-shot、少-shot。Text-davinci-003 的结果以白色背景显示，而 ChatGPT 的结果则以青色背景显示。</p>
-
-<p>结论：</p>
-
-<ol>
-  <li>在大多数情况下，模型可以通过简单的提示有效地学习如何使用工具，并提高其任务表现。</li>
-  <li>次优会产生负影响：对于模型可以利用其内部知识解决的任务（例如计算器和搜索引擎的案例），使用零-shot 提示的工具有时会导致更差的性能，这意味着非最佳的工具使用可能会对表现产生负面影响。</li>
-  <li>工具有用：结合少量提示的工具仍然始终能带来优于未使用工具的表现。这强调了工具在问题解决中所能带来的具体好处，前提是它们被有效地使用。</li>
-  <li>比较 ChatGPT 和 text-davinci-003 的表现，我们观察到，尽管 ChatGPT 经过了 RLHF 的微调，但其结果并不优于 text-davinci-003。
-    <ul>
-      <li>原因猜测：首先，即 Ouyang 等人（2022）提到的 alignment tax 问题，即在 RLHF 训练过程中，特定任务技能和上下文学习能力受到损害；</li>
-      <li>猜测Chatgpt 规模比 text-davinci-003 小</li>
-    </ul>
-  </li>
-  <li>工具使用效果：检查 API 调用的成功率
-    <ol>
-      <li>我们观察到在少量提示设置下，某些工具如地图、天气、幻灯片、表格、烹饪助手和 AI 绘画显示出令人满意的完成率。这些工具被认为比其他工具更容易。实际上，我们通过实证发现，无论是 ChatGPT 还是 text-davinci-003 都能熟练地使用这些工具，尽管没有直接针对这些工具进行微调。</li>
-      <li>对于一些工具如知识图谱、维基百科、在线购物和 3 D 模型构建，即使在少量提示下，模型的表现仍然远未令人满意。其原因可能是这些工具的使用不能通过少量示例轻易学习。例如，要求生成可执行代码作为 API 参数的工具，如知识图谱工具中的 search_by_query API（详见附录A.9），被发现明显更为困难。这意味着有必要训练基础模型使用工具。</li>
-    </ol>
-  </li>
-</ol>
-
-<h2 id="讨论">讨论</h2>
-
-<ol>
-  <li>安全问题</li>
-  <li>复杂系统中工具学习</li>
-  <li>自主工具创造</li>
-  <li>从一般智能到个性化智能</li>
-  <li>工具学习和具身智能</li>
-  <li>整合工具后的知识冲突（类似 RAG 的知识冲突）</li>
-</ol>
-
-<h3 id="知识冲突">知识冲突</h3>
-
-<h4 id="1-模型知识与增强知识之间的冲突">1. <strong>模型知识与增强知识之间的冲突</strong></h4>
-
-<p>这种冲突是指模型本身的知识和通过外部工具增强的知识之间出现的不一致，主要由以下三种原因导致：</p>
-
-<ul>
-  <li>
-    <p><strong>模型知识过时</strong>：基础模型（如语言模型）通常在训练过程中使用的是某个时间点的数据，而这些数据在模型训练后并不常更新。因此，模型所拥有的知识可能已经过时。而大多数增强工具（如搜索引擎或实时数据工具）能够提供最新的知识，这种新知识可能与模型中的旧知识发生冲突。</p>
-  </li>
-  <li>
-    <p><strong>训练数据质量不高</strong>：模型的训练数据可能并没有经过严格筛选，甚至可能包含错误的知识，比如人类的误解或错误的信仰。增强工具（如维基百科等可靠的来源）提供的知识可能会将这些错误信息放大，导致模型和工具之间的知识冲突。</p>
-  </li>
-  <li>
-    <p><strong>工具执行结果的误导性和偏差</strong>：增强工具的执行结果可能存在偏差或误导性，特别是在处理信息时，工具可能根据某些算法或数据的局限性提供不完全或不准确的答案。因此，用户必须谨慎判断知识来源的可信度，以避免错误信息的影响。</p>
-  </li>
-</ul>
-
-<h4 id="2-不同工具之间的增强知识冲突">2. <strong>不同工具之间的增强知识冲突</strong></h4>
-
-<p>在实际应用中，控制器（例如一个智能系统）可能会使用多个工具来获取更多全面和精准的知识。然而，不同工具返回的信息可能会因为以下几个原因而产生冲突：</p>
-
-<ul>
-  <li>
-    <p><strong>工具的可信度差异</strong>：不同工具的可信度存在显著差异，某些工具可能在特定领域具有更高的可靠性。例如，<strong>Google Scholar</strong>在科学研究领域的准确性远高于某些不那么权威的资源。因此，如果使用多个工具，可能会得到不同质量的信息，造成知识冲突。</p>
-  </li>
-  <li>
-    <p><strong>工具的偏见</strong>：不同工具可能包含不同的偏见，这会影响它们提供的信息。例如，一个新闻聚合器可能为了吸引读者点击而优先展示耸人听闻的头条新闻，而忽略了更准确的报道，导致对某些事件的片面解读。</p>
-  </li>
-  <li>
-    <p><strong>相同功能工具的不同表现</strong>：即使是同类工具，因其内部算法和实现方式的不同，可能会得出不同的结论。例如，<strong>Bing Translator</strong>和<strong>Google Translator</strong>对于同一文本的翻译结果可能有所不同，因为它们的翻译模型和数据处理方法不同。这种差异可能导致相互矛盾的信息出现。</p>
-  </li>
-</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><summary type="html"><![CDATA[Tool Learning with Foundation Models 论文笔记]]></summary></entry><entry><title type="html">LoRA LOW-RANK ADAPTATION 论文笔记</title><link href="http://localhost:4000/2024/11/18/LoRA-LOW-RANK-ADAPTATION-%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html" rel="alternate" type="text/html" title="LoRA LOW-RANK ADAPTATION 论文笔记" /><published>2024-11-18T00:00:00+08:00</published><updated>2024-11-18T00:00:00+08:00</updated><id>http://localhost:4000/2024/11/18/LoRA%20LOW-RANK%20ADAPTATION%20%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0</id><content type="html" xml:base="http://localhost:4000/2024/11/18/LoRA-LOW-RANK-ADAPTATION-%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html"><![CDATA[<h1 id="lora-low-rank-adaptation-论文笔记">LoRA LOW-RANK ADAPTATION 论文笔记</h1>
-
-<!---more-->
-
-<h2 id="不懂的问题">不懂的问题</h2>
-
-<h3 id="线性代数基础">线性代数基础</h3>
-
-<p>根据线性代数的性质：</p>
-<ul>
-  <li>若 $B \in \mathbb{R}^{512 \times 4}$ 和 $A \in \mathbb{R}^{4 \times 512}$，则矩阵乘积 $\Delta W = B A$ 的最大秩 $\text{rank}(\Delta W)$ 由 $B$ 和 $A$ 的秩中较小的那个决定：
-\(\text{rank}(\Delta W) \leq \min (\text{rank}(B), \text{rank}(A))\)</li>
-  <li>在 LoRA 的低秩分解中：
-    <ul>
-      <li>$B$ 的列数是 4，其秩最多为 4。</li>
-      <li>$A$ 的行数是 4，其秩最多为 4。</li>
-      <li>因此，$\Delta W = B A$ 的秩最多为 4。</li>
-    </ul>
-  </li>
-  <li>虽然 $\Delta W$ 的尺寸是 $512 \times 512$，但它的 <strong>列空间维度（rank）</strong> 被限制在 4，即列向量最多线性独立的维度是 4。</li>
-</ul>
-
-<p>假设我们有一个 $512 \times 512$ 的矩阵更新：</p>
-<ul>
-  <li>如果直接更新 $\Delta W$ 的每个元素（完整微调），那么矩阵的秩可以达到最大值 512。</li>
-  <li>LoRA 的假设是任务适配过程中权重更新的本质维度较低，因此可以用 <strong>4 个基向量（来自 $B$ 的列空间）</strong> 和它们的线性组合来近似表示更新。</li>
-</ul>
-
-<p>这意味着即使 $\Delta W$ 的尺寸是 $512 \times 512$，其独立的方向（秩）是受 $r = 4$ 的限制的。</p>
-
-<p>所以这正是为什么通过调整 $r$ 可以控制 LoRA 的表达能力：$r$ 越大，权重更新的潜在方向越多，表达能力越强；当 $r$ 接近 512 时，LoRA 的表达能力接近完整微调。</p>
-
-<h2 id="摘要">摘要</h2>
-
-<h3 id="问题">问题</h3>
-
-<p>模型越来越大，全参数 SFT 变的不可行</p>
-
-<h3 id="作者的工作">作者的工作</h3>
-
-<p>LORA：该方法冻结预训练模型的权重，并将可训练的秩分解矩阵注入到Transformer架构的每一层，极大地减少了下游任务的可训练参数数量。</p>
-
-<h3 id="结果">结果</h3>
-
-<ul>
-  <li>与使用Adam微调的GPT-3 175B相比，LoRA可以将可训练参数的数量减少10,000倍，并将GPU内存需求减少3倍。</li>
-  <li>尽管可训练参数较少，训练吞吐量更高，并且与适配器不同，不会增加额外的推理延迟，LoRA在RoBERTa、DeBERTa、GPT-2和GPT-3的模型质量上表现与微调持平或更好</li>
-</ul>
-
-<h2 id="引言">引言</h2>
-
-<ul>
-  <li>问题：模型越来越大，全参数 SFT 变的不可行</li>
-  <li>现有解决方法：针对不同任务添加一些参数或者适配器
-    <ul>
-      <li>好处：只需要存储和加载少量的任务特定参数，除了每个任务的预训练模型外，极大地提高了部署时的操作效率。</li>
-      <li>缺点：适配器会增加推理了延迟、无法与达到微调基础，在效率和质量直接由权衡</li>
-    </ul>
-  </li>
-</ul>
-
-<h3 id="lora">LoRA</h3>
-
-<ol>
-  <li>灵感：LoRA 的灵感来源于研究表明，<strong>过参数化的模型其实存在于一个低维空间</strong>。也就是说，在模型适应（fine-tuning）过程中，权重的变化可以用一个低秩结构表示（即低秩分解）。</li>
-  <li>核心思想：
-    <ul>
-      <li><strong>冻结预训练模型权重</strong>：只优化特定层的“变化部分”。</li>
-      <li><strong>低秩分解</strong>：通过优化某些密集层变化的低秩分解矩阵（如图中提到的矩阵 AAA 和 BBB），实现模型适应。</li>
-      <li>
-        <p>例如，GPT-3 175B 预训练模型中的一个矩阵，其原始秩（rank）为 12,288，LoRA 只需优化秩 r=1r=1r=1 或 r=2r=2r=2 的矩阵就能完成 fine-tuning。</p>
-
-        <p><img src="/assets/posts_assets/Pasted%20image%2020241120185140.png" alt="" /></p>
-      </li>
-    </ul>
-  </li>
-</ol>
-
-<p>这张图是 <strong>LoRA（Low-Rank Adaptation）</strong> 方法的关键机制示意图，展示了如何对预训练模型中的权重矩阵 $W \in \mathbb{R}^{d \times d}$ 进行低秩分解和优化。</p>
-
-<hr />
-
-<h4 id="图中元素解释">图中元素解释</h4>
-
-<ol>
-  <li><strong>Pretrained Weights $W$</strong>：
-    <ul>
-      <li>$W$ 是预训练模型中的一个权重矩阵，其维度为 $d \times d$。</li>
-      <li>在 LoRA 方法中，这个矩阵 <strong>保持冻结（不更新）</strong>。</li>
-    </ul>
-  </li>
-  <li><strong>输入 $x$ 和输出 $h$</strong>：
-    <ul>
-      <li>输入 $x$ 是特征向量，其维度为 $d$。</li>
-      <li>输出 $h$ 是经过 LoRA 适配后的向量，作为网络的输出，维度同样为 $d$。</li>
-    </ul>
-  </li>
-  <li><strong>低秩分解矩阵 $A$ 和 $B$</strong>：
-    <ul>
-      <li>LoRA 引入两个小规模的低秩矩阵 $A \in \mathbb{R}^{d \times r}$ 和 $B \in \mathbb{R}^{r \times d}$，其中 $r \ll d$（例如 $r=1$ 或 $r=2$）。</li>
-      <li>$A$ 和 $B$ 的作用是近似描述 $W$ 的变化（即微调时需要的调整量 $\Delta W$）。</li>
-      <li>在初始化时：
-        <ul>
-          <li>$A$ 通常从高斯分布 $\mathcal{N}(0, \sigma^2)$ 中随机采样。</li>
-          <li>$B$ 初始化为零矩阵。</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-  <li><strong>模型调整机制</strong>：
-    <ul>
-      <li>微调时，仅优化 $A$ 和 $B$ 的参数，而不改变 $W$。</li>
-      <li>输入 $x$ 经过计算后产生一个调整量：
-\(\Delta h = B \cdot (A \cdot x)\)</li>
-      <li>最终输出为：
-\(H = W \cdot x + \Delta h\)</li>
-      <li>这表明模型输出是预训练权重 $W$ 的结果加上一个低秩调整项。</li>
-    </ul>
-  </li>
-</ol>
-
-<h4 id="lora-优势">LoRA 优势</h4>
-
-<ol>
-  <li>
-    <p><strong>共享和高效任务切换</strong>：</p>
-
-    <ul>
-      <li><strong>模块化</strong>：预训练模型可以用于多个任务。LoRA 通过替换不同的低秩矩阵 AAA 和 BBB，实现了高效的任务切换。</li>
-      <li><strong>减少存储需求</strong>：因为只需要存储这些小的矩阵，而不是整个模型参数。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>提高训练效率</strong>：</p>
-
-    <ul>
-      <li><strong>降低硬件门槛</strong>：相比传统方法，LoRA <strong>只优化小规模矩阵</strong>，因此显著减少计算量。根据文中描述，可以将所需的硬件资源减少到原来的三分之一。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>零推理延迟</strong>：</p>
-
-    <ul>
-      <li>LoRA 的设计可以在部署时将优化的矩阵与预训练权重合并，因此不会增加推理延迟。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>方法的通用性和组合性</strong>：</p>
-
-    <ul>
-      <li>LoRA <strong>独立于其他方法</strong>，如前缀微调（prefix-tuning），并且可以与这些方法组合使用以增强效果。</li>
-    </ul>
-  </li>
-</ol>
-
-<h3 id="术语约定">术语约定</h3>
-
-<ol>
-  <li><strong>关于 Transformer 的术语和维度</strong>
-    <ul>
-      <li><strong>$d_{\text{model}}$</strong>：
-        <ul>
-          <li>表示 Transformer 模型中某一层的输入和输出向量的维度。</li>
-          <li>在 Transformer 的每一层中，所有的输入和输出张量都会使用这个维度。</li>
-        </ul>
-      </li>
-      <li><strong>投影矩阵（Projection Matrices）</strong>：
-        <ul>
-          <li>$W_q$：用于生成 <strong>query</strong>（查询向量）的投影矩阵。</li>
-          <li>$W_k$：用于生成 <strong>key</strong>（键向量）的投影矩阵。</li>
-          <li>$W_v$：用于生成 <strong>value</strong>（值向量）的投影矩阵。</li>
-          <li>$W_o$：表示 <strong>输出投影矩阵</strong>。</li>
-          <li>这些矩阵都位于 <strong>自注意力模块（self-attention module）</strong> 内，是 Transformer 的核心部分。</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ol>
-
-<hr />
-
-<ol>
-  <li><strong>权重的定义</strong>
-    <ul>
-      <li><strong>$W$ 或 $W_0$</strong>：
-        <ul>
-          <li>代表 Transformer 中某一层的 <strong>预训练权重矩阵</strong>，这些矩阵通过预训练模型获得，在微调时被冻结（即不被更新）。</li>
-        </ul>
-      </li>
-      <li><strong>$\Delta W$</strong>：
-        <ul>
-          <li>代表 LoRA 在微调过程中累计更新的权重变化量。</li>
-          <li>LoRA 的核心思想是通过优化这个权重变化量，而不是直接修改原始的权重矩阵 $W$。</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ol>
-
-<hr />
-
-<ol>
-  <li><strong>LoRA 的秩（Rank）$r$</strong>
-    <ul>
-      <li><strong>$r$</strong>：
-        <ul>
-          <li>表示 LoRA 中低秩分解矩阵的秩（rank）。</li>
-          <li>$r$ 通常远小于 $d_{\text{model}}$，用来表示矩阵分解的低维度，从而降低优化问题的计算复杂度。</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ol>
-
-<hr />
-
-<ol>
-  <li><strong>优化方法和架构设置</strong>
-    <ul>
-      <li><strong>优化方法</strong>：
-        <ul>
-          <li>作者采用了 <strong>Adam</strong> 优化器，这是一个在深度学习中常用的自适应学习率优化算法（参考：Loshchilov &amp; Hutter, 2019 和 Kingma &amp; Ba, 2017）。</li>
-        </ul>
-      </li>
-      <li><strong>MLP 维度设置</strong>：
-        <ul>
-          <li>Transformer 中多层感知机（MLP）的隐藏层维度定义为：
-\(D_{\text{ffn}} = 4 \times d_{\text{model}}\)</li>
-          <li>意味着 MLP 的隐藏层通常比输入输出的维度大 4 倍，用于增强模型的非线性表达能力。</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ol>
-
-<h2 id="问题陈述">问题陈述</h2>
-
-<p>LoRA 不涉及 loss 的设计，而是专注于语言建模任务的优化方法</p>
-
-<h3 id="1-背景预训练模型">1. 背景：预训练模型</h3>
-
-<p>假设我们有一个预训练的自回归语言模型（autoregressive language model）：
-     \(P_\Phi (y|x)\)
-     其中：
-     - $x$：输入序列（例如任务的 prompt 或上下文）。
-     - $y$：输出序列（例如模型生成的文本）。
-     - $\Phi$：模型参数。</p>
-
-<ul>
-  <li>被用于解决多种下游任务（downstream tasks），如文本摘要（summarization）、阅读理解（MRC）、自然语言到 SQL 转换（NL 2 SQL）等。</li>
-  <li><strong>任务定义</strong>：
-    <ul>
-      <li>每个下游任务通过一个训练数据集表示：
-\(\mathcal{Z} = \{(x_i, y_i)\}_{i=1}^N\)
-其中 $x_i$ 是输入序列，$y_i$ 是目标序列（输出）。
-        <ul>
-          <li>例如，在 NL 2 SQL 任务中：
-            <ul>
-              <li>$x_i$：自然语言查询。</li>
-              <li>$y_i$：对应的 SQL 命令。</li>
-            </ul>
-          </li>
-          <li>在摘要任务中：
-            <ul>
-              <li>$x_i$：文章内容。</li>
-              <li>$y_i$：文章摘要。</li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ul>
-
-<h3 id="2-完整微调full-fine-tuning的问题">2. 完整微调（Full Fine-Tuning）的问题</h3>
-
-<ul>
-  <li>在传统的完整微调方法中：
-    <ul>
-      <li>模型会从预训练权重 $\Phi_0$ 开始进行优化。</li>
-      <li>更新后的模型参数为：
-\(\Phi = \Phi_0 + \Delta \Phi\)
-其中 $\Delta \Phi$ 是模型在下游任务上的更新。</li>
-    </ul>
-  </li>
-  <li>目标是最大化条件语言建模目标：
-\(\max_{\Phi} \sum_{(x, y) \in \mathcal{Z}} \sum_{t=1}^{|y|} \log P_\Phi (y_t | x, y_{&lt;t})\)
-这里：
-    <ul>
-      <li>$y_t$：序列的第 $t$ 个 token。</li>
-      <li>$y_{&lt;t}$：序列的前 $t-1$ 个 token。</li>
-    </ul>
-  </li>
-  <li><strong>主要问题</strong>：
-    <ol>
-      <li><strong>存储需求</strong>：
-        <ul>
-          <li>对于每个下游任务，需要学习不同的参数 $\Delta \Phi$，其维度和 $\Phi_0$ 一样大。</li>
-          <li>如果预训练模型很大（例如 GPT-3，参数量高达 175 亿），存储多个独立的模型实例变得非常困难甚至不可行。</li>
-        </ul>
-      </li>
-      <li><strong>部署复杂性</strong>：
-        <ul>
-          <li>部署和维护多个完整微调后的模型对存储和计算资源要求很高。</li>
-        </ul>
-      </li>
-    </ol>
-  </li>
-</ul>
-
-<h3 id="3-lora-的方法参数高效微调">3. LoRA 的方法：参数高效微调</h3>
-<ul>
-  <li>为了解决上述问题，LoRA 提出了一个 <strong>更高效的微调方法</strong>，核心是：
-    <ul>
-      <li>将任务特定的参数增量 $\Delta \Phi$ 编码为一个 <strong>低维参数集</strong> $\Theta$，满足：
-\(|\Theta| \ll |\Phi_0|\)</li>
-      <li>这样，微调的任务变成了优化 $\Theta$：
-\(\max_{\Theta} \sum_{(x, y) \in \mathcal{Z}} \sum_{t=1}^{|y|} \log P_{\Phi_0 + \Delta \Phi (\Theta)}(y_t | x, y_{&lt;t})\)</li>
-    </ul>
-  </li>
-  <li><strong>低秩表示的优点</strong>：
-    <ul>
-      <li>通过使用低秩分解（low-rank representation），可以显著减少存储和计算成本。</li>
-      <li>当模型是 GPT-3（175 B 参数量）时，$\Theta$ 的规模可以小到原始参数规模的 <strong>0.01%</strong>。</li>
-    </ul>
-  </li>
-</ul>
-
-<h2 id="现有的方法">现有的方法</h2>
-
-<h3 id="迁移学习的现有方法">迁移学习的现有方法</h3>
-
-<ul>
-  <li>转移学习的方法有很多，当前主流方法包括：
-    <ol>
-      <li><strong>适配器层（Adapter Layers）</strong>：通过在模型的 Transformer 层中插入小型适配器模块进行调整。</li>
-      <li><strong>Prompt Tuning</strong>：通过优化输入提示（Prompt）来适配下游任务。</li>
-    </ol>
-  </li>
-  <li>这些方法在参数和计算效率上取得了进展，但在 <strong>大规模生产环境</strong> 中仍存在明显缺点，例如增加推理延迟或优化难度。</li>
-</ul>
-
-<p><img src="/assets/posts_assets/Pasted%20image%2020241120195037.png" alt="" /></p>
-<h3 id="适配器层的不足引入推理延迟">适配器层的不足：引入推理延迟</h3>
-
-<h4 id="1-适配器层的设计">(1) <strong>适配器层的设计</strong>：</h4>
-<ul>
-  <li>原始适配器层设计（例如 Houlsby et al., 2019）在每个 Transformer 块中插入两层适配器。</li>
-  <li>后续方法（例如 Lin et al., 2020）优化了设计，减少为每块一层，并引入了额外的 <strong>LayerNorm</strong>，进一步降低了延迟。</li>
-</ul>
-
-<h4 id="2-延迟来源">(2) <strong>延迟来源</strong>：</h4>
-<ul>
-  <li><strong>顺序处理的限制</strong>：适配器层尽管参数量很小（通常 &lt;1% 的原始模型参数），但它们需要逐层顺序执行，限制了并行处理能力。</li>
-  <li><strong>延迟问题明显</strong>：在在线推理（batch size 较小，例如 batch size = 1）中，由于缺乏并行性，适配器层显著增加了推理延迟。</li>
-  <li><strong>分片（Sharding）的复杂性</strong>：在模型分片场景（如 Shoeybi et al., 2020）中，适配器层会增加更多 GPU 间的同步操作（如 <strong>AllReduce</strong> 和 <strong>Broadcast</strong>），进一步提高了开销。</li>
-</ul>
-
-<h4 id="3-表格中的数据说明">(3) <strong>表格中的数据说明</strong>：</h4>
-<ul>
-  <li>表格展示了 GPT-2 模型在使用适配器层和其他方法时的推理延迟：
-    <ul>
-      <li><strong>Fine-Tune/LoRA</strong> 方法延迟最小（例如 batch size = 1 时仅 19.8 毫秒）。</li>
-      <li><strong>Adapter Layers</strong> 方法的延迟明显更高：
-        <ul>
-          <li>Adapter$L$ 和 Adapter$H$ 分别增加了 20.7% 和 30.3% 的延迟。</li>
-          <li>延迟增加在小 batch size 场景尤为明显。</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ul>
-
-<hr />
-
-<h3 id="prompt-tuning-的不足">Prompt Tuning 的不足</h3>
-<h4 id="1-优化难度">(1) <strong>优化难度</strong>：</h4>
-<ul>
-  <li>Prompt Tuning 的优化过程较难，表现为：
-    <ul>
-      <li>随着可训练参数增加，性能的变化呈现 <strong>非单调性</strong>（即增加参数量并不一定提升性能）。</li>
-      <li>作者观察到这种现象在原始论文（Li &amp; Liang, 2021）中也被证实。</li>
-    </ul>
-  </li>
-</ul>
-
-<h4 id="2-序列长度限制">(2) <strong>序列长度限制</strong>：</h4>
-<ul>
-  <li>Prompt Tuning 需要保留一部分序列作为 Prompt，这会减少可用于任务处理的序列长度，进而限制模型性能。</li>
-  <li>例如，原始输入序列长度可能被占用一部分用于 Prompt，从而减少了处理有效任务的空间。</li>
-</ul>
-
-<h4 id="3-性能潜力受限">(3) <strong>性能潜力受限</strong>：</h4>
-<ul>
-  <li>Prompt Tuning 在下游任务的表现可能不如其他方法，例如适配器层或 LoRA。</li>
-</ul>
-
-<h2 id="lora-方法">LoRA 方法</h2>
-
-<p>LoRA原则上适用于深度学习模型中的任何稠密层，尽管在我们的实验中我们只关注 Transformer 语言模型中的某些权重作为激励使用案例。</p>
-
-<h3 id="通过低秩分解low-rank-decomposition来高效更新权重矩阵">通过低秩分解（low-rank decomposition）来高效更新权重矩阵</h3>
-
-<p><strong>1. 低秩参数化更新矩阵（Low-Rank-Parameterized Update Matrices）</strong></p>
-<ul>
-  <li>神经网络的权重矩阵通常是全秩（full-rank）的。</li>
-  <li>LoRA 假设：预训练语言模型的权重更新可以被约束在一个 <strong>低秩子空间</strong> 中。</li>
-  <li>核心公式：
-\(W_0 + \Delta W = W_0 + BA\)
-    <ul>
-      <li>$W_0 \in \mathbb{R}^{d \times k}$：预训练模型中的冻结权重矩阵。</li>
-      <li>$\Delta W \in \mathbb{R}^{d \times k}$：权重的更新量。</li>
-      <li>$B \in \mathbb{R}^{d \times r}, A \in \mathbb{R}^{r \times k}$：两个可训练的低秩矩阵，其中 $r \ll \min (d, k)$。</li>
-      <li><strong>低秩分解的核心思想</strong>：通过约束 $\Delta W$ 为低秩表示，显著减少了优化参数量。</li>
-    </ul>
-  </li>
-  <li>在训练过程中：
-    <ul>
-      <li>$W_0$ 冻结，不会更新。</li>
-      <li>$A$ 和 $B$ 是唯一需要优化的矩阵。</li>
-      <li>输入向量 $x$ 的前向计算公式变为：
-\(H = W_0 x + \Delta Wx = W_0 x + BAx\)</li>
-    </ul>
-  </li>
-</ul>
-
-<hr />
-
-<ol>
-  <li><strong>初始化和优化细节</strong>
-    <ul>
-      <li>初始化方式：
-        <ul>
-          <li>$A$ 的初始值来自随机高斯分布。</li>
-          <li>$B$ 的初始值为零矩阵。</li>
-          <li>因此，$\Delta W = BA = 0$ 在训练开始时为零。</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ol>
-
-<ul>
-  <li>缩放机制
-    <ul>
-      <li>$\Delta W$ 被缩放为：
-\(\Delta W = \frac{\alpha}{r} BA\)
-其中 $\alpha$ 是一个比例常数，与秩 $r$ 成反比。$\alpha$ 是缩放因子，用于调整更新幅度</li>
-      <li>调整 $\alpha$ 的作用类似于调整学习率，可以减少因 $r$ 变化导致的超参数重新调整需求。</li>
-    </ul>
-  </li>
-</ul>
-
-<p>这段话主要说明了 <strong>LoRA（Low-Rank Adaptation）</strong> 是完整微调（full fine-tuning）的一种泛化形式，并对其表达能力及与其他方法的对比做出分析。以下是详细解释：</p>
-
-<hr />
-
-<p><strong>3. 适用于所有全参数微调</strong></p>
-
-<ul>
-  <li><strong>完整微调的传统方式</strong>：
-    <ul>
-      <li>一般来说，完整微调会训练预训练模型中的 <strong>部分参数</strong> 或者 <strong>全部参数</strong>。</li>
-      <li>这些训练参数可以包括权重矩阵以及模型中的偏置（bias）。</li>
-    </ul>
-  </li>
-  <li><strong>LoRA 的突破</strong>：
-    <ul>
-      <li>LoRA 提出了一种更通用的微调形式：
-        <ul>
-          <li>不需要直接调整完整的权重矩阵（full-rank updates），而是通过低秩分解（low-rank decomposition）来表示权重更新。</li>
-          <li>在应用 LoRA 时，对所有权重矩阵应用低秩更新，同时训练模型中的所有偏置项，可以近似恢复完整微调的表达能力</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-  <li>LoRA 的效果
-    <ul>
-      <li>效果主要取决于 LoRA 的秩 $r$：
-        <ul>
-          <li>LoRA 中的权重更新是通过两个低秩矩阵 $B$ 和 $A$ 表示的，秩 $r$ 决定了更新矩阵的表达能力。</li>
-          <li>当 $r$ 增加并接近于原始权重矩阵的秩时，LoRA 的表达能力接近于完整微调。</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-  <li>与其他方法的对比
-    <ul>
-      <li><strong>适配器层方法（adapter-based methods）</strong>：
-        <ul>
-          <li>适配器方法在微调时，会插入额外的层进行任务适配。</li>
-          <li>缺点：
-            <ul>
-              <li>当增加可训练参数时，这些方法的表现最终会趋于类似于一个多层感知机（MLP），难以与完整微调匹敌。</li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-      <li><strong>基于前缀的微调方法（prefix-based methods）</strong>：
-        <ul>
-          <li>例如 Prompt Tuning，通过优化前缀（prompt）来适配任务。</li>
-          <li>缺点：
-            <ul>
-              <li>受限于输入序列的长度（部分序列长度被前缀占用），在长输入序列的任务中表现不佳。</li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-      <li><strong>LoRA 的优势</strong>：
-        <ul>
-          <li>通过调整秩 $r$，LoRA 在模型训练参数的规模增加时，可以更接近完整微调的表现，同时不会受到序列长度或其他限制。</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ul>
-
-<hr />
-
-<p><strong>4. 推理时的零延迟（No Additional Inference Latency）</strong></p>
-<ul>
-  <li><strong>推理阶段的操作</strong>：
-    <ul>
-      <li>在生产部署中，可以直接计算并存储：
-\(W = W_0 + BA\)</li>
-      <li>推理时，模型直接使用 $W$ 进行计算，与原始全权重模型完全一致，无需额外计算。</li>
-    </ul>
-  </li>
-  <li><strong>切换任务</strong>：
-    <ul>
-      <li>当需要切换到其他任务时，只需移除现有的 $BA$，并替换为新的 $B’A’$，这一过程非常快且占用极少的内存。</li>
-      <li>这种特性特别适合需要频繁切换任务的应用场景。</li>
-    </ul>
-  </li>
-</ul>
-
-<h3 id="将-lora-应用于-transformer-模型">将 LoRA 应用于 Transformer 模型</h3>
-
-<p>好处：</p>
-
-<ol>
-  <li>内存和存储的减少
-    <ul>
-      <li>内存的减少：VRAM 减少了 2/3 ，因为冻结的参数不需要为这些参数存储梯度和优化器状态，显存需求降低至原来的 1/3（1.2 TB -&gt; 350 GB）</li>
-      <li>存储的减少：模型的保存文件减少了 10,000 倍（350 GB -&gt; 35 MB）</li>
-    </ul>
-  </li>
-  <li>切换任务代价更低：我们可以在部署时以更低的成本在任务之间切换，只需交换 LoRA 权重，而不是所有参数</li>
-  <li>训练速度也提高了 25%：因为不需要计算绝大多数参数的梯度。</li>
-</ol>
-
-<p>缺点：</p>
-
-<p>不同任务的批量处理不行</p>
-
-<ul>
-  <li>例如，如果选择将 A 和 B 吸收到 W 中以消除额外的推理延迟，那么在单次前向传播中，将不同任务的不同 A 和 B 批量输入并不是很简单。</li>
-  <li>尽管在延迟不关键的场景中，可以不合并权重，并动态选择批次中样本使用的 LoRA 模块。</li>
-</ul>
-
-<h2 id="实验">实验</h2>
-
-<p><img src="/assets/posts_assets/Pasted%20image%2020241121102730.png" alt="" /></p>
-
-<p><img src="/assets/posts_assets/Pasted%20image%2020241121102718.png" alt="" />
-<img src="/assets/posts_assets/Pasted%20image%2020241121102741.png" alt="" /></p>
-
-<p><img src="/assets/posts_assets/Pasted%20image%2020241121102835.png" alt="" />GPT-3 175B 验证准确率与 WikiSQL 和 MNLI-matched 上多种适应方法的可训练参数数量。LoRA 展现了更好的可扩展性和任务性能。</p>
-
-<h2 id="理解-lora">理解 LoRA</h2>
-
-<p>要理解三个问题：</p>
-
-<p>1) 在参数预算约束下，应该调整预训练 Transformer 中的哪一部分权重矩阵以最大化下游性能？
-2) “最优”调整矩阵∆W 真的是秩亏的吗？如果是，实际中使用哪个秩比较好？
-3) ∆W 与 W 之间有什么联系？∆W 是否与 W 高度相关？与 W 相比，∆W 有多大？</p>
-
-<h3 id="问题一哪些权重应该调整">问题一：哪些权重应该调整？</h3>
-
-<p><img src="/assets/posts_assets/Pasted%20image%2020241121103550.png" alt="" /></p>
-
-<p>这部分讨论了在参数预算有限的情况下，应该对 Transformer 中的哪些权重矩阵应用 LoRA，以在下游任务中获得最佳性能。以下是详细解释：</p>
-
-<hr />
-
-<p><strong>1. 研究目标</strong></p>
-<ul>
-  <li><strong>问题</strong>：在给定的参数预算（例如 18 M 可训练参数）下，如何选择 Transformer 模型中需要 LoRA 适配的权重矩阵类型，以获得最佳的任务性能。</li>
-  <li><strong>背景</strong>：Transformer 的自注意力模块包含四种主要的权重矩阵：$W_q, W_k, W_v, W_o$。LoRA 可以单独适配某一个矩阵，也可以组合适配多个矩阵。</li>
-  <li><strong>目标</strong>：探索不同权重组合的适配效果，并分析对验证集准确率的影响。</li>
-</ul>
-
-<hr />
-
-<p><strong>2. 实验设置</strong></p>
-<ul>
-  <li><strong>参数预算</strong>：
-    <ul>
-      <li>总的可训练参数设置为 <strong>18 M</strong>。</li>
-      <li>在存储为 FP 16 格式时，占用约 <strong>35 MB</strong> 的存储空间。</li>
-    </ul>
-  </li>
-  <li><strong>秩 $r$</strong>：
-    <ul>
-      <li>如果只适配一个矩阵，则 $r = 8$。</li>
-      <li>如果适配两个矩阵，则每个矩阵的 $r = 4$。</li>
-      <li>如果适配更多矩阵（例如四个矩阵），则 $r$ 会进一步降低，以满足总参数预算。</li>
-    </ul>
-  </li>
-  <li><strong>模型</strong>：
-    <ul>
-      <li>使用 GPT-3 175 B 作为基础模型。</li>
-      <li>在两个任务上验证效果：
-        <ul>
-          <li><strong>WikiSQL</strong>（±0.5% 的标准差）：结构化查询的自然语言转换任务。</li>
-          <li><strong>MultiNLI</strong>（±0.1% 的标准差）：文本蕴含任务。</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ul>
-
-<p><strong>3. 结论分析</strong></p>
-<ol>
-  <li><strong>单独适配某一种权重矩阵</strong>：
-    <ul>
-      <li>适配单个矩阵时，准确率相对较低，尤其是 $W_q$ 和 $W_k$ 单独适配的表现明显低于组合适配。</li>
-    </ul>
-  </li>
-  <li><strong>组合适配的优越性</strong>：
-    <ul>
-      <li>适配 $W_q$ 和 $W_v$ 的组合效果最佳。</li>
-      <li>这表明，即使每种矩阵的秩较低（如 $r = 4$），组合适配多个矩阵可以捕获更多的任务相关信息，从而比单独适配一个矩阵表现更好。</li>
-    </ul>
-  </li>
-  <li><strong>适配更多矩阵（如 $W_q, W_k, W_v, W_o$）</strong>：
-    <ul>
-      <li>在 MultiNLI 上，适配所有四个矩阵的表现达到最优（91.7%）。</li>
-      <li>说明在更复杂的任务中，适配更多权重矩阵（即使每个矩阵的秩更低）有助于提升模型的适配能力。</li>
-    </ul>
-  </li>
-</ol>
-
-<hr />
-
-<p><strong>4. 结论</strong></p>
-<ul>
-  <li><strong>有效利用参数预算</strong>：
-    <ul>
-      <li>将参数预算分配给多个权重矩阵的适配，比将预算集中于单个矩阵更有效。</li>
-      <li>即使每个矩阵的秩较低，组合适配能更好地捕获任务所需的信息。</li>
-    </ul>
-  </li>
-  <li><strong>权重选择的重要性</strong>：
-    <ul>
-      <li>$W_q$ 和 $W_v$ 的组合对性能提升尤为重要。</li>
-      <li>表明在 Transformer 中，不同权重矩阵对任务的影响不同，选择关键权重进行适配是提高性能的关键。</li>
-    </ul>
-  </li>
-  <li><strong>任务复杂性影响</strong>：
-    <ul>
-      <li>对于更复杂的任务（如 MultiNLI），适配更多权重矩阵效果更好。</li>
-    </ul>
-  </li>
-</ul>
-
-<h3 id="问题二最优秩是多少">问题二：最优秩是多少？</h3>
-
-<p><img src="/assets/posts_assets/Pasted%20image%2020241121104154.png" alt="" /></p>
-
-<p>令我们惊讶的是，在这些数据集中，像一个这样的较小排名就足以适应 Wq 和 Wv，而单独训练 Wq 需要更大的 r。</p>
-
-<p>增加 r 并不会覆盖更有意义的子空间，这表明低秩适应矩阵是足够的。</p>
-
-<h4 id="探讨不同秩的空间相似性">探讨不同秩的空间相似性</h4>
-
-<p>讨论在不同秩 $r$ 的情况下，LoRA 的低秩更新矩阵 $A_{r=8}$ ​ 和 $A_{r=64}$ ​ 的子空间相似性。通过子空间分析，解释了为何较低的 $r$（如 $r=1$ 或 $r=8$）能够在任务中表现良好。
-<img src="/assets/posts_assets/Pasted%20image%2020241121110556.png" alt="" /></p>
-
-<h5 id="研究目标">研究目标</h5>
-<ul>
-  <li><strong>目标</strong>：
-    <ul>
-      <li>探索低秩分解中不同秩 $r$ 的矩阵 $A$ 是否共享重要的子空间。</li>
-      <li>进一步解释为何较低的秩（如 $r=1$ 或 $r=8$）仍能有效表示权重更新。</li>
-    </ul>
-  </li>
-  <li><strong>方法</strong>：
-    <ul>
-      <li>使用奇异值分解（SVD）得到适配矩阵 $A_{r=8}$ 和 $A_{r=64}$ 的右奇异向量矩阵（right-singular unitary matrices）：
-\(U_{A_{r=8}}, U_{A_{r=64}}\)</li>
-      <li>研究 $U_{A_{r=8}}$ 的前 $i$ 个奇异向量与 $U_{A_{r=64}}$ 的前 $j$ 个奇异向量之间的子空间重叠情况。</li>
-    </ul>
-  </li>
-</ul>
-
-<h5 id="子空间相似性定义">子空间相似性定义</h5>
-<ul>
-  <li><strong>子空间相似性度量</strong>：
-    <ul>
-      <li>使用基于 Grassmann 距离的归一化相似性指标来量化子空间重叠：
-\(\phi (A_{r=8}, A_{r=64}, i, j) = \frac{\|\left (U_{A_{r=8}}^i\right)^T U_{A_{r=64}}^j\|_F^2}{\min (i, j)}\)
-        <ul>
-          <li>$U_{A_{r=8}}^i$：$U_{A_{r=8}}$ 的前 $i$ 个奇异向量列。</li>
-          <li>$U_{A_{r=64}}^j$：$U_{A_{r=64}}$ 的前 $j$ 个奇异向量列。</li>
-          <li>$\phi$ 的值范围为 $[0, 1]$，其中：
-            <ul>
-              <li>$\phi = 1$：两个子空间完全重叠。</li>
-              <li>$\phi = 0$：两个子空间完全分离。</li>
-            </ul>
-          </li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-  <li><strong>研究重点</strong>：
-    <ul>
-      <li>探索 $A_{r=8}$ 和 $A_{r=64}$ 在不同的 $i$ 和 $j$ 组合下的子空间重叠情况。</li>
-      <li>仅分析第 48 层的结果，但结果适用于所有层。</li>
-    </ul>
-  </li>
-</ul>
-
-<hr />
-
-<h5 id="图表解析">图表解析</h5>
-<p>图 3 展示了子空间相似性 $\phi$ 的热图，分别针对权重更新矩阵 $\Delta W_q$ 和 $\Delta W_v$：</p>
-<ul>
-  <li><strong>第一和第二图</strong>（左侧）：
-    <ul>
-      <li>代表 $A_{r=8}$ 和 $A_{r=64}$ 的子空间相似性，聚焦于 $i, j \leq 8$ 的情况。</li>
-      <li>左下角的部分放大，显示较低秩时的子空间重叠情况。</li>
-    </ul>
-  </li>
-  <li><strong>第三和第四图</strong>（右侧）：
-    <ul>
-      <li>代表相似性较高的方向（子空间重叠显著）。</li>
-    </ul>
-  </li>
-</ul>
-
-<hr />
-
-<h5 id="关键观察">关键观察</h5>
-
-<ul>
-  <li><strong>子空间重叠现象</strong>：
-    <ul>
-      <li>$A_{r=8}$ 和 $A_{r=64}$ 的奇异向量子空间在前几个奇异向量方向上高度重叠（相似性 $\phi &gt; 0.5$）。</li>
-      <li>说明低秩矩阵 $A_{r=8}$ 的重要方向已经包含在 $A_{r=64}$ 的子空间中。</li>
-    </ul>
-  </li>
-  <li><strong>噪声过滤作用</strong>：
-    <ul>
-      <li>更高秩的矩阵（如 $A_{r=64}$）包含更多奇异向量，但其中一些可能主要是噪声。</li>
-      <li>低秩矩阵（如 $A_{r=8}$）通过限制秩，有效过滤掉了这些噪声向量，从而提高了更新的有效性。</li>
-    </ul>
-  </li>
-  <li><strong>权重更新的重要方向</strong>：
-    <ul>
-      <li>对于 $\Delta W_v$ 和 $\Delta W_q$，前几个奇异向量的重叠性尤其显著，表明这些方向对任务适配最为重要。</li>
-    </ul>
-  </li>
-</ul>
-
-<hr />
-
-<h5 id="结论与解释">结论与解释</h5>
-
-<ol>
-  <li><strong>子空间相似性说明了低秩的有效性</strong>：
-    <ul>
-      <li>尽管 $r=8$ 比 $r=64$ 的秩低得多，但它已经捕捉了任务适配所需的最重要方向。</li>
-      <li>因此，低秩的 LoRA 参数（如 $r=8$ 或更低）仍能在任务中表现良好。</li>
-    </ul>
-  </li>
-  <li><strong>解释低秩的表现</strong>：
-    <ul>
-      <li>低秩适配矩阵通过子空间共享，专注于最重要的方向，减少了对不必要方向（潜在噪声）的学习。</li>
-    </ul>
-  </li>
-  <li><strong>为什么 $r=1$ 仍然有效</strong>：
-    <ul>
-      <li>当 $r=1$ 时，虽然只有一个奇异向量，但这个方向与高秩矩阵（如 $r=64$）中的重要方向高度重叠，适配效果不会显著下降。</li>
-    </ul>
-  </li>
-</ol>
-
-<h3 id="问题三w-与-w-之间的关系">问题三：∆W 与 W 之间的关系</h3>
-
-<h4 id="1-研究问题"><strong>1. 研究问题</strong></h4>
-<ul>
-  <li><strong>核心问题</strong>：
-    <ul>
-      <li>$\Delta W$ 与 $W$ 的关系如何？
-        <ul>
-          <li>$\Delta W$ 是否与 $W$ 的重要奇异方向高度相关？</li>
-          <li>$\Delta W$ 是否主要放大了 $W$ 已有的重要方向，还是引入了新方向？</li>
-        </ul>
-      </li>
-      <li>这些问题的答案可以揭示 LoRA 如何利用预训练模型权重进行下游任务的适配。</li>
-    </ul>
-  </li>
-</ul>
-
-<hr />
-
-<h4 id="2-分析方法"><strong>2. 分析方法</strong></h4>
-<ol>
-  <li><strong>将 $W$ 投影到 $\Delta W$ 的子空间</strong>：
-    <ul>
-      <li>使用 $\Delta W$ 的左右奇异向量矩阵（通过 SVD 得到的 $U$ 和 $V$）定义子空间。</li>
-      <li>投影操作：计算 $U^T W V^T$，并与 Frobenius 范数 $|W|_F$ 比较，以量化 $W$ 的信息在 $\Delta W$ 子空间中的占比。</li>
-    </ul>
-  </li>
-  <li><strong>比较不同方向的相关性</strong>：
-    <ul>
-      <li>替换 $U$ 和 $V$ 为：
-        <ul>
-          <li>$\Delta W$ 的奇异向量（适配子空间）。</li>
-          <li>$W$ 的前 $r$ 个奇异向量（预训练模型的重要方向）。</li>
-          <li>随机高斯矩阵的奇异向量（随机方向）。</li>
-        </ul>
-      </li>
-      <li>比较投影结果的 Frobenius 范数，分析 $\Delta W$ 的相关性。</li>
-    </ul>
-  </li>
-</ol>
-
-<hr />
-<p><img src="/assets/posts_assets/Pasted%20image%2020241121111027.png" alt="" /></p>
-<h4 id="3-图-4-的热图分析"><strong>3. 图 4 的热图分析</strong></h4>
-<ul>
-  <li><strong>左图和中图（$\Delta W_q$ 和 $\Delta W_v$）</strong>：
-    <ul>
-      <li>显示了两个随机种子下，$\Delta W_q$ 和 $\Delta W_v$ 的列向量相似性。</li>
-      <li>可以看到，相似性较高的方向集中在前几个奇异向量，说明适配的矩阵捕获了主要的变化方向。</li>
-    </ul>
-  </li>
-  <li><strong>右图（随机高斯矩阵的相似性）</strong>：
-    <ul>
-      <li>显示了随机矩阵的奇异向量相似性，几乎没有任何结构（接近 0），表明 $\Delta W$ 的方向与随机噪声完全不同。</li>
-    </ul>
-  </li>
-</ul>
-
-<hr />
-
-<p><img src="/assets/posts_assets/Pasted%20image%2020241121111241.png" alt="" /></p>
-<h4 id="4-表格-7-的数据分析"><strong>4. 表格 7 的数据分析</strong></h4>
-<p>表格展示了不同投影方向下的 Frobenius 范数对比：</p>
-
-<ol>
-  <li><strong>$|U^T W_q V^T|_F$</strong>：
-    <ul>
-      <li>这是将 $W_q$ 投影到不同子空间后的范数：
-        <ul>
-          <li>对比 $\Delta W_q$、$W_q$ 自身、随机矩阵的子空间。</li>
-        </ul>
-      </li>
-      <li>$r=4$：
-        <ul>
-          <li>投影到 $\Delta W_q$ 的子空间后，范数为 $0.32$，远小于投影到 $W_q$ 的 $21.67$，表明 $\Delta W_q$ 并没有简单重复 $W_q$ 的奇异方向。</li>
-          <li>投影到随机矩阵的范数为 $0.02$，进一步验证 $\Delta W_q$ 的方向并非随机。</li>
-        </ul>
-      </li>
-      <li>$r=64$：
-        <ul>
-          <li>投影到 $\Delta W_q$ 的子空间后，范数为 $1.90$，仍然小于 $W_q$ 的 $37.71$。</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-  <li><strong>$|\Delta W_q|_F$</strong>：
-    <ul>
-      <li>适配矩阵 $\Delta W_q$ 的范数为 $6.91$（$r=4$）和 $3.57$（$r=64$）。</li>
-      <li>说明随着 $r$ 增加，适配矩阵的强度逐渐降低。</li>
-    </ul>
-  </li>
-</ol>
-
-<hr />
-
-<h4 id="5-关键结论"><strong>5. 关键结论</strong></h4>
-<ol>
-  <li><strong>$\Delta W$ 不是简单重复 $W$</strong>：
-    <ul>
-      <li>投影结果表明，$\Delta W$ 的子空间与 $W$ 的重要方向部分重叠，但也包含了额外的新方向。</li>
-      <li>适配矩阵的作用是放大 $W$ 中已有的部分方向，同时引入对任务有用的新方向。</li>
-    </ul>
-  </li>
-  <li><strong>适配矩阵的放大因子较高</strong>：
-    <ul>
-      <li>表格中提到，对于 $r=4$，$\Delta W_q$ 的放大因子高达 $21.5 = 6.91 / 0.32$，表明 LoRA 更倾向于放大重要特征，而不是重复预训练模型已有的权重分布。</li>
-    </ul>
-  </li>
-  <li><strong>低秩适配有效性</strong>：
-    <ul>
-      <li>尽管 $r$ 较低（如 $r=4$），$\Delta W$ 的低秩方向仍能捕获适配的核心特征，并显著增强下游任务的表现。</li>
-    </ul>
-  </li>
-</ol>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><summary type="html"><![CDATA[LoRA LOW-RANK ADAPTATION 论文笔记]]></summary></entry><entry><title type="html">DPO论文学习</title><link href="http://localhost:4000/2024/11/18/DPO%E8%AE%BA%E6%96%87%E5%AD%A6%E4%B9%A0.html" rel="alternate" type="text/html" title="DPO论文学习" /><published>2024-11-18T00:00:00+08:00</published><updated>2024-11-18T00:00:00+08:00</updated><id>http://localhost:4000/2024/11/18/DPO%E8%AE%BA%E6%96%87%E5%AD%A6%E4%B9%A0</id><content type="html" xml:base="http://localhost:4000/2024/11/18/DPO%E8%AE%BA%E6%96%87%E5%AD%A6%E4%B9%A0.html"><![CDATA[<h1 id="dpo-论文学习">DPO 论文学习</h1>
-
-<!---more-->
-
-<h2 id="不懂的问题">不懂的问题</h2>
-
-<h3 id="偏好学习的单位是什么也是-token还是以-response">偏好学习的单位是什么？也是 token？还是以 response？</h3>
-
-<p>和 SFT 一样是Response</p>
-
-<h3 id="为什么人类偏好学习需要强化学习">为什么人类偏好学习需要强化学习</h3>
-
-<p>对于一个 response 的偏好程度打分，不是模型的输出（模型输出的是对人类偏好的response（word tokens）），因为由于模型输出和打分不是一种类型的数据，所以我们无法将 LLM 的输出与标签对比算出 loss， 也就不能反向传播更新），所以就不能用常规的监督学习来训练模型</p>
-
-<p><strong>DPO 的缺点是需要大量有标注单独信息，而 RLHF 只需要小部分的</strong></p>
-
-<h3 id="什么是策略">什么是策略？</h3>
-
-<p>在本文的环境中：策略就是模型生成概率空间，即生成的文本的概率分布。</p>
-
-<p>策略训练（policy train）就是训练 LLM 的策略的过程，使其生成的文本更符合人类的偏好。</p>
-
-<p>一般的策略训练的过程</p>
-
-<ol>
-  <li>
-    <p><strong>确定目标</strong>：首先需要定义目标，这通常是通过一个<strong>损失函数</strong>来表示的。在传统的强化学习中，这个目标是最大化奖励。</p>
-  </li>
-  <li>
-    <p><strong>优化过程</strong>：通过某种优化算法（如梯度下降、Proximal Policy Optimization（PPO）等），不断调整模型的参数，改变策略，使得策略能够在特定任务中表现得更好。例如，语言模型的策略可以通过优化语言生成的质量来训练。</p>
-  </li>
-  <li>
-    <p><strong>策略调整</strong>：在训练过程中，模型会不断根据新的数据或环境反馈调整策略，以提高其执行任务的能力。</p>
-  </li>
-</ol>
-
-<h3 id="什么是奖励函数">什么是奖励函数？</h3>
-
-<p><strong>奖励函数</strong>：在强化学习和偏好学习中，奖励函数通常用于量化一个动作或响应的质量。在传统的 RLHF（从人类反馈中进行强化学习）方法中，奖励函数是由人类偏好数据训练出来的，它用来评估语言模型输出与人类偏好的一致性。</p>
-
-<p>然而，在 DPO 方法中，作者没有显式地定义和训练一个独立的奖励函数，而是通过将偏好数据直接映射到策略（即语言模型）的优化中，从而隐含地使用奖励函数。</p>
-
-<blockquote>
-  <p>这里的奖励函数可以理解为偏好数据对某个输出的偏好程度，反映了人类更倾向于选择哪些输出</p>
-</blockquote>
-
-<h3 id="什么是-kl-散度">什么是 KL 散度？</h3>
-
-<p><strong>KL 散度</strong>（<strong>Kullback-Leibler Divergence</strong>）是一种用于衡量两个概率分布之间差异的度量。它通常用于比较一个真实分布（或参考分布）和一个估计分布（或预测分布）之间的差异。</p>
-
-<p>KL 散度的公式为：</p>
-
-\[D_{KL}(P || Q) = \sum_{x} P (x) \log \frac{P (x)}{Q (x)}\]
-
-<p>或在连续情况下：</p>
-
-\[D_{KL}(P || Q) = \int p (x) \log \frac{p (x)}{q (x)} \, dx\]
-
-<p>其中：</p>
-<ul>
-  <li>$P (x)$ 是真实的概率分布（或参考分布），表示“正确”或期望的分布。</li>
-  <li>$Q (x)$ 是估计的概率分布，表示模型输出的分布。</li>
-  <li>
-    <table>
-      <tbody>
-        <tr>
-          <td>$D_{KL}(P</td>
-          <td> </td>
-          <td>Q)$ 衡量了分布 $P$ 相对于 $Q$ 的<strong>信息损失</strong>，或者说是从 $Q$ 生成 $P$ 时的效率损失。</td>
-        </tr>
-      </tbody>
-    </table>
-  </li>
-</ul>
-
-<h4 id="kl-散度的含义">KL 散度的含义：</h4>
-<ul>
-  <li>
-    <table>
-      <tbody>
-        <tr>
-          <td><strong>非对称性</strong>：KL 散度是非对称的，即 $D_{KL}(P</td>
-          <td> </td>
-          <td>Q) \neq D_{KL}(Q</td>
-          <td> </td>
-          <td>P)$，这意味着它不是一个真正的“距离”，而是一个<strong>信息量</strong>度量。</td>
-        </tr>
-      </tbody>
-    </table>
-  </li>
-  <li><strong>度量差异</strong>：KL 散度的值越大，说明两个分布之间的差异越大。KL 散度为零时，说明两个分布是完全相同的（即 $P = Q$）。</li>
-  <li><strong>信息量</strong>：KL 散度表示使用分布 $Q$ 来表示分布 $P$ 时所失去的信息量。如果我们使用 $Q$ 来描述真实分布 $P$，那么我们需要多少额外的信息来弥补这个差距。</li>
-</ul>
-
-<h4 id="在机器学习中的应用">在机器学习中的应用：</h4>
-<ol>
-  <li>
-    <p><strong>在强化学习中</strong>：KL 散度通常用于控制策略优化过程中的“平稳性”或“稳定性”。例如，在<strong>Proximal Policy Optimization (PPO)</strong> 算法中，KL 散度用作约束，防止优化过程中新的策略与旧的策略偏差过大，从而保证训练过程的稳定性。</p>
-  </li>
-  <li>
-    <p><strong>在生成模型中</strong>：KL 散度常用于衡量生成模型（如变分自编码器 VAE）学习的分布与真实数据分布之间的差异。最小化 KL 散度有助于生成的样本更接近真实数据分布。</p>
-  </li>
-  <li>
-    <p><strong>在模型优化中</strong>：KL 散度也常用于<strong>对抗训练</strong>等场景，作为衡量两个模型输出概率分布差异的一种方式。</p>
-  </li>
-</ol>
-
-<h4 id="总结">总结：</h4>
-<p>KL 散度是一个衡量概率分布之间差异的工具，它通过计算一个分布生成另一个分布时的“信息损失”来工作。在强化学习、生成模型以及其他机器学习领域，KL 散度是优化过程中的一个重要工具，尤其用于控制训练过程中的分布变化。</p>
-
-<h3 id="dpo-的变量变换思想">DPO 的变量变换思想</h3>
-
-<blockquote>
-  <p>我理解这里变量变换思想就是：
- 假设 A=B=C
- 原本的过程就是使用 A—&gt;B—&gt;C
- 而 DPO 的变量变换思想就是直接使用 A—&gt;C</p>
-</blockquote>
-
-<p>在<strong>DPO</strong>算法中，<strong>变量变换</strong>是一个数学技巧，它允许我们跳过显式构建奖励模型的过程，直接通过人类偏好数据优化策略。为了更好地理解这个概念，下面我将举一个简单的例子来解释“变量变换”的含义。</p>
-
-<h4 id="举例假设我们有一个简单的分类问题">举例：假设我们有一个简单的分类问题</h4>
-
-<p>假设我们正在训练一个模型来生成文本，并且我们收集了大量的人类偏好数据，这些数据表明在两个不同的模型输出之间，人类更喜欢哪一个。</p>
-
-<ul>
-  <li><strong>模型输出 A</strong>和<strong>模型输出 B</strong>是两个候选答案。</li>
-  <li><strong>人类偏好数据</strong>告诉我们，<strong>A 更好</strong>，因此我们可以把人类偏好表示为“喜欢 A、不喜欢 B”。</li>
-</ul>
-
-<p>在传统的强化学习方法中，我们可能会这样做：</p>
-<ol>
-  <li><strong>构建奖励模型</strong>：首先需要定义一个奖励函数，比如给<strong>A</strong>一个高奖励，给<strong>B</strong>一个低奖励。</li>
-  <li>然后使用强化学习（如 PPO）来优化策略，使得模型生成的答案更倾向于 A，因为 A 得到了更高的奖励。</li>
-</ol>
-
-<h4 id="变量变换的作用">变量变换的作用</h4>
-
-<p>但是，<strong>DPO</strong>采用了<strong>变量变换</strong>的方式，避免了需要显式构建奖励模型和奖励值的问题，直接通过人类的偏好数据来优化模型。</p>
-
-<p>假设我们已经知道，人类给出的是一个简单的<strong>偏好排序</strong>，也就是说，模型输出 A 被偏好于 B。DPO 的<strong>变量变换</strong>过程可以被理解为：</p>
-
-<ol>
-  <li>
-    <p><strong>换一个视角</strong>：我们不再直接优化奖励值，而是通过将奖励值变换成策略本身来进行优化。具体来说，我们定义一个新的<strong>损失函数</strong>，这个损失函数表示我们希望生成更倾向于人类偏好的答案（即 A）的策略。</p>
-
-    <ul>
-      <li><strong>变量变换</strong>的步骤：通过数学变换（例如：<strong>对数变换</strong>），我们可以把偏好损失函数定义为一个关于策略的函数，而不需要显式地训练奖励模型。换句话说，我们直接用人类给出的“喜欢”或“不喜欢”作为优化目标，调整模型的生成策略，使得模型生成 A 的概率更高。</li>
-    </ul>
-  </li>
-  <li>
-    <p><strong>直接优化策略</strong>：通过这种变换，我们可以用<strong>二元交叉熵</strong>这样的简单目标函数来优化策略，即最大化模型生成 A 的概率，同时最小化生成 B 的概率。</p>
-  </li>
-</ol>
-
-<h4 id="数学背景">数学背景：</h4>
-<ul>
-  <li>
-    <p>如果我们不进行变量变换，奖励模型可能会让我们使用以下目标：
-\(\text{maximize} \quad \mathbb{E}[R (\text{output})]\)
-其中 $R (\text{output})$ 是奖励函数。</p>
-  </li>
-  <li>
-    <p>但是通过<strong>变量变换</strong>，我们可以将这个目标变成：
-\(\text{maximize} \quad \log \left ( \frac{P (\text{preferred response})}{P (\text{dispreferred response})} \right)\)
-这实际上是优化模型策略的一个等价目标，而不需要定义一个显式的奖励函数。</p>
-  </li>
-</ul>
-
-<h4 id="总结-1">总结：</h4>
-<p>在<strong>DPO</strong>中，<strong>变量变换</strong>指的是将优化目标从奖励模型转变为直接优化策略的函数。通过这种变换，我们避免了构建奖励模型的复杂过程，直接通过人类偏好数据优化语言模型的策略。</p>
-
-<h3 id="dpo-和-bradley-terry-的异同">DPO 和 Bradley-Terry 的异同</h3>
-
-<blockquote>
-  <p>Bradley-Terry 模型是一种用于衡量人类偏好数据的一致性的统计模型，它可以用来评估两个或多个选项之间的相对偏好。
-它通过给每个物品分配一个质量值，预测不同物品之间的偏好概率</p>
-
-</blockquote>
-
-<p>DPO 和 Bradley-Terry 都是理论模型，而不是真实的训练出来模型。是可以通过数学公式计算出来的。</p>
-
-<p>DPO 直接用人类偏好数据来优化模型，而 Bradley-Terry 模型是用来评估人类相对偏好的</p>
-
-<h2 id="摘要">摘要</h2>
-
-<h3 id="当前背景">当前背景</h3>
-
-<ol>
-  <li>LLM 的行为很难被精准控制，因为进行了无监督的预训练</li>
-  <li>想要控制 LLM 的办法：
-    <ul>
-      <li>RLHF：通过收集人类标签来评估模型生成结果的相对质量，并对无监督LM进行微调以符合这些偏好，通常需要通过来自人类反馈的强化学习（RLHF）</li>
-    </ul>
-  </li>
-</ol>
-
-<h3 id="作者的工作">作者的工作</h3>
-
-<ol>
-  <li>DPO：我们利用<strong>奖励函数与最优策略之间的映射</strong>，表明这个受限的奖励最大化问题可以通过一次单独的策略训练精确优化，实际上解决了人类偏好数据上的分类问题（二分类：喜欢、不喜欢）。</li>
-</ol>
-
-<h3 id="实验结果">实验结果</h3>
-
-<ol>
-  <li>DPO可以将语言模型微调到与人类偏好相符，且效果与现有方法相当或更好。</li>
-  <li>使用DPO进行微调超越了RLHF控制生成内容情感的能力，并在摘要和单轮对话中提高了响应质量，同时实现和训练起来大大更简单。</li>
-</ol>
-
-<h2 id="引言">引言</h2>
-
-<h3 id="1-问题">1. 问题：</h3>
-<p>从模型非常广泛的知识和能力中选择所期望的响应和行为对于构建安全、高性能和可控的人工智能系统至关重要</p>
-
-<p>例子：</p>
-
-<blockquote>
-  <p>我们可能希望我们的语言模型意识到50%的人相信的一个常见误解，但我们肯定不希望模型声称这个误解在50%的查询中是真实的！</p>
-</blockquote>
-
-<h3 id="2-现在一般的解决方法">2. 现在一般的解决方法：</h3>
-
-<ol>
-  <li>有监督微调：直接给 LLM 高质量的数据</li>
-  <li>通过 RLHF 进行微调（缺点：复杂、计算成本高）</li>
-</ol>
-
-<h3 id="3-作者的解决办法dpo">3. 作者的解决办法：DPO</h3>
-
-<ol>
-  <li><strong>DPO 算法的基本思路</strong>：
-    <ul>
-      <li><strong>目标</strong>：DPO 的目标与现有的 RLHF 方法类似，都是<strong>奖励最大化</strong>，并且包含了一个<strong>KL 散度约束</strong>，即优化过程中不仅要最大化奖励，还要确保生成的回答不会偏离原始模型过多。</li>
-      <li><strong>细节</strong>：DPO 通过<strong>增加偏好响应的对数概率</strong>来优化模型，使得模型生成“更喜欢”的回答，同时引入了<strong>动态的权重</strong>，防止模型因过度偏向某些回答而发生退化。传统方法中的概率比值目标可能导致模型不稳定，而 DPO 通过引入这些权重来避免这种问题。</li>
-    </ul>
-  </li>
-  <li><strong>与现有方法的区别</strong>：
-    <ul>
-      <li>DPO 使用一个<strong>理论偏好模型</strong>（如<strong>Bradley-Terry 模型</strong>），用来衡量给定的奖励函数与人类偏好数据的一致性。现有方法（RLHF）依赖偏好模型来定义一个“偏好损失”函数，训练奖励模型，再用这个奖励模型来优化语言模型（策略）。</li>
-      <li>而 DPO 则通过<strong>变量变换</strong>，将这个“偏好损失”函数直接定义为语言模型策略的函数。也就是说，DPO 不需要显式地学习奖励函数，而是直接通过人类偏好的数据来优化模型。</li>
-    </ul>
-  </li>
-  <li><strong>DPO 的训练过程</strong>：
-    <ul>
-      <li>给定一组人类对语言模型响应的偏好数据，DPO 通过一个<strong>简单的二元交叉熵目标</strong>（binary cross entropy）来优化模型，而不需要在训练过程中进行策略采样或显式学习奖励函数。</li>
-    </ul>
-  </li>
-  <li><strong>实验结果</strong>：
-    <ul>
-      <li>实验表明，DPO 至少与现有方法（如基于 PPO 的 RLHF 方法）一样有效，在任务如情感调节、文本摘要和对话生成等方面，使用最多 6 B 参数的语言模型，DPO 的表现与现有方法相当，甚至在某些情况下更好。</li>
-    </ul>
-  </li>
-</ol>
-
-<p><strong>DPO 是一个简单且不依赖强化学习的算法，</strong> 它直接通过人类偏好数据优化语言模型，从而避免了复杂的奖励建模和强化学习过程。DPO 在多个任务中与传统方法相比同样有效，且实现简单，易于训练。</p>
-
-<h2 id="相关工作">相关工作</h2>
-
-<h3 id="llm-对齐的发展">LLM 对齐的发展</h3>
-
-<ol>
-  <li>无监督的 LLM 可以在 zero-shot 和 few-shot 的情况下完成一些任务，但是不如指令微调后的 LLM</li>
-  <li>指令微调可以显著提高 LLM在下游任务上的表现和与用户意图的对齐，但是需要专家示范的数据</li>
-  <li>收集对响应质量的相对人类判断往往更为容易，因此随后的研究使用人类偏好的数据集对大语言模型进行了微调，
- 结果：提高了翻译、摘要、讲故事和遵循指令的能力。
- 一般过程：
-    <ol>
-      <li>优化神经网络的奖励函数，以便与偏好模型下的偏好数据集兼容，如 Bradley-Terry 模型[5]，</li>
-      <li>然后使用强化学习算法（通常是 REINFORCE 、近端策略优化（PPO；）或变体）微调语言模型，以最大化给定的奖励。</li>
-    </ol>
-  </li>
-  <li>其他研究：
-    <ol>
-      <li>利用经过人类反馈微调的 LLMs 来生成针对安全性或无害性等特定属性的额外合成偏好数据，仅使用人类提供的文本评估作为 LLM 注释的弱监督</li>
-    </ol>
-  </li>
-</ol>
-
-<h3 id="总结-2">总结：</h3>
-
-<p>总共有两个方向：</p>
-
-<ol>
-  <li>一个是关于使用强化学习训练语言模型以实现多种目标的研究工作</li>
-  <li>另一个是关于从人类偏好中学习的一般方法的研究工作</li>
-</ol>
-
-<p>本文：</p>
-
-<ol>
-  <li>尽管使用相对人类偏好的方法具有吸引力，但使用强化学习对大型语言模型进行微调仍然是一个主要的实际挑战；</li>
-  <li>本项工作提供了一种在没有强化学习的情况下优化相对偏好的理论上合理的方法。</li>
-</ol>
-
-<h3 id="偏好学习不在-nlp-中的">偏好学习（不在 NLP 中的）</h3>
-
-<h4 id="情境对决赌博机-contextual-dueling-bandits">情境对决赌博机 (Contextual Dueling Bandits)</h4>
-
-<p>首先，使用偏好或动作排名而非奖励的情境赌博机学习被称为情境对决赌博机（Contextual Dueling Bandit，CDB）。在没有绝对奖励的情况下，CDB 的理论分析用<strong>冯·诺伊曼胜者（von Neumann winner）</strong> 的概念取代了最优策略。</p>
-
-<blockquote>
-  <p>冯·诺伊曼胜者是指其对任何其他策略的预期胜率至少为 50%的策略。</p>
-
-  <p>通常，在有明确奖励的环境中，我们可以定义一个最优策略，它能最大化预期奖励。</p>
-
-  <p>然而，在CDB中，没有绝对的奖励信号，只有策略之间的偏好或胜率信息。因此，冯·诺伊曼胜者被定义为：对于任何其他策略，其预期胜率至少为50%的策略。也就是说，这个策略在与任何其他策略对比时，至少不会输，可能会赢。这一概念适用于无法直接量化奖励的情况下，用相对胜率来评估策略的优劣。</p>
-</blockquote>
-
-<p>然而，在 CDB 的设置中，偏好标签是在线获得的；而在从人类偏好中学习时，我们通常从一批离线的、带有偏好标注的动作对中学习。</p>
-
-<p>类似地，<strong>基于偏好的强化学习（Preference-based RL，PbRL）</strong> 从由未知的“评分”函数生成的二元偏好中学习，而不是直接从奖励中学习。已有多种 PbRL 算法，包括可以重用离线偏好数据的方法，但通常需要先显式估计潜在的评分函数（即奖励模型），然后再对其进行优化。</p>
-
-<p>与这些方法不同，作者提出了一种单阶段的策略学习方法，可以直接优化策略以满足偏好，而无需先估计奖励模型。</p>
-
-<h2 id="预备知识">预备知识</h2>
-
-<p>RLHF 的 pipeline</p>
-
-<p>1) supervised fine-tuning (SFT); 
-2) preference sampling and reward learning
-3) RL optimization.</p>
-
-<h3 id="sft">SFT</h3>
-
-<p>RLHF 通常通过对预训练语言模型进行微调，以监督学习的方式在高质量数据上进行，针对感兴趣的下游任务（对话、摘要等），以获得模型 $\pi ^{SFT}$。</p>
-
-<h3 id="奖励模型阶段">奖励模型阶段</h3>
-
-<ol>
-  <li><strong>奖励建模的基本任务</strong>：
-    <ul>
-      <li>
-        <table>
-          <tbody>
-            <tr>
-              <td>在奖励建模阶段，模型（SFT 模型，指的是预先监督微调的模型 $\pi^{\text{SFT}}(y</td>
-              <td>x)$）接收一个输入提示 $x$，并生成一组候选答案对 $(y_1, y_2)$。</td>
-            </tr>
-          </tbody>
-        </table>
-      </li>
-      <li>这些候选答案对会交给人类标注者进行评估，标注者会基于偏好选择其中一个答案。例如，人类可能更喜欢答案 $y_w$ 而不是 $y_l$。</li>
-      <li>$y_w$ 表示人类标注中“偏好”的答案，而 $y_l$ 表示“不偏好”的答案。</li>
-    </ul>
-  </li>
-</ol>
-
-<hr />
-
-<ol>
-  <li><strong>引入奖励模型</strong>：
-    <ul>
-      <li>假设人类偏好的分布是由一个<strong>潜在奖励模型</strong> $r^*(y, x)$ 生成的。</li>
-      <li><strong>奖励模型 $r^*(y, x)$</strong>：它是一个无法直接获取的函数，用于衡量在特定输入 $x$ 下，答案 $y$ 的质量或偏好。</li>
-    </ul>
-  </li>
-</ol>
-
-<hr />
-
-<ol>
-  <li>如何使用奖励模型对偏好建模：
-    <ul>
-      <li>文中指出，Bradley-Terry 模型是用于偏好建模的常见方法之一。该模型假设：
-\(P^*(y_1 \succ y_2 \mid x) = \frac{\exp (r^*(x, y_1))}{\exp (r^*(x, y_1)) + \exp (r^*(x, y_2))}.\)</li>
-      <li>这个公式描述了答案 $y_1$ 相比 $y_2$ 被人类偏好的概率。概率值由各自的奖励值 $r^*(x, y)$ 决定，奖励值越高的答案更有可能被选择。</li>
-    </ul>
-  </li>
-</ol>
-
-<blockquote>
-  <p>[!TIP] 
-为什么公式是这样的：</p>
-  <ol>
-    <li>想要 $r(x,y)$ 打分越高越偏向于 $y$，所以使用了指数函数</li>
-    <li>分母是为了归一化，使得概率和为 1，使其成为一个有效的概率分布</li>
-    <li>当两数差异较大是，使用指数函数会扩大差异，使得概率更加明显</li>
-    <li>也可换一种理解方式，这个公式可以从 sigmod 简化而来，</li>
-    <li>而为什么使用 sigmod 呢？因为我们可以用模型推导出的偏好与不偏好的差值来判断是否偏好，如果是偏好的分数大于不偏好的分数，所以为正值，正值越大 sigmod 的函数值越接近 1，反之越接近 0，所以使用 sigmod 函数来表示偏好。</li>
-  </ol>
-</blockquote>
-
-<ul class="task-list">
-  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />由偏好公式推到这个损失函数  [priority:: highest]  [created:: 2024-11-18]  [scheduled:: 2024-11-18]  [completion:: 2024-11-19]</li>
-</ul>
-
-<hr />
-
-<ol>
-  <li>如何训练奖励模型 $D$：
-    <ul>
-      <li>数据集：</li>
-    </ul>
-    <ul>
-      <li>作者假设可以访问一个静态的偏好数据集 $D = {(x^{(i)}, y_w^{(i)}, y_l^{(i)})}$，其中包含输入 $x^{(i)}$ 及其对应的偏好答案对。</li>
-      <li>目标是通过这些数据学习一个<strong>参数化的奖励模型</strong> $r_\phi (x, y)$，该模型的参数 $\phi$ 可以通过最大似然估计（MLE）优化。
-     - <strong>将问题建模为二分类任务</strong>：</li>
-      <li>偏好学习的任务被建模为一个<strong>二元分类问题</strong>，目的是预测在一对答案中哪一个更符合人类的偏好。</li>
-      <li>负对数似然损失（Negative Log-Likelihood Loss）定义如下：
-\(\mathcal{L}_R (r_\phi, D) = - \mathbb{E}_{(x, y_w, y_l) \sim D} \left[ \log \sigma (r_\phi (x, y_w) - r_\phi (x, y_l)) \right].\)</li>
-      <li>$\sigma$ 是 sigmod 函数，用来二分类，表示 $\sigma (z) = \frac{1}{1 + \exp (-z)}$。</li>
-    </ul>
-  </li>
-</ol>
-
-<blockquote>
-  <p>[!NOTE] 损失函数推导过程
-偏好的定义：
-\(P^*(y_1 \succ y_2 \mid x) = \frac{\exp (r^*(x, y_1))}{\exp (r^*(x, y_1)) + \exp (r^*(x, y_2))}\)
-然后根据最大似然的思想，我们要最大化这个概率，为了最大化这个概率方便我们对他取对数
-\(\log P^*(y_1 \succ y_2 \mid x) = \log \left ( \frac{\exp (r^*(x, y_1))}{\exp (r^*(x, y_1)) + \exp (r^*(x, y_2))} \right)\)
- 然后因此，我们将模型的评分函数 $r_\phi (x, y_1)$ 和 $r_\phi (x, y_2)$ 代入上式，得到：
- \(\log P^*(y_w \succ y_l \mid x) = \log \left ( \frac{1}{1 + \exp (r^*(x, y_l) - r^*(x, y_w))} \right)\)
- 代入 sigmod 函数简化
- \(\sigma (z) = \frac{1}{1 + \exp (-z)}\)
- 得：
- \(\log P^*(y_w \succ y_l \mid x) = \log \sigma (r_\phi (x, y_w) - r_\phi (x, y_l))\)
- 我们要求的是在样本上的期望，所以损失函数就是这个
- \(\mathbb{E}_{(x, y_w, y_l) \sim D} \left[ \log \sigma (r_\phi (x, y_w) - r_\phi (x, y_l)) \right]\)
- 因为 loss 是最小化，所以加个负号
- \(\mathcal{L}_{R}(r_{\phi},\mathcal{D})=-\mathbb{E}_{(x,y_{w},y_{l})\sim\mathcal{D}}\big[\log\sigma(r_{\phi}(x,y_{w})-r_{\phi}(x,y_{l}))\big]\)</p>
-</blockquote>
-
-<ol>
-  <li><strong>奖励模型的实现</strong>：
-    <ul>
-      <li>
-        <table>
-          <tbody>
-            <tr>
-              <td>在语言模型（LM）的上下文中，奖励模型 $r_\phi (x, y)$ 是在现有的 SFT 模型 $\pi^{\text{SFT}}(y</td>
-              <td>x)$ 基础上构建的：</td>
-            </tr>
-          </tbody>
-        </table>
-        <ul>
-          <li>在现有的 SFT 模型顶部添加一个线性层，以生成一个单一的标量预测值作为奖励值。</li>
-        </ul>
-      </li>
-      <li>为了防止奖励模型的方差过高，通常会对奖励值进行归一化（如设置所有样本的奖励值期望为 0）。</li>
-    </ul>
-  </li>
-</ol>
-
-<h3 id="强化学习阶段">强化学习阶段</h3>
-
-\[\max_{\pi_\theta}\mathbb{E}_{x\sim\mathcal{D},y\sim\pi_\theta(y\mid x)}\begin{bmatrix}r_\phi(x,y)\end{bmatrix}-\beta\mathbb{D}_{\mathbf{KL}}\begin{bmatrix}\pi_\theta(y\mid x)\parallel\pi_{\mathbf{ref}}(y\mid x)\end{bmatrix}\]
-
-<p>最大化奖励函数，同时最小化策略分布与参考分布的 KL 散度。</p>
-<ul>
-  <li><strong>第一项 $\mathbb{E}[r_\phi (x, y)]$：</strong>
-    <ul>
-      <li>这是奖励函数 $r_\phi (x, y)$ 的期望，表示模型生成输出 $y$ 的质量。</li>
-      <li>模型的目标是生成能获得高奖励的输出。</li>
-    </ul>
-  </li>
-  <li><strong>第二项 $\beta D_{\text{KL}}[\pi_\theta | \pi_{\text{ref}}]$：</strong>
-    <ul>
-      <li>这是一个 KL 散度（Kullback-Leibler divergence）项，用来衡量当前策略 $\pi_\theta$ 偏离参考策略 $\pi_{\text{ref}}$ 的程度。</li>
-      <li>$\beta$ 是一个超参数，用来控制当前策略 $\pi_\theta$ 和参考策略 $\pi_{\text{ref}}$ 偏离的强度。</li>
-      <li>添加这个约束的目的是防止模型在追求高奖励时生成过度偏离参考策略的内容（例如避免模式崩溃，即模型只输出单一高奖励答案）。</li>
-    </ul>
-  </li>
-  <li>
-    <table>
-      <tbody>
-        <tr>
-          <td>$\pi_{\text{ref}}(y</td>
-          <td>x)$ 是参考策略，一般初始化为已经通过监督微调（Supervised Fine-Tuning, SFT）得到的模型 $\pi^{\text{SFT}}$。</td>
-        </tr>
-      </tbody>
-    </table>
-  </li>
-  <li><strong>重要性</strong>：使用参考策略是为了确保生成的内容在奖励函数精度高的分布范围内，同时保持生成的多样性，防止模式崩塌（mode collapse）。</li>
-</ul>
-
-<p>但是，由于语言生成是离散的（输出是离散的单词序列），这个优化目标函数不可直接微分，无法用常规的梯度下降法进行优化。</p>
-
-<p>标准的方法：
-  \(R (x, y) = r_\phi (x, y) - \beta \left ( \log \pi_\theta (y|x) - \log \pi_{\text{ref}}(y|x) \right)\)
-然后说使用 PPO 最大化。</p>
-
-<ul class="task-list">
-  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" checked="checked" />复习一下梯度下降，思考一下这个为什么不可微就不能用梯度下降  [created:: 2024-11-19]  [due:: 2024-11-19]  [completion:: 2024-11-20]</li>
-  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />学习 PPO 的论文 [created:: 2024-11-19]</li>
-</ul>
-
-<h2 id="dpo-算法">DPO 算法</h2>
-
-<h3 id="dpo-目标函数的推导">DPO 目标函数的推导</h3>
-
-<p><strong>思路：从原本的 RLHF 的 loss 函数推导到 DPO 的 loss 函数</strong></p>
-
-<ol>
-  <li><strong>优化目标</strong>
-我们的目标是找到策略 $\pi_\theta (y|x)$，使以下目标函数最大化：
-\(\mathcal{L}(\pi_\theta) = \int \pi_\theta (y|x) r (x, y) \, dy - \beta \int \pi_\theta (y|x) \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} \, dy.\)
-其中：
-    <ul>
-      <li>
-        <table>
-          <tbody>
-            <tr>
-              <td>第一项 $\int \pi_\theta (y</td>
-              <td>x) r (x, y) dy$ 表示奖励函数 $r (x, y)$ 在策略 $\pi_\theta (y</td>
-              <td>x)$ 下的期望。</td>
-            </tr>
-          </tbody>
-        </table>
-      </li>
-      <li>
-        <table>
-          <tbody>
-            <tr>
-              <td>第二项 $\beta \int \pi_\theta (y</td>
-              <td>x) \log \frac{\pi_\theta (y</td>
-              <td>x)}{\pi_{\text{ref}}(y</td>
-              <td>x)} \, dy$ 是 KL 散度，用来约束策略 $\pi_\theta (y</td>
-              <td>x)$ 不偏离参考策略 $\pi_{\text{ref}}(y</td>
-              <td>x)$。</td>
-            </tr>
-          </tbody>
-        </table>
-      </li>
-      <li>$\beta &gt; 0$ 是权衡奖励和约束的超参数。</li>
-    </ul>
-  </li>
-</ol>
-
-<table>
-  <tbody>
-    <tr>
-      <td>此外，策略 $\pi_\theta (y</td>
-      <td>x)$ 需要满足概率分布的归一化条件：</td>
-    </tr>
-    <tr>
-      <td>$$\int \pi_\theta (y</td>
-      <td>x) \, dy = 1.$$</td>
-    </tr>
-  </tbody>
-</table>
-
-<hr />
-
-<ol>
-  <li><strong>引入拉格朗日乘子</strong>
-为了在优化目标中引入概率分布的归一化约束，我们定义拉格朗日函数，加入一个归一化约束项 $\lambda (x)$：
-\(\mathcal{L}(\pi_\theta, \lambda) = \int \pi_\theta (y|x) r (x, y) \, dy - \beta \int \pi_\theta (y|x) \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} \, dy + \lambda (x) \left ( 1 - \int \pi_\theta (y|x) \, dy \right ).\)</li>
-</ol>
-
-<p>这里：</p>
-<ul>
-  <li>
-    <table>
-      <tbody>
-        <tr>
-          <td>$\lambda (x)$ 是与输入 $x$ 相关的拉格朗日乘子，用来确保 $\pi_\theta (y</td>
-          <td>x)$ 满足归一化条件。</td>
-        </tr>
-      </tbody>
-    </table>
-  </li>
-</ul>
-
-<hr />
-
-<ol>
-  <li>
-    <table>
-      <tbody>
-        <tr>
-          <td>**对 $\pi_\theta (y</td>
-          <td>x)$ 求偏导**</td>
-        </tr>
-        <tr>
-          <td>对拉格朗日函数 $\mathcal{L}(\pi_\theta, \lambda)$ 关于 $\pi_\theta (y</td>
-          <td>x)$ 求导，得到优化条件。具体计算如下：</td>
-        </tr>
-      </tbody>
-    </table>
-  </li>
-</ol>
-
-<p>(1) 奖励项的偏导
-奖励项是：
-\(\int \pi_\theta (y|x) r (x, y) \, dy.\)
-对 $\pi_\theta (y|x)$ 求偏导，得到：
-\(\frac{\partial}{\partial \pi_\theta (y|x)} \left[ \pi_\theta (y|x) r (x, y) \right] = r (x, y).\)</p>
-
-<p>(2) KL 散度项的偏导
-KL 散度项是：
-\(\int \pi_\theta (y|x) \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} \, dy.\)
-对 $\pi_\theta (y|x)$ 求偏导：</p>
-<ul>
-  <li>首先展开 KL 散度：
-\(\pi_\theta (y|x) \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} = \pi_\theta (y|x) \log \pi_\theta (y|x) - \pi_\theta (y|x) \log \pi_{\text{ref}}(y|x).\)</li>
-  <li>求导时：
-    <ul>
-      <li>
-        <table>
-          <tbody>
-            <tr>
-              <td>对 $\pi_\theta (y</td>
-              <td>x) \log \pi_\theta (y</td>
-              <td>x)$ 求导，得到：</td>
-            </tr>
-            <tr>
-              <td>$$\log \pi_\theta (y</td>
-              <td>x) + 1.$$</td>
-              <td> </td>
-            </tr>
-          </tbody>
-        </table>
-      </li>
-      <li>
-        <table>
-          <tbody>
-            <tr>
-              <td>对 $\pi_\theta (y</td>
-              <td>x) \log \pi_{\text{ref}}(y</td>
-              <td>x)$ 求导，得到：</td>
-            </tr>
-            <tr>
-              <td>$$\log \pi_{\text{ref}}(y</td>
-              <td>x).$$</td>
-              <td> </td>
-            </tr>
-          </tbody>
-        </table>
-      </li>
-    </ul>
-  </li>
-</ul>
-
-<p>因此，KL 散度项的偏导为：
-\(\frac{\partial}{\partial \pi_\theta (y|x)} \left[ -\beta \int \pi_\theta (y|x) \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} \, dy \right] = -\beta \left[ \log \pi_\theta (y|x) - \log \pi_{\text{ref}}(y|x) + 1 \right].\)</p>
-
-<p>(3) 归一化约束项的偏导
-归一化约束项是：
-\(\lambda (x) \left ( 1 - \int \pi_\theta (y|x) \, dy \right).\)
-对 $\pi_\theta (y|x)$ 求导，得到：
-\(\frac{\partial}{\partial \pi_\theta (y|x)} \left[ \lambda (x) \left ( 1 - \int \pi_\theta (y|x) \, dy \right) \right] = -\lambda (x).\)</p>
-
-<hr />
-
-<ol>
-  <li><strong>合并偏导并设为 0</strong>
-将三部分的结果合并，得到：
-\(\frac{\partial \mathcal{L}}{\partial \pi_\theta (y|x)} = r (x, y) - \beta \left[ \log \pi_\theta (y|x) - \log \pi_{\text{ref}}(y|x) + 1 \right] - \lambda (x).\)
-设偏导为 0：
-\(R (x, y) - \beta \left[ \log \pi_\theta (y|x) - \log \pi_{\text{ref}}(y|x) + 1 \right] - \lambda (x) = 0.\)</li>
-</ol>
-
-<p>整理得到：
-\(\beta \log \pi_\theta (y|x) = \beta \log \pi_{\text{ref}}(y|x) + r (x, y) - \beta - \lambda (x).\)</p>
-
-<hr />
-
-<ol>
-  <li><strong>解出 $\pi_\theta (y|x)$</strong>
-两边除以 $\beta$，得到：
-\(\log \pi_\theta (y|x) = \log \pi_{\text{ref}}(y|x) + \frac{1}{\beta} r (x, y) - \frac{1}{\beta} (\beta + \lambda (x)).\)
-对两边取指数，得到：
-\(\pi_\theta (y|x) = \pi_{\text{ref}}(y|x) \cdot \exp\left (\frac{1}{\beta} r (x, y)\right) \cdot \exp\left (-\frac{1}{\beta} (\beta + \lambda (x))\right).\)</li>
-</ol>
-
-<p>定义 $Z (x) = \exp\left (\frac{\lambda (x) + \beta}{\beta}\right)$ 为归一化常数，最终得到：
-\(\pi_\theta (y|x) = \frac{1}{Z (x)} \pi_{\text{ref}}(y|x) \cdot \exp\left (\frac{1}{\beta} r (x, y)\right).\)</p>
-
-<hr />
-
-<ol>
-  <li>
-    <p><strong>分区函数 $Z (x)$ 的确定</strong>
-为了保证 $\pi_\theta (y|x)$ 是一个合法的概率分布，满足：
-\(\int \pi_\theta (y|x) \, dy = 1.\)
-将 $\pi_\theta (y|x)$ 的表达式代入：
-\(\int \frac{1}{Z (x)} \pi_{\text{ref}}(y|x) \cdot \exp\left (\frac{1}{\beta} r (x, y)\right) \, dy = 1.\)
-因此：
-\(Z (x) = \int \pi_{\text{ref}}(y|x) \cdot \exp\left (\frac{1}{\beta} r (x, y)\right) \, dy.\)
-—</p>
-  </li>
-  <li>
-    <p>解出 $r(x,y)$
-由上述 $\pi_\theta (y|x)$ 的表达式，可以解出 $r(x,y)$：</p>
-  </li>
-</ol>
-
-\[r(x,y)=\beta\log\frac{\pi_r(y\mid x)}{\pi_{\mathrm{ref}}(y\mid x)}+\beta\log Z(x).\]
-
-<hr />
-
-<ol>
-  <li>代入偏好模型</li>
-</ol>
-
-\[p^*(y_1\succ y_2\mid x)=\frac1{1+\exp\left(\beta\log\frac{\pi^*(y_2|x)}{\pi_{\mathrm{ref}}(y_2|x)}-\beta\log\frac{\pi^*(y_1|x)}{\pi_{\mathrm{ref}}(y_1|x)}\right)}\text{(6)}\]
-
-<hr />
-
-<ol>
-  <li>求得 Loss
-根据最大似然估计，我们可以得到损失函数：</li>
-</ol>
-
-\[\mathcal{L}_{\mathrm{DPO}}(\pi_\theta;\pi_{\mathrm{ref}})=-\mathbb{E}_{(x,y_w,y_l)\sim\mathcal{D}}\left[\log\sigma\left(\beta\log\frac{\pi_\theta(y_w\mid x)}{\pi_{\mathrm{ref}}(y_w\mid x)}-\beta\log\frac{\pi_\theta(y_l\mid x)}{\pi_{\mathrm{ref}}(y_l\mid x)}\right)\right].\]
-
-<p>DPO相当于拟合一个重新参数化的 Bradley-Terry 模型</p>
-
-\[r(y)=\beta\log\frac{\pi_\theta(y|x)}{\pi_\mathrm{ref}(y|x)},\]
-
-<table>
-  <tbody>
-    <tr>
-      <td>作者不直接定义一个显式的 r(y)，而是通过语言模型策略 $\pi_\theta(y</td>
-      <td>x)$ 和参考策略 $\pi_\mathrm{ref}(y</td>
-      <td>x)$ 的比率间接定义。</td>
-    </tr>
-  </tbody>
-</table>
-
-<h3 id="dpo-梯度更新过程">DPO 梯度更新过程</h3>
-
-<p>我们从 DPO 损失函数的定义出发，通过逐步推导梯度公式，来说明公式的来源。以下是具体推导过程。</p>
-
-<hr />
-
-<ol>
-  <li><strong>DPO 的损失函数</strong>
-DPO 的目标是最小化以下损失函数：
-\(\mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[\log \sigma \left (\beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)} \right) \right],\)</li>
-</ol>
-
-<hr />
-
-<ol>
-  <li><strong>对损失函数的梯度求导</strong>
-我们希望计算损失函数对策略参数 $\theta$ 的梯度：
-\(\nabla_\theta \mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}).\)
-2.1 <strong>将梯度作用到期望外</strong>
-损失函数是一个期望形式，因此可以将梯度直接作用到期望内部：
-\(\nabla_\theta \mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \nabla_\theta \log \sigma \left (\beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)} \right) \right].\)</li>
-</ol>
-
-<p>2.2 <strong>对 sigmoid 内部项求导</strong>
-对 $\log \sigma (z)$ 的梯度为：
-\(\nabla_\theta \log \sigma (z) = \sigma (-z) \cdot \nabla_\theta z.\)
-其中 $\sigma (-z) = 1 - \sigma (z)$。这一步的作用是将梯度转移到 $z$ 上。</p>
-
-<p>令：
-\(Z = \beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)}.\)</p>
-
-<p>则：
-\(\nabla_\theta \log \sigma (z) = \sigma (-z) \cdot \nabla_\theta z.\)</p>
-
-<p>2.3 <strong>计算 $z$ 对 $\theta$ 的梯度</strong>
-将 $z$ 展开为：
-\(Z = \beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)}.\)</p>
-
-<p>计算 $z$ 对 $\theta$ 的梯度：
-\(\nabla_\theta z = \beta \left ( \nabla_\theta \log \pi_\theta (y_w|x) - \nabla_\theta \log \pi_\theta (y_l|x) \right).\)</p>
-
-<p>将 $\nabla_\theta z$ 和 $\sigma (-z)$ 带入梯度公式：
-\(\nabla_\theta \mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \sigma (-z) \cdot \beta \left ( \nabla_\theta \log \pi_\theta (y_w|x) - \nabla_\theta \log \pi_\theta (y_l|x) \right) \right].\)</p>
-
-<p>2.4 <strong>简化权重项</strong>
-注意到 $\sigma (-z) = 1 - \sigma (z)$。对于 DPO 的优化，权重用 $\sigma (z)$ 即可，因此最终梯度为：
-\(\nabla_\theta \mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\beta \mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \sigma \left ( \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)} - \beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} \right) \cdot \left ( \nabla_\theta \log \pi_\theta (y_w|x) - \nabla_\theta \log \pi_\theta (y_l|x) \right) \right].\)</p>
-
-<hr />
-
-<ol>
-  <li><strong>最终公式</strong>
-令隐式奖励函数为：
-\(\hat{r}_\theta (x, y) = \beta \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)}.\)
-则公式进一步简化为：
-\(\nabla_\theta \mathcal{L}_{\text{DPO}}(\pi_\theta; \pi_{\text{ref}}) = -\beta \mathbb{E}_{(x, y_w, y_l) \sim \mathcal{D}} \left[ \sigma \left ( \hat{r}_\theta (x, y_l) - \hat{r}_\theta (x, y_w) \right) \cdot \left ( \nabla_\theta \log \pi_\theta (y_w|x) - \nabla_\theta \log \pi_\theta (y_l|x) \right) \right].\)</li>
-</ol>
-
-<h4 id="梯度更新的解释">梯度更新的解释</h4>
-
-<ol>
-  <li><strong>调整偏好答案和非偏好答案的概率</strong>：</li>
-</ol>
-
-<ul>
-  <li>
-    <table>
-      <tbody>
-        <tr>
-          <td>梯度的第一项 $\nabla_\theta \log \pi_\theta(y_w</td>
-          <td>x)$ 增加偏好答案 $y_w$ 的生成概率。</td>
-        </tr>
-      </tbody>
-    </table>
-  </li>
-  <li>
-    <table>
-      <tbody>
-        <tr>
-          <td>第二项 $\nabla_\theta \log \pi_\theta(y_l</td>
-          <td>x)$ 减少非偏好答案 $y_l$ 的生成概率。</td>
-        </tr>
-      </tbody>
-    </table>
-  </li>
-  <li>更新的大小由 sigmoid 加权，重点修正模型排序错误较大的样本。</li>
-</ul>
-
-<ol>
-  <li><strong>权重反映偏好评分的偏差</strong>：</li>
-</ol>
-
-<ul>
-  <li>
-    <p>权重 $\sigma(\hat{r}<em>\theta(x, y_l) - \hat{r}</em>\theta(x, y_w))$ 直接取决于偏好排序的正确性。</p>
-  </li>
-  <li>
-    <p>如果模型对偏好和非偏好的排序与人类一致，则权重较小；否则，权重较大，修正力度更强。</p>
-  </li>
-</ul>
-
-<ol>
-  <li><strong>综合目标</strong>：</li>
-</ol>
-
-<ul>
-  <li>DPO 的更新机制本质上是在策略 $\pi_\theta$ 和人类偏好之间不断调整，使 $\pi_\theta$ 生成的结果逐渐接近人类期望。</li>
-</ul>
-
-<h4 id="dpo-的流程">DPO 的流程</h4>
-
-<p>这段话描述了 DPO 方法的具体工作流程，包括如何构建数据集、初始化模型以及优化策略的过程。以下是详细解析：</p>
-
-<hr />
-
-<ol>
-  <li><strong>DPO 的工作流程</strong>
-(1) <strong>数据集构建</strong>
-    <ul>
-      <li>
-        <table>
-          <tbody>
-            <tr>
-              <td><strong>样本生成</strong>：首先，对每个提示 $x$（例如一个问题或任务）生成两个候选答案 $y_1$ 和 $y_2$，它们是从参考策略 $\pi_{\text{ref}}(\cdot</td>
-              <td>x)$ 中采样得到的。</td>
-            </tr>
-          </tbody>
-        </table>
-      </li>
-      <li><strong>人类偏好标注</strong>：然后，通过人类标注的方式，根据偏好选择 $y_1$ 和 $y_2$ 中的优先答案（例如，哪一个更符合人类预期）。标注后的数据集可以表示为：
-\(D = \{(x^{(i)}, y_w^{(i)}, y_l^{(i)})\}_{i=1}^N,\)
-其中 $y_w$ 是偏好答案（”winner”），$y_l$ 是不偏好答案（”loser”）。</li>
-    </ul>
-  </li>
-</ol>
-
-<p>(2) <strong>优化语言模型</strong></p>
-<ul>
-  <li>在构造好的偏好数据集 $D$ 和给定的参考策略 $\pi_{\text{ref}}$ 下，优化目标是最小化 DPO 损失函数：
-\(\mathcal{L}_{\text{DPO}} = -\mathbb{E}_{(x, y_w, y_l) \sim D} \left[\log \sigma\left (\beta \log \frac{\pi_\theta (y_w|x)}{\pi_{\text{ref}}(y_w|x)} - \beta \log \frac{\pi_\theta (y_l|x)}{\pi_{\text{ref}}(y_l|x)}\right)\right].\)</li>
-  <li>通过优化 $\pi_\theta$，使得模型逐渐调整为生成更符合人类偏好的答案。</li>
-</ul>
-
-<hr />
-
-<ol>
-  <li><strong>实际应用中的简化</strong>
-    <ul>
-      <li>在实际操作中，可以直接复用现有的公开偏好数据集，而无需重复生成候选答案并进行人类标注。这种做法大大减少了数据构建的成本。</li>
-    </ul>
-  </li>
-</ol>
-
-<hr />
-
-<ol>
-  <li><strong>参考策略 $\pi_{\text{ref}}$ 的初始化</strong></li>
-</ol>
-
-<p>(1) 如果 $\pi^{\text{SFT}}$ 可用：</p>
-<ul>
-  <li>通常，参考策略 $\pi_{\text{ref}}$ 是从监督微调模型 $\pi^{\text{SFT}}$ 初始化的。
-    <ul>
-      <li><strong>$\pi^{\text{SFT}}$：</strong> 通过监督学习方法训练的模型，它是一个能够生成合理答案的基础模型。</li>
-      <li>当 $\pi^{\text{SFT}}$ 可用时，直接设置 $\pi_{\text{ref}} = \pi^{\text{SFT}}$。</li>
-    </ul>
-  </li>
-</ul>
-
-<p>(2) 如果 $\pi^{\text{SFT}}$ 不可用：</p>
-
-<ul>
-  <li>如果没有现成的监督微调模型 $\pi^{\text{SFT}}$，可以通过最大化偏好答案的似然初始化参考策略：
-\(\pi_{\text{ref}} = \arg\max_{\pi} \mathbb{E}_{(x, y_w) \sim D} [\log \pi (y_w|x)].\)</li>
-  <li>这意味着 $\pi_{\text{ref}}$ 的训练目标是提升偏好答案 $y_w$ 的生成概率，从而构造一个合理的参考策略。</li>
-  <li>通过 $\pi^{\text{SFT}}$ 或最大化偏好答案似然的方法，可以缓解模型分布与真实参考分布（即人类偏好生成的答案分布不可用）之间的偏移问题。</li>
-</ul>
-
-<h2 id="dpo-理论分析">DPO 理论分析</h2>
-
-<h3 id="证明-1你的模型包含奖励模型">证明 1：你的模型包含奖励模型</h3>
-
-<p>证明，DPO 的训出来的模型</p>
-
-<p>\(r^*(x,y)=\beta\log\frac{\pi_\theta^*(y|x)}{\pi_{\mathrm{ref}}(y|x)}\)
-等价于一般的奖励模型（Bradley-Terry 模型）</p>
-
-<p>下面为了证明证明 1 ，给出了一些定义和引理。</p>
-
-<h4 id="定义-1偏好奖励模型等价">定义 1：偏好奖励模型等价</h4>
-
-<p>两个偏好奖励模型等价当且仅当
-\(r(x,y)-r^{\prime}(x,y)=f(x)\)</p>
-
-<p>证明：</p>
-
-<p>在定义中，$f (x)$ 是<strong>与 $x$ 有关</strong>的函数，而不是一个常数。这是等价性定义中的关键点。</p>
-
-<p>定义中提到，两个奖励函数 $r (x, y)$ 和 $r’ (x, y)$ 被认为是等价的，如果它们的差异可以表示为：
-\(R (x, y) - r' (x, y) = f (x),\)
-其中 $f (x)$ 是仅与输入 $x$ 相关的函数，和候选答案 $y$ 无关。</p>
-
-<h4 id="为什么-f-x-与-x-相关">为什么 $f (x)$ 与 $x$ 相关？</h4>
-<ul>
-  <li>$f (x)$ 可能表示不同输入 $x$ 的整体偏移量。这个偏移量对候选项 $y$ 是一致的，但会因 $x$ 而变化。</li>
-  <li>$f (x)$ 的存在表明，不同输入 $x$ 下，奖励函数的绝对值可以有不同的基线或偏移，但这些偏移不影响候选项 $y$ 之间的<strong>相对评分</strong>。</li>
-</ul>
-
-<hr />
-
-<h4 id="等价性定义">等价性定义</h4>
-<p>两个奖励函数 $r (x, y)$ 和 $r’ (x, y)$ 被认为是等价的，若它们的差异为：
-\(R (x, y) - r' (x, y) = f (x),\)</p>
-<ul>
-  <li>这里 $f (x)$ 是<strong>仅与输入 $x$ 有关</strong>的函数，而不是一个常数。</li>
-  <li>换句话说，$r (x, y)$ 和 $r’ (x, y)$ 对任意给定的输入 $x$，它们的评分差异在候选项 $y$ 上是恒定的。</li>
-</ul>
-
-<h4 id="为什么允许-f-x-的存在">为什么允许 $f (x)$ 的存在？</h4>
-<p>在偏好分布（如 Bradley-Terry 或 Plackett-Luce 模型）中，偏好仅取决于奖励函数的相对差异，而不是奖励函数的绝对值。因此：</p>
-<ul>
-  <li>$f (x)$ 的存在相当于为输入 $x$ 下的所有候选项 $y$ 添加了一个全局偏移。</li>
-  <li>这个偏移不影响候选项之间的相对评分，因此不会改变偏好分布或最优策略。</li>
-</ul>
-
-<hr />
-
-<h4 id="具体解释f-x-的作用">具体解释：$f (x)$ 的作用</h4>
-
-<ol>
-  <li><strong>举例</strong>
-假设对于输入 $x$，两个奖励函数是：
-\(R (x, y) = \text{quality}(y) + 10 x, \quad r' (x, y) = \text{quality}(y),\)
-其中 $\text{quality}(y)$ 表示候选项 $y$ 的质量，而 $10 x$ 是一个仅与 $x$ 相关的偏移。
-    <ul>
-      <li>这里 $r (x, y) - r’ (x, y) = 10 x = f (x)$。</li>
-      <li>虽然 $f (x) = 10 x$ 会影响奖励函数的绝对值，但它对 $y$ 的相对排序没有影响，因此 $r (x, y)$ 和 $r’ (x, y)$ 是等价的。</li>
-    </ul>
-  </li>
-  <li><strong>对偏好分布的影响</strong>
-在 Bradley-Terry 模型中，偏好分布是由相对评分决定的，例如：
-\(P (y_1 \succ y_2 \mid x) = \frac{\exp (r (x, y_1))}{\exp (r (x, y_1)) + \exp (r (x, y_2))}.\)
-如果 $r (x, y)$ 和 $r’ (x, y)$ 相差 $f (x)$，则：
-\(P (y_1 \succ y_2 \mid x) = \frac{\exp (r' (x, y_1) + f (x))}{\exp (r' (x, y_1) + f (x)) + \exp (r' (x, y_2) + f (x))}.\)
-因为 $f (x)$ 是对所有候选项的全局偏移，它在分布计算中被约掉，不影响最终的概率值。</li>
-</ol>
-
-<h4 id="-结论-等价类和最优策略">### 结论 ：等价类和最优策略</h4>
-
-<h4 id="引理-2">引理 2</h4>
-
-<p><strong>同一等价类中的奖励函数会导致相同的最优策略</strong>。</p>
-
-<h4 id="为什么"><strong>为什么？</strong></h4>
-
-<ul>
-  <li>在强化学习（RL）中，最优策略由奖励函数的相对差异决定，而非绝对值。</li>
-  <li>由于同一等价类中的奖励函数在候选答案之间的相对排序相同，因此它们会诱导相同的最优策略。</li>
-</ul>
-
-<h4 id="结论与-plackett-luce-或-bradley-terry-模型一致的奖励函数等价类都可以通过重新参数化的形式来表示">结论：与 Plackett-Luce 或 Bradley-Terry 模型一致的奖励函数等价类，都可以通过重新参数化的形式来表示。</h4>
-
-<p>证明略</p>
-
-<h3 id="传统强化学习方法的不稳定性">传统强化学习方法的不稳定性</h3>
-
-<p>这段内容从理论和实验两个角度解释了 <strong>DPO（Direct Preference Optimization）</strong> 方法的稳定性优势，并将其与基于强化学习（如 <strong>PPO</strong>）的方法进行了对比，指出了 DPO 的理论优势以及在实际应用中的鲁棒性表现。</p>
-
-<p>以下是逐步解析：</p>
-
-<h4 id="1-强化学习中的优化目标">(1) 强化学习中的优化目标</h4>
-<p>文中提到的优化目标是：
-\(\max_{\pi_\theta} \mathbb{E}_{\pi_\theta} \left[ r_\phi (x, y) - \beta \log \sum_y \pi_{\text{ref}}(y|x) \exp \left ( \frac{1}{\beta} r_\phi (x, y) \right) - \beta \log \frac{\pi_\theta (y|x)}{\pi_{\text{ref}}(y|x)} \right].\)</p>
-
-<ul>
-  <li><strong>主要内容</strong>：
-    <ul>
-      <li>$r_\phi (x, y)$：由奖励函数定义的分数。</li>
-      <li>第二项是一个<strong>归一化项</strong>，对应分区函数的对数值。</li>
-      <li>最后一项是策略 $\pi_\theta$ 和参考策略 $\pi_{\text{ref}}$ 之间的 KL 散度，用于限制策略偏离参考策略的程度。</li>
-    </ul>
-  </li>
-</ul>
-
-<h4 id="2-强化学习的不稳定性来源">(2) 强化学习的不稳定性来源</h4>
-<ul>
-  <li>传统强化学习（例如 PPO）使用<strong>Actor-Critic 框架</strong>优化类似的目标，然而：
-    <ul>
-      <li><strong>归一化项（normalization term）</strong>：
-        <ul>
-          <li>
-            <table>
-              <tbody>
-                <tr>
-                  <td>分区函数的计算（即 $\sum_y \pi_{\text{ref}}(y</td>
-                  <td>x) \exp \left ( \frac{1}{\beta} r_\phi (x, y) \right)$）是高维的积分，可能导致优化过程的不稳定。</td>
-                </tr>
-              </tbody>
-            </table>
-          </li>
-          <li>如果不精确估计归一化项，梯度的方差会增大，优化变得困难。</li>
-        </ul>
-      </li>
-      <li><strong>高方差的梯度</strong>：
-        <ul>
-          <li>在传统 RL 中，归一化项通常通过 Monte Carlo 采样估计，这可能导致梯度估计的高方差，进而影响收敛。</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ul>
-
-<h4 id="3-dpo-的解决方案">(3) DPO 的解决方案</h4>
-<p>DPO 的重新参数化解决了上述问题：</p>
-<ul>
-  <li><strong>不需要显式估计归一化项</strong>：
-    <ul>
-      <li>DPO 的重新参数化将归一化项隐含地包含在优化过程中，不需要像 PPO 那样使用 Monte Carlo 或复杂的基线函数来估计分区函数。</li>
-    </ul>
-  </li>
-  <li><strong>更稳定的梯度更新</strong>：
-    <ul>
-      <li>通过直接优化策略（而非依赖价值函数或采样基线），DPO 避免了梯度的高方差问题，使得训练过程更加稳定。</li>
-    </ul>
-  </li>
-</ul>
-
-<h2 id="实验">实验</h2>
-
-<p>略</p>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><summary type="html"><![CDATA[DPO 论文学习]]></summary></entry></feed>
+</ol>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><summary type="html"><![CDATA[2024-11-29-Tool Learning through Simulated Trial and Error论文笔记]]></summary></entry></feed>
