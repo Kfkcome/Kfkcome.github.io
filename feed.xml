@@ -1,5 +1,154 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2024-12-25T10:41:54+08:00</updated><id>/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
-</subtitle><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><entry><title type="html">Why Can GPT ICL 论文粗读</title><link href="/2024/12/23/Why-Can-GPT-ICL-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="Why Can GPT ICL 论文粗读" /><published>2024-12-23T00:00:00+08:00</published><updated>2024-12-23T00:00:00+08:00</updated><id>/2024/12/23/Why-Can-GPT-ICL-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/23/Why-Can-GPT-ICL-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="why-can-gpt-icl-论文粗读">Why Can GPT ICL 论文粗读</h1>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2025-01-02T11:53:00+08:00</updated><id>/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
+</subtitle><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><entry><title type="html">Towards-Autonomous-Tool-Utilization-论文粗读</title><link href="/2024/12/30/Towards-Autonomous-Tool-Utilization-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="Towards-Autonomous-Tool-Utilization-论文粗读" /><published>2024-12-30T00:00:00+08:00</published><updated>2024-12-30T00:00:00+08:00</updated><id>/2024/12/30/Towards-Autonomous-Tool-Utilization-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/30/Towards-Autonomous-Tool-Utilization-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="towards-autonomous-tool-utilization论文粗读">Towards Autonomous Tool Utilization论文粗读</h1>
+
+<hr />
+
+<h2 id="-meta-data"><span style="color: rgb(27, 94, 32)"><span style="background-color: rgb(241, 248, 233)">💡 Meta Data</span></span></h2>
+
+<p>| <span style="background-color: rgb(219, 238, 221)">Title</span>    | <span style="background-color: rgb(219, 238, 221)">Towards Autonomous Tool Utilization in Language Models: A Unified, Efficient and Scalable Framework</span> |
+| —————————————————————— | ————————————————————————————————————————————————————- |
+| <span style="background-color: rgb(243, 250, 244)">Journal</span>  | <span style="background-color: rgb(243, 250, 244)"> </span><em><span style="background-color: rgb(243, 250, 244)">(LREC-COLING)</span></em>                          |
+| <span style="background-color: rgb(219, 238, 221)">Authors</span>  | <span style="background-color: rgb(219, 238, 221)">Li Zhi,Li Yicheng,Ye Hequan,Zhang Yin</span>                                                               |
+| <span style="background-color: rgb(243, 250, 244)">Pub.date</span> |                                                                                                                                                               |
+<!---more--></p>
+<h2 id="-研究背景--基础--目的-motivation"><span style="color: rgb(230, 81, 0)"><span style="background-color: rgb(255, 248, 225)">📜 研究背景 &#x26; 基础 &#x26; 目的 (Motivation)</span></span></h2>
+
+<hr />
+
+<ul>
+  <li>
+    <p>为了实现完全自主的工具使用问题：</p>
+
+    <ul>
+      <li>仅凭一个查询语言模型能够自主决定是否使用工具，选择那个特定的工具，以及如何使用这些工具，</li>
+      <li>并且所有这一切都不需要在上下文中提供任何特定工具的提示</li>
+    </ul>
+  </li>
+  <li>
+    <p>研究现状</p>
+
+    <ul>
+      <li>
+        <p>ToolLLM选择工具需要额外的检索步骤</p>
+
+        <ul>
+          <li>
+            <p>缺点：</p>
+
+            <ul>
+              <li>会导致累积错误，</li>
+              <li>缺乏端到端的优化</li>
+            </ul>
+          </li>
+        </ul>
+      </li>
+      <li>
+        <p>在上下文中提供与特定场景相关的多种工具</p>
+
+        <ul>
+          <li>缺点：有限的上下文使得拓展工具变得困难</li>
+        </ul>
+      </li>
+      <li>
+        <p>Toolformer 和 TRICE 关注的问题与本文类似</p>
+
+        <ul>
+          <li>缺点：采用自监督数据集构建效率低下，考察工具类型有限</li>
+          <li>缺乏对可扩展性的讨论和分析</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="-研究方法"><span style="color: rgb(21, 101, 192)"><span style="background-color: rgb(225, 245, 254)">🔬 研究方法</span></span></h2>
+
+<hr />
+
+<p>思路：期望大模型能够通过充分的内化各种的工具知识，实现完全自主的工具使用。</p>
+
+<p>为了实现这个目标：引入了一种统一、高效且可扩展的语言模型微调框架</p>
+
+<ul>
+  <li>
+    <p>根据工具依赖程度，将初始query分为三种不同类型</p>
+
+    <ul>
+      <li>
+        <p>可直接解决的问题</p>
+      </li>
+      <li>
+        <p>需要验证的问题</p>
+
+        <ul>
+          <li>LLM 一定程度上能解决但是容易产生幻觉（复杂的数学计算）</li>
+        </ul>
+      </li>
+      <li>
+        <p>由于固有限制而无法解决的问题（实时查询）</p>
+      </li>
+      <li>
+        <p>最后通过将统一建模为序列决策问题来解决</p>
+
+        <ul>
+          <li>$\begin{aligned}P(\mathrm{Y,W_e,W_i,H\mid X})&amp;=P(\mathrm{W_{e}}\mid\mathrm{X})&amp;\times P(\mathrm{W_{i}\mid W_{e},X})&amp;\times P(\mathrm{H}\mid\mathrm{W_{e}},\mathrm{W_{i}},\mathrm{X})&amp;\times P(\mathrm{Y}\mid\mathrm{H},\mathrm{W}<em>\mathrm{e},\mathrm{W}</em>\mathrm{i},\mathrm{X})\end{aligned}$
+*</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+  <li>
+    <p>构建数据集的方法：</p>
+
+    <ul>
+      <li>
+        <p>“指导、执行、重新格式化“的高效数据集构建策略</p>
+
+        <ul>
+          <li>以基础种子查询为起点，通过自我指导来增强这些查询</li>
+          <li>用 LLM 参考查询、工具指令来制定 API 调用</li>
+          <li>如果 API 调用成功，专门的团队会评估数据示例</li>
+          <li>最后重组数据,将工具指令从输入角色转换为输出角色</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p><img src="attachments/892LKX85.png" alt="&lt;img alt=&quot;&quot; data-attachment-key=&quot;892LKX85&quot; width=&quot;1808&quot; height=&quot;484&quot; src=&quot;attachments/892LKX85.png&quot; ztype=&quot;zimage&quot;&gt;" /></p>
+
+<ul>
+  <li>
+    <p>持续学习：动态平衡重演策略</p>
+
+    <ul>
+      <li>从关注新的 API 类别开始，逐渐增加旧 API 类别的比例直到实现平衡（防止忘记旧的 API 调用的知识）</li>
+      <li>结果：只需最少的新工具标注数据即可展现出卓越的性能，同时保持现有的工具能力</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="-结论"><span style="color: rgb(74, 20, 140)"><span style="background-color: rgb(245, 245, 245)">🚩 结论</span></span></h2>
+
+<hr />
+
+<p><img src="attachments/7396C33A.png" alt="&lt;img alt=&quot;&quot; data-attachment-key=&quot;7396C33A&quot; width=&quot;1808&quot; height=&quot;640&quot; src=&quot;attachments/7396C33A.png&quot; ztype=&quot;zimage&quot;&gt;" /></p>
+
+<ul>
+  <li>通过对包含26种多样化API的注释数据集进行端到端训练，该模型表现出一定的自我意识，在必要时会自动寻求工具的帮助。</li>
+  <li>它在多个评估指标上显著超越了原始指令调优的开源语言模型和GPT-3.5/4。</li>
+  <li>消融实验：我们的统一框架可以有效促进模型在不同工具之间学习。</li>
+  <li>持续学习只需要最少的新标注即可展现出卓越的性能</li>
+</ul>
+
+<h2 id="-感想--疑问"><span style="color: rgb(0, 96, 100)"><span style="background-color: rgb(224, 247, 250)">📌 感想 &#x26; 疑问</span></span></h2>
+
+<hr />
+
+<ul>
+  <li>本文的创新点：就是一个概率分解，然后端到端的训练</li>
+  <li>概率分解真的有用吗？</li>
+</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[Towards Autonomous Tool Utilization论文粗读 💡 Meta Data Title Towards Autonomous Tool Utilization in Language Models: A Unified, Efficient and Scalable Framework Journal  (LREC-COLING) Authors Li Zhi,Li Yicheng,Ye Hequan,Zhang Yin Pub.date  ]]></summary></entry><entry><title type="html">Why Can GPT ICL 论文粗读</title><link href="/2024/12/23/Why-Can-GPT-ICL-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="Why Can GPT ICL 论文粗读" /><published>2024-12-23T00:00:00+08:00</published><updated>2024-12-23T00:00:00+08:00</updated><id>/2024/12/23/Why-Can-GPT-ICL-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/23/Why-Can-GPT-ICL-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="why-can-gpt-icl-论文粗读">Why Can GPT ICL 论文粗读</h1>
 
 <hr />
 
@@ -75,7 +224,7 @@
 <h3 id="工作二提出一种新的注意力机制">工作二：提出一种新的注意力机制</h3>
 
 <p>受到 fine-tuning 和 ICL 的相似性的启发，通过与基于动量的梯度下降类比设计了一种基于动量的注意力，比基础的注意力提升了性能。
-<img src="assets/posts_assets/LB8NYI98.png" alt="" /></p>
+<img src="/assets/posts_assets/LB8NYI98.png" alt="" /></p>
 
 <p>基于动量的梯度下降公式：</p>
 
@@ -119,10 +268,10 @@
 
 <ul>
   <li>
-    <p>困惑度降低<img src="assets/posts_assets/AZD4IVSR.png" alt="" /></p>
+    <p>困惑度降低<img src="/assets/posts_assets/AZD4IVSR.png" alt="" /></p>
   </li>
   <li>
-    <p>ICL 性能提升<img src="assets/posts_assets/CTC7IUS4.png" alt="" /></p>
+    <p>ICL 性能提升<img src="/assets/posts_assets/CTC7IUS4.png" alt="" /></p>
   </li>
 </ul>
 
@@ -1619,20 +1768,4 @@ Teleprompter 在 DSPy 编译器中扮演着至关重要的角色，通过提供�
 <ul>
   <li>通过 DSPy，我们可以用简洁且明确定义的模块替换手工制作的提示字符串，而不会降低质量或表达能力。</li>
   <li>参数化模块并将提示处理为优化问题使 DSPy 更适合适应不同的语言模型，并且它可能优于专家撰写的提示。</li>
-</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[DSPY COMPILING DECLARATIVE LANGUAGE MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习 不懂的]]></summary></entry><entry><title type="html">T-Eval Evaluating the Tool Utilization Capability of Large Language Models Step by Step论文笔记</title><link href="/2024/12/01/T-Eval-Evaluating-the-Tool-Utilization-Capability-of-Large-Language-Models-Step-by-Step%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html" rel="alternate" type="text/html" title="T-Eval Evaluating the Tool Utilization Capability of Large Language Models Step by Step论文笔记" /><published>2024-12-01T00:00:00+08:00</published><updated>2024-12-01T00:00:00+08:00</updated><id>/2024/12/01/T-Eval%20Evaluating%20the%20Tool%20Utilization%20Capability%20of%20%20Large%20Language%20Models%20Step%20by%20Step%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0</id><content type="html" xml:base="/2024/12/01/T-Eval-Evaluating-the-Tool-Utilization-Capability-of-Large-Language-Models-Step-by-Step%E8%AE%BA%E6%96%87%E7%AC%94%E8%AE%B0.html"><![CDATA[<h1 id="t-eval-evaluating-the-tool-utilization-capability-of-large-language-models-step-by-step论文笔记">T-Eval Evaluating the Tool Utilization Capability of Large Language Models Step by Step论文笔记</h1>
-
-<!---more-->
-<h2 id="摘要">摘要</h2>
-
-<h3 id="背景">背景</h3>
-
-<ul>
-  <li>LLM 工具学习的发展</li>
-  <li>如何评估 LLMs 的工具的利用能力还有待研究</li>
-</ul>
-
-<h3 id="工作">工作</h3>
-
-<ul>
-  <li>与之前全面评估模型的研究相比，我们综合地将工具利用分解为多个子过程，包括遵循指令、规划、推理、检索、理解和复习。</li>
-</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><summary type="html"><![CDATA[T-Eval Evaluating the Tool Utilization Capability of Large Language Models Step by Step论文笔记]]></summary></entry></feed>
+</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[DSPY COMPILING DECLARATIVE LANGUAGE MODEL CALLS INTO SELF-IMPROVING PIPELINES论文学习 不懂的]]></summary></entry></feed>
