@@ -1,5 +1,346 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2025-01-02T21:29:46+08:00</updated><id>/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
-</subtitle><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><entry><title type="html">AnyTool-论文粗读</title><link href="/2025/01/01/AnyTool-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="AnyTool-论文粗读" /><published>2025-01-01T00:00:00+08:00</published><updated>2025-01-01T00:00:00+08:00</updated><id>/2025/01/01/AnyTool--%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2025/01/01/AnyTool-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="anytool-论文粗读">AnyTool 论文粗读</h1>
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2025-01-09T16:13:26+08:00</updated><id>/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
+</subtitle><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><entry><title type="html">Do not think that much for 2+3=? 论文粗读</title><link href="/2025/01/09/Do-not-think-that-much-for-2+3=-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="Do not think that much for 2+3=? 论文粗读" /><published>2025-01-09T00:00:00+08:00</published><updated>2025-01-09T00:00:00+08:00</updated><id>/2025/01/09/Do-not-think-that-much-for-2+3=---%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2025/01/09/Do-not-think-that-much-for-2+3=-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="do-not-think-that-much-for-23-论文粗读">Do not think that much for 2+3=? 论文粗读</h1>
+
+<hr />
+
+<h2 id="-meta-data"><span style="color: rgb(27, 94, 32)"><span style="background-color: rgb(241, 248, 233)">💡 Meta Data</span></span></h2>
+
+<p>| <span style="background-color: rgb(219, 238, 221)">Title</span>    | <span style="background-color: rgb(219, 238, 221)">Do NOT Think That Much for 2+3=? On the Overthinking of o1-Like LLMs</span>                                                                                        |
+| —————————————————————— | ——————————————————————————————————————————————————————————————————————— |
+| <span style="background-color: rgb(243, 250, 244)">Journal</span>  | <span style="background-color: rgb(243, 250, 244)"> </span><em><span style="background-color: rgb(243, 250, 244)">(10.48550/arXiv.2412.21187)</span></em>                                                                    |
+| <span style="background-color: rgb(219, 238, 221)">Authors</span>  | <span style="background-color: rgb(219, 238, 221)">Chen Xingyu,Xu Jiahao,Liang Tian,He Zhiwei,Pang Jianhui,Yu Dian,Song Linfeng,Liu Qiuzhi,Zhou Mengfei,Zhang Zhuosheng,Wang Rui,Tu Zhaopeng,Mi Haitao,Yu Dong</span> |
+| <span style="background-color: rgb(243, 250, 244)">Pub.date</span> | <span style="background-color: rgb(243, 250, 244)">2024-12-30</span>                                                                                                                                                  |
+<!---more--></p>
+<h2 id="-研究背景--基础--目的-motivation"><span style="color: rgb(230, 81, 0)"><span style="background-color: rgb(255, 248, 225)">📜 研究背景 &#x26; 基础 &#x26; 目的 (Motivation)</span></span></h2>
+
+<hr />
+
+<ul>
+  <li>
+    <p>O1 在推理的过程中模拟人类长时间思考取得了卓越的表现</p>
+
+    <ul>
+      <li>采用扩展的思考链过程，探索多种策略以增强问题解决的能力</li>
+      <li>o1类模型存在显著的过度思考问题</li>
+      <li><img src="/assets/posts_assets/AKLY9WBP.png" alt="" /></li>
+    </ul>
+  </li>
+  <li>
+    <p>问题：如何在测试过程中智能且高效的扩展计算资源？（自主选择何时慢思考）</p>
+  </li>
+</ul>
+
+<p>*</p>
+
+<h2 id="-研究方法"><span style="color: rgb(21, 101, 192)"><span style="background-color: rgb(225, 245, 254)">🔬 研究方法</span></span></h2>
+
+<hr />
+
+<p>对过度思考问题全面研究:</p>
+
+<ul>
+  <li>过度思考：为简单问题分配了过多的计算资源，几乎没有收益</li>
+</ul>
+
+<p>在数学任务上过度思考的模式：</p>
+
+<ul>
+  <li>对提高准确性贡献甚微</li>
+  <li>缺乏推理策略的多样性</li>
+  <li>在简单问题中过度思考更为频繁出现</li>
+</ul>
+
+<p>工作：</p>
+
+<blockquote>
+  <p>观点：推理不应该只要求准确性还要求应用合适复杂度。</p>
+</blockquote>
+
+<ul>
+  <li>从结果和过程的角度引入了新颖的效率指标，以评估 o1 类模型的计算资源合理使用。</li>
+</ul>
+
+<h3 id="提出评估指标">提出评估指标</h3>
+
+<h4 id="准确性提升的效率">准确性提升的效率</h4>
+
+\[\xi_O=\frac{1}{N}\sum_{i=1}^{N}\sigma_i\frac{\hat{T}_i}{T_i}\]
+
+<p>$\hat{T_i}$ 是在样本 i 第一次显式的出现答案的 token 数</p>
+
+<p>$\sigma_i$ 是当回答正确时 =1 回答不正确是为 0</p>
+
+<h4 id="多样性思考的效率">多样性思考的效率</h4>
+
+\[\xi_P=\frac{1}{N}\sum_{i=1}^{N}\frac{D_i}{T_i}\]
+
+\[D_i=\sum_{m=1}^M\tau_i^mT_i^m\]
+
+<p>$D_i$是有效类别的 token 数量，$T_i$ 所有的 token 数量</p>
+
+<h4 id="实验结果">实验结果</h4>
+
+<p><img src="/assets/posts_assets/CX9KL7B3.png" alt="" /></p>
+
+<p><img src="/assets/posts_assets/ZIS2VNK7.png" alt="" /></p>
+
+<p>验证了那三种过度思考的模式</p>
+
+<h3 id="缓解过度思考">缓解过度思考</h3>
+
+<p>通过自我训练范式，提出了缓解过度思考的策略，简化推理过程而不影响准确性。</p>
+
+<ul>
+  <li>通过去除冗余解决方案来简化生成的响应，同时保持基本的反思性。</li>
+</ul>
+
+<h4 id="训练让回答更高效">训练让回答更高效</h4>
+
+<p>造数据方法：自我训练的方法</p>
+
+<p>生成三种数据：</p>
+
+<ul>
+  <li>Greedy：next-token选概率最大的</li>
+  <li>Shortest：生成十个回答，除去错误的，选择最短的</li>
+  <li>Longest：生成十个回答，除去错误的，选择最长的</li>
+</ul>
+
+<p>训练方式：</p>
+
+<p>SFT、DPO、RPO、SimPo</p>
+
+<h4 id="训练让回答提到多样性效率">训练让回答提到多样性效率</h4>
+
+<p>策略：截断正确答案后的 解决方案</p>
+
+<ul>
+  <li>
+    <p>First-Correct Solutions(FCS):只去第一个正确的解决方案，其他的截断</p>
+
+    <ul>
+      <li>缺点：让 O1 变回了传统的 LLM，没有利用长程反思的优势</li>
+    </ul>
+  </li>
+  <li>
+    <p>FCS + Reflection: 得到一个正确的解决方案后，再保留一个正确的解决方案</p>
+
+    <ul>
+      <li>目的是希望在<strong>保持效率</strong>的同时，不完全丧失模型“长程反思”优势</li>
+      <li>缺点：第二个也只是用<strong>同一个思路</strong>去验证或重复第一个解法，缺乏“新意”</li>
+    </ul>
+  </li>
+  <li>
+    <p>Greedily Diverse Solutions (GDS):贪心地寻找新思路</p>
+
+    <ul>
+      <li>如果第二个解法只是重复或核对第一个，则舍弃；</li>
+      <li>如果第二个解法确实提供了<strong>新视角</strong>或额外价值，就把它保留。</li>
+    </ul>
+  </li>
+</ul>
+
+<p>每个问题，生成 10 个答案，然后选择最短的结果
+<img src="/assets/posts_assets/BJIFZT8L.png" alt="" /></p>
+
+<p><img src="/assets/posts_assets/UTPJ9F5L.png" alt="" /></p>
+
+<h2 id="-结论"><span style="color: rgb(74, 20, 140)"><span style="background-color: rgb(245, 245, 245)">🚩 结论</span></span></h2>
+
+<hr />
+<p><img src="/assets/posts_assets/R47YTYPN.png" alt="" /></p>
+
+<ul>
+  <li>
+    <p>保持模型性能的同时，成功减少了计算开销</p>
+
+    <ul>
+      <li>GSM8K、MATH500、GPQA和AIME</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="-感想--疑问"><span style="color: rgb(0, 96, 100)"><span style="background-color: rgb(224, 247, 250)">📌 感想 &#x26; 疑问</span></span></h2>
+
+<hr />
+
+<ul>
+  <li>这些数据集都是定量分析或推理的数据集，O1 类模型是不用其他任务上（除推理之外）吗？其他任务上的过度思考会怎么样？</li>
+</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[Do not think that much for 2+3=? 论文粗读 💡 Meta Data Title Do NOT Think That Much for 2+3=? On the Overthinking of o1-Like LLMs Journal  (10.48550/arXiv.2412.21187) Authors Chen Xingyu,Xu Jiahao,Liang Tian,He Zhiwei,Pang Jianhui,Yu Dian,Song Linfeng,Liu Qiuzhi,Zhou Mengfei,Zhang Zhuosheng,Wang Rui,Tu Zhaopeng,Mi Haitao,Yu Dong Pub.date 2024-12-30]]></summary></entry><entry><title type="html">To CoT or not to CoT? 论文粗读</title><link href="/2025/01/08/To-CoT-or-not-to-CoT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB-AUBG95ZE.html" rel="alternate" type="text/html" title="To CoT or not to CoT? 论文粗读" /><published>2025-01-08T00:00:00+08:00</published><updated>2025-01-08T00:00:00+08:00</updated><id>/2025/01/08/To-CoT-or-not-to-CoT---%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB-AUBG95ZE</id><content type="html" xml:base="/2025/01/08/To-CoT-or-not-to-CoT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB-AUBG95ZE.html"><![CDATA[<h1 id="to-cot-or-not-to-cot-论文粗读">To CoT or not to CoT? 论文粗读</h1>
+
+<hr />
+
+<h2 id="-meta-data"><span style="color: rgb(27, 94, 32)"><span style="background-color: rgb(241, 248, 233)">💡 Meta Data</span></span></h2>
+
+<p>| <span style="background-color: rgb(219, 238, 221)">Title</span>    | <span style="background-color: rgb(219, 238, 221)">To CoT or not to CoT? Chain-of-thought helps mainly on math and symbolic reasoning</span>                                                     |
+| —————————————————————— | ———————————————————————————————————————————————————————————————— |
+| <span style="background-color: rgb(243, 250, 244)">Journal</span>  | <span style="background-color: rgb(243, 250, 244)"> </span><em><span style="background-color: rgb(243, 250, 244)">(10.48550/arXiv.2409.12183)</span></em>                                               |
+| <span style="background-color: rgb(219, 238, 221)">Authors</span>  | <span style="background-color: rgb(219, 238, 221)">Sprague Zayne,Yin Fangcong,Rodriguez Juan Diego,Jiang Dongwei,Wadhwa Manya,Singhal Prasann,Zhao Xinyu,Ye Xi,Mahowald Kyle,Durrett Greg</span> |
+| <span style="background-color: rgb(243, 250, 244)">Pub.date</span> | <span style="background-color: rgb(243, 250, 244)">2024-10-29</span>                                                                                                                             |
+<!---more--></p>
+<h2 id="-研究背景--基础--目的-motivation"><span style="color: rgb(230, 81, 0)"><span style="background-color: rgb(255, 248, 225)">📜 研究背景 &#x26; 基础 &#x26; 目的 (Motivation)</span></span></h2>
+
+<hr />
+
+<ul>
+  <li>
+    <p>COT 这种额外的“思考”对于哪些类型的任务真的有帮助呢？</p>
+
+    <ul>
+      <li>CoT 在大量研究中被证明是有效的，但是这些研究中许多都关注的是一部分特定的任务。（比如评估推理仅在数学领域进行评估）</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="-研究方法"><span style="color: rgb(21, 101, 192)"><span style="background-color: rgb(225, 245, 254)">🔬 研究方法</span></span></h2>
+
+<hr />
+
+<h3 id="工作一">工作一</h3>
+
+<p>工作：</p>
+
+<ul>
+  <li>进行了一个定量的元分析，涵盖了110多篇使用CoT的论文，并对14个模型的20个数据集进行了自己的评估。
+<img src="/assets/posts_assets/ZN7FD44Y.png" alt="" /></li>
+</ul>
+
+<p>去论文中平均后：
+<img src="/assets/posts_assets/CJ6GM385.png" alt="" /></p>
+
+<p>符号推理、数学、逻辑推理提升：14.2、12.3、6.9</p>
+
+<p>其他类别使用 CoT 平均表现 56.8，未使用平均表现 56.1</p>
+
+<p>解释分析：为什么 CoT 仅限这些问题上会有提升？</p>
+
+<blockquote>
+  <p>观察图中异常值：</p>
+
+  <ul>
+    <li>BIG-bench Hard：需要算法、算术或逻辑推理的问题组成的基准</li>
+    <li>BIG-bench Navigate是一个空间推理任务，但在得出最终结论时严重依赖于计算步数这一数学基础</li>
+    <li>BIG-bench Temporal是一个时间推理任务（回答关于某些事件何时可能发生的问题），但它需要推理能力来解决</li>
+    <li>法律论证推理（SemEval-2024 Task 5）（Bongard et al., 2022）被归类为上下文感知的QA，但也需要相当大的推理能力</li>
+    <li>MMLU-道德场景（Hendrycks et al., 2021a）需要同时回答两个独立的问题，这本质上涉及到两个更简单问题的符号组合。</li>
+  </ul>
+</blockquote>
+
+<p>发现1：</p>
+
+<ul>
+  <li>
+    <p>CoT 仅在需要数学、逻辑或算法推理的问题上显著有帮助。</p>
+
+    <ul>
+      <li>
+        <p>具体发现 CoT 仅在数据集的数学部分有所益处</p>
+
+        <ul>
+          <li>在 MMLU 中 CoT 带来的性能提升中，有多达 95%归因于问题或生成输出中包含“=”的问法</li>
+          <li>而非数学问题，我们没有发现任何特征可以知识 CoT 何时会有帮助</li>
+        </ul>
+      </li>
+    </ul>
+  </li>
+</ul>
+
+<p>实验：
+<img src="/assets/posts_assets/FKFJ2TBA.png" alt="" /></p>
+
+<p>结果：</p>
+
+<p><img src="assets/posts_assets/4ARKITKU.png" alt="" /></p>
+
+<ul>
+  <li>在非符号推理类别：（常识问题、语言理解和阅读理解）zero-shot CoT 和 zero-shot 直接回答性能几乎没有区别。</li>
+  <li>在数学和符号类别改进获得了很大提升</li>
+  <li>ContextHub 和 MuSR 谋杀谜题这样半符号数据集显示出一定的增益。</li>
+  <li>增加样本也影响甚微（在 CoT 有帮助时）</li>
+</ul>
+
+<blockquote>
+  <p>“半符号推理”可以理解为介于纯符号推理与非符号推理之间的一种推理方式。在纯符号推理中，我们通常可以把问题映射到一个被广泛认可并使用的形式系统（比如一阶逻辑或数学表达），然后用已有的符号求解器来直接计算答案。而在非符号推理中，问题往往依赖于常识、情境理解或经验判断，缺乏一个公认的形式系统来表达和解决问题。</p>
+
+  <p>“半符号推理”则结合了这两种思路：</p>
+
+  <ol>
+    <li><strong>部分地依赖某个已有的形式系统</strong>：在问题里可能存在某些可以形式化的规则、逻辑或推理准则（比如“有动机、有作案手段、有作案机会就意味着是凶手”），这些可以用符号的形式表达并交给求解器处理。</li>
+    <li><strong>仍然需要常识或经验性的推理</strong>：问题中往往存在无法被完全形式化的部分，需要通过语言模型或人类常识来补充额外信息或进行解释。例如，在谋杀案场景中，区分角色之间复杂的社会关系、有时候需要联想到常见的社会行为或动机，超出了简单逻辑公式所能直接处理的范围。</li>
+  </ol>
+
+  <p>因此，在半符号推理中，我们既需要能把可形式化的部分映射到符号表达中去，同时又要结合常识理解和更高层次的推理，以最终得到问题的答案。</p>
+</blockquote>
+
+<h3 id="工作二">工作二</h3>
+
+<ul>
+  <li>
+    <p>数学和形式逻辑推理数据集可以分为两个处理阶段：</p>
+
+    <ul>
+      <li>一个规划步骤（例：将一个问题解析为方程）</li>
+      <li>一个执行步骤（生成中间输出并向解决方案逼近）</li>
+    </ul>
+  </li>
+</ul>
+
+<p>CoT 主要帮助执行经计算和符号操作的执行步骤。</p>
+
+<p>工作：</p>
+
+<ul>
+  <li>将规划与执行分开并与工具增强的 LLMs 进行比较，分析了 CoT 在这些问题上的表现。
+<img src="/assets/posts_assets/869QNSNA.png" alt="" /></li>
+</ul>
+
+<p>发现2：</p>
+
+<ul>
+  <li>
+    <p>CoT 主要帮助执行计算和符号操作的步骤，但未能达到工具增强的 LLMs 的性能。</p>
+
+    <ul>
+      <li>使用 CoT 提示的LLM 能够生成可执行的解决计划，并比直接回答更好执行计划。</li>
+      <li>使用 LLM 生成解决计划，然后用工具求解，在两个阶段、所有任务中均优于使用 CoT</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="-结论"><span style="color: rgb(74, 20, 140)"><span style="background-color: rgb(245, 245, 245)">🚩 结论</span></span></h2>
+
+<hr />
+
+<p>发现：</p>
+
+<ul>
+  <li>
+    <p>CoT 在涉及数学或逻辑的任务上表现出显著的性能提升，而在其他类型的任务上提升则小得多</p>
+
+    <ul>
+      <li>在 MMLU 上直接生成答案而不用 CoT 的准确率与使用 CoT 时相同，除非问题和模型包含符号运算和推理。</li>
+    </ul>
+  </li>
+  <li>
+    <p>CoT 的大部分收益来自于符号执行，但是相对于使用工具求解，表现并不好</p>
+  </li>
+</ul>
+
+<p>结论：</p>
+
+<ul>
+  <li>
+    <ul>
+      <li>CoT 在许多任务重是不必要的，CoT可以有选择的应用，保持性能的同时节省推理成本。</li>
+      <li>CoT</li>
+      <li>需要用超越基于prompt 的 CoT，探索新范式（比如搜索、交互 agent、更多微调来学习 CoT），以更好地利用整个大模型应用范围内的中间计算。</li>
+    </ul>
+  </li>
+</ul>
+
+<h2 id="-感想--疑问"><span style="color: rgb(0, 96, 100)"><span style="background-color: rgb(224, 247, 250)">📌 感想 &#x26; 疑问</span></span></h2>
+
+<hr />]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[To CoT or not to CoT? 论文粗读 💡 Meta Data Title To CoT or not to CoT? Chain-of-thought helps mainly on math and symbolic reasoning Journal  (10.48550/arXiv.2409.12183) Authors Sprague Zayne,Yin Fangcong,Rodriguez Juan Diego,Jiang Dongwei,Wadhwa Manya,Singhal Prasann,Zhao Xinyu,Ye Xi,Mahowald Kyle,Durrett Greg Pub.date 2024-10-29]]></summary></entry><entry><title type="html">AnyTool-论文粗读</title><link href="/2025/01/07/AnyTool-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="AnyTool-论文粗读" /><published>2025-01-07T00:00:00+08:00</published><updated>2025-01-07T00:00:00+08:00</updated><id>/2025/01/07/AnyTool--%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2025/01/07/AnyTool-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="anytool-论文粗读">AnyTool 论文粗读</h1>
 
 <hr />
 
@@ -557,96 +898,7 @@
 
 <h2 id="-感想--疑问"><span style="color: rgb(0, 96, 100)"><span style="background-color: rgb(224, 247, 250)">📌 感想 &#x26; 疑问</span></span></h2>
 
-<hr />]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;TooL LLM&gt; 论文粗读 💡 Meta Data Title ToolLLM: Facilitating Large Language Models to Master 16000+ Real-world APIs Journal  (10.48550/arXiv.2307.16789) Authors Qin Yujia,Liang Shihao,Ye Yining,Zhu Kunlun,Yan Lan,Lu Yaxi,Lin Yankai,Cong Xin,Tang Xiangru,Qian Bill,Zhao Sihan,Hong Lauren,Tian Runchu,Xie Ruobing,Zhou Jie,Gerstein Mark,Li Dahai,Liu Zhiyuan,Sun Maosong Pub.date 2023-10-03]]></summary></entry><entry><title type="html">TALM 论文粗读</title><link href="/2024/12/17/TALM-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="TALM 论文粗读" /><published>2024-12-17T00:00:00+08:00</published><updated>2024-12-17T00:00:00+08:00</updated><id>/2024/12/17/TALM--%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/17/TALM-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="talm-论文粗读">&lt;TALM&gt; 论文粗读</h1>
-
-<hr />
-
-<h2 id="-meta-data"><span style="color: rgb(27, 94, 32)"><span style="background-color: rgb(241, 248, 233)">💡 Meta Data</span></span></h2>
-
-<p>| <span style="background-color: rgb(219, 238, 221)">Title</span>    | <span style="background-color: rgb(219, 238, 221)">TALM: Tool Augmented Language Models</span>                                                     |
-| —————————————————————— | ————————————————————————————————————————————————– |
-| <span style="background-color: rgb(243, 250, 244)">Journal</span>  | <span style="background-color: rgb(243, 250, 244)"> </span><em><span style="background-color: rgb(243, 250, 244)">(10.48550/ARXIV.2205.12255)</span></em> |
-| <span style="background-color: rgb(219, 238, 221)">Authors</span>  | <span style="background-color: rgb(219, 238, 221)">Parisi Aaron,Zhao Yao,Fiedel Noah</span>                                                        |
-| <span style="background-color: rgb(243, 250, 244)">Pub.date</span> | <span style="background-color: rgb(243, 250, 244)">2022</span>                                                                                     |
-<!---more--></p>
-<h2 id="-研究背景--基础--目的-motivation"><span style="color: rgb(230, 81, 0)"><span style="background-color: rgb(255, 248, 225)">📜 研究背景 &#x26; 基础 &#x26; 目的 (Motivation)</span></span></h2>
-
-<hr />
-
-<ul>
-  <li>LLM 需要工具：LLM 不能使模型解决需要访问训练时不可用短暂、变化或私人数据的任务，许多任务用API更好解决</li>
-  <li>最近研究将LLM连接到一个环境（仅是作为query的接受者）</li>
-</ul>
-
-<h2 id="-研究方法"><span style="color: rgb(21, 101, 192)"><span style="background-color: rgb(225, 245, 254)">🔬 研究方法</span></span></h2>
-
-<hr />
-
-<p>提出了工具增强语言模型（TALM），使用模型生成的输出调用任意工具，并关注工具输出以生成任务输出</p>
-
-<p>贡献：</p>
-
-<ul>
-  <li>仅使用text-to-text 的API 来增强语言模型</li>
-  <li>提出自我博弈（self-play）技术，提高了在few-shot的启动性能</li>
-</ul>
-
-<h3 id="talm模型">TALM模型</h3>
-
-<p><img src="/assets/posts_assets/LMBWTV2M.png" alt="" /></p>
-
-<ol>
-  <li>
-    <table>
-      <tbody>
-        <tr>
-          <td>TALM 首先生成一个基于任务输入文本的工具输入，并通过生成分隔符，例如“</td>
-          <td>result”，调用工具的 API。</td>
-        </tr>
-      </tbody>
-    </table>
-  </li>
-  <li>
-    <p>每当检测到这个分隔符时，就会调用工具 API，并将其结果附加到文本序列中。</p>
-  </li>
-  <li>然后，TALM 继续生成最终的任务输出。<img src="assets/posts_assets/VQ5T6NKX.png" alt="" /></li>
-</ol>
-
-<p>TALM 同时学习两个子任务：调用工具和基于工具结果生成答案。</p>
-
-<p>TALM 在架构上用了Seq2Seq模型</p>
-
-<h3 id="迭代iterative-self-play">迭代Iterative self-play</h3>
-
-<ol>
-  <li>首先有示例数据集，然后微调这个数据集，再在新数据集（无工具示例）生成工具调用的过程。</li>
-  <li>然后看最终结果怎么样，如果大于阈值就添加到原本的数据集中</li>
-</ol>
-
-<blockquote>
-  <p>这个过程虽然本文是单步的（使用单个工具的），但是很容易建模成多步的，用类似马尔科夫链建模</p>
-</blockquote>
-
-<h2 id="-结论"><span style="color: rgb(74, 20, 140)"><span style="background-color: rgb(245, 245, 245)">🚩 结论</span></span></h2>
-
-<hr />
-
-<ul>
-  <li>一个知识密集型问答任务（NQ）和一个使用简单工具的推理导向数学任务（MathQA）上表现出色。</li>
-  <li>TALM 成功地在问答和数学任务上进行分布外推理，而未增强的语言模型则失败。</li>
-  <li>小模型从工具中收益更多（知识密集的任务）</li>
-</ul>
-
-<p><img src="assets/posts_assets/K39LZNDR.png" alt="" /></p>
-
-<h2 id="-感想--疑问"><span style="color: rgb(0, 96, 100)"><span style="background-color: rgb(224, 247, 250)">📌 感想 &#x26; 疑问</span></span></h2>
-
-<hr />
-
-<ul class="task-list">
-  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />需要再搞清楚seq2seq模型和decoder-only模型的本质区别是什么  [created:: 2024-12-17]  [due:: 2024-12-17]</li>
-  <li class="task-list-item">这些论文学习工具的过程感觉都是 少样本-&gt;自己增强（标准不一样）-&gt;然后再微调自己</li>
-</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;TALM&gt; 论文粗读 💡 Meta Data Title TALM: Tool Augmented Language Models Journal  (10.48550/ARXIV.2205.12255) Authors Parisi Aaron,Zhao Yao,Fiedel Noah Pub.date 2022]]></summary></entry><entry><title type="html">Toolformer 论文粗读</title><link href="/2024/12/17/Toolformer-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="Toolformer 论文粗读" /><published>2024-12-17T00:00:00+08:00</published><updated>2024-12-17T00:00:00+08:00</updated><id>/2024/12/17/%3CToolformer%3E%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/17/Toolformer-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="toolformer-论文粗读">&lt;Toolformer&gt; 论文粗读</h1>
+<hr />]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;TooL LLM&gt; 论文粗读 💡 Meta Data Title ToolLLM: Facilitating Large Language Models to Master 16000+ Real-world APIs Journal  (10.48550/arXiv.2307.16789) Authors Qin Yujia,Liang Shihao,Ye Yining,Zhu Kunlun,Yan Lan,Lu Yaxi,Lin Yankai,Cong Xin,Tang Xiangru,Qian Bill,Zhao Sihan,Hong Lauren,Tian Runchu,Xie Ruobing,Zhou Jie,Gerstein Mark,Li Dahai,Liu Zhiyuan,Sun Maosong Pub.date 2023-10-03]]></summary></entry><entry><title type="html">Toolformer 论文粗读</title><link href="/2024/12/17/Toolformer-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="Toolformer 论文粗读" /><published>2024-12-17T00:00:00+08:00</published><updated>2024-12-17T00:00:00+08:00</updated><id>/2024/12/17/%3CToolformer%3E%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/17/Toolformer-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="toolformer-论文粗读">&lt;Toolformer&gt; 论文粗读</h1>
 
 <hr />
 
@@ -785,7 +1037,96 @@
   <li>微调以后再禁用API测试，确实是一个检测微调后有没有损失模型性能的好办法</li>
   <li>微调过程中仅对工具选择算loss感觉挺有用
 *</li>
-</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;Toolformer&gt; 论文粗读 💡 Meta Data Title Toolformer: Language Models Can Teach Themselves to Use Tools Journal  (10.48550/ARXIV.2302.04761) Authors Schick Timo,Dwivedi-Yu Jane,Dessì Roberto,Raileanu Roberta,Lomeli Maria,Zettlemoyer Luke,Cancedda Nicola,Scialom Thomas Pub.date 2023]]></summary></entry><entry><title type="html">Self-Planning Code Generation with Large Language Models 论文粗读</title><link href="/2024/12/16/Self-Planning-Code-Generation-with-Large-Language-Models-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="Self-Planning Code Generation with Large Language Models 论文粗读" /><published>2024-12-16T00:00:00+08:00</published><updated>2024-12-16T00:00:00+08:00</updated><id>/2024/12/16/Self-Planning-Code-Generation-with-Large-Language-Models-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/16/Self-Planning-Code-Generation-with-Large-Language-Models-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="self-planning-code-generation-with-large-language-models-论文粗读">&lt;Self-Planning Code Generation with Large Language Models&gt; 论文粗读</h1>
+</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;Toolformer&gt; 论文粗读 💡 Meta Data Title Toolformer: Language Models Can Teach Themselves to Use Tools Journal  (10.48550/ARXIV.2302.04761) Authors Schick Timo,Dwivedi-Yu Jane,Dessì Roberto,Raileanu Roberta,Lomeli Maria,Zettlemoyer Luke,Cancedda Nicola,Scialom Thomas Pub.date 2023]]></summary></entry><entry><title type="html">TALM 论文粗读</title><link href="/2024/12/17/TALM-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="TALM 论文粗读" /><published>2024-12-17T00:00:00+08:00</published><updated>2024-12-17T00:00:00+08:00</updated><id>/2024/12/17/TALM--%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/17/TALM-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="talm-论文粗读">&lt;TALM&gt; 论文粗读</h1>
+
+<hr />
+
+<h2 id="-meta-data"><span style="color: rgb(27, 94, 32)"><span style="background-color: rgb(241, 248, 233)">💡 Meta Data</span></span></h2>
+
+<p>| <span style="background-color: rgb(219, 238, 221)">Title</span>    | <span style="background-color: rgb(219, 238, 221)">TALM: Tool Augmented Language Models</span>                                                     |
+| —————————————————————— | ————————————————————————————————————————————————– |
+| <span style="background-color: rgb(243, 250, 244)">Journal</span>  | <span style="background-color: rgb(243, 250, 244)"> </span><em><span style="background-color: rgb(243, 250, 244)">(10.48550/ARXIV.2205.12255)</span></em> |
+| <span style="background-color: rgb(219, 238, 221)">Authors</span>  | <span style="background-color: rgb(219, 238, 221)">Parisi Aaron,Zhao Yao,Fiedel Noah</span>                                                        |
+| <span style="background-color: rgb(243, 250, 244)">Pub.date</span> | <span style="background-color: rgb(243, 250, 244)">2022</span>                                                                                     |
+<!---more--></p>
+<h2 id="-研究背景--基础--目的-motivation"><span style="color: rgb(230, 81, 0)"><span style="background-color: rgb(255, 248, 225)">📜 研究背景 &#x26; 基础 &#x26; 目的 (Motivation)</span></span></h2>
+
+<hr />
+
+<ul>
+  <li>LLM 需要工具：LLM 不能使模型解决需要访问训练时不可用短暂、变化或私人数据的任务，许多任务用API更好解决</li>
+  <li>最近研究将LLM连接到一个环境（仅是作为query的接受者）</li>
+</ul>
+
+<h2 id="-研究方法"><span style="color: rgb(21, 101, 192)"><span style="background-color: rgb(225, 245, 254)">🔬 研究方法</span></span></h2>
+
+<hr />
+
+<p>提出了工具增强语言模型（TALM），使用模型生成的输出调用任意工具，并关注工具输出以生成任务输出</p>
+
+<p>贡献：</p>
+
+<ul>
+  <li>仅使用text-to-text 的API 来增强语言模型</li>
+  <li>提出自我博弈（self-play）技术，提高了在few-shot的启动性能</li>
+</ul>
+
+<h3 id="talm模型">TALM模型</h3>
+
+<p><img src="/assets/posts_assets/LMBWTV2M.png" alt="" /></p>
+
+<ol>
+  <li>
+    <table>
+      <tbody>
+        <tr>
+          <td>TALM 首先生成一个基于任务输入文本的工具输入，并通过生成分隔符，例如“</td>
+          <td>result”，调用工具的 API。</td>
+        </tr>
+      </tbody>
+    </table>
+  </li>
+  <li>
+    <p>每当检测到这个分隔符时，就会调用工具 API，并将其结果附加到文本序列中。</p>
+  </li>
+  <li>然后，TALM 继续生成最终的任务输出。<img src="assets/posts_assets/VQ5T6NKX.png" alt="" /></li>
+</ol>
+
+<p>TALM 同时学习两个子任务：调用工具和基于工具结果生成答案。</p>
+
+<p>TALM 在架构上用了Seq2Seq模型</p>
+
+<h3 id="迭代iterative-self-play">迭代Iterative self-play</h3>
+
+<ol>
+  <li>首先有示例数据集，然后微调这个数据集，再在新数据集（无工具示例）生成工具调用的过程。</li>
+  <li>然后看最终结果怎么样，如果大于阈值就添加到原本的数据集中</li>
+</ol>
+
+<blockquote>
+  <p>这个过程虽然本文是单步的（使用单个工具的），但是很容易建模成多步的，用类似马尔科夫链建模</p>
+</blockquote>
+
+<h2 id="-结论"><span style="color: rgb(74, 20, 140)"><span style="background-color: rgb(245, 245, 245)">🚩 结论</span></span></h2>
+
+<hr />
+
+<ul>
+  <li>一个知识密集型问答任务（NQ）和一个使用简单工具的推理导向数学任务（MathQA）上表现出色。</li>
+  <li>TALM 成功地在问答和数学任务上进行分布外推理，而未增强的语言模型则失败。</li>
+  <li>小模型从工具中收益更多（知识密集的任务）</li>
+</ul>
+
+<p><img src="assets/posts_assets/K39LZNDR.png" alt="" /></p>
+
+<h2 id="-感想--疑问"><span style="color: rgb(0, 96, 100)"><span style="background-color: rgb(224, 247, 250)">📌 感想 &#x26; 疑问</span></span></h2>
+
+<hr />
+
+<ul class="task-list">
+  <li class="task-list-item"><input type="checkbox" class="task-list-item-checkbox" disabled="disabled" />需要再搞清楚seq2seq模型和decoder-only模型的本质区别是什么  [created:: 2024-12-17]  [due:: 2024-12-17]</li>
+  <li class="task-list-item">这些论文学习工具的过程感觉都是 少样本-&gt;自己增强（标准不一样）-&gt;然后再微调自己</li>
+</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;TALM&gt; 论文粗读 💡 Meta Data Title TALM: Tool Augmented Language Models Journal  (10.48550/ARXIV.2205.12255) Authors Parisi Aaron,Zhao Yao,Fiedel Noah Pub.date 2022]]></summary></entry><entry><title type="html">Self-Planning Code Generation with Large Language Models 论文粗读</title><link href="/2024/12/16/Self-Planning-Code-Generation-with-Large-Language-Models-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="Self-Planning Code Generation with Large Language Models 论文粗读" /><published>2024-12-16T00:00:00+08:00</published><updated>2024-12-16T00:00:00+08:00</updated><id>/2024/12/16/Self-Planning-Code-Generation-with-Large-Language-Models-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/16/Self-Planning-Code-Generation-with-Large-Language-Models-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="self-planning-code-generation-with-large-language-models-论文粗读">&lt;Self-Planning Code Generation with Large Language Models&gt; 论文粗读</h1>
 
 <hr />
 
@@ -968,340 +1309,4 @@
 
 <p>*</p>
 
-<p>*</p>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;MultiTool-CoT: GPT-3 Can Use Multiple External Tools with Chain of Thought Prompting&gt; 论文粗读 💡 Meta Data Title MultiTool-CoT: GPT-3 Can Use Multiple External Tools with Chain of Thought Prompting Journal  () Authors Inaba Tatsuro,Kiyomaru Hirokazu,Cheng Fei,Kurohashi Sadao Pub.date 2023]]></summary></entry><entry><title type="html">StructGPT 论文粗读</title><link href="/2024/12/14/StructGPT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="StructGPT 论文粗读" /><published>2024-12-14T00:00:00+08:00</published><updated>2024-12-14T00:00:00+08:00</updated><id>/2024/12/14/StructGPT%20%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/14/StructGPT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="structgpt论文粗读">&lt;StructGPT&gt;论文粗读</h1>
-
-<hr />
-
-<h2 id="-meta-data"><span style="color: rgb(27, 94, 32)"><span style="background-color: rgb(241, 248, 233)">💡 Meta Data</span></span></h2>
-
-<p>| <span style="background-color: rgb(219, 238, 221)">Title</span>    | <span style="background-color: rgb(219, 238, 221)">StructGPT: A General Framework for Large Language Model to Reason over Structured Data</span>         |
-| —————————————————————— | ——————————————————————————————————————————————————– |
-| <span style="background-color: rgb(243, 250, 244)">Journal</span>  | <span style="background-color: rgb(243, 250, 244)"> </span><em><span style="background-color: rgb(243, 250, 244)">(10.18653/v1/2023.emnlp-main.574)</span></em> |
-| <span style="background-color: rgb(219, 238, 221)">Authors</span>  | <span style="background-color: rgb(219, 238, 221)">Jiang Jinhao,Zhou Kun,Dong Zican,Ye Keming,Zhao Xin,Wen Ji-Rong</span>                                |
-| <span style="background-color: rgb(243, 250, 244)">Pub.date</span> | <span style="background-color: rgb(243, 250, 244)">2023</span>                                                                                           |
-<!---more--></p>
-<h2 id="-研究背景--基础--目的-motivation"><span style="color: rgb(230, 81, 0)"><span style="background-color: rgb(255, 248, 225)">📜 研究背景 &#x26; 基础 &#x26; 目的 (Motivation)</span></span></h2>
-
-<hr />
-
-<ul>
-  <li>
-    <p><strong>目的</strong>：以统一的方式提升大型语言模型 (LLMs) 在结构化数据上的推理能力</p>
-  </li>
-  <li>
-    <p><strong>motivation</strong>：当前LLM在引入外部知识的时候，通常使用有结构的数据库，而数据库存放的数据通常是结构的，而LLM无法完全理解</p>
-
-    <ul>
-      <li>
-        <p>直接解决方法：直接线性化（直接拼接成一长串句子）</p>
-
-        <ul>
-          <li>缺点：但是数据量很大的时候，不可能全部都直接假如到prompt中。</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ul>
-
-<h2 id="-研究方法"><span style="color: rgb(21, 101, 192)"><span style="background-color: rgb(225, 245, 254)">🔬 研究方法</span></span></h2>
-
-<hr />
-
-<h3 id="问题描述">问题描述</h3>
-
-<p>使用LLM解决基于结构化数据的复杂推理任务</p>
-
-<p><strong>输入：</strong> 自然语言问题、结构化数据（知识图谱、表格、数据库）</p>
-
-<p><strong>输出：</strong> 结果（自然语言或结构化表达式）</p>
-
-<h3 id="解决思路">解决思路</h3>
-
-<ul>
-  <li>
-    <p>引入专门的APi操作结构化的数据记录</p>
-
-    <ul>
-      <li>如何为特定任务设计合适的接口</li>
-      <li>如何利用这些接口让LLMs进行推理</li>
-    </ul>
-  </li>
-</ul>
-
-<p>提出了 Iterative Reading and Reasoning 框架解决结构化数据的问答任务——Struct GPT</p>
-
-<h3 id="iterative-reading-and-reasoning-框架">Iterative Reading and Reasoning 框架</h3>
-
-<ul>
-  <li>reading 读取：构建了专门的机构从结构化数据收集相关证据</li>
-  <li>reasoning 推理：让LLM专注于收集到的信息的推理任务</li>
-</ul>
-
-<p>具体过程：invoking-&gt; linearzation -&gt; generation</p>
-
-<h4 id="struct-api定义">struct API定义</h4>
-
-<blockquote>
-  <p>因为用LLM来结构化数据不好，所以作者自己设计了API而不是使用LLM</p>
-</blockquote>
-
-<ol>
-  <li>
-    <p>知识图谱：</p>
-
-    <ul>
-      <li>Extraction_Neighbor_Relations(e)</li>
-      <li>Extract_Triples(e,{r})</li>
-    </ul>
-  </li>
-  <li>
-    <p>表格：</p>
-
-    <ul>
-      <li>Extract_Columns(T,{c})</li>
-      <li>……</li>
-    </ul>
-  </li>
-  <li>
-    <p>数据库</p>
-
-    <ul>
-      <li>Extract_Table\&amp;Column_Name (D)</li>
-      <li>……</li>
-    </ul>
-  </li>
-</ol>
-
-<h4 id="invoking">Invoking</h4>
-
-<p>调用接口从结构化数据中提取相关信息，送到LLM中</p>
-
-<h4 id="information-linearization">Information Linearization</h4>
-
-<p>根据提取的信息，将其转换为可被大型语言模型理解的文本句子</p>
-
-<p>每个结构定义一种线性化规则</p>
-
-<p>来自知识图谱的信息:将其连接成一个长句子，并用特定的分隔符和边界符号标记。</p>
-
-<p>对于表格：</p>
-
-<p>例如“（第1行，年份，1896）”和“（第1行，城市，雅典）”。然后，对于每一行，我们将行索引提取到句首，并在三元组中省略行索引，以组成简化的句子，例如“第1行：（年份，1896），（城市，雅典）”。对于多行数据，我们通过特殊的分隔符将它们连接成一个长句子。</p>
-
-<h4 id="llm-for-generation">LLM for Generation</h4>
-
-<p>有两种prompt：</p>
-
-<ul>
-  <li>筛选数据：从线性的数据中根据问题筛选有用的数据</li>
-  <li>给出答案：生成最终答案（可以是自然语言也可以是形式化语言（SQL））</li>
-</ul>
-
-<h4 id="举例解释流程">举例解释流程</h4>
-
-<p>以知识图谱为例：</p>
-
-<ol>
-  <li>根据问题 query 中提到的实体 搜索调用接口Extract_Neighbor_Relation、Extract_Triples</li>
-  <li>然后线性化</li>
-  <li>利用LLM根据问题选择有用的关系</li>
-  <li>调用Extract_Triples收集头实体 eT 和 {r} 中关系的相关三元组</li>
-  <li>然后线性化此信息</li>
-  <li>LLM应评估当前信息是否足以回答问题，然后，LLM将根据评估结果采取相应操作（停止或迭代）</li>
-  <li>使用大型语言模型选择最相关的三元组，其尾实体将被视为最终答案</li>
-</ol>
-
-<h2 id="-结论"><span style="color: rgb(74, 20, 140)"><span style="background-color: rgb(245, 245, 245)">🚩 结论</span></span></h2>
-
-<hr />
-
-<p>在8个数据集上的实验结果表明，我们的方法可以有效提升LLMs在零样本和少样本设置下对结构化数据的推理性能，甚至可以与具有竞争力的全数据监督微调方法相媲美。</p>
-
-<p>在KGQA、TableQA和text-to-SQL任务中，与在零样本设置下直接使用ChatGPT相比，我们的方法在WebQSP上实现了11.4%的Hits\@1提升，在TabFact上实现了4.2%的准确率提升，在Spider上实现了4.7%的执行准确率提升。</p>
-
-<p><img src="/assets/posts_assets/42LCZJPX%202.png" alt="" /></p>
-
-<p><img src="/assets/posts_assets/KI6GJZ8H.png" alt="" /></p>
-
-<p><img src="/assets/posts_assets/Y3L54F4W.png" alt="" /></p>
-
-<p>错误：</p>
-
-<ul>
-  <li>选择错误：相关信息不是LLM选的</li>
-  <li>推理错误：有相关信息但是LLM推理错误</li>
-  <li>生成答案格式错误：无法被结果解析识别（数据集不同很难控制生成对应的格式）</li>
-  <li>幻觉问题</li>
-</ul>
-
-<h2 id="-感想--疑问"><span style="color: rgb(0, 96, 100)"><span style="background-color: rgb(224, 247, 250)">📌 感想 &#x26; 疑问</span></span></h2>
-
-<hr />
-
-<ul>
-  <li>是什么情况下few-shot比zero-shot更差的？</li>
-  <li>这种固定的pipeline可能无法让LLM选择自己要的数据</li>
-  <li>这种自己定义数据的线性化，是不是太死板了，他说用LLM结构化不太好，但是后面有人做了，是可以的。</li>
-  <li>总体来说并不算是真正的工具学习，因为不是 LLM 自主调用的，而是固定的步骤。</li>
-</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;StructGPT&gt;论文粗读 💡 Meta Data Title StructGPT: A General Framework for Large Language Model to Reason over Structured Data Journal  (10.18653/v1/2023.emnlp-main.574) Authors Jiang Jinhao,Zhou Kun,Dong Zican,Ye Keming,Zhao Xin,Wen Ji-Rong Pub.date 2023]]></summary></entry><entry><title type="html">ChatCoT 论文粗读</title><link href="/2024/12/14/ChatCoT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="ChatCoT 论文粗读" /><published>2024-12-14T00:00:00+08:00</published><updated>2024-12-14T00:00:00+08:00</updated><id>/2024/12/14/ChatCoT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2024/12/14/ChatCoT-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="chatcot论文粗读">&lt;ChatCoT&gt;论文粗读</h1>
-
-<h2 id="-meta-data"><span style="color: rgb(27, 94, 32)"><span style="background-color: rgb(241, 248, 233)">💡 Meta Data</span></span></h2>
-
-<p>| <span style="background-color: rgb(219, 238, 221)">Title</span>    | <span style="background-color: rgb(219, 238, 221)">ChatCoT: Tool-Augmented Chain-of-Thought Reasoning on Chat-based Large Language Models</span>             |
-| —————————————————————— | ———————————————————————————————————————————————————— |
-| <span style="background-color: rgb(243, 250, 244)">Journal</span>  | <span style="background-color: rgb(243, 250, 244)"> </span><em><span style="background-color: rgb(243, 250, 244)">(10.18653/v1/2023.findings-emnlp.985)</span></em> |
-| <span style="background-color: rgb(219, 238, 221)">Authors</span>  | <span style="background-color: rgb(219, 238, 221)">Chen Zhipeng,Zhou Kun,Zhang Beichen,Gong Zheng,Zhao Xin,Wen Ji-Rong</span>                                |
-| <span style="background-color: rgb(243, 250, 244)">Pub.date</span> | <span style="background-color: rgb(243, 250, 244)">2023</span>                                                                                               |
-<!---more--></p>
-<h2 id="-研究背景--基础--目的-motivation"><span style="color: rgb(230, 81, 0)"><span style="background-color: rgb(255, 248, 225)">📜 研究背景 &#x26; 基础 &#x26; 目的 (Motivation)</span></span></h2>
-
-<hr />
-
-<p>现有的问题：</p>
-
-<p>CoT的生成过程是一次性的，在中间步骤中使用工具将需要对其进行打断，从而损害生成过程的连续性</p>
-
-<p>工具的调用会打断CoT的进程</p>
-
-<ul>
-  <li>
-    <p>现有的解决方法：</p>
-
-    <ul>
-      <li>
-        <p>依赖LLM预先安排工具使用计划以供后序执行</p>
-
-        <ul>
-          <li>缺点：生成计划后无法与工具交互，及时看到明显的错误也无法纠正，存在误差累积</li>
-        </ul>
-      </li>
-      <li>
-        <p>设计针对特定任务的固定操作</p>
-
-        <ul>
-          <li>缺点：必须频繁的在LLM推理和执行行动之间切换，损害了CoT之间的连贯性（就比如CoT下一步必须是调工具）</li>
-        </ul>
-      </li>
-    </ul>
-  </li>
-</ul>
-
-<p>作者要寻找一种更统一的方法整合CoT和tool</p>
-
-<h2 id="-研究方法"><span style="color: rgb(21, 101, 192)"><span style="background-color: rgb(225, 245, 254)">🔬 研究方法</span></span></h2>
-
-<hr />
-
-<h3 id="解决思路">解决思路</h3>
-
-<ul>
-  <li>
-    <p>将LLM的工具的操作视为LLM与工具之间的交互。</p>
-  </li>
-  <li>
-    <p>将LLM和工具之间的交互过程建模为多轮对话，利用LLM出色的对话能力来操作工具</p>
-
-    <ul>
-      <li>在每一轮中，LLM可以在需要时自由地与工具交互，否则自行进行推理</li>
-      <li>对话持续进行直到LLM得出最终答案。</li>
-    </ul>
-  </li>
-  <li>
-    <p>针对问题：在此过程中，由于基于对话的LLM可以很好地理解多轮上下文，它们可以在整个对话中遵循思维链，并自然地相应地调用工具，从而保持推理过程的连续性。</p>
-  </li>
-</ul>
-
-<p>所以作者提出了ChatCoT，一种用于基于聊天的LLM的工具增强型思维推理策略。</p>
-
-<h3 id="初始设定">初始设定</h3>
-
-<h4 id="任务定义">任务定义</h4>
-
-<p>专注于提升LLM在复杂任务上的推理能力（解决数学竞赛问题）</p>
-
-<p>任务描述：</p>
-
-<ul>
-  <li>问题陈述：复杂问题的背景和描述</li>
-  <li>解答文本：获得答案单独详细解决过程</li>
-  <li>答案</li>
-</ul>
-
-<p>任务目的：给定问题陈述最终生成准确答案</p>
-
-<h4 id="工具集">工具集</h4>
-
-<ul>
-  <li>
-    <p>计算器：给定数据表达式可以化简</p>
-
-    <ul>
-      <li>实现：用SymPy python库</li>
-    </ul>
-  </li>
-  <li>
-    <p>方程求解器：给定方程组和未知变量，可以求解</p>
-
-    <ul>
-      <li>实现：用SymPy python库</li>
-    </ul>
-  </li>
-  <li>
-    <p>检索器：给查询提取相关信息</p>
-
-    <ul>
-      <li>用SimCSE</li>
-    </ul>
-  </li>
-</ul>
-
-<p><img src="/assets/posts_assets/MSM9TUAY.png" alt="" /></p>
-
-<h3 id="具体方法">具体方法</h3>
-
-<blockquote>
-  <p>工具学习的训练方法：In-context learning</p>
-</blockquote>
-
-<p>通过agent（预定义的规则）与LLM的对话来实现推理和工具调用</p>
-
-<p>整体分两个阶段：</p>
-
-<ul>
-  <li>
-    <p>给LLM输入关于工具、任务和推理格式的知识来初始化对话的早期轮次(对话形式）</p>
-  </li>
-  <li>
-    <p>迭代一个专门设计的<strong>工具增强型推理</strong>步骤(对话），直到获得答案</p>
-
-    <ul>
-      <li>在每次迭代中，基于当前的结果，我们首先利用大型语言模型进行推理，然后通过大型语言模型选择合适的工具，最后执行所选工具以获得当前步骤的中间结果。</li>
-      <li>推理：LLM根据示例可以将推理分解为多轮对话，而无需专门的提示或指令。直到需要工具功能才停止</li>
-      <li>工具选择：通过prompt提示让LLM选择（问LLM用什么工具如果回复不使用工具就继续推理）</li>
-      <li>工具执行：给定选定的工具和参数，然后执行，可能结果无法让LLM满意，我们也可以增加几轮反馈，让LLM判断结果是否有用，然后重新使用该工具获取新结果</li>
-    </ul>
-  </li>
-</ul>
-
-<h2 id="-结论"><span style="color: rgb(74, 20, 140)"><span style="background-color: rgb(245, 245, 245)">🚩 结论</span></span></h2>
-
-<hr />
-
-<p>在两个复杂的推理基准数据集上进行了实验，即MATH 和HotpotQA 。</p>
-
-<p>ChatCoT在MATH上取得了非常有希望的性能，与SOTA基线方法相比，平均性能相对提高了7.9%。</p>
-
-<p><img src="/assets/posts_assets/J258MYBV.png" alt="" /></p>
-
-<p><img src="/assets/posts_assets/YV2RNQDC.png" alt="" /></p>
-
-<h2 id="-感想--疑问"><span style="color: rgb(0, 96, 100)"><span style="background-color: rgb(224, 247, 250)">📌 感想 &#x26; 疑问</span></span></h2>
-
-<hr />
-
-<ul>
-  <li>整体的prompt流程具体是什么样子？</li>
-  <li>agent是如何搞的</li>
-  <li>为什么比其他的CoT+Tool好呢？</li>
-  <li>读一下其他CoT+Tool</li>
-</ul>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;ChatCoT&gt;论文粗读 💡 Meta Data Title ChatCoT: Tool-Augmented Chain-of-Thought Reasoning on Chat-based Large Language Models Journal  (10.18653/v1/2023.findings-emnlp.985) Authors Chen Zhipeng,Zhou Kun,Zhang Beichen,Gong Zheng,Zhao Xin,Wen Ji-Rong Pub.date 2023]]></summary></entry></feed>
+<p>*</p>]]></content><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><category term="nlp" /><category term="自然语言处理" /><category term="论文笔记" /><category term="#工具学习" /><summary type="html"><![CDATA[&lt;MultiTool-CoT: GPT-3 Can Use Multiple External Tools with Chain of Thought Prompting&gt; 论文粗读 💡 Meta Data Title MultiTool-CoT: GPT-3 Can Use Multiple External Tools with Chain of Thought Prompting Journal  () Authors Inaba Tatsuro,Kiyomaru Hirokazu,Cheng Fei,Kurohashi Sadao Pub.date 2023]]></summary></entry></feed>
