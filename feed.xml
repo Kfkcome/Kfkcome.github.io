@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2025-01-09T16:13:26+08:00</updated><id>/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" xml:lang="zh-Hans"><generator uri="https://jekyllrb.com/" version="4.3.4">Jekyll</generator><link href="/feed.xml" rel="self" type="application/atom+xml" /><link href="/" rel="alternate" type="text/html" hreflang="zh-Hans" /><updated>2025-02-14T20:33:27+08:00</updated><id>/feed.xml</id><title type="html">Ennis’s Blog</title><subtitle>Willing to be a question, willing to be an answer.
 </subtitle><author><name>Xingjie Gao</name><email>xingjie-gao@outlook.com</email></author><entry><title type="html">Do not think that much for 2+3=? 论文粗读</title><link href="/2025/01/09/Do-not-think-that-much-for-2+3=-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html" rel="alternate" type="text/html" title="Do not think that much for 2+3=? 论文粗读" /><published>2025-01-09T00:00:00+08:00</published><updated>2025-01-09T00:00:00+08:00</updated><id>/2025/01/09/Do-not-think-that-much-for-2+3=---%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB</id><content type="html" xml:base="/2025/01/09/Do-not-think-that-much-for-2+3=-%E8%AE%BA%E6%96%87%E7%B2%97%E8%AF%BB.html"><![CDATA[<h1 id="do-not-think-that-much-for-23-论文粗读">Do not think that much for 2+3=? 论文粗读</h1>
 
 <hr />
@@ -1231,7 +1231,7 @@
     <p>LLM 在各种推理任务上取得了令人瞩目的性能。</p>
   </li>
   <li>
-    <p>外部工具注入推理过程的研究都集中于单个外部攻击解决LLM的单个问题，而没有一起解决不同的问题</p>
+    <p>外部工具注入推理过程的研究都集中于单个外部工具解决LLM的单个问题，而没有一起解决不同的问题</p>
 
     <ul>
       <li>本文解决：多个外部工具、同时解决多个问题</li>

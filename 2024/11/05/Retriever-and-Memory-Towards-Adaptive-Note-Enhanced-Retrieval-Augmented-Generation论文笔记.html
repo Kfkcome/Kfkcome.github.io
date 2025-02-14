@@ -669,9 +669,9 @@
 <h4 id="贡献">贡献</h4>
 
 <ol>
-  <li><strong>模型：</strong>我们探索了LLMs处理复杂QA任务的能力，并首次提出了一种基于新范式（Retrieverand-Memory）的称为Adaptive-Note的方法。大量实验结果表明，Adaptive-Note在五个复杂QA数据集上显著超越现有方法，改进达到了8.8%。</li>
-  <li><strong>策略：</strong>我们引入了一种基于笔记的自适应知识探索策略，通过知识增长的视角加强。因此，Adaptive-Note可以持续收集相关知识并自适应地记忆最优知识，产生高质量答案。</li>
-  <li><strong>设计实现：</strong>我们将Adaptive-Note设计为一种通用且即插即用的方法，可以轻松适应任何现有的LLMs而无需额外训练，而且它可以在仅仅零样本设置下取得出色的性能，而无需使用精心设计的少样本示例。</li>
+  <li><strong>模型：</strong> 我们探索了LLMs处理复杂QA任务的能力，并首次提出了一种基于新范式（Retrieverand-Memory）的称为Adaptive-Note的方法。大量实验结果表明，Adaptive-Note在五个复杂QA数据集上显著超越现有方法，改进达到了8.8%。</li>
+  <li><strong>策略：</strong> 我们引入了一种基于笔记的自适应知识探索策略，通过知识增长的视角加强。因此，Adaptive-Note可以持续收集相关知识并自适应地记忆最优知识，产生高质量答案。</li>
+  <li><strong>设计实现：</strong> 我们将Adaptive-Note设计为一种通用且即插即用的方法，可以轻松适应任何现有的LLMs而无需额外训练，而且它可以在仅仅零样本设置下取得出色的性能，而无需使用精心设计的少样本示例。</li>
 </ol>
 
 <h2 id="相关工作">相关工作</h2>
@@ -924,7 +924,7 @@ N_{t}\to M_{opt}, \mathrm{if} f_{c}(N_{t},M_{opt})=\mathrm{True}\)
 
 \[\alpha=\mathrm{LLM}(prompt_{g}(q,M_{opt}))\]
 
-<p>$prompt_g(·) $代表任务导向生成器的promt模板集合</p>
+<p>$prompt_g(·)$代表任务导向生成器的promt模板集合</p>
 
 <h2 id="实验-1">实验</h2>
 

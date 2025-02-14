@@ -850,11 +850,17 @@ Teleprompter 在 DSPy 编译器中扮演着至关重要的角色，通过提供�
 
 <p>用 teacher moodel 或者 zero-shot 生成一些输出，然后用指标去评估，选一些合格的好的</p>
 
+<p>为后序 few-shot 生成示例</p>
+
+<p>选 19 个示例</p>
+
+<p><img src="assets/posts_assets/Pasted%20image%2020250115192616.png" alt="" /></p>
+
 <h3 id="阶段二参数优化">阶段二：参数优化</h3>
 
 <p>参数优化是确保程序高效运行和达成预期目标的关键步骤。该阶段的核心任务是为每个参数选择最优的候选值，以提升整体系统的性能或降低资源消耗。</p>
 
-<ul>
+<ul class="task-list">
   <li>Few-shot
     <ul>
       <li>随机搜索</li>
@@ -863,16 +869,16 @@ Teleprompter 在 DSPy 编译器中扮演着至关重要的角色，通过提供�
   </li>
   <li>Fine-tuning
     <ul>
-      <li>更新模块的权重</li>
+      <li>更新模块的权重
+生成候选 prompt
+<img src="/assets/posts_assets/Pasted%20image%2020250115192344.png" alt="" />
+        <h3 id="阶段三高阶程序优化">阶段三：高阶程序优化</h3>
+      </li>
     </ul>
   </li>
-</ul>
-
-<h3 id="阶段三高阶程序优化">阶段三：高阶程序优化</h3>
-
-<p>修改程序的 pipeline</p>
-
-<ul class="task-list">
+  <li>
+    <p>将阶段一与阶段二排列组合选出最优的</p>
+  </li>
   <li>方式一：集成
     <ul>
       <li>将引导多个相同程序的副本，然后用一个新的程序替换它，新的程序并行运行所有副本，并将它们的预测通过自定义函数（例如，多数投票）汇总成一个结果</li>
